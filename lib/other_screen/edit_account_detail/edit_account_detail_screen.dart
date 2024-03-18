@@ -13,7 +13,6 @@ import 'bloc/edit_account_detail_bloc.dart';
 import 'bloc/edit_account_detail_state.dart';
 import 'package:provider/provider.dart';
 
-
 class EditAccountDetailScreen extends StatefulWidget {
   const EditAccountDetailScreen({super.key});
 
