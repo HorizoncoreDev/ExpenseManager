@@ -1,10 +1,11 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../utils/theme_notifier.dart';
 import 'bloc/family_account_bloc.dart';
 import 'bloc/family_account_state.dart';
-
 class FamilyAccountScreen extends StatefulWidget {
   const FamilyAccountScreen({super.key});
 
@@ -29,26 +30,26 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
               appBar: AppBar(
                 titleSpacing: 15,
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.black,
+                backgroundColor: Helper.getBackgroundColor(context),
                 title: Row(
                   children: [
                     InkWell(
                       onTap: (){
                         Navigator.pop(context);
                       },
-                        child: Icon(Icons.arrow_back_ios,color: Colors.white,)),
+                        child: Icon(Icons.arrow_back_ios,color: Helper.getTextColor(context),)),
                     Text("Family Karan",
                         style: TextStyle(
                           fontSize: 22,
-                          color: Colors.white,)),
+                          color: Helper.getTextColor(context),)),
                   ],
                 ),
                 actions: [
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 15),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.grey
+                        color: Helper.getCardColor(context)
                     ),
                     child: const Icon(
                       Icons.edit,
@@ -61,7 +62,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
               body: Container(
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 width: double.infinity,
-                color: Colors.black,
+                color: Helper.getBackgroundColor(context),
                 child: Column(
                   children: [
                     10.heightBox,
@@ -69,7 +70,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                       children: [
                         Expanded(
                           child: Text("Currently 2 members",
-                            style: TextStyle(color: Colors.white),),
+                            style: TextStyle(color: Helper.getTextColor(context)),),
                         ),
                         RichText(
                             text: TextSpan(
@@ -91,8 +92,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                     10.heightBox,
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Colors.grey,
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(10))
                       ),
                       child: Column(

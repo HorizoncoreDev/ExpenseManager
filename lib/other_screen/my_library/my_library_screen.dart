@@ -1,4 +1,5 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -29,32 +30,30 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
             child: Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.black87,
+                backgroundColor: Helper.getBackgroundColor(context),
                 title: Row(
                   children: [
                     InkWell(
                         onTap: (){
                           Navigator.pop(context);
                         },
-                        child: Icon(Icons.arrow_back_ios,color: Colors.white,size: 20,)),
+                        child: Icon(Icons.arrow_back_ios,color: Helper.getTextColor(context),size: 20,)),
                     10.widthBox,
                     Text("My Library",
                         style: TextStyle(
                           fontSize: 22,
-                          color: Colors.white,)),
+                          color: Helper.getTextColor(context),)),
 
                   ],
                 ),
               ),
               body: Container(
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 height: double.infinity,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: Column(
                     children: [
-
-
                       20.heightBox,
                       Container(
                           decoration: const BoxDecoration(

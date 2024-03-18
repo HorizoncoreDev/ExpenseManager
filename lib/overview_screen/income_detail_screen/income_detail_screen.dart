@@ -1,7 +1,8 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import '../../utils/theme_notifier.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import 'bloc/income_detail_bloc.dart';
 import 'bloc/income_detail_state.dart';
@@ -16,7 +17,6 @@ class IncomeDetailScreen extends StatefulWidget {
 class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
 
   IncomeDetailBloc incomeDetailBloc = IncomeDetailBloc();
-
   TextEditingController searchController = TextEditingController();
 
   List<GridItem> gridItemList = [
@@ -36,6 +36,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     incomeDetailBloc.context = context;
+
     return BlocConsumer<IncomeDetailBloc, IncomeDetailState>(
       bloc: incomeDetailBloc,
       listener: (context, state) {
@@ -46,7 +47,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
             child: Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.black87,
+                backgroundColor:Helper.getBackgroundColor(context),
                 title: Row(
                   children: [
                     InkWell(
@@ -58,11 +59,11 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                     Text("1/2024",
                         style: TextStyle(
                           fontSize: 22,
-                          color: Colors.white,)),
+                          color: Helper.getTextColor(context),)),
                     Text(" /\u20B9798,136.33",
                         style: TextStyle(
                           fontSize: 18,
-                          color: Colors.white,)),
+                          color: Helper.getTextColor(context),)),
                   ],
                 ),
                 actions: [
@@ -108,7 +109,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 ],
               ),
               body: Container(
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 height: double.infinity,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -285,7 +286,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   _bottomSheetView(IncomeDetailBloc incomeDetailBloc) {
     return Container(
         padding: EdgeInsets.only(bottom: 10),
-        color: Colors.black87,
+        color: Helper.getBackgroundColor(context),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -298,14 +299,14 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                   children: [
                     Text("Clear filter",
                       style: TextStyle(
-                          color: Colors.white,
+                          color: Helper.getTextColor(context),
                           fontSize: 16
                       ),),
                     Expanded(
                       child: Text("Filter",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontWeight: FontWeight.bold,
                             fontSize: 16
                         ),),

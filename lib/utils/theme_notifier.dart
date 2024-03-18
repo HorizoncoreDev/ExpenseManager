@@ -21,7 +21,9 @@ class ThemeNotifier with ChangeNotifier {
     brightness: Brightness.dark,
     backgroundColor: Colors.black87,
     hintColor: Colors.white,
+    cardColor: const Color(0xff30302d),
     dividerColor: Colors.black26,
+
   );
 
   final lightTheme = ThemeData(
@@ -30,8 +32,10 @@ class ThemeNotifier with ChangeNotifier {
     brightness: Brightness.light,
     backgroundColor: Colors.white60,
     hintColor: Colors.black,
+    cardColor: const Color(0xffe4e5e9),
     dividerColor: Colors.white54,
   );
+
 
   ThemeNotifier() {
     StorageManager.readData('themeMode').then((value) {

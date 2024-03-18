@@ -1,10 +1,13 @@
 import 'package:expense_manager/intro_screen/bloc/bloc.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../utils/global.dart';
+import '../utils/theme_notifier.dart';
 import 'bloc/intro_bloc.dart';
 import 'bloc/intro_state.dart';
+
 
 
 class IntroScreen extends StatefulWidget {
@@ -17,7 +20,6 @@ class IntroScreen extends StatefulWidget {
 class _IntroScreenState extends State<IntroScreen> {
 
   IntroBloc introBloc = IntroBloc();
-
   final List<String> texts1 = [
     'Automatic\nbackup',
     'Hidden\nassets,\nhidden\nspending',
@@ -85,7 +87,7 @@ class _IntroScreenState extends State<IntroScreen> {
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -151,17 +153,17 @@ class _IntroScreenState extends State<IntroScreen> {
                       ),
 
                       80.heightBox,
-                      const Text("Smart Expensee",
+                      Text("Smart Expense",
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 24,
                             fontWeight: FontWeight.bold
                         ),),
 
                       10.heightBox,
-                      const Text("Be a smart spender",
+                      Text("Be a smart spender",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Helper.getTextColor(context),
                           fontSize: 16,
                         ),),
 
@@ -170,8 +172,8 @@ class _IntroScreenState extends State<IntroScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 50),
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 15),
-                          decoration: const BoxDecoration(
-                              color: Colors.white10,
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
                               borderRadius: BorderRadius.all(Radius.circular(10))
                           ),
                           child:  Row(
@@ -179,10 +181,10 @@ class _IntroScreenState extends State<IntroScreen> {
                             children: [
                               Image.asset(ImageConstanst.icFlag),
                               15.widthBox,
-                              const Expanded(
+                              Expanded(
                                 child: Text("English",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 12
                                   ),),
                               ),

@@ -1,6 +1,8 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../utils/theme_notifier.dart';
 import 'account_detail/account_detail_screen.dart';
 import 'bloc/other_bloc.dart';
 import 'bloc/other_state.dart';
@@ -38,7 +40,7 @@ class _OtherScreenState extends State<OtherScreen> {
           return SafeArea(
             child: Scaffold(
               body: Container(
-                  color: Colors.black87,
+                  color: Helper.getBackgroundColor(context),
                   height: double.infinity,
                   child: SingleChildScrollView(
                     child: Padding(
@@ -51,9 +53,9 @@ class _OtherScreenState extends State<OtherScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const Text("Other",
+                              Text("Other",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold
                                 ),),
@@ -66,9 +68,9 @@ class _OtherScreenState extends State<OtherScreen> {
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(6),
-                                  decoration: const BoxDecoration(
+                                  decoration:  BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.grey
+                                      color: Helper.getCardColor(context)
                                   ),
                                   child: const Text("MB",
                                     style: TextStyle(
@@ -179,18 +181,18 @@ class _OtherScreenState extends State<OtherScreen> {
                       ),*/
 
                           15.heightBox,
-                          const Text("MANAGE",
+                          Text("MANAGE",
                             style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey,
+                                color: Helper.getTextColor(context),
                                 fontWeight: FontWeight.bold
                             ),),
 
                           10.heightBox,
                           Container(
                             padding: const EdgeInsets.all(20),
-                            decoration: const BoxDecoration(
-                                color: Colors.white10,
+                            decoration: BoxDecoration(
+                                color: Helper.getCardColor(context),
                                 borderRadius: BorderRadius.all(Radius.circular(10))
                             ),
                             child:
@@ -299,18 +301,18 @@ class _OtherScreenState extends State<OtherScreen> {
                           ),
 
                           15.heightBox,
-                          const Text("APP",
+                          Text("APP",
                             style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey,
+                                color: Helper.getTextColor(context),
                                 fontWeight: FontWeight.bold
                             ),),
 
                           10.heightBox,
                           Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: const BoxDecoration(
-                                color: Colors.white10,
+                            decoration: BoxDecoration(
+                                color: Helper.getCardColor(context),
                                 borderRadius: BorderRadius.all(Radius.circular(10))
                             ),
                             child: Column(

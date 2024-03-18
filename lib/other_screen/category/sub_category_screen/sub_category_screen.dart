@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../db_models/income_sub_category.dart';
 import '../../../db_models/spending_sub_category.dart';
 import '../../../db_service/database_helper.dart';
+import '../../../utils/helper.dart';
 import '../../../utils/views/custom_text_form_field.dart';
 import 'bloc/sub_category_bloc.dart';
 import 'bloc/sub_category_state.dart';
@@ -111,14 +112,15 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
             child: Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.black87,
+                backgroundColor: Helper.getBackgroundColor(context),
                 title: Row(
                   children: [
                     InkWell(
                         onTap: (){
                           Navigator.pop(context);
                         },
-                        child: Icon(Icons.arrow_back_ios,color: Colors.white,size: 20,)),
+                        child: Icon(Icons.arrow_back_ios,
+                          color: Helper.getTextColor(context),size: 20,)),
                     RichText(
                         text: TextSpan(
                             text: widget.categoryName,
@@ -151,9 +153,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
+                          color: Helper.getCardColor(context)
                       ),
                       child: const Icon(
                         Icons.add,
@@ -167,19 +169,23 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
               ),
               body: widget.currPage == 1
                   ?Container(
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 height: double.infinity,
                 child: isLoading
                     ? Center(child: CircularProgressIndicator())
                     :spendingSubCategories.isEmpty
-                    ? Center(child: Text('No sub categories found.'))
+                    ? Center(child: Text('No sub categories found.',
+                  style: TextStyle(
+                    color: Helper.getTextColor(context),
+                  ),
+                ))
                     :SingleChildScrollView(
                   child:  Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Colors.white10,
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(10))
                       ),
                       child: ListView.separated(
@@ -216,19 +222,23 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                 ),
               )
               :Container(
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 height: double.infinity,
                 child: isLoading
                     ? Center(child: CircularProgressIndicator())
                     :incomeSubCategories.isEmpty
-                    ? Center(child: Text('No sub categories found.'))
+                    ? Center(child: Text('No sub categories found.',
+                  style: TextStyle(
+                    color: Helper.getTextColor(context)
+                  ),
+                ))
                     :SingleChildScrollView(
                   child:  Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Colors.white10,
+                      decoration:  BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(10))
                       ),
                       child: ListView.separated(
@@ -294,8 +304,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 10.heightBox,
-
-                Text("Name",
+                const Text("Name",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 14
@@ -306,7 +315,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                     borderRadius: const BorderRadius.all(
                         Radius.circular(8)),
                     keyboardType: TextInputType.text,
-                    fillColor: Colors.white10,
+                    fillColor: Helper.getCardColor(context),
                     borderColor: Colors.transparent,
                     padding: 10 ,
                     horizontalPadding: 5,
@@ -372,7 +381,6 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                     ),
                   ],
                 ),
-
                 10.heightBox,
                 Row(
                   children: [

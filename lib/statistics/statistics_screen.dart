@@ -1,10 +1,10 @@
 import 'package:expense_manager/statistics/search/search_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-
 import '../other_screen/other_screen.dart';
 import 'bloc/statistics_bloc.dart';
 import 'bloc/statistics_state.dart';
@@ -19,7 +19,6 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen> {
 
   StatisticsBloc statisticsBloc = StatisticsBloc();
-
   List<Color> gradientColors = [
     Colors.cyan,
     Colors.blue,
@@ -54,11 +53,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           return Scaffold(
               appBar: AppBar(
                 titleSpacing: 15,
-                backgroundColor: Colors.black87,
-                title: const Text("Statistics",
+                backgroundColor: Helper.getBackgroundColor(context),
+                title: Text("Statistics",
                     style: TextStyle(
                       fontSize: 22,
-                      color: Colors.white,)),
+                      color: Helper.getTextColor(context),)),
                 actions: [
                   InkWell(
                     onTap: (){
@@ -69,9 +68,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
+                          color: Helper.getCardColor(context)
                       ),
                       child: const Icon(
                         Icons.search,
@@ -108,9 +107,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
+                          color: Helper.getCardColor(context)
                       ),
                       child: const Icon(
                         Icons.filter_alt_rounded,
@@ -131,9 +130,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white10
+                            color: Helper.getCardColor(context)
                         ),
                         child:const Icon(Icons.family_restroom_sharp,color: Colors.blue,),
                       ),
@@ -144,7 +143,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 child: Column(
                   children: [
                     20.heightBox,
@@ -153,7 +152,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            color: Colors.white10,
+                            color: Helper.getCardColor(context),
                           ),
                           child: Row(
                             children: [
@@ -173,7 +172,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                                 bottomLeft: Radius.circular(30)),
                                             color: currPage == 1
                                                 ? Colors.blue
-                                                : Colors.white10),
+                                                : Helper.getCardColor(context)),
                                         child: const Align(
                                           alignment: Alignment.center,
                                           child: Text(
@@ -201,7 +200,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                                 bottomRight: Radius.circular(30)),
                                             color: currPage == 2
                                                 ? Colors.blue
-                                                : Colors.white10),
+                                                : Helper.getCardColor(context)),
                                         child: const Align(
                                           alignment: Alignment.center,
                                           child: Text(
@@ -242,9 +241,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: Column(
         children: [
           20.heightBox,
-
           Container(
-            color: Colors.white10,
+            color: Helper.getCardColor(context),
             child: AspectRatio(
               aspectRatio: 1.70,
               child: Padding(
@@ -262,15 +260,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
 
           15.heightBox,
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 30),
             child: Row(
               children: [
-                Icon(Icons.arrow_back_ios,color: Colors.white,size: 14,),
+                Icon(Icons.arrow_back_ios,color: Helper.getTextColor(context),size: 14,),
                 Expanded(
                   child: Text("OCTOBER/2023",
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Helper.getTextColor(context),
                     fontSize: 15
                   ),),
                 ),
@@ -287,8 +285,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: const BoxDecoration(
-                  color: Colors.white10,
+              decoration: BoxDecoration(
+                  color: Helper.getCardColor(context),
                   borderRadius: BorderRadius.all(Radius.circular(10))
               ),
               child: Column(
@@ -308,7 +306,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Colors.black
-
                             ),
                             child: const Icon(
                               Icons.search,
@@ -468,7 +465,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           20.heightBox,
 
           Container(
-            color: Colors.white10,
+            color: Helper.getCardColor(context),
             child: AspectRatio(
               aspectRatio: 1.70,
               child: Padding(
@@ -486,15 +483,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
 
           15.heightBox,
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 30),
             child: Row(
               children: [
-                Icon(Icons.arrow_back_ios,color: Colors.white,size: 14,),
+                Icon(Icons.arrow_back_ios,color: Helper.getTextColor(context),size: 14,),
                 Expanded(
                   child: Text("OCTOBER/2023",
                     style: TextStyle(
-                        color: Colors.grey,
+                        color: Helper.getCardColor(context),
                         fontSize: 15
                     ),),
                 ),
@@ -511,8 +508,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: const BoxDecoration(
-                  color: Colors.white10,
+              decoration: BoxDecoration(
+                  color: Helper.getCardColor(context),
                   borderRadius: BorderRadius.all(Radius.circular(10))
               ),
               child: Column(
@@ -590,7 +587,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   _bottomSheetView(StatisticsBloc statisticsBloc) {
       return Container(
             padding: EdgeInsets.only(bottom: 10),
-            color: Colors.black87,
+            color: Helper.getBackgroundColor(context),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -603,14 +600,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         children: [
                           Text("Clear filter",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 16
                           ),),
                           Expanded(
                             child: Text("Filter",
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16
                               ),),
@@ -632,7 +629,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     Divider(
                       height: 1,
                       thickness: 0.3,
-                      color: Colors.grey,
+                      color: Helper.getTextColor(context),
                     ),
 
                     Padding(
@@ -676,8 +673,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("January",
@@ -693,8 +690,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("February",
@@ -710,8 +707,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("March",
@@ -734,8 +731,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("April",
@@ -751,8 +748,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("May",
@@ -768,8 +765,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("June",
@@ -793,8 +790,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("July",
@@ -810,8 +807,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("August",
@@ -827,8 +824,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("September",
@@ -852,8 +849,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("October",
@@ -869,8 +866,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("November",
@@ -886,8 +883,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("December",
@@ -928,8 +925,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           return Container(
                             padding: const EdgeInsets.symmetric(vertical: 5),
                             alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.white10,
+                            decoration:  BoxDecoration(
+                                color: Helper.getCardColor(context),
                                 borderRadius: BorderRadius.all(Radius.circular(5))
                             ),
                             child: Text(item.text,

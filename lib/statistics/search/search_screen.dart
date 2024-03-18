@@ -1,9 +1,12 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import 'bloc/search_bloc.dart';
 import 'bloc/search_state.dart';
+
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -15,7 +18,6 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
 
   SearchBloc searchBloc = SearchBloc();
-
   List<GridItem> gridItemList = [
     GridItem(text: 'Dine out'),
     GridItem(text: 'Living'),
@@ -43,18 +45,18 @@ class _SearchScreenState extends State<SearchScreen> {
           return Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.black87,
+                backgroundColor: Helper.getBackgroundColor(context),
                 title: Row(
                   children: [
                     InkWell(
                         onTap: (){
                           Navigator.pop(context);
                         },
-                        child: const Icon(Icons.arrow_back_ios,color: Colors.white,size: 20,)),
-                    const Text("Search",
+                        child:  Icon(Icons.arrow_back_ios,color: Helper.getTextColor(context),size: 20,)),
+                     Text("Search",
                         style: TextStyle(
                           fontSize: 22,
-                          color: Colors.white,)),
+                          color: Helper.getTextColor(context),)),
                   ],
                 ),
                 actions: [
@@ -89,9 +91,9 @@ class _SearchScreenState extends State<SearchScreen> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
+                          color: Helper.getCardColor(context)
                       ),
                       child: const Icon(
                         Icons.filter_alt_rounded,
@@ -105,9 +107,9 @@ class _SearchScreenState extends State<SearchScreen> {
                     padding: const EdgeInsets.only(right: 15),
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
+                          color: Helper.getCardColor(context)
                       ),
                       child:const Icon(Icons.family_restroom_sharp,color: Colors.blue,),
                     ),
@@ -117,7 +119,7 @@ class _SearchScreenState extends State<SearchScreen> {
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,7 +131,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             Radius.circular(10)),
                         keyboardType: TextInputType.text,
                         hintText: "Search by category, note",
-                        fillColor: Colors.white10,
+                        fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 10 ,
                         horizontalPadding: 5,
@@ -146,7 +148,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         child: Text("No data matching.",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              color: Colors.grey,
+                              color: Helper.getTextColor(context),
                               fontSize: 18
                           ),),
                       ),
@@ -252,7 +254,7 @@ class _SearchScreenState extends State<SearchScreen> {
   _bottomSheetView(SearchBloc searchBloc) {
           return Container(
               padding: EdgeInsets.only(bottom: 10),
-              color: Colors.black87,
+              color: Helper.getBackgroundColor(context),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -265,14 +267,14 @@ class _SearchScreenState extends State<SearchScreen> {
                         children: [
                           Text("Clear filter",
                             style: TextStyle(
-                                color: Colors.white,
+                                color: Helper.getTextColor(context),
                                 fontSize: 16
                             ),),
                           Expanded(
                             child: Text("Filter",
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16
                               ),),
@@ -294,7 +296,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     Divider(
                       height: 1,
                       thickness: 0.3,
-                      color: Colors.grey,
+                      color: Helper.getTextColor(context),
                     ),
 
                     Padding(
@@ -338,8 +340,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("January",
@@ -355,8 +357,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("February",
@@ -372,8 +374,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("March",
@@ -396,8 +398,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("April",
@@ -413,8 +415,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("May",
@@ -430,8 +432,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("June",
@@ -455,8 +457,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("July",
@@ -472,8 +474,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("August",
@@ -489,8 +491,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("September",
@@ -514,8 +516,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("October",
@@ -531,8 +533,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("November",
@@ -548,8 +550,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text("December",
@@ -590,8 +592,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           return Container(
                             padding: const EdgeInsets.symmetric(vertical: 5),
                             alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.white10,
+                            decoration:  BoxDecoration(
+                                color: Helper.getCardColor(context),
                                 borderRadius: BorderRadius.all(Radius.circular(5))
                             ),
                             child: Text(item.text,

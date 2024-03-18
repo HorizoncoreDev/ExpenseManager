@@ -1,6 +1,7 @@
 
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -11,7 +12,6 @@ import '../../utils/theme_notifier.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import 'bloc/edit_account_detail_bloc.dart';
 import 'bloc/edit_account_detail_state.dart';
-import 'package:provider/provider.dart';
 
 
 class EditAccountDetailScreen extends StatefulWidget {
@@ -107,7 +107,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
     editAccountDetailBloc.context = context;
     return BlocConsumer<EditAccountDetailBloc, EditAccountDetailState>(
       bloc: editAccountDetailBloc,
@@ -120,7 +119,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                 centerTitle: true,
                 leadingWidth: 80,
                 automaticallyImplyLeading: false,
-                backgroundColor: themeNotifier.getTheme().backgroundColor,
+                backgroundColor: Helper.getBackgroundColor(context),
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 15),
                   child: Row(
@@ -129,27 +128,27 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         onTap: (){
                           Navigator.pop(context);
                         },
-                        child: const Text("Cancel",
+                        child: Text("Cancel",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 20,
-                              color: Colors.white,)),
+                              color: Helper.getTextColor(context),)),
                       ),
                     ],
                   ),
                 ),
-                title: const Text("Account details",
+                title: Text("Account details",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,)),
+                      color: Helper.getTextColor(context),)),
               ),
               body: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 width: double.infinity,
                 height: double.infinity,
-                color: themeNotifier.getTheme().backgroundColor,
+                color: Helper.getBackgroundColor(context),
                 child: isLoading
                     ? Center(child: CircularProgressIndicator())
                 :SingleChildScrollView(
@@ -193,8 +192,8 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                           hintColor: Colors.white,
                           textStyle: const TextStyle(fontSize: 16),
                           borderRadius: BorderRadius.circular(10),
-                          borderColor: Colors.white,
-                          fillColor: Colors.white24,
+                          borderColor: Helper.getTextColor(context),
+                          fillColor: Helper.getCardColor(context),
                           prefixIcon: const Icon(Icons.person_2_outlined,color: Colors.blue,),
                           suffixIcon: firstNameController.text.isNotEmpty
                         ?InkWell(
@@ -225,8 +224,8 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         hintColor: Colors.white,
                         textStyle: const TextStyle(fontSize: 16),
                         borderRadius: BorderRadius.circular(10),
-                        borderColor: Colors.white,
-                        fillColor: Colors.white24,
+                        borderColor: Helper.getTextColor(context),
+                        fillColor: Helper.getCardColor(context),
                         prefixIcon: const Icon(Icons.person_2_outlined,color: Colors.blue,),
                         suffixIcon: lastNameController.text.isNotEmpty
                             ?InkWell(
@@ -258,8 +257,8 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         hintColor: Colors.white,
                         textStyle: const TextStyle(fontSize: 16),
                         borderRadius: BorderRadius.circular(10),
-                        borderColor: Colors.white,
-                        fillColor: Colors.white24,
+                        borderColor: Helper.getTextColor(context),
+                        fillColor: Helper.getCardColor(context),
                         prefixIcon: const Icon(Icons.email_outlined,color: Colors.blue,),
                         suffixIcon: emailIsValid
                         ?const Icon(Icons.verified,color: Colors.green,)
@@ -311,10 +310,10 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                              color: Colors.white24,
+                              color: Helper.getCardColor(context),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: Colors.white,
+                                color: Helper.getTextColor(context),
                               )),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 12),
@@ -338,9 +337,9 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                       Container(
                           width: double.maxFinite,
                           decoration: BoxDecoration(
-                              color: Colors.white10,
+                              color: Helper.getCardColor(context),
                               border: Border.all(
-                                  color: Colors.white),
+                                  color: Helper.getTextColor(context)),
                               borderRadius: BorderRadius.circular(10)),
                           child: Row(
                             children: [
@@ -348,14 +347,14 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton2(
                                       dropdownElevation: 2,
-                                      buttonDecoration: const BoxDecoration(
-                                          color: Colors.white24),
+                                      buttonDecoration: BoxDecoration(
+                                          color: Helper.getCardColor(context)),
                                       dropdownDecoration: BoxDecoration(
                                           borderRadius:
                                           BorderRadius.circular(10),
-                                          color: Colors.white24),
+                                          color: Helper.getCardColor(context)),
                                       customButton: Container(
-                                          color: Colors.white24,
+                                          color: Helper.getCardColor(context),
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 12, horizontal: 10),
                                           child: Row(
@@ -423,8 +422,8 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 15),
                           alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                              color: Colors.white10,
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
                               borderRadius: BorderRadius.all(Radius.circular(10))
                           ),
                           child:  const Text("Update",

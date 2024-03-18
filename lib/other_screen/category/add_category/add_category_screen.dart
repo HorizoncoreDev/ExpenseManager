@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../../db_models/category_model.dart';
 import '../../../db_models/income_category.dart';
 import '../../../db_service/database_helper.dart';
+import '../../../utils/helper.dart';
 import '../../../utils/views/custom_text_form_field.dart';
 import 'bloc/add_category_bloc.dart';
 import 'bloc/add_category_state.dart';
@@ -81,7 +82,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
           return Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.black87,
+                backgroundColor: Helper.getBackgroundColor(context),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -92,14 +93,14 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                       child: Text("Back",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 16
                         ),),
                     ),
-                    const Text("Add category",
+                    Text("Add category",
                         style: TextStyle(
                             fontSize: 22,
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontWeight: FontWeight.bold)),
                     InkWell(
                       onTap: (){
@@ -111,7 +112,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                       },
                       child: Text("Done",
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 16
                         ),),
                     ),
@@ -121,7 +122,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +131,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                       children: [
                         Text("NAME",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 14
                           ),),
                         Container(
@@ -154,7 +155,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         borderRadius: const BorderRadius.all(
                             Radius.circular(8)),
                         keyboardType: TextInputType.text,
-                        fillColor: Colors.white10,
+                        fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 10 ,
                         horizontalPadding: 5,
@@ -165,7 +166,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                     20.heightBox,
                     Text("COLOR",
                       style: TextStyle(
-                          color: Colors.white,
+                          color: Helper.getTextColor(context),
                           fontSize: 14
                       ),),
 
@@ -205,7 +206,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                     20.heightBox,
                     Text("ICON",
                       style: TextStyle(
-                          color: Colors.white,
+                          color: Helper.getTextColor(context),
                           fontSize: 14
                       ),),
 

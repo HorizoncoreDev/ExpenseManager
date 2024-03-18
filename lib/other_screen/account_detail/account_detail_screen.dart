@@ -96,13 +96,13 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                   onTap: () {
                     Navigator.pop(context);
                   },
-                  child: const Icon(Icons.arrow_back_ios,color: Colors.white,size: 18,)),
-              backgroundColor: Colors.black87,
+                  child: Icon(Icons.arrow_back_ios,color: Helper.getTextColor(context),size: 18,)),
+              backgroundColor: Helper.getBackgroundColor(context),
               titleSpacing: 0.0,
-              title: const Text("Account Details",
+              title: Text("Account Details",
                   style: TextStyle(
                       fontSize: 20,
-                      color: Colors.white)),
+                      color: Helper.getTextColor(context))),
               elevation: 0.0,
               actions: [
                 InkWell(
@@ -114,9 +114,9 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                   },
                   child: Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
+                      decoration:  BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
+                          color: Helper.getCardColor(context)
                       ),
                       child: const Icon(Icons.edit,color: Colors.white,)
                   ),
@@ -125,7 +125,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
               ],
             ),
             body: Container(
-              color: Colors.black87,
+              color: Helper.getBackgroundColor(context),
               height: double.infinity,
               padding: const EdgeInsets.all(15),
               child: SingleChildScrollView(
@@ -183,18 +183,18 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       ),
                     ),
                     20.heightBox,
-                    const Text("ACCOUNT",
+                    Text("ACCOUNT",
                       style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
+                          color: Helper.getTextColor(context),
                           fontWeight: FontWeight.bold
                       ),),
 
                     5.heightBox,
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Colors.white10,
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(10))
                       ),
                       child: Column(
@@ -311,18 +311,18 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                     ),
 
                     20.heightBox,
-                    const Text("USER DATA",
+                    Text("USER DATA",
                       style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
+                          color: Helper.getTextColor(context),
                           fontWeight: FontWeight.bold
                       ),),
 
                     5.heightBox,
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Colors.white10,
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(10))
                       ),
                       child: Column(

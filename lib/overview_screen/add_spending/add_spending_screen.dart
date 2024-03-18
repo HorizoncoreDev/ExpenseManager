@@ -1,5 +1,7 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +32,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
 
   TextEditingController amountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-
   int currPage = 1;
 
   String selectedValue = 'Spending';
@@ -150,7 +151,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
           return Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                backgroundColor: const Color(0xff29292d),
+                backgroundColor: Helper.getBackgroundColor(context),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -158,10 +159,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       onTap: (){
                         Navigator.push(context, MaterialPageRoute(builder: (context) => OverviewScreen()));
                       },
-                      child: const Text("Cancel",
+                      child: Text("Cancel",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 16
                         ),),
                     ),
@@ -237,7 +238,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 10),
                 child: SingleChildScrollView(
                   child: Column(
@@ -245,9 +246,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       Row(children: [
                         Container(
                           padding: const EdgeInsets.all(5),
-                          decoration:  const BoxDecoration(
+                          decoration:  BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Color(0xff152029)
+                              color: Helper.getCardColor(context)
                           ),
                           child: const Icon(Icons.currency_exchange,color: Colors.blue,size: 16,),
                         ),
@@ -262,7 +263,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 hintText: "0",
                                 hintFontSize: 20,
                                 hintColor: Colors.blue,
-                                fillColor: Colors.white10,
+                                fillColor: Helper.getCardColor(context),
                                 textAlign: TextAlign.end,
                                 borderColor: Colors.transparent,
                                 textStyle: const TextStyle(color: Colors.blue,fontSize: 20),
@@ -273,11 +274,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 })),
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 14.2,horizontal: 5),
-                          decoration: const BoxDecoration(
-                              color: Colors.white10,
+                          decoration: BoxDecoration(
+                              color:  Helper.getCardColor(context),
                               border: Border(
                                 left: BorderSide(
-                                  color: Colors.white10,
+                                  color:  Helper.getCardColor(context),
                                 ),
                               ),
                               borderRadius: BorderRadius.only(
@@ -292,12 +293,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                       fontSize:16,
                                       color: Colors.blue)),
                               5.widthBox,
-                              const Icon(Icons.arrow_forward_ios_outlined,size: 12,color: Colors.white,)
+                               Icon(Icons.arrow_forward_ios_outlined,size: 12,color: Helper.getTextColor(context),)
                             ],
                           ),
                         ),
                       ]),
-
                       10.heightBox,
                       SizedBox(
                         width: double.infinity,
@@ -311,13 +311,13 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             return Container(
                               padding: const EdgeInsets.all(5),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Color(0xff29292d),
+                              decoration: BoxDecoration(
+                                  color:  Helper.getCardColor(context),
                                   borderRadius: BorderRadius.all(Radius.circular(5))
                               ),
                               child: Text(amount[index],
-                                style: const TextStyle(
-                                    color: Colors.white,
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context),
                                     fontSize: 14
                                 ),),
                             );
@@ -334,9 +334,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       selectedValue == "Spending"
                      ? Row(
                         children: [
-                          const Text("CATEGORY",
+                          Text("CATEGORY",
                             style: TextStyle(
-                                color: Colors.grey,
+                                color: Helper.getTextColor(context),
                                 fontSize: 14
                             ),),
                           10.widthBox,
@@ -345,8 +345,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           Expanded(
                             child: Text(selectedItemList[0].name.toString(),
                               textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                  color: Colors.white,
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
                                   fontSize: 14
                               ),),
                           ),
@@ -359,7 +359,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 selectedItemList.clear();
                               });
                             },
-                              child: const Icon(Icons.highlight_remove,color: Colors.white,size: 18,)),
+                              child: Icon(Icons.highlight_remove,color:  Helper.getTextColor(context),size: 18,)),
                         ],
                       )
                       :Row(
@@ -375,8 +375,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             Expanded(
                               child: Text(selectedIncomeItemList[0].name.toString(),
                                 textAlign: TextAlign.end,
-                                style: const TextStyle(
-                                    color: Colors.white,
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context),
                                     fontSize: 14
                                 ),),
                             ),
@@ -389,7 +389,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                     selectedIncomeItemList.clear();
                                   });
                                 },
-                                child: const Icon(Icons.highlight_remove,color: Colors.white,size: 18,)),
+                                child: Icon(Icons.highlight_remove,color: Helper.getTextColor(context),size: 18,)),
                         ],
                       ),
 
@@ -420,7 +420,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                     padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 5),
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
-                                        color: Colors.white10,
+                                        color:  Helper.getCardColor(context),
                                         /*border: Border.all(
                                           color: Colors.blue,
                                           width: 1,
@@ -434,8 +434,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                         Expanded(
                                           child: Text(item.name.toString(),
                                             overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                                color: Colors.white,
+                                            style: TextStyle(
+                                                color: Helper.getTextColor(context),
                                                 fontSize: 10
                                             ),
                                           ),
@@ -491,8 +491,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                               Expanded(
                                                 child: Text(item.name!,
                                                   overflow: TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
+                                                  style: TextStyle(
+                                                      color: Helper.getTextColor(context),
                                                       fontSize: 12
                                                   ),
                                                 ),
@@ -533,7 +533,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                   padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 5),
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                      color: Colors.white10,
+                                      color:  Helper.getCardColor(context),
                                       /*border: Border.all(
                                         color: Colors.blue,
                                         width: 1,
@@ -547,8 +547,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                       Expanded(
                                         child: Text(item.name.toString(),
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              color: Colors.white,
+                                          style: TextStyle(
+                                              color: Helper.getTextColor(context),
                                               fontSize: 10
                                           ),
                                         ),
@@ -604,8 +604,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                               Expanded(
                                                 child: Text(item.name!,
                                                   overflow: TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
+                                                  style: TextStyle(
+                                                      color: Helper.getTextColor(context),
                                                       fontSize: 12
                                                   ),
                                                 ),
@@ -625,9 +625,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       Row(children: [
                         Container(
                           padding: const EdgeInsets.all(5),
-                          decoration:  const BoxDecoration(
+                          decoration:  BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Color(0xff152029)
+                              color: Helper.getCardColor(context)
                           ),
                           child: const Icon(Icons.calendar_month_sharp,color: Colors.blue,size: 16,),
                         ),
@@ -639,8 +639,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 5),
                             alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.white10,
+                            decoration: BoxDecoration(
+                                color:  Helper.getCardColor(context),
                                 borderRadius: BorderRadius.all(Radius.circular(5))
                             ),
                             child: const Icon(Icons.calendar_month_sharp,color: Colors.grey,),
@@ -651,19 +651,19 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 7,horizontal: 5),
                             alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.white10,
+                            decoration: BoxDecoration(
+                                color:  Helper.getCardColor(context),
                                 borderRadius: BorderRadius.all(Radius.circular(5))
                             ),
                             child:Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                   Text( formattedDate(),
-                                  style: TextStyle(color: Colors.white),),
+                                  style: TextStyle(color: Helper.getTextColor(context)),),
                                 5.widthBox,
                                 Text(
                                   formattedTime(),
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(color: Helper.getTextColor(context)),
                                 ),
                                 ],
                             ),
@@ -677,8 +677,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 5),
                             alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.white10,
+                            decoration: BoxDecoration(
+                                color:  Helper.getCardColor(context),
                                 borderRadius: BorderRadius.all(Radius.circular(5))
                             ),
                             child: const Icon(Icons.calendar_month_sharp,color: Colors.grey,),
@@ -714,13 +714,13 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               ),
                             ],
                           ),
-                          const Positioned(
+                          Positioned(
                             bottom: -8,
                             left: 0,
                             right: 0,
                             child: Divider(
                               thickness: 2,
-                              color: Colors.grey,
+                              color:  Helper.getCardColor(context),
                             ),
                           ),
                         ],
@@ -746,9 +746,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         Row(children: [
           Container(
             padding: const EdgeInsets.all(5),
-            decoration:  const BoxDecoration(
+            decoration:   BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xff152029)
+                color:  Helper.getCardColor(context)
             ),
             child: const Icon(Icons.menu,color: Colors.blue,size: 16,),
           ),
@@ -760,9 +760,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                        Radius.circular(5)),
                   keyboardType: TextInputType.number,
                   hintText: "Enter description",
-                  fillColor: Colors.white10,
+                  fillColor:  Helper.getCardColor(context),
                   borderColor: Colors.transparent,
                   padding: 11 ,
+                  textStyle: TextStyle(
+                    color: Helper.getTextColor(context)
+                  ),
                   horizontalPadding: 5,
                   validator: (value) {
                     return null;
@@ -773,9 +776,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         Row(children: [
           Container(
             padding: const EdgeInsets.all(5),
-            decoration:  const BoxDecoration(
+            decoration:  BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xff152029)
+                color: Helper.getCardColor(context)
             ),
             child: const Icon(Icons.menu,color: Colors.blue,size: 16,),
           ),
@@ -791,10 +794,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
               children: [
                 const Icon(Icons.wallet,color: Colors.white,),
                 5.heightBox,
-                const Text("Cash",
+                Text("Cash",
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Helper.getTextColor(context),
                       fontSize: 12
                   ),
                 ),
@@ -807,9 +810,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         Row(children: [
           Container(
             padding: const EdgeInsets.all(5),
-            decoration:  const BoxDecoration(
+            decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xff152029)
+                color: Helper.getCardColor(context)
             ),
             child: const Icon(Icons.menu,color: Colors.blue,size: 16,),
           ),

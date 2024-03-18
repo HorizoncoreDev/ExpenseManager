@@ -1,4 +1,5 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -8,8 +9,6 @@ import '../utils/views/custom_text_form_field.dart';
 import 'bloc/budget_bloc.dart';
 import 'bloc/budget_event.dart';
 import 'bloc/budget_state.dart';
-import 'package:provider/provider.dart';
-
 
 class BudgetScreen extends StatefulWidget {
   const BudgetScreen({super.key});
@@ -21,10 +20,7 @@ class BudgetScreen extends StatefulWidget {
 class _BudgetScreenState extends State<BudgetScreen> {
 
   BudgetBloc budgetBloc = BudgetBloc();
-
-
   final FocusNode _focus = FocusNode();
-
   TextEditingController budgetController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
@@ -50,7 +46,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
   @override
   Widget build(BuildContext context) {
     budgetBloc.context = context;
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
     return BlocConsumer<BudgetBloc, BudgetState>(
       bloc: budgetBloc,
       listener: (context, state) {
@@ -64,7 +59,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             child: Scaffold(
                 appBar: AppBar(
                   automaticallyImplyLeading: false,
-                  backgroundColor: themeNotifier.getTheme().backgroundColor,
+                  backgroundColor: Helper.getBackgroundColor(context),
                   titleSpacing: 10,
                   title:  Row(
                     children: [
@@ -74,12 +69,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           },
                           child: const Icon(Icons.arrow_back_ios_new,color: Colors.blue,size: 20,)),
                       10.widthBox,
-                      const Expanded(
+                      Expanded(
                         child: Text("Hello",
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white
+                              color: Helper.getTextColor(context)
                           ),),
                       ),
                     ],
@@ -92,7 +87,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       child: Text("Done",
                         style: TextStyle(
                             fontSize: 14,
-                            color: Colors.white
+                            color: Helper.getTextColor(context)
                         ),),
                     ),
                     10.widthBox,
@@ -101,7 +96,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 body: Container(
                   width: double.maxFinite,
                   height: double.maxFinite,
-                  color: themeNotifier.getTheme().backgroundColor,
+                  color: Helper.getBackgroundColor(context),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -110,12 +105,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           width: 120,
                           height: 150,),
                         10.heightBox,
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Text("Follow your plan to avoid unnecessary spending.Set\na budget for the month and try to follow it to\nachieve your financial goals.",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                                color: Colors.white
+                                color: Helper.getTextColor(context)
                             ),),
                         ),
 
@@ -147,8 +142,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                         bottomLeft: Radius.circular(5)),
                                     keyboardType: TextInputType.number,
                                     hintText: "Enter your budget",
-                                    fillColor: Colors.white10,
+                                    fillColor: Helper.getCardColor(context),
                                     borderColor: Colors.transparent,
+                                    textStyle: TextStyle(
+                                      color: Helper.getTextColor(context)
+                                    ),
                                     padding: 15 ,
                                     horizontalPadding: 5,
                                     //focusNode: _focus,
@@ -157,11 +155,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                     })),
                             Container(
                               padding: const EdgeInsets.symmetric(vertical: 14.2,horizontal: 5),
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   border: Border(
                                     left: BorderSide(
-                                      color: Colors.white10,
+                                      color: Helper.getCardColor(context),
                                     ),
                                   ),
                                   borderRadius: BorderRadius.only(
@@ -176,7 +174,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                           fontSize:16,
                                           color: Colors.blue)),
                                   5.widthBox,
-                                  const Icon(Icons.arrow_forward_ios_outlined,size: 14,color: Colors.white,)
+                                  Icon(Icons.arrow_forward_ios_outlined,size: 14,color: Helper.getTextColor(context),)
                                 ],
                               ),
                             ),

@@ -1,5 +1,6 @@
 import 'package:expense_manager/overview_screen/spending_detail_screen/spending_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -11,7 +12,6 @@ import 'add_spending/add_spending_screen.dart';
 import 'bloc/overview_bloc.dart';
 import 'bloc/overview_state.dart';
 import 'income_detail_screen/income_detail_screen.dart';
-import 'package:provider/provider.dart';
 
 
 class OverviewScreen extends StatefulWidget {
@@ -22,13 +22,10 @@ class OverviewScreen extends StatefulWidget {
 }
 
 class _OverviewScreenState extends State<OverviewScreen> {
-
   OverviewBloc overviewBloc = OverviewBloc();
-
   @override
   Widget build(BuildContext context) {
     overviewBloc.context = context;
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
     return BlocConsumer<OverviewBloc, OverviewState>(
       bloc: overviewBloc,
       listener: (context, state) {
@@ -40,7 +37,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
               length: 2,
               child: Scaffold(
                 body: Container(
-                  color: themeNotifier.getTheme().backgroundColor,
+                  color: Helper.getBackgroundColor(context),
                   height: double.infinity,
                   child: Stack(
                         children: [
@@ -153,8 +150,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
             Stack(
               children: [
                 Container(
-                  decoration: const BoxDecoration(
-                      color: Color(0xff30302d),
+                  decoration: BoxDecoration(
+                      color: Helper.getCardColor(context),
                       borderRadius: BorderRadius.all(Radius.circular(10))
                   ),
                   child: Row(
@@ -165,14 +162,14 @@ class _OverviewScreenState extends State<OverviewScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text("\u20B928,700",
+                            Text("\u20B928,700",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 20
                             ),),
-                            const Text("You are spending on plan!",
+                            Text("You are spending on plan!",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 12
                               ),),
 
@@ -187,20 +184,19 @@ class _OverviewScreenState extends State<OverviewScreen> {
                                     ),
                                 ),
                                 5.widthBox,
-                                const Text("Spent",
+                                Text("Spent",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 12
                                   ),),
                               ],
                             ),
                             5.heightBox,
-                            const Text("\u20B928,700",
+                            Text("\u20B928,700",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 20
                               ),),
-
                             10.heightBox,
                             Row(
                               children: [
@@ -212,17 +208,17 @@ class _OverviewScreenState extends State<OverviewScreen> {
                                   ),
                                 ),
                                 5.widthBox,
-                                const Text("Remaining",
+                                Text("Remaining",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 12
                                   ),),
                               ],
                             ),
                             5.heightBox,
-                            const Text("\u20B926,604",
+                            Text("\u20B926,604",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 20
                               ),),
                             5.heightBox
@@ -349,8 +345,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
             ),*/
 
             Container(
-              decoration: const BoxDecoration(
-                  color: Color(0xff30302d),
+              decoration:  BoxDecoration(
+                  color: Helper.getCardColor(context),
                   borderRadius: BorderRadius.all(Radius.circular(10))
               ),
               child: Column(
@@ -358,9 +354,9 @@ class _OverviewScreenState extends State<OverviewScreen> {
                   20.heightBox,
                   const Icon(Icons.account_balance_wallet,color: Colors.white,size: 80,),
                   10.heightBox,
-                  const Text("You don't have any expenses yet",
+                  Text("You don't have any expenses yet",
                   style: TextStyle(
-                    color: Colors.grey
+                    color: Helper.getTextColor(context)
                   ),),
                   20.heightBox,
                   Padding(
@@ -409,8 +405,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
             Stack(
               children: [
                 Container(
-                  decoration: const BoxDecoration(
-                      color: Color(0xff30302d),
+                  decoration:  BoxDecoration(
+                      color: Helper.getCardColor(context),
                       borderRadius: BorderRadius.all(Radius.circular(10))
                   ),
                   child: Row(
@@ -421,14 +417,14 @@ class _OverviewScreenState extends State<OverviewScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text("\u20B928,700",
+                            Text("\u20B928,700",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 20
                               ),),
-                            const Text("You are spending on plan!",
+                             Text("You are spending on plan!",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 12
                               ),),
 
@@ -443,20 +439,19 @@ class _OverviewScreenState extends State<OverviewScreen> {
                                   ),
                                 ),
                                 5.widthBox,
-                                const Text("Spent",
+                                Text("Spent",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 12
                                   ),),
                               ],
                             ),
                             5.heightBox,
-                            const Text("\u20B928,700",
+                            Text("\u20B928,700",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 20
                               ),),
-
                             10.heightBox,
                             Row(
                               children: [
@@ -468,17 +463,17 @@ class _OverviewScreenState extends State<OverviewScreen> {
                                   ),
                                 ),
                                 5.widthBox,
-                                const Text("Remaining",
+                                Text("Remaining",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 12
                                   ),),
                               ],
                             ),
                             5.heightBox,
-                            const Text("\u20B926,604",
+                            Text("\u20B926,604",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 20
                               ),),
                             5.heightBox
@@ -532,12 +527,12 @@ class _OverviewScreenState extends State<OverviewScreen> {
             ),
 
             20.heightBox,
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("TODAY, 03/10/2023",
                   style: TextStyle(
-                      color: Colors.grey,
+                      color: Helper.getTextColor(context),
                       fontSize: 14
                   ),),
                 Text("-\u20B928,700",
@@ -551,8 +546,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
             10.heightBox,
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                  color: Color(0xff30302d),
+              decoration: BoxDecoration(
+                  color: Helper.getCardColor(context),
                   borderRadius: BorderRadius.all(Radius.circular(10))
               ),
               child: Row(
@@ -566,36 +561,36 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     child: const Icon(Icons.cake,color: Colors.blue,),
                   ),
                   15.widthBox,
-                  const Expanded(
+                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("Dine out",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16,
                               fontWeight: FontWeight.bold
                           ),),
                         Text("Bbb",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 14,
                           ),)
                       ],
                     ),
                   ),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text("-\u20B92,096",
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 16,
                             fontWeight: FontWeight.bold
                         ),),
                       Text("Cash/16:11",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Helper.getTextColor(context),
                           fontSize: 14,
                         ),)
                     ],

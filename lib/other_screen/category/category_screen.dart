@@ -1,5 +1,6 @@
 import 'package:expense_manager/other_screen/category/sub_category_screen/sub_category_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../db_models/category_model.dart';
 import '../../db_models/income_category.dart';
 import '../../db_service/database_helper.dart';
+import '../../utils/theme_notifier.dart';
 import 'add_category/add_category_screen.dart';
 import 'bloc/category_bloc.dart';
 import 'bloc/category_state.dart';
@@ -21,13 +23,9 @@ class CategoryScreen extends StatefulWidget {
 class _CategoryScreenState extends State<CategoryScreen> {
 
   CategoryBloc categoryBloc = CategoryBloc();
-
   int currPage = 1;
-
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
-
-
   List<Category> categories = [];
   bool isLoading = true;
   bool isIncomeLoading = true;
@@ -70,9 +68,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
     }
   }
 
-
-
-
   @override
   void initState() {
     super.initState();
@@ -80,8 +75,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
     getSpendingCategorys();
 
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -95,19 +88,20 @@ class _CategoryScreenState extends State<CategoryScreen> {
           return Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.black87,
+                backgroundColor: Helper.getBackgroundColor(context),
                 title: Row(
                   children: [
                     InkWell(
                         onTap: (){
                           Navigator.pop(context);
                         },
-                        child: Icon(Icons.arrow_back_ios,color: Colors.white,size: 20,)),
+                        child: Icon(Icons.arrow_back_ios,color: Helper.getTextColor(context)
+                          ,size: 20,)),
                     10.widthBox,
                     Text("Category",
                         style: TextStyle(
                           fontSize: 22,
-                          color: Colors.white,)),
+                          color: Helper.getTextColor(context),)),
                   ],
                 ),
                 actions: [
@@ -136,9 +130,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
+                          color: Helper.getCardColor(context)
                       ),
                       child: const Icon(
                         Icons.add,
@@ -153,7 +147,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               body: Container(
                 width: double.maxFinite,
                 height: double.maxFinite,
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 child: Column(
                   children: [
                     20.heightBox,
@@ -161,7 +155,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         width: MediaQuery.of(context).size.width / 1.5,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
-                          color: Colors.white10,
+                          color: Helper.getCardColor(context),
                         ),
                         child: Row(
                           children: [
@@ -180,7 +174,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                               bottomLeft: Radius.circular(30)),
                                           color: currPage == 1
                                               ? Colors.blue
-                                              : Colors.white10),
+                                              : Helper.getCardColor(context)),
                                       child: const Align(
                                         alignment: Alignment.center,
                                         child: Text(
@@ -210,7 +204,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                               bottomRight: Radius.circular(30)),
                                           color: currPage == 2
                                               ? Colors.blue
-                                              : Colors.white10),
+                                              : Helper.getCardColor(context)),
                                       child: const Align(
                                         alignment: Alignment.center,
                                         child: Text(
@@ -246,12 +240,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
-
   Widget _happeningView(CategoryBloc categoryBloc) {
     return  isLoading
         ? Center(child: CircularProgressIndicator())
         :categories.isEmpty
-        ? Center(child: Text('No categories found.'))
+        ? Center(child: Text('No categories found.',
+      style: TextStyle(color: Helper.getTextColor(context)),))
         :SingleChildScrollView(
       child: Column(
         children: [
@@ -260,8 +254,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: const BoxDecoration(
-                  color: Colors.white10,
+              decoration: BoxDecoration(
+                  color: Helper.getCardColor(context),
                   borderRadius: BorderRadius.all(Radius.circular(10))
               ),
               child:ListView.separated(
@@ -316,9 +310,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             );
                           },
                           separatorBuilder: (BuildContext context, int index) {
-                            return const Divider(
+                            return Divider(
                               thickness: 0.3,
-                              color: Colors.grey,
+                              color:Helper.getTextColor(context),
                             );
                           },
                         )
@@ -519,7 +513,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
     return  isIncomeLoading
         ? Center(child: CircularProgressIndicator())
         :incomeCategories.isEmpty
-        ? Center(child: Text('No categories found.'))
+        ? Center(child: Text('No categories found.',
+        style: TextStyle(color: Helper.getTextColor(context))))
         :SingleChildScrollView(
       child: Column(
         children: [
@@ -528,8 +523,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: const BoxDecoration(
-                    color: Colors.white10,
+                decoration: BoxDecoration(
+                    color: Helper.getCardColor(context),
                     borderRadius: BorderRadius.all(Radius.circular(10))
                 ),
                 child:ListView.separated(
@@ -584,9 +579,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     );
                   },
                   separatorBuilder: (BuildContext context, int index) {
-                    return const Divider(
+                    return Divider(
                       thickness: 0.3,
-                      color: Colors.grey,
+                      color: Helper.getTextColor(context),
                     );
                   },
                 )

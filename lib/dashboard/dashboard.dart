@@ -1,9 +1,11 @@
+import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
 
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 import '../overview_screen/add_spending/add_spending_screen.dart';
 import '../overview_screen/overview_screen.dart';
 import '../statistics/statistics_screen.dart';
+import '../utils/helper.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({Key? key}) : super(key: key);
@@ -16,7 +18,6 @@ class _DashBoardState extends State<DashBoard> {
 //  late BuildContext context;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-
   PersistentTabController controller =
   PersistentTabController(initialIndex: 0);
   bool hideNavBar = false;
@@ -42,7 +43,7 @@ class _DashBoardState extends State<DashBoard> {
                 screens: buildScreens(),
                 items: _navBarsItems(),
                 confineInSafeArea: true,
-                backgroundColor: Color(0xff30302d),
+                backgroundColor: Helper.getBackgroundColor(context),
                 handleAndroidBackButtonPress: true,
                 resizeToAvoidBottomInset: true,
                 stateManagement: true,

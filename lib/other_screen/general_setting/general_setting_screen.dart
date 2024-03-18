@@ -1,4 +1,5 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,15 +47,15 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
           return Scaffold(
               appBar: AppBar(
                 titleSpacing: 0,
-                backgroundColor: Colors.black87,
+                backgroundColor: Helper.getBackgroundColor(context),
                 leading: InkWell(
                     onTap: (){
                       Navigator.pop(context);
                     },
-                    child: const Icon(Icons.arrow_back_ios,color: Colors.white,)),
-                title: const Text("General Settings",
+                    child:  Icon(Icons.arrow_back_ios,color: Helper.getTextColor(context),)),
+                title:  Text("General Settings",
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Helper.getTextColor(context),
                       fontSize: 24,
                       fontWeight: FontWeight.bold
                   ),),
@@ -62,25 +63,25 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       10.heightBox,
-                      const Text("DISPLAY",
+                      Text("DISPLAY",
                         style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey,
+                            color: Helper.getTextColor(context),
                             fontWeight: FontWeight.bold
                         ),),
 
                       5.heightBox,
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
                         child: Column(
@@ -186,17 +187,17 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                         ),
                       ),
                       20.heightBox,
-                      const Text("REMINDER",
+                      Text("REMINDER",
                         style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey,
+                            color: Helper.getTextColor(context),
                             fontWeight: FontWeight.bold
                         ),),
                       5.heightBox,
                       Container(
                         padding: const EdgeInsets.only(left: 20,right: 10,top: 10,bottom: 10),
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
                         child: Row(
@@ -246,17 +247,17 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                       ),
 
                       20.heightBox,
-                      const Text("SECURE",
+                      Text("SECURE",
                         style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey,
+                            color: Helper.getTextColor(context),
                             fontWeight: FontWeight.bold
                         ),),
                       5.heightBox,
                       Container(
                         padding: const EdgeInsets.only(left: 20,right: 10,top: 10,bottom: 10),
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
                         child: Row(

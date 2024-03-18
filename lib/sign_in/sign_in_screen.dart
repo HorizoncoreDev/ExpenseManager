@@ -1,5 +1,6 @@
 import 'package:expense_manager/sign_in/bloc/bloc.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,12 +8,12 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
 import '../budget/budget_screen.dart';
 import '../db_models/profile_model.dart';
 import '../db_service/database_helper.dart';
 import '../utils/global.dart';
 import '../utils/helper.dart';
+
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -30,7 +31,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
-
   late User? _user;
 
   @override
@@ -47,7 +47,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 body: Container(
                   width: double.infinity,
                   height: double.infinity,
-                  color: Colors.black87,
+                  color: Helper.getBackgroundColor(context),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -95,18 +95,18 @@ class _SignInScreenState extends State<SignInScreen> {
                             child: Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 15),
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
+                                  borderRadius: const BorderRadius.all(Radius.circular(10))
                               ),
                               child:  Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   SvgPicture.asset(ImageConstanst.icGoogle,width:18,height: 18,),
                                   15.widthBox,
-                                  const Text("Sign in with Google",
+                                  Text("Sign in with Google",
                                     style: TextStyle(
-                                        color: Colors.white,
+                                        color: Helper.getTextColor(context),
                                         fontSize: 14
                                     ),),
                                 ],
@@ -181,14 +181,14 @@ class _SignInScreenState extends State<SignInScreen> {
                                 onTap: (){
                                   signInBloc.add(SignInSkipEvent());
                                 },
-                                child: const Text("Skip",
+                                child: Text("Skip",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 16
                                   ),),
                               ),
                               3.widthBox,
-                              const Icon(Icons.arrow_forward_ios_outlined,color: Colors.white,size: 10,)
+                              Icon(Icons.arrow_forward_ios_outlined,color: Helper.getTextColor(context),size: 10,)
                             ],
                           ),
                         )

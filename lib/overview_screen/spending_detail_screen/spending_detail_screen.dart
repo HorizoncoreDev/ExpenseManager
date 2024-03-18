@@ -1,11 +1,12 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../utils/theme_notifier.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import 'bloc/spending_detail_bloc.dart';
 import 'bloc/spending_detail_state.dart';
-
 class SpendingDetailScreen extends StatefulWidget {
   const SpendingDetailScreen({super.key});
 
@@ -45,23 +46,23 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
             child: Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.black87,
+                backgroundColor: Helper.getBackgroundColor(context),
                 title: Row(
                   children: [
                     InkWell(
                         onTap: (){
                           Navigator.pop(context);
                         },
-                        child: Icon(Icons.arrow_back_ios,color: Colors.white,size: 20,)),
+                        child: Icon(Icons.arrow_back_ios,color: Helper.getTextColor(context),size: 20,)),
                     10.widthBox,
                     Text("1/2024",
                         style: TextStyle(
                           fontSize: 22,
-                          color: Colors.white,)),
+                          color: Helper.getTextColor(context),)),
                     Text(" /\u20B9798,136.33",
                         style: TextStyle(
                           fontSize: 18,
-                          color: Colors.white,)),
+                          color: Helper.getTextColor(context),)),
                   ],
                 ),
                 actions: [
@@ -92,9 +93,9 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
+                          color: Helper.getCardColor(context)
                       ),
                       child: const Icon(
                         Icons.filter_alt_rounded,
@@ -107,7 +108,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                 ],
               ),
               body: Container(
-                  color: Colors.black87,
+                  color: Helper.getBackgroundColor(context),
                   height: double.infinity,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -115,8 +116,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                     children: [
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
-                        decoration: const BoxDecoration(
-                            color: Color(0xff30302d),
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
                         child: Row(
@@ -212,7 +213,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                               Radius.circular(5)),
                           keyboardType: TextInputType.text,
                           hintText: "Notes, categories",
-                          fillColor: Color(0xff30302d),
+                          fillColor: Helper.getCardColor(context),
                           borderColor: Colors.transparent,
                           padding: 10 ,
                           horizontalPadding: 5,
@@ -226,8 +227,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
 
                       20.heightBox,
                       Container(
-                          decoration: const BoxDecoration(
-                              color: Color(0xff30302d),
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
                               borderRadius: BorderRadius.all(Radius.circular(10))
                           ),
                           child: Column(
@@ -284,7 +285,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
   _bottomSheetView(SpendingDetailBloc spendingDetailBloc) {
     return Container(
         padding: EdgeInsets.only(bottom: 10),
-        color: Colors.black87,
+        color: Helper.getBackgroundColor(context),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -297,14 +298,14 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                   children: [
                     Text("Clear filter",
                       style: TextStyle(
-                          color: Colors.white,
+                          color: Helper.getTextColor(context),
                           fontSize: 16
                       ),),
                     Expanded(
                       child: Text("Filter",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontWeight: FontWeight.bold,
                             fontSize: 16
                         ),),
@@ -326,7 +327,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
               Divider(
                 height: 1,
                 thickness: 0.3,
-                color: Colors.grey,
+                color: Helper.getTextColor(context),
               ),
 
               Padding(
@@ -370,8 +371,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("January",
@@ -387,8 +388,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("February",
@@ -404,8 +405,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("March",
@@ -428,8 +429,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("April",
@@ -445,8 +446,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("May",
@@ -462,8 +463,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("June",
@@ -487,8 +488,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("July",
@@ -504,8 +505,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("August",
@@ -521,8 +522,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("September",
@@ -546,8 +547,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("October",
@@ -563,8 +564,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("November",
@@ -580,8 +581,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("December",
@@ -622,8 +623,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                     return Container(
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                          color: Colors.white10,
+                      decoration:  BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(5))
                       ),
                       child: Text(item.text,
