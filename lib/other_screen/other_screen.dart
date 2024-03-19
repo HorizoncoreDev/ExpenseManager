@@ -76,7 +76,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold),
                               ),
-                              if (!isSkippedUser)
+                              // if (!isSkippedUser)
                                 InkWell(
                                   onTap: () {
                                     Navigator.push(
@@ -92,7 +92,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         shape: BoxShape.circle,
                                         color: Helper.getCardColor(context)),
                                     child: const Text(
-                                      "MB",
+                                      "AB",
                                       style: TextStyle(
                                         color: Colors.blue,
                                         fontWeight: FontWeight.bold,

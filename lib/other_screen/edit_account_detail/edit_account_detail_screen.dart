@@ -53,15 +53,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
     return emailRegex.hasMatch(email);
   }
 
-  String getShortName(String name, String name1) {
-    String firstStr = name.split(" ").first;
-    String secondStr = name1.split(" ").first;
 
-    String firstChar = firstStr.substring(0, 1);
-    String secondChar = secondStr.substring(0, 1);
-
-    return shortName = firstChar + secondChar;
-  }
 
   Future<void> getProfileData() async {
     try {
@@ -79,13 +71,25 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         selectedValue =
             profileData!.gender == "" ? 'Female' : profileData!.gender!;
         isLoading = false;
-      });
+      }
+      );
+      getShortName(profileData!.first_name!, profileData!.last_name!);
     } catch (error) {
       print('Error fetching Profile Data: $error');
       setState(() {
         isLoading = false;
       });
     }
+  }
+
+  String getShortName(String name, String name1) {
+    String firstStr = name.split(" ").first;
+    String secondStr = name1.split(" ").first;
+
+    String firstChar = firstStr.substring(0, 1);
+    String secondChar = secondStr.substring(0, 1);
+
+    return shortName = firstChar + secondChar;
   }
 
   Future<void> updateProfileData() async {
@@ -192,7 +196,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                   child: Text(
                                     shortName,
                                     style: const TextStyle(
-                                      color: Colors.blue,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 28,
                                     ),

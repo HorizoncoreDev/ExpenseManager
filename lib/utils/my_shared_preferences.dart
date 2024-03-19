@@ -50,6 +50,11 @@ class MySharedPreferences {
     return doubleValue;
   }
 
+  clearSharedPref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+  }
+
   removeValues() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove("stringValue");

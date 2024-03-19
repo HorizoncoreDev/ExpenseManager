@@ -92,11 +92,10 @@ class _OverviewScreenState extends State<OverviewScreen> {
                                   10.widthBox,
                                   InkWell(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
+                                      Navigator.of(context, rootNavigator: true).push(
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const OtherScreen()),
+                                            const OtherScreen()),
                                       );
                                     },
                                     child: Container(
