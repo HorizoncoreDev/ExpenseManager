@@ -318,9 +318,9 @@ class DatabaseHelper {
   }
 
   // Insert Transaction Detail
-  Future<void> insertTransactionData(TransactionModel transactionModel) async {
+  Future<int> insertTransactionData(TransactionModel transactionModel) async {
     Database db = await database;
-    await db.insert(transaction_table, transactionModel.toMap());
+    return await db.insert(transaction_table, transactionModel.toMap());
   }
 
   // A method that retrieves all the TransactionData from the TransactionData table.

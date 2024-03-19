@@ -2,6 +2,7 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../db_models/category_model.dart';
@@ -165,5 +166,27 @@ class Helper {
   static Color getMiddleBottomNavBarItem(BuildContext context) {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
     return themeNotifier.getTheme().canvasColor;
+  }
+
+  static void showLoading(BuildContext context) {
+
+      AlertDialog alert=AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            Container(margin: EdgeInsets.only(left: 7),child:Text("Loading..." )),
+          ],),
+      );
+      showDialog(barrierDismissible: false,
+        context:context,
+        builder:(BuildContext context){
+          return alert;
+        },
+      );
+  }
+
+  static void hideLoading(context) {
+    //Get.back();
+    Navigator.of(context).pop();
   }
 }

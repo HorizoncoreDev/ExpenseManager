@@ -275,7 +275,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                             borderRadius: BorderRadius.only(
                                 bottomRight: Radius.circular(10),
                                 topLeft: Radius.circular(5))),
-                        child: Icon(
+                        child: const Icon(
                           Icons.arrow_forward,
                           size: 18,
                           color: Colors.white,
