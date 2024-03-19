@@ -90,11 +90,11 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               padding: const EdgeInsets.only(left: 15,right: 5,top: 3,bottom: 3),
                               child: Row(
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     child: Text("Dark mode",
                                       style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.white
+                                          color: Helper.getTextColor(context)
                                       ),),
                                   ),
                                   FlutterSwitch(
@@ -107,7 +107,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                     toggleSize: 15,
                                     switchBorder: Border.all(
                                       color: Colors.black,
-                                      width: 3.0,
+                                      width: 2.0,
                                     ),
                                     activeColor: Colors.green,
                                     inactiveColor: Colors.grey,
@@ -133,24 +133,19 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               padding: const EdgeInsets.only(left: 15,right: 5,top: 3,bottom: 3),
                               child: Row(
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     child: Text("Language",
                                       style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.white
+                                          color:Helper.getTextColor(context)
                                       ),),
                                   ),
-                                  const Text("English",
+                                  Text("English",
                                     style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.white
+                                        color: Helper.getTextColor(context)
                                     ),),
                                   5.widthBox,
-                                  const Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    color: Colors.white,
-                                    size: 13  ,
-                                  )
                                 ],
                               ),
                             ),
@@ -162,24 +157,19 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               padding: const EdgeInsets.only(left: 15,right: 5,top: 3,bottom: 3),
                               child: Row(
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     child: Text("Currency",
                                       style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.white
+                                          color: Helper.getTextColor(context)
                                       ),),
                                   ),
-                                  const Text("INR",
+                                  Text("INR",
                                     style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.white
+                                        color: Helper.getTextColor(context)
                                     ),),
                                   5.widthBox,
-                                  const Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    color: Colors.white,
-                                    size: 13  ,
-                                  )
                                 ],
                               ),
                             ),
@@ -219,7 +209,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               child: Text("Notification",
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white
+                                    color: Helper.getTextColor(context)
                                 ),),
                             ),
                             FlutterSwitch(
@@ -232,7 +222,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               toggleSize: 15,
                               switchBorder: Border.all(
                                 color: Colors.black,
-                                width: 3.0,
+                                width: 2.0,
                               ),
                               activeColor: Colors.green,
                               inactiveColor: Colors.grey,
@@ -279,7 +269,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               child: Text("Security code",
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white
+                                    color: Helper.getTextColor(context)
                                 ),),
                             ),
                             FlutterSwitch(
@@ -292,7 +282,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               toggleSize: 15,
                               switchBorder: Border.all(
                                 color: Colors.black,
-                                width: 3.0,
+                                width: 2.0,
                               ),
                               activeColor: Colors.green,
                               inactiveColor: Colors.grey,

@@ -95,9 +95,9 @@ class _SearchScreenState extends State<SearchScreen> {
                           shape: BoxShape.circle,
                           color: Helper.getCardColor(context)
                       ),
-                      child: const Icon(
+                      child:  Icon(
                         Icons.filter_alt_rounded,
-                        color: Colors.white,
+                        color: Helper.getTextColor(context),
                         size: 20,
                       ),
                     ),
@@ -134,6 +134,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 10 ,
+                        textStyle: TextStyle(
+                          color: Helper.getTextColor(context)
+                        ),
                         horizontalPadding: 5,
                         suffixIcon: Padding(
                           padding: const EdgeInsets.only(right: 10),
@@ -303,7 +306,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
                       child: Text("YEAR",
                         style: TextStyle(
-                            color: Colors.grey,
+                            color: Helper.getTextColor(context),
                             fontSize: 14
                         ),),
                     ),
@@ -328,7 +331,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
                       child: Text("MONTH(Can filter by one or more)",
                         style: TextStyle(
-                            color: Colors.grey,
+                            color: Helper.getTextColor(context),
                             fontSize: 14
                         ),),
                     ),
@@ -346,7 +349,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("January",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -363,7 +366,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("February",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -380,7 +383,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("March",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -404,7 +407,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("April",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -421,7 +424,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("May",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -438,7 +441,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("June",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -463,7 +466,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("July",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -480,7 +483,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("August",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -497,7 +500,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("September",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -522,7 +525,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("October",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -539,7 +542,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("November",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -556,7 +559,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               child: Text("December",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -598,7 +601,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                             child: Text(item.text,
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 14
                               ),
                             ),

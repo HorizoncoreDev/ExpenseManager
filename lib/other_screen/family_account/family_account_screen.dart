@@ -51,9 +51,9 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                         shape: BoxShape.circle,
                         color: Helper.getCardColor(context)
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.edit,
-                      color: Colors.white,
+                      color: Helper.getTextColor(context),
                       size: 18,
                     ),
                   ),
@@ -118,7 +118,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                 20.widthBox,
                                 Text("Muskaan Bhatt",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold),)
                               ],
@@ -149,7 +149,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                 Expanded(
                                   child: Text("Thirali Patel",
                                     style: TextStyle(
-                                        color: Colors.white,
+                                        color:Helper.getTextColor(context),
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold),),
                                 ),

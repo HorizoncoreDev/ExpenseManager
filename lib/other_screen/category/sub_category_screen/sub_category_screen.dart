@@ -126,7 +126,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                             text: widget.categoryName,
                             style: TextStyle(
                               fontSize: 22,
-                              color:Colors.white,),
+                              color:Helper.getTextColor(context),),
                             children: [
                               TextSpan(
                                 text: widget.currPage == 1
@@ -134,7 +134,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                                 :'(${incomeSubCategories.length})',
                                 style: TextStyle(
                                   fontSize: 18,
-                                  color:Colors.white,),),
+                                  color:Helper.getTextColor(context),),),
                             ])),
                   ],
                 ),
@@ -157,9 +157,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                           shape: BoxShape.circle,
                           color: Helper.getCardColor(context)
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.add,
-                        color: Colors.white,
+                        color: Helper.getTextColor(context),
                         size: 22,
                       ),
                     ),
@@ -202,7 +202,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                                 Expanded(
                                   child: Text(spendingSubCategories[index].name!,
                                     style: TextStyle(
-                                        color: Colors.white,
+                                        color: Helper.getTextColor(context),
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold),),
                                 ),
@@ -255,7 +255,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                                 Expanded(
                                   child: Text(incomeSubCategories[index].name!,
                                     style: TextStyle(
-                                        color: Colors.white,
+                                        color: Helper.getTextColor(context),
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold),),
                                 ),
@@ -296,7 +296,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
           contentPadding: const EdgeInsets.symmetric(
               horizontal: 20, vertical: 15),
           insetPadding: const EdgeInsets.all(0),
-          backgroundColor: Colors.black,
+          backgroundColor: Helper.getCardColor(context),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -304,9 +304,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 10.heightBox,
-                const Text("Name",
+                Text("Name",
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Helper.getTextColor(context),
                       fontSize: 14
                   ),),
                 5.heightBox,
@@ -317,6 +317,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                     keyboardType: TextInputType.text,
                     fillColor: Helper.getCardColor(context),
                     borderColor: Colors.transparent,
+                    textStyle: TextStyle(
+                      color: Helper.getTextColor(context)
+                    ),
                     padding: 10 ,
                     horizontalPadding: 5,
                     validator: (value) {
@@ -329,7 +332,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                   children: [
                     Text("Priority",
                       style: TextStyle(
-                          color: Colors.white,
+                          color:Helper.getTextColor(context),
                           fontSize: 14
                       ),),
                     Container(
@@ -388,7 +391,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                       child: Text("Low",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 12
                         ),),
                     ),
@@ -396,7 +399,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                       child: Text("Medium",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 12
                         ),),
                     ),
@@ -404,7 +407,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                       child: Text("High",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 12
                         ),),
                     ),

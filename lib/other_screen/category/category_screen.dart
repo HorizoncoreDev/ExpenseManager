@@ -134,9 +134,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           shape: BoxShape.circle,
                           color: Helper.getCardColor(context)
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.add,
-                        color: Colors.white,
+                        color: Helper.getTextColor(context),
                         size: 22,
                       ),
                     ),
@@ -175,13 +175,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                           color: currPage == 1
                                               ? Colors.blue
                                               : Helper.getCardColor(context)),
-                                      child: const Align(
+                                      child: Align(
                                         alignment: Alignment.center,
                                         child: Text(
                                           'Spending',
                                           style: TextStyle(
                                             fontSize: 16,
-                                            color: Colors.white,
+                                            color: currPage == 1
+                                                ? Colors.white
+                                                : Helper.getTextColor(context),
                                           ),
                                         ),
                                       )),
@@ -205,13 +207,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                           color: currPage == 2
                                               ? Colors.blue
                                               : Helper.getCardColor(context)),
-                                      child: const Align(
+                                      child: Align(
                                         alignment: Alignment.center,
                                         child: Text(
                                           'Income',
                                           style: TextStyle(
                                             fontSize: 16,
-                                            color: Colors.white,
+                                            color: currPage == 2
+                                                ? Colors.white
+                                                : Helper.getTextColor(context),
                                           ),
                                         ),
                                       )),
@@ -295,7 +299,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                         children: [
                                           Text(categories[index].name.toString(),
                                             style: TextStyle(
-                                                color: Colors.white,
+                                                color: Helper.getTextColor(context),
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold),),
                                           /*Text("",
@@ -303,7 +307,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                         ],
                                       ),
                                     ),
-                                    Icon(Icons.arrow_forward_ios,color: Colors.white,size: 18,)
+                                    Icon(Icons.arrow_forward_ios,color: Helper.getTextColor(context),size: 18,)
                                   ],
                                 ),
                               ),
@@ -564,7 +568,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                 children: [
                                   Text(incomeCategories[index].name.toString(),
                                     style: TextStyle(
-                                        color: Colors.white,
+                                        color: Helper.getTextColor(context),
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold),),
                                   /*Text("7 subcategories",
@@ -572,7 +576,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                 ],
                               ),
                             ),
-                            Icon(Icons.arrow_forward_ios,color: Colors.white,size: 18,)
+                            Icon(Icons.arrow_forward_ios,color: Helper.getTextColor(context),size: 18,)
                           ],
                         ),
                       ),

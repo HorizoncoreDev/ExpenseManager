@@ -189,7 +189,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                           controller: firstNameController,
                           keyboardType: TextInputType.text,
                           hintText: "Enter First Name",
-                          hintColor: Colors.white,
+                          hintColor: Helper.getTextColor(context),
                           textStyle: const TextStyle(fontSize: 16),
                           borderRadius: BorderRadius.circular(10),
                           borderColor: Helper.getTextColor(context),
@@ -221,7 +221,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         controller: lastNameController,
                         keyboardType: TextInputType.text,
                         hintText: "Enter Last Name",
-                        hintColor: Colors.white,
+                        hintColor: Helper.getTextColor(context),
                         textStyle: const TextStyle(fontSize: 16),
                         borderRadius: BorderRadius.circular(10),
                         borderColor: Helper.getTextColor(context),
@@ -254,7 +254,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         controller: emailController,
                         keyboardType: TextInputType.text,
                         hintText: "Enter Email",
-                        hintColor: Colors.white,
+                        hintColor: Helper.getTextColor(context),
                         textStyle: const TextStyle(fontSize: 16),
                         borderRadius: BorderRadius.circular(10),
                         borderColor: Helper.getTextColor(context),
@@ -325,9 +325,9 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                 dateOfBirth == null
                                     ? "Select DOB"
                                     : dateOfBirth!,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.white,),
+                                    color: Helper.getTextColor(context),),
                               ),
                             ],
                           ),
@@ -369,13 +369,13 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                                     selectedValue,
                                                     textAlign:
                                                     TextAlign.start,
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                         fontSize: 14,
-                                                        color: Colors.white)),
+                                                        color: Helper.getTextColor(context))),
                                               ),
-                                              const Icon(
+                                              Icon(
                                                 Icons.keyboard_arrow_down,
-                                                color: Colors.grey,
+                                                color:Helper.getTextColor(context),
                                               )
                                             ],
                                           )),
@@ -384,9 +384,9 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                         value: item,
                                         child: Text(item,
                                             textAlign: TextAlign.start,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                                 fontSize: 14,
-                                                color: Colors.white)),
+                                                color: Helper.getTextColor(context))),
                                       ))
                                           .toList(),
                                       dropdownMaxHeight: 200,
@@ -426,9 +426,9 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                               color: Helper.getCardColor(context),
                               borderRadius: BorderRadius.all(Radius.circular(10))
                           ),
-                          child:  const Text("Update",
+                          child:  Text("Update",
                             style: TextStyle(
-                                color: Colors.white,
+                                color: Helper.getTextColor(context),
                                 fontSize: 14
                             ),),
                         ),

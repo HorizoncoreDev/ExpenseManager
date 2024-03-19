@@ -215,7 +215,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 isExpanded: true,
                                 icon: const Icon(
                                   Icons.keyboard_arrow_down,
-                                  color: Colors.grey,
+                                  color: Colors.white,
                                 ),
                               ),
                             )),
@@ -797,7 +797,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                 Text("Cash",
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                      color: Helper.getTextColor(context),
+                      color: Colors.white,
                       fontSize: 12
                   ),
                 ),

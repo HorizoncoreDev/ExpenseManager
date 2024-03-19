@@ -72,9 +72,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           shape: BoxShape.circle,
                           color: Helper.getCardColor(context)
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.search,
-                        color: Colors.white,
+                        color: Helper.getTextColor(context),
                         size: 20,
                       ),
                     ),
@@ -111,9 +111,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           shape: BoxShape.circle,
                           color: Helper.getCardColor(context)
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.filter_alt_rounded,
-                        color: Colors.white,
+                        color: Helper.getTextColor(context),
                         size: 20,
                       ),
                     ),
@@ -173,13 +173,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                             color: currPage == 1
                                                 ? Colors.blue
                                                 : Helper.getCardColor(context)),
-                                        child: const Align(
+                                        child: Align(
                                           alignment: Alignment.center,
                                           child: Text(
                                             'Spending',
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.white,
+                                              color: currPage == 1 ? Colors.white
+                                                  : Helper.getTextColor(context),
                                             ),
                                           ),
                                         )),
@@ -201,13 +202,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                             color: currPage == 2
                                                 ? Colors.blue
                                                 : Helper.getCardColor(context)),
-                                        child: const Align(
+                                        child: Align(
                                           alignment: Alignment.center,
                                           child: Text(
                                             'Income',
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.white,
+                                              color:  currPage == 2 ? Colors.white
+                                                  : Helper.getTextColor(context),
                                             ),
                                           ),
                                         )),
@@ -321,12 +323,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             children: [
                               Text("Dine out",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Helper.getTextColor(context),
                                 fontSize: 16
                               ),),
                               Text("-\u20B92,096",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color:Helper.getTextColor(context),
                                     fontSize: 14
                                 ),)
                             ],
@@ -337,12 +339,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           children: [
                             Text("-\u20B92,096",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 16
                               ),),
                             Text("100% total spending",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 14
                               ),)
                           ],
@@ -385,12 +387,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             children: [
                               Text("Living",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),),
                               Text("-\u20B95,100",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 14
                                 ),)
                             ],
@@ -434,12 +436,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             children: [
                               Text("Commuting",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),),
                               Text("-\u20B92,600",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 14
                                 ),)
                             ],
@@ -491,7 +493,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Expanded(
                   child: Text("OCTOBER/2023",
                     style: TextStyle(
-                        color: Helper.getCardColor(context),
+                        color: Helper.getTextColor(context),
                         fontSize: 15
                     ),),
                 ),
@@ -545,12 +547,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             children: [
                               Text("Dine out",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color:Helper.getTextColor(context),
                                     fontSize: 16
                                 ),),
                               Text("-\u20B92,096",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 14
                                 ),)
                             ],
@@ -561,12 +563,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           children: [
                             Text("-\u20B92,096",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color:Helper.getTextColor(context),
                                   fontSize: 16
                               ),),
                             Text("100% total spending",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 14
                               ),)
                           ],
@@ -636,7 +638,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
                       child: Text("YEAR",
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: Helper.getTextColor(context),
                         fontSize: 14
                       ),),
                     ),
@@ -661,7 +663,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
                       child: Text("MONTH(Can filter by one or more)",
                         style: TextStyle(
-                            color: Colors.grey,
+                            color: Helper.getTextColor(context),
                             fontSize: 14
                         ),),
                     ),
@@ -679,7 +681,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("January",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -696,7 +698,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("February",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -713,7 +715,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("March",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -737,7 +739,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("April",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -754,7 +756,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("May",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -771,7 +773,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("June",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -796,7 +798,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("July",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -813,7 +815,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("August",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -830,7 +832,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("September",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -855,7 +857,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("October",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -872,7 +874,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("November",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -889,7 +891,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                               child: Text("December",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16
                                 ),
                               ),
@@ -903,7 +905,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
                       child: Text("CATEGORY",
                         style: TextStyle(
-                            color: Colors.grey,
+                            color: Helper.getTextColor(context),
                             fontSize: 14
                         ),),
                     ),
@@ -931,7 +933,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             ),
                             child: Text(item.text,
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Helper.getTextColor(context),
                                   fontSize: 14
                               ),
                             ),
@@ -946,50 +948,50 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Colors.white,
+    final style = TextStyle(
+      color: Helper.getTextColor(context),
       fontSize: 12,
     );
     Widget text;
     switch (value.toInt()) {
       case 0:
-        text = const Text('1', style: style);
+        text = Text('1', style: style);
         break;
       case 1:
-        text = const Text('3', style: style);
+        text =  Text('3', style: style);
         break;
       case 2:
-        text = const Text('5', style: style);
+        text =  Text('5', style: style);
         break;
       case 3:
-        text = const Text('7', style: style);
+        text =  Text('7', style: style);
         break;
       case 4:
-        text = const Text('9', style: style);
+        text =  Text('9', style: style);
         break;
       case 5:
-        text = const Text('11', style: style);
+        text =  Text('11', style: style);
         break;
       case 6:
-        text = const Text('13', style: style);
+        text =  Text('13', style: style);
         break;
       case 7:
-        text = const Text('15', style: style);
+        text =  Text('15', style: style);
         break;
       case 8:
-        text = const Text('17', style: style);
+        text =  Text('17', style: style);
         break;
       case 9:
-        text = const Text('19', style: style);
+        text =  Text('19', style: style);
         break;
       case 10:
-        text = const Text('21', style: style);
+        text =  Text('21', style: style);
         break;
       case 11:
-        text = const Text('23', style: style);
+        text =  Text('23', style: style);
         break;
       default:
-        text = const Text('', style: style);
+        text =  Text('', style: style);
         break;
     }
 
@@ -1000,10 +1002,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Colors.white,
-      fontSize: 12,
-    );
     String text;
     switch (value.toInt()) {
       case 0:
@@ -1028,7 +1026,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         return Container();
     }
 
-    return Text(text, style: style, textAlign: TextAlign.left);
+    return Text(text, style: TextStyle(
+      color: Helper.getTextColor(context)
+    ), textAlign: TextAlign.left);
   }
 
   LineChartData mainData() {

@@ -158,6 +158,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 10 ,
+                        textStyle: TextStyle(
+                          color: Helper.getTextColor(context),
+                        ),
                         horizontalPadding: 5,
                         validator: (value) {
                           return null;
@@ -213,8 +216,8 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                     5.heightBox,
                     Expanded(
                       child: Container(
-                        decoration: const BoxDecoration(
-                            color: Color(0xff29292d),
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
                         child: GridView.builder(

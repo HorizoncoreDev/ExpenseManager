@@ -263,7 +263,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                                 bottomRight: Radius.circular(10),
                                 topLeft: Radius.circular(5))
                         ),
-                        child: const Icon(Icons.arrow_forward,size: 18,),
+                        child: Icon(Icons.arrow_forward,size: 18,color: Colors.white,),
                       ),
                     ),
                   ),
@@ -352,7 +352,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
               child: Column(
                 children: [
                   20.heightBox,
-                  const Icon(Icons.account_balance_wallet,color: Colors.white,size: 80,),
+                  Icon(Icons.account_balance_wallet,color: Helper.getTextColor(context),size: 80,),
                   10.heightBox,
                   Text("You don't have any expenses yet",
                   style: TextStyle(
@@ -518,7 +518,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                                 bottomRight: Radius.circular(10),
                                 topLeft: Radius.circular(5))
                         ),
-                        child: const Icon(Icons.arrow_forward,size: 18,),
+                        child: const Icon(Icons.arrow_forward,size: 18,color: Colors.white,),
                       ),
                     ),
                   ),

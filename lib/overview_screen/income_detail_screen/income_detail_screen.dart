@@ -54,7 +54,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                         onTap: (){
                           Navigator.pop(context);
                         },
-                        child: Icon(Icons.arrow_back_ios,color: Colors.white,size: 20,)),
+                        child: Icon(Icons.arrow_back_ios,color: Helper.getTextColor(context),size: 20,)),
                     10.widthBox,
                     Text("1/2024",
                         style: TextStyle(
@@ -94,13 +94,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
+                          color: Helper.getCardColor(context)
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.filter_alt_rounded,
-                        color: Colors.white,
+                        color: Helper.getTextColor(context),
                         size: 20,
                       ),
                     ),
@@ -117,8 +117,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                     children: [
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
-                        decoration: const BoxDecoration(
-                            color: Color(0xff30302d),
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
                         child: Row(
@@ -162,14 +162,14 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                     5.widthBox,
                                     Text("Collected",
                                       style: TextStyle(
-                                          color: Colors.white,
+                                          color: Helper.getTextColor(context),
                                           fontSize: 12
                                       ),),
                                   ],
                                 ),
                                 Text("\u20B90",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold
                                   ),),
@@ -190,14 +190,14 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                     5.widthBox,
                                     Text("Missing",
                                       style: TextStyle(
-                                          color: Colors.white,
+                                          color: Helper.getTextColor(context),
                                           fontSize: 12
                                       ),),
                                   ],
                                 ),
                                 Text("\u20B9798,136.33",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold
                                   ),),
@@ -214,10 +214,11 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                               Radius.circular(5)),
                           keyboardType: TextInputType.text,
                           hintText: "Notes, categories",
-                          fillColor: Color(0xff30302d),
+                          fillColor: Helper.getCardColor(context),
                           borderColor: Colors.transparent,
                           padding: 10 ,
                           horizontalPadding: 5,
+                          textStyle: TextStyle(color: Helper.getTextColor(context)),
                           suffixIcon: Padding(
                             padding: const EdgeInsets.only(right: 10),
                             child: Icon(Icons.search,size: 22,color: Colors.grey,),
@@ -228,18 +229,18 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
 
                       20.heightBox,
                       Container(
-                          decoration: const BoxDecoration(
-                              color: Color(0xff30302d),
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
                               borderRadius: BorderRadius.all(Radius.circular(10))
                           ),
                           child: Column(
                             children: [
                               20.heightBox,
-                              Icon(Icons.account_balance_wallet,color: Colors.white,size: 80,),
+                              Icon(Icons.account_balance_wallet,color:Helper.getTextColor(context),size: 80,),
                               10.heightBox,
                               Text("You don't have any income yet",
                                 style: TextStyle(
-                                    color: Colors.grey
+                                    color: Helper.getTextColor(context)
                                 ),),
                               20.heightBox,
                               Padding(
@@ -335,7 +336,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
                 child: Text("YEAR",
                   style: TextStyle(
-                      color: Colors.grey,
+                      color: Helper.getTextColor(context),
                       fontSize: 14
                   ),),
               ),
@@ -360,7 +361,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
                 child: Text("MONTH(Can filter by one or more)",
                   style: TextStyle(
-                      color: Colors.grey,
+                      color: Helper.getTextColor(context),
                       fontSize: 14
                   ),),
               ),
@@ -372,13 +373,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("January",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -389,13 +390,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("February",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -406,13 +407,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("March",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -430,13 +431,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("April",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -447,13 +448,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("May",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -464,13 +465,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("June",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -489,13 +490,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("July",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -506,13 +507,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("August",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -523,13 +524,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("September",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -548,13 +549,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("October",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -565,13 +566,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("November",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -582,13 +583,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration:  BoxDecoration(
+                            color: Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))
                         ),
                         child: Text("December",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -624,13 +625,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                     return Container(
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                          color: Colors.white10,
+                      decoration:  BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(5))
                       ),
                       child: Text(item.text,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 14
                         ),
                       ),

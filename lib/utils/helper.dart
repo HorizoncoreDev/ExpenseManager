@@ -30,4 +30,15 @@ class Helper {
     return themeNotifier.getTheme().cardColor;
   }
 
+  static BottomNavigationBarThemeData getBottomNavigationColor(BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().bottomNavigationBarTheme;
+  }
+
+  static Color getMiddleBottomNavBarItem(BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().canvasColor;
+  }
+
+
 }

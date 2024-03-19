@@ -118,7 +118,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           shape: BoxShape.circle,
                           color: Helper.getCardColor(context)
                       ),
-                      child: const Icon(Icons.edit,color: Colors.white,)
+                      child: Icon(Icons.edit,color: Helper.getTextColor(context),)
                   ),
                 ),
                 10.widthBox
@@ -135,8 +135,8 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                     20.heightBox,
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
-                      decoration: const BoxDecoration(
-                          color: Colors.grey,
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(
                               Radius.circular(10))
                       ),
@@ -149,7 +149,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                    color: Colors.white70),
+                                    color: Helper.getTextColor(context)),
                               ),
                               child: Container(
                                   height: 50,
@@ -158,8 +158,8 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: Colors.white70),
-                                  child: const Center(
-                                      child: Icon(Icons.person,color: Colors.grey,size: 35,)))),
+                                  child: Center(
+                                      child: Icon(Icons.person,color: Helper.getTextColor(context),size: 35,)))),
                           20.widthBox,
                            Expanded(
                             child: Column(
@@ -167,13 +167,13 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                               children: [
                                 Text(fullName??"",
                                     style: TextStyle(
-                                        color: Colors.white,
+                                        color: Helper.getTextColor(context),
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold
                                     )),
                                 Text(email??"",
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 12,
                                     )),
                               ],
@@ -215,11 +215,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   ),
                                 ),
                                 15.widthBox,
-                                const Expanded(
+                                Expanded(
                                   child: Text("Account linked",
                                     style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.white
+                                        color: Helper.getTextColor(context)
                                     ),),
                                 ),
                                 SvgPicture.asset(ImageConstanst.icGoogle,width:24,height: 24,),
@@ -246,11 +246,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   ),
                                 ),
                                 15.widthBox,
-                                const Expanded(
+                                Expanded(
                                   child: Text("User code",
                                     style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.white
+                                        color: Helper.getTextColor(context)
                                     ),),
                                 ),
                                 const Text("EZR64Q",
@@ -295,11 +295,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                     ),
                                   ),
                                   15.widthBox,
-                                  const Expanded(
+                                  Expanded(
                                     child: Text("Logout",
                                       style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.white
+                                          color: Helper.getTextColor(context)
                                       ),),
                                   ),
                                 ],
@@ -424,7 +424,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
             vertical: 15,
           ),
           insetPadding: const EdgeInsets.all(15),
-          backgroundColor: Colors.black,
+          backgroundColor: Helper.getCardColor(context),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -436,14 +436,14 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                     onTap: () {
                       Navigator.pop(cont);
                     },
-                    child: const Icon(Icons.close, color: Colors.grey),
+                    child: Icon(Icons.close, color: Helper.getTextColor(context)),
                   ),
                 ),
                 10.heightBox,
-                const Text(
+                Text(
                   "Are you sure you want to delete this account?",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Helper.getTextColor(context),
                     fontSize: 20,
                   ),
                 ),
@@ -457,10 +457,10 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                         onTap: (){
                           Navigator.pop(cont);
                         },
-                        child: const Text(
+                        child: Text(
                           "No",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -471,10 +471,10 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                         onTap: (){
                           Navigator.pop(cont);
                         },
-                        child: const Text(
+                        child: Text(
                           "Yes",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -507,7 +507,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
             vertical: 15,
           ),
           insetPadding: const EdgeInsets.all(15),
-          backgroundColor: Colors.black,
+          backgroundColor: Helper.getCardColor(context),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -520,15 +520,15 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                     onTap: () {
                       Navigator.pop(cont);
                     },
-                    child: const Icon(Icons.close, color: Colors.grey),
+                    child: Icon(Icons.close, color: Helper.getTextColor(context)),
                   ),
                 ),
                 10.heightBox,
-                const Text(
+                Text(
                   "Are you sure you want to clear data?",
                   textAlign: TextAlign.start,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Helper.getTextColor(context),
                     fontSize: 20,
                   ),
                 ),
@@ -542,10 +542,10 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                         onTap: (){
                           Navigator.pop(cont);
                         },
-                        child: const Text(
+                        child: Text(
                           "No",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -556,10 +556,10 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                         onTap: (){
                           Navigator.pop(cont);
                         },
-                        child: const Text(
+                        child: Text(
                           "Yes",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),

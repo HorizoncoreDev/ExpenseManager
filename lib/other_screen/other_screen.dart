@@ -222,8 +222,8 @@ class _OtherScreenState extends State<OtherScreen> {
                                       Text(
                                         'My family',
                                         textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: Helper.getTextColor(context),
                                           fontSize: 12.0,
                                         ),
                                       ),
@@ -255,8 +255,8 @@ class _OtherScreenState extends State<OtherScreen> {
                                       Text(
                                         'Category',
                                         textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: Helper.getTextColor(context),
                                           fontSize: 12.0,
                                         ),
                                       ),
@@ -288,8 +288,8 @@ class _OtherScreenState extends State<OtherScreen> {
                                       Text(
                                         'My Library',
                                         textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style:  TextStyle(
+                                          color:Helper.getTextColor(context),
                                           fontSize: 12.0,
                                         ),
                                       ),
@@ -341,16 +341,16 @@ class _OtherScreenState extends State<OtherScreen> {
                                           ),
                                         ),
                                         15.widthBox,
-                                        const Expanded(
+                                        Expanded(
                                           child: Text("General settings",
                                             style: TextStyle(
                                                 fontSize: 16,
-                                                color: Colors.white
+                                                color: Helper.getTextColor(context)
                                             ),),
                                         ),
-                                        const Icon(
+                                        Icon(
                                           Icons.arrow_forward_ios_rounded,
-                                          color: Colors.white,
+                                          color: Helper.getTextColor(context),
                                           size: 16  ,
                                         )
                                       ],
@@ -378,16 +378,16 @@ class _OtherScreenState extends State<OtherScreen> {
                                         ),
                                       ),
                                       15.widthBox,
-                                      const Expanded(
+                                      Expanded(
                                         child: Text("Invite friends",
                                           style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.white
+                                              color: Helper.getTextColor(context)
                                           ),),
                                       ),
-                                      const Icon(
+                                      Icon(
                                         Icons.arrow_forward_ios_rounded,
-                                        color: Colors.white,
+                                        color: Helper.getTextColor(context),
                                         size: 16  ,
                                       )
                                     ],
@@ -418,16 +418,16 @@ class _OtherScreenState extends State<OtherScreen> {
                                           ),
                                         ),
                                         15.widthBox,
-                                        const Expanded(
+                                        Expanded(
                                           child: Text("Rate the app",
                                             style: TextStyle(
                                                 fontSize: 16,
-                                                color: Colors.white
+                                                color:Helper.getTextColor(context)
                                             ),),
                                         ),
-                                        const Icon(
+                                        Icon(
                                           Icons.arrow_forward_ios_rounded,
-                                          color: Colors.white,
+                                          color: Helper.getTextColor(context),
                                           size: 16  ,
                                         )
                                       ],
@@ -455,17 +455,17 @@ class _OtherScreenState extends State<OtherScreen> {
                                         ),
                                       ),
                                       15.widthBox,
-                                      const Expanded(
+                                      Expanded(
                                         child: Text("Version",
                                           style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.white
+                                              color: Helper.getTextColor(context)
                                           ),),
                                       ),
-                                      const Text("2.0.1",
+                                      Text("2.0.1",
                                         style: TextStyle(
                                             fontSize: 16,
-                                            color: Colors.white
+                                            color: Helper.getTextColor(context)
                                         ),),
                                     ],
                                   ),
@@ -501,7 +501,7 @@ class _OtherScreenState extends State<OtherScreen> {
           contentPadding: const EdgeInsets.symmetric(
               horizontal: 20, vertical: 15),
           insetPadding: const EdgeInsets.all(15),
-          backgroundColor: Colors.black,
+          backgroundColor: Helper.getCardColor(context),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -515,11 +515,11 @@ class _OtherScreenState extends State<OtherScreen> {
                       onTap: (){
                         Navigator.pop(cont);
                       },
-                        child: Icon(Icons.close,color: Colors.grey,))),
+                        child: Icon(Icons.close,color: Helper.getTextColor(context),))),
 
                 Text("Review",
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Helper.getTextColor(context),
                       fontSize: 26,
                     fontWeight: FontWeight.bold
                   ),),
@@ -528,7 +528,7 @@ class _OtherScreenState extends State<OtherScreen> {
 
                 Text("Do you like this app?",
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Helper.getTextColor(context),
                       fontSize: 16,
                   ),),
                 30.heightBox,
@@ -540,7 +540,7 @@ class _OtherScreenState extends State<OtherScreen> {
                           Icon(Icons.account_circle,color: Colors.grey,size: 50,),
                           Text("No",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16,
                             ),),
                         ],
@@ -551,7 +551,7 @@ class _OtherScreenState extends State<OtherScreen> {
                         Icon(Icons.account_circle,color: Colors.grey,size: 50,),
                         Text("Like",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 16,
                           ),),
                       ],
@@ -561,7 +561,7 @@ class _OtherScreenState extends State<OtherScreen> {
                         Icon(Icons.account_circle,color: Colors.grey,size: 50,),
                         Text("Like so much",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 16,
                           ),),
                       ],
@@ -574,7 +574,7 @@ class _OtherScreenState extends State<OtherScreen> {
                         text: "Please leave a review ",
                         style: TextStyle(
                           fontSize: 16,
-                          color:Colors.white,),
+                          color:Helper.getTextColor(context),),
                         children: [
                           TextSpan(
                             text: "5 stars ",
@@ -585,7 +585,7 @@ class _OtherScreenState extends State<OtherScreen> {
                             text: "for this app on the AppStore?",
                             style: TextStyle(
                               fontSize: 16,
-                              color:Colors.white,),),
+                              color:Helper.getTextColor(context),),),
                         ])),
                 
                 30.heightBox,
@@ -611,7 +611,7 @@ class _OtherScreenState extends State<OtherScreen> {
                 10.heightBox,
                 Text("Your 5 star review is a great reward to us!",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Helper.getTextColor(context),
                     fontSize: 12,
                   ),),
 

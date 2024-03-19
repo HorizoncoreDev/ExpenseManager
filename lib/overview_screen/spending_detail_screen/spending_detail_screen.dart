@@ -97,9 +97,9 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                           shape: BoxShape.circle,
                           color: Helper.getCardColor(context)
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.filter_alt_rounded,
-                        color: Colors.white,
+                        color: Helper.getTextColor(context),
                         size: 20,
                       ),
                     ),
@@ -161,14 +161,14 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                     5.widthBox,
                                     Text("Collected",
                                       style: TextStyle(
-                                          color: Colors.white,
+                                          color: Helper.getTextColor(context),
                                           fontSize: 12
                                       ),),
                                   ],
                                 ),
                                 Text("\u20B90",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold
                                   ),),
@@ -189,14 +189,14 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                     5.widthBox,
                                     Text("Missing",
                                       style: TextStyle(
-                                          color: Colors.white,
+                                          color: Helper.getTextColor(context),
                                           fontSize: 12
                                       ),),
                                   ],
                                 ),
                                 Text("\u20B9798,136.33",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold
                                   ),),
@@ -216,6 +216,9 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                           fillColor: Helper.getCardColor(context),
                           borderColor: Colors.transparent,
                           padding: 10 ,
+                          textStyle: TextStyle(
+                            color: Helper.getTextColor(context)
+                          ),
                           horizontalPadding: 5,
                           suffixIcon: Padding(
                             padding: const EdgeInsets.only(right: 10),
@@ -234,11 +237,11 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                           child: Column(
                             children: [
                               20.heightBox,
-                              Icon(Icons.account_balance_wallet,color: Colors.white,size: 80,),
+                              Icon(Icons.account_balance_wallet,color:Helper.getTextColor(context),size: 80,),
                               10.heightBox,
                               Text("You don't have any spending yet",
                                 style: TextStyle(
-                                    color: Colors.grey
+                                    color: Helper.getTextColor(context)
                                 ),),
                               20.heightBox,
                               Padding(
@@ -334,7 +337,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
                 child: Text("YEAR",
                   style: TextStyle(
-                      color: Colors.grey,
+                      color:Helper.getTextColor(context),
                       fontSize: 14
                   ),),
               ),
@@ -359,7 +362,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
                 child: Text("MONTH(Can filter by one or more)",
                   style: TextStyle(
-                      color: Colors.grey,
+                      color: Helper.getTextColor(context),
                       fontSize: 14
                   ),),
               ),
@@ -377,7 +380,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("January",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -394,7 +397,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("February",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -411,7 +414,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("March",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -435,7 +438,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("April",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -452,7 +455,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("May",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -469,7 +472,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("June",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -494,7 +497,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("July",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -511,7 +514,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("August",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -528,7 +531,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("September",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -553,7 +556,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("October",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -570,7 +573,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("November",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -587,7 +590,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         ),
                         child: Text("December",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                               fontSize: 16
                           ),
                         ),
@@ -629,7 +632,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       ),
                       child: Text(item.text,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 14
                         ),
                       ),

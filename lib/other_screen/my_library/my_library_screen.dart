@@ -56,18 +56,18 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
                     children: [
                       20.heightBox,
                       Container(
-                          decoration: const BoxDecoration(
-                              color: Color(0xff30302d),
+                          decoration: BoxDecoration(
+                              color:Helper.getCardColor(context),
                               borderRadius: BorderRadius.all(Radius.circular(10))
                           ),
                           child: Column(
                             children: [
                               20.heightBox,
-                              Icon(Icons.account_balance_wallet,color: Colors.white,size: 80,),
+                              Icon(Icons.account_balance_wallet,color: Helper.getTextColor(context),size: 80,),
                               10.heightBox,
                               Text("You don't have any library yet",
                                 style: TextStyle(
-                                    color: Colors.grey
+                                    color: Helper.getTextColor(context)
                                 ),),
                               20.heightBox,
                               Padding(

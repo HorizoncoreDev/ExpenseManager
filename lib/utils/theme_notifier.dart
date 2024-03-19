@@ -22,8 +22,13 @@ class ThemeNotifier with ChangeNotifier {
     backgroundColor: Colors.black87,
     hintColor: Colors.white,
     cardColor: const Color(0xff30302d),
-    dividerColor: Colors.black26,
-
+    dividerColor: const Color(0xff30302d),
+    canvasColor: Colors.blue,
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: const Color(0xff30302d),
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.white60,
+    )
   );
 
   final lightTheme = ThemeData(
@@ -32,8 +37,15 @@ class ThemeNotifier with ChangeNotifier {
     brightness: Brightness.light,
     backgroundColor: Colors.white60,
     hintColor: Colors.black,
+    canvasColor: const Color(0xffdadae0),
     cardColor: const Color(0xffe4e5e9),
-    dividerColor: Colors.white54,
+    dividerColor: Colors.blue,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: Colors.blue,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.black87
+
+      )
   );
 
 
