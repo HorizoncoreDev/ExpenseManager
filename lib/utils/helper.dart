@@ -31,6 +31,11 @@ class Helper {
     return themeNotifier.getTheme().hintColor;
   }
 
+  static Color getCategoriesItemColors(BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().dividerColor;
+  }
+
   static Future<void> addDefaultCategories() async {
     final databaseHelper = DatabaseHelper.instance;
 
@@ -170,19 +175,20 @@ class Helper {
 
   static void showLoading(BuildContext context) {
 
-      AlertDialog alert=AlertDialog(
-        content: Row(
-          children: [
-            CircularProgressIndicator(),
-            Container(margin: EdgeInsets.only(left: 7),child:Text("Loading..." )),
-          ],),
-      );
-      showDialog(barrierDismissible: false,
-        context:context,
-        builder:(BuildContext context){
-          return alert;
-        },
-      );
+
+    AlertDialog alert=AlertDialog(
+      content: Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(margin: EdgeInsets.only(left: 7),child:Text("Loading..." )),
+        ],),
+    );
+    showDialog(barrierDismissible: false,
+      context:context,
+      builder:(BuildContext context){
+        return alert;
+      },
+    );
   }
 
   static void hideLoading(context) {

@@ -25,6 +25,7 @@ class TransactionFields {
 
   static const String id = 'id';
   static const String member_id = 'member_id';
+  static const String member_email = 'member_email';
   static const String amount = 'amount';
   static const String expense_cat_id = 'expense_cat_id';
   static const String income_cat_id = 'income_cat_id';
@@ -46,6 +47,7 @@ class TransactionFields {
 class TransactionModel {
   int? id;
   int? member_id;
+  String? member_email;
   double? amount;
   int? expense_cat_id;
   int? income_cat_id;
@@ -66,6 +68,7 @@ class TransactionModel {
   TransactionModel({
     this.id,
     this.member_id,
+    this.member_email,
     this.amount,
     this.expense_cat_id,
     this.income_cat_id,
@@ -88,6 +91,7 @@ class TransactionModel {
     return TransactionModel(
       id: map['id'],
       member_id: map['member_id'],
+      member_email: map['member_email'],
       amount: map['amount'],
       expense_cat_id: map['expense_cat_id'],
       income_cat_id: map['income_cat_id'],
@@ -111,6 +115,7 @@ class TransactionModel {
     return {
       'id': id,
       'member_id': member_id,
+      'member_email': member_email,
       'amount': amount,
       'expense_cat_id': expense_cat_id,
       'income_cat_id': income_cat_id,

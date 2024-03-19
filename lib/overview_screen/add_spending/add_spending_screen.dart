@@ -42,7 +42,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   TextEditingController descriptionController = TextEditingController();
 
   int currPage = 1;
-
+  bool isSkippedUser = false;
   String selectedValue = 'Spending';
   List<String> dropdownItems = ['Spending', 'Income'];
 
@@ -129,6 +129,13 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         userEmail = value;
       }
     });
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
+        isSkippedUser = value;
+      }
+    });
     getSpendingCategory();
   }
 
@@ -157,6 +164,43 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   int selectedIncomeSubIndex = -1;
   int selectedIncomeIndex = -1;
 
+  createSpendingIncome(BuildContext context,int id,String email) async {
+
+      await databaseHelper.insertTransactionData(
+        TransactionModel(
+            member_id: id,
+            member_email: email,
+            amount: double.parse(amountController.text),
+            expense_cat_id: selectedSpendingIndex,
+            sub_expense_cat_id: selectedSpendingSubIndex,
+            income_cat_id: selectedIncomeIndex,
+            sub_income_cat_id: selectedIncomeSubIndex,
+            payment_method_id: AppConstanst.cashPaymentType,
+            status: 1,
+            transaction_date:
+            '${formattedDate()} ${formattedTime()}',
+            transaction_type: selectedValue == "Spending"
+                ? AppConstanst.spendingTransaction
+                : AppConstanst.incomeTransaction,
+            description: descriptionController.text,
+            currency_id: AppConstanst.rupeesCurrency,
+            receipt_image1: image1?.path ?? "",
+            receipt_image2: image2?.path ?? "",
+            receipt_image3: image3?.path ?? "",
+            created_at: DateTime.now().toString(),
+            last_updated: DateTime.now().toString()),
+      ).then((value) {
+        if(value!=null){
+          Helper.hideLoading(context);
+          Helper.showToast(selectedValue == "Spending"
+              ? "Spending created successfully"
+              : "Income created successfully");
+          Navigator.of(context).pop();
+        }
+      });
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AddSpendingBloc, AddSpendingState>(
@@ -167,7 +211,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         return Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
-              backgroundColor: const Color(0xff29292d),
+              backgroundColor: Helper.getBackgroundColor(context),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -175,10 +219,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                     onTap: () {
                       Navigator.of(context).pop();
                     },
-                    child: const Text(
+                    child: Text(
                       "Cancel",
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 16),
+                      style: TextStyle(color: Helper.getTextColor(context), fontSize: 16),
                     ),
                   ),
                   10.widthBox,
@@ -230,7 +274,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               isExpanded: true,
                               icon: const Icon(
                                 Icons.keyboard_arrow_down,
-                                color: Colors.grey,
+                                color: Colors.white,
                               ),
                             ),
                           )),
@@ -253,39 +297,18 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               selectedIncomeSubIndex == -1)) {
                         Helper.showToast("Please select sub category");
                       } else {
-                        await databaseHelper
-                            .getProfileData(userEmail)
-                            .then((value) async {
-                          ProfileModel? profileData = value;
-                          await databaseHelper.insertTransactionData(
-                            TransactionModel(
-                                member_id:
-                                    profileData != null ? profileData.id : -1,
-                                amount: double.parse(amountController.text),
-                                expense_cat_id: selectedSpendingIndex,
-                                sub_expense_cat_id: selectedSpendingSubIndex,
-                                income_cat_id: selectedIncomeIndex,
-                                sub_income_cat_id: selectedIncomeSubIndex,
-                                payment_method_id: AppConstanst.cashPaymentType,
-                                status: 1,
-                                transaction_date:
-                                    '${formattedDate()} ${formattedTime()}',
-                                transaction_type: selectedValue == "Spending"
-                                    ? AppConstanst.spendingTransaction
-                                    : AppConstanst.incomeTransaction,
-                                description: descriptionController.text,
-                                currency_id: AppConstanst.rupeesCurrency,
-                                receipt_image1: image1?.path ?? "",
-                                receipt_image2: image2?.path ?? "",
-                                receipt_image3: image3?.path ?? "",
-                                created_at: DateTime.now().toString(),
-                                last_updated: DateTime.now().toString()),
-                          );
-                        });
-                        Helper.showToast(selectedValue == "Spending"
-                            ? "Spending created successfully"
-                            : "Income created successfully");
-                        Navigator.of(context).pop();
+                        Helper.showLoading(context);
+                        if(!isSkippedUser){
+                          await databaseHelper
+                              .getProfileData(userEmail)
+                              .then((value) async {
+                            createSpendingIncome(context,value.id!,value.email!);
+                          });
+                        }
+                        else{
+                          createSpendingIncome(context,-1,"");
+                        }
+
                       }
                     },
                     child: const Text(
@@ -299,7 +322,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
             body: Container(
               width: double.infinity,
               height: double.infinity,
-              color: Colors.black87,
+              color: Helper.getBackgroundColor(context),
               padding:
                   const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
               child: SingleChildScrollView(
@@ -308,8 +331,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                     Row(children: [
                       Container(
                         padding: const EdgeInsets.all(5),
-                        decoration: const BoxDecoration(
-                            shape: BoxShape.circle, color: Color(0xff152029)),
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle, color: Helper.getCardColor(context)),
                         child: const Icon(
                           Icons.currency_exchange,
                           color: Colors.blue,
@@ -327,7 +350,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               hintText: "0",
                               hintFontSize: 20,
                               hintColor: Colors.blue,
-                              fillColor: Colors.white10,
+                              fillColor: Helper.getCardColor(context),
                               textAlign: TextAlign.end,
                               borderColor: Colors.transparent,
                               textStyle: const TextStyle(
@@ -340,11 +363,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(
                             vertical: 14.2, horizontal: 5),
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
                             border: Border(
                               left: BorderSide(
-                                color: Colors.white10,
+                                color: Helper.getCardColor(context),
                               ),
                             ),
                             borderRadius: BorderRadius.only(
@@ -358,10 +381,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 style: TextStyle(
                                     fontSize: 16, color: Colors.blue)),
                             5.widthBox,
-                            const Icon(
+                            Icon(
                               Icons.arrow_forward_ios_outlined,
                               size: 12,
-                              color: Colors.white,
+                              color: Helper.getTextColor(context),
                             )
                           ],
                         ),
@@ -391,14 +414,14 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(5),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Color(0xff29292d),
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(5))),
                               child: Text(
                                 amount[index],
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 14),
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context), fontSize: 14),
                               ),
                             ),
                           );
@@ -412,10 +435,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                     selectedValue == "Spending"
                         ? Row(
                             children: [
-                              const Text(
+                              Text(
                                 "CATEGORY",
                                 style:
-                                    TextStyle(color: Colors.grey, fontSize: 14),
+                                    TextStyle(color: Helper.getTextColor(context), fontSize: 14),
                               ),
                               10.widthBox,
                               const Icon(
@@ -441,15 +464,15 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                           child: Text(
                                             selectedItemList[0].name.toString(),
                                             textAlign: TextAlign.end,
-                                            style: const TextStyle(
-                                                color: Colors.white,
+                                            style: TextStyle(
+                                                color: Helper.getTextColor(context),
                                                 fontSize: 14),
                                           ),
                                         ),
                                         5.widthBox,
-                                        const Icon(
+                                        Icon(
                                           Icons.highlight_remove,
-                                          color: Colors.white,
+                                          color: Helper.getTextColor(context),
                                           size: 18,
                                         )
                                       ],
@@ -476,10 +499,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           )
                         : Row(
                             children: [
-                              const Text(
+                              Text(
                                 "CATEGORY",
                                 style:
-                                    TextStyle(color: Colors.grey, fontSize: 14),
+                                    TextStyle(color: Helper.getTextColor(context), fontSize: 14),
                               ),
                               10.widthBox,
                               const Icon(
@@ -492,8 +515,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                   child: Text(
                                     selectedIncomeItemList[0].name.toString(),
                                     textAlign: TextAlign.end,
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 14),
+                                    style: TextStyle(
+                                        color: Helper.getTextColor(context), fontSize: 14),
                                   ),
                                 ),
                               5.widthBox,
@@ -507,11 +530,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                         selectedIncomeItemList.clear();
                                       });
                                     },
-                                    child: const SizedBox(
+                                    child: SizedBox(
                                       width: 50,
                                       child: Icon(
                                         Icons.highlight_remove,
-                                        color: Colors.white,
+                                        color: Helper.getTextColor(context),
                                         size: 18,
                                       ),
                                     )),
@@ -555,9 +578,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                       decoration: BoxDecoration(
                                           color: selectedSpendingIndex == index
                                               ? spendingSubCategories.isNotEmpty
-                                                  ? Colors.white10
+                                                  ? Helper.getCategoriesItemColors(context)
                                                   : Colors.blue
-                                              : Colors.white10,
+                                              : Helper.getCategoriesItemColors(context),
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(5))),
                                       child: Column(
@@ -578,8 +601,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                             child: Text(
                                               item.name.toString(),
                                               overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                  color: Colors.white,
+                                              style: TextStyle(
+                                                  color: Helper.getTextColor(context),
                                                   fontSize: 10),
                                             ),
                                           ),
@@ -641,7 +664,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                       selectedSpendingSubIndex ==
                                                               index
                                                           ? Colors.blue
-                                                          : Colors.white10,
+                                                          : Helper.getCardColor(context),
                                                   borderRadius:
                                                       const BorderRadius.all(
                                                           Radius.circular(5))),
@@ -652,8 +675,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                       item.name!,
                                                       overflow:
                                                           TextOverflow.ellipsis,
-                                                      style: const TextStyle(
-                                                          color: Colors.white,
+                                                      style: TextStyle(
+                                                          color: selectedSpendingSubIndex == index ? Colors.white : Colors.black87,
                                                           fontSize: 12),
                                                     ),
                                                   ),
@@ -706,9 +729,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                       decoration: BoxDecoration(
                                           color: selectedIncomeIndex == index
                                               ? incomeSubCategories.isNotEmpty
-                                                  ? Colors.white10
+                                                  ? Helper.getCardColor(context)
                                                   : Colors.blue
-                                              : Colors.white10,
+                                              : Helper.getCardColor(context),
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(5))),
                                       child: Column(
@@ -727,8 +750,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                             child: Text(
                                               item.name.toString(),
                                               overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                  color: Colors.white,
+                                              style: TextStyle(
+                                                  color: selectedIncomeIndex == index ? Colors.white : Colors.black87,
                                                   fontSize: 10),
                                             ),
                                           ),
@@ -789,7 +812,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                       selectedIncomeSubIndex ==
                                                               index
                                                           ? Colors.blue
-                                                          : Colors.white10,
+                                                          : Helper.getCardColor(context),
                                                   borderRadius:
                                                       const BorderRadius.all(
                                                           Radius.circular(5))),
@@ -800,8 +823,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                       item.name!,
                                                       overflow:
                                                           TextOverflow.ellipsis,
-                                                      style: const TextStyle(
-                                                          color: Colors.white,
+                                                      style: TextStyle(
+                                                          color: Helper.getTextColor(context),
                                                           fontSize: 12),
                                                     ),
                                                   ),
@@ -820,8 +843,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                     Row(children: [
                       Container(
                         padding: const EdgeInsets.all(5),
-                        decoration: const BoxDecoration(
-                            shape: BoxShape.circle, color: Color(0xff152029)),
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle, color: Helper.getCardColor(context)),
                         child: const Icon(
                           Icons.calendar_month_sharp,
                           color: Colors.blue,
@@ -837,8 +860,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 5, horizontal: 5),
                           alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                              color: Colors.white10,
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(5))),
                           child: const Icon(
@@ -853,8 +876,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 7, horizontal: 5),
                           alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                              color: Colors.white10,
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(5))),
                           child: Row(
@@ -862,12 +885,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             children: [
                               Text(
                                 formattedDate(),
-                                style: const TextStyle(color: Colors.white),
+                                style: TextStyle(color: Helper.getTextColor(context)),
                               ),
                               5.widthBox,
                               Text(
                                 formattedTime(),
-                                style: const TextStyle(color: Colors.white),
+                                style: TextStyle(color: Helper.getTextColor(context)),
                               ),
                             ],
                           ),
@@ -882,8 +905,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 5, horizontal: 5),
                           alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                              color: Colors.white10,
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(5))),
                           child: const Icon(
@@ -926,13 +949,13 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             ),
                           ],
                         ),
-                        const Positioned(
+                        Positioned(
                           bottom: -8,
                           left: 0,
                           right: 0,
                           child: Divider(
                             thickness: 2,
-                            color: Colors.grey,
+                            color:Helper.getCardColor(context),
                           ),
                         ),
                       ],
@@ -956,9 +979,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
             children: [
               Row(children: [
                 Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Color(0xff152029)),
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle, color :Helper.getCardColor(context)),
                   child: const Icon(
                     Icons.menu,
                     color: Colors.blue,
@@ -973,10 +996,13 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             const BorderRadius.all(Radius.circular(5)),
                         keyboardType: TextInputType.text,
                         hintText: "Enter description",
-                        fillColor: Colors.white10,
+                        fillColor:  Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 11,
                         horizontalPadding: 5,
+                        textStyle: TextStyle(
+                            color: Helper.getTextColor(context)
+                        ),
                         validator: (value) {
                           return null;
                         })),
@@ -985,8 +1011,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
               Row(children: [
                 Container(
                   padding: const EdgeInsets.all(5),
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Color(0xff152029)),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle, color: Helper.getCardColor(context)),
                   child: const Icon(
                     Icons.menu,
                     color: Colors.blue,
@@ -1021,8 +1047,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
               Row(children: [
                 Container(
                   padding: const EdgeInsets.all(5),
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Color(0xff152029)),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle, color:Helper.getCardColor(context)),
                   child: const Icon(
                     Icons.menu,
                     color: Colors.blue,

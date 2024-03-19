@@ -67,6 +67,7 @@ class DatabaseHelper {
       CREATE TABLE $transaction_table (
       ${TransactionFields.id} $idType,
       ${TransactionFields.member_id} $integerType,
+      ${TransactionFields.member_email} $textType,
       ${TransactionFields.amount} $integerType,
       ${TransactionFields.expense_cat_id} $integerType,
       ${TransactionFields.income_cat_id} $integerType,
