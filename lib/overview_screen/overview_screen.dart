@@ -367,10 +367,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 35),
                     child: InkWell(
                       onTap: (){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const AddSpendingScreen()),
-                        );
+                        Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => const AddSpendingScreen()),);
                       },
                       child: Container(
                         width: double.infinity,

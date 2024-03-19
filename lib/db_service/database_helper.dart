@@ -55,7 +55,6 @@ class DatabaseHelper {
       ${UserTableFields.username} $integerType,
       ${UserTableFields.full_name} $integerType,
       ${UserTableFields.password} $textType,
-      ${UserTableFields.mobile_number} $integerType,
       ${UserTableFields.email} $integerType,
       ${UserTableFields.current_balance} $integerType,
       ${UserTableFields.profile_image} $textType,
@@ -73,14 +72,15 @@ class DatabaseHelper {
       ${TransactionFields.income_cat_id} $integerType,
       ${TransactionFields.sub_expense_cat_id} $integerType,
       ${TransactionFields.sub_income_cat_id} $integerType,
-      ${TransactionFields.payee_id} $integerType,
-      ${TransactionFields.payer_id} $integerType,
       ${TransactionFields.payment_method_id} $integerType,
       ${TransactionFields.status} $integerType,
-      ${TransactionFields.check_no} $textType,
+      ${TransactionFields.transaction_date} $integerType,
+      ${TransactionFields.transaction_type} $integerType,
       ${TransactionFields.description} $textType,
       ${TransactionFields.currency_id} $integerType,
-      ${TransactionFields.receipt_image} $textType,
+      ${TransactionFields.receipt_image1} $textType,
+      ${TransactionFields.receipt_image2} $textType,
+      ${TransactionFields.receipt_image3} $textType,
       ${TransactionFields.created_at} $textType,
       ${TransactionFields.last_updated} $textType
       )
@@ -152,15 +152,14 @@ class DatabaseHelper {
       ${ProfileTableFields.dob} $textType,
       ${ProfileTableFields.profile_image} $textType,
       ${ProfileTableFields.mobile_number} $textType,
+      ${ProfileTableFields.current_balance} $textType,
       ${ProfileTableFields.gender} $textType
       )
    ''');
-
   }
 
   // Insert ProfileData
-  Future<void> insertProfileData(ProfileModel profileModel) async{
-
+  Future<void> insertProfileData(ProfileModel profileModel) async {
     Database db = await database;
 
     await db.insert(profile_table, profileModel.toMap());
@@ -169,14 +168,29 @@ class DatabaseHelper {
   // Update ProfileData
   Future<void> updateProfileData(ProfileModel profileModel) async {
     final db = await database;
-    await db.update(profile_table, profileModel.toMap(), where: '${ProfileTableFields.id} = ?', whereArgs: [profileModel.id]);
+    await db.update(profile_table, profileModel.toMap(),
+        where: '${ProfileTableFields.email} = ?',
+        whereArgs: [profileModel.email]);
   }
 
   // A method that retrieves Profile Data from the Profile table.
-  Future<List<ProfileModel>> getProfileData() async {
+  Future<List<ProfileModel>> getProfileDataList() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(profile_table);
-    return List.generate(maps.length, (index) => ProfileModel.fromMap(maps[index]));
+    return List.generate(
+        maps.length, (index) => ProfileModel.fromMap(maps[index]));
+  }
+
+  Future<ProfileModel> getProfileData(String email) async {
+    Database db = await database;
+    final map = await db
+        .rawQuery("SELECT * FROM $profile_table WHERE ${ProfileTableFields.email} = ?", [email]);
+
+    if (map.isNotEmpty) {
+      return ProfileModel.fromJson(map.first);
+    } else {
+      throw Exception("User: $email not found");
+    }
   }
 
   // Insert UserData
@@ -189,16 +203,29 @@ class DatabaseHelper {
   // Update UserData
   Future<int> updateUserData(UserModel userModel) async {
     var db = await database;
-    var result = await db.update(user_table, userModel.toMap(), where: '${UserTableFields.id} = ?', whereArgs: [userModel.id]);
+    var result = await db.update(user_table, userModel.toMap(),
+        where: '${UserTableFields.id} = ?', whereArgs: [userModel.id]);
     return result;
   }
 
-
-  Future<void> insertCategory(Category category) async{
-
+  Future<void> insertCategory(Category category) async {
     Database db = await database;
 
     await db.insert(category_table, category.toMap());
+  }
+
+  Future<int> insertAllCategory(List<Category> categories) async {
+    final db = await database;
+
+    final Batch batch = db.batch();
+
+    for (Category category in categories) {
+      batch.insert(category_table, category.toMap());
+    }
+
+    final List<dynamic> result = await batch.commit();
+    final int affectedRows = result.reduce((sum, element) => sum + element);
+    return affectedRows;
   }
 
   // A method that retrieves all the category from the category table.
@@ -217,14 +244,17 @@ class DatabaseHelper {
   // A method that retrieves all the paymentMethods from the paymentMethods table.
   Future<List<PaymentMethod>> paymentMethods() async {
     Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(payment_method_table);
-    return List.generate(maps.length, (index) => PaymentMethod.fromMap(maps[index]));
+    final List<Map<String, dynamic>> maps =
+        await db.query(payment_method_table);
+    return List.generate(
+        maps.length, (index) => PaymentMethod.fromMap(maps[index]));
   }
 
   // Update Payment Method
   Future<void> updatePaymentMethod(PaymentMethod paymentMethod) async {
     final db = await database;
-    await db.update(payment_method_table, paymentMethod.toMap(), where: '${PaymentMethodFields.id} = ?', whereArgs: [paymentMethod.id]);
+    await db.update(payment_method_table, paymentMethod.toMap(),
+        where: '${PaymentMethodFields.id} = ?', whereArgs: [paymentMethod.id]);
   }
 
   // Insert Income Category
@@ -233,17 +263,34 @@ class DatabaseHelper {
     await db.insert(income_category_table, incomeCategory.toMap());
   }
 
+  Future<int> insertIncomeAllCategory(List<IncomeCategory> categories) async {
+    final db = await database;
+
+    final Batch batch = db.batch();
+
+    for (IncomeCategory category in categories) {
+      batch.insert(income_category_table, category.toMap());
+    }
+
+    final List<dynamic> result = await batch.commit();
+    final int affectedRows = result.reduce((sum, element) => sum + element);
+    return affectedRows;
+  }
+
   // A method that retrieves all the IncomeCategory from the IncomeCategory table.
   Future<List<IncomeCategory>> getIncomeCategory() async {
     Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(income_category_table);
-    return List.generate(maps.length, (index) => IncomeCategory.fromMap(maps[index]));
+    final List<Map<String, dynamic>> maps =
+        await db.query(income_category_table);
+    return List.generate(
+        maps.length, (index) => IncomeCategory.fromMap(maps[index]));
   }
 
   // Update Income Category
   Future<void> updateIncomeCategory(IncomeCategory incomeCategory) async {
     var db = await database;
-    await db.update(income_category_table, incomeCategory.toMap(), where: '${CategoryFields.id} = ?', whereArgs: [incomeCategory.id]);
+    await db.update(income_category_table, incomeCategory.toMap(),
+        where: '${CategoryFields.id} = ?', whereArgs: [incomeCategory.id]);
   }
 
   // Insert Expense Category
@@ -255,14 +302,18 @@ class DatabaseHelper {
   // A method that retrieves all the ExpenseCategory from the ExpenseCategory table.
   Future<List<ExpenseCategory>> getExpenseCategory() async {
     Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(expence_category_table);
-    return List.generate(maps.length, (index) => ExpenseCategory.fromMap(maps[index]));
+    final List<Map<String, dynamic>> maps =
+        await db.query(expence_category_table);
+    return List.generate(
+        maps.length, (index) => ExpenseCategory.fromMap(maps[index]));
   }
 
   // Update Expense Category
   Future<void> updateExpenseCategory(ExpenseCategory expenseCategory) async {
     var db = await database;
-    await db.update(expence_category_table, expenseCategory.toMap(), where: '${ExpenceCategoryFields.id} = ?', whereArgs: [expenseCategory.id]);
+    await db.update(expence_category_table, expenseCategory.toMap(),
+        where: '${ExpenceCategoryFields.id} = ?',
+        whereArgs: [expenseCategory.id]);
   }
 
   // Insert Transaction Detail
@@ -275,54 +326,88 @@ class DatabaseHelper {
   Future<List<TransactionModel>> getTransactionData() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(transaction_table);
-    return List.generate(maps.length, (index) => TransactionModel.fromMap(maps[index]));
+    return List.generate(
+        maps.length, (index) => TransactionModel.fromMap(maps[index]));
   }
 
   // Update Transaction Detail
   Future<void> updateTransactionData(TransactionModel transactionModel) async {
     var db = await database;
-    await db.update(transaction_table, transactionModel.toMap(), where: '${TransactionFields.id} = ?', whereArgs: [transactionModel.id]);
+    await db.update(transaction_table, transactionModel.toMap(),
+        where: '${TransactionFields.id} = ?', whereArgs: [transactionModel.id]);
   }
 
   // Insert Income Sub Category
-  Future<void> insertIncomeSubCategory(int categoryId, IncomeSubCategory incomeSubCategory) async {
+  Future<void> insertIncomeSubCategory(
+      int categoryId, IncomeSubCategory incomeSubCategory) async {
     incomeSubCategory.categoryId = categoryId;
     Database db = await database;
     await db.insert(income_sub_category_table, incomeSubCategory.toMap());
   }
 
   // Update Income Sub Category
-  Future<void> updateIncomeSubCategory(IncomeSubCategory incomeSubCategory) async {
+  Future<void> updateIncomeSubCategory(
+      IncomeSubCategory incomeSubCategory) async {
     var db = await database;
-    await db.update(income_sub_category_table, incomeSubCategory.toMap(), where: '${IncomeSubCategoryFields.id} = ?', whereArgs: [incomeSubCategory.id]);
+    await db.update(income_sub_category_table, incomeSubCategory.toMap(),
+        where: '${IncomeSubCategoryFields.id} = ?',
+        whereArgs: [incomeSubCategory.id]);
   }
 
   // A method that retrieves all the income sub category from the income sub table.
   Future<List<IncomeSubCategory>> getIncomeSubCategory(int categoryId) async {
     Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(income_sub_category_table,where: 'category_id = ?', whereArgs: [categoryId],);
-    return List.generate(maps.length, (index) => IncomeSubCategory.fromMap(maps[index]));
+    final List<Map<String, dynamic>> maps = await db.query(
+      income_sub_category_table,
+      where: 'category_id = ?',
+      whereArgs: [categoryId],
+    );
+    return List.generate(
+        maps.length, (index) => IncomeSubCategory.fromMap(maps[index]));
   }
 
   // Insert Spending Sub Category
-  Future<void> insertSpendingSubCategory(int categoryId, SpendingSubCategory spendingSubCategory) async {
+  Future<void> insertSpendingSubCategory(
+      int categoryId, SpendingSubCategory spendingSubCategory) async {
     spendingSubCategory.categoryId = categoryId;
     Database db = await database;
     await db.insert(spending_sub_category_table, spendingSubCategory.toMap());
   }
 
+  Future<int> insertAllSpendingSubCategory(
+      List<SpendingSubCategory> categories) async {
+    final db = await database;
+
+    final Batch batch = db.batch();
+
+    for (SpendingSubCategory category in categories) {
+      batch.insert(spending_sub_category_table, category.toMap());
+    }
+
+    final List<dynamic> result = await batch.commit();
+    final int affectedRows = result.reduce((sum, element) => sum + element);
+    return affectedRows;
+  }
+
   // Update Spending Sub Category
-  Future<void> updateSpendingSubCategory(SpendingSubCategory spendingSubCategory) async {
+  Future<void> updateSpendingSubCategory(
+      SpendingSubCategory spendingSubCategory) async {
     var db = await database;
-    await db.update(spending_sub_category_table, spendingSubCategory.toMap(), where: '${SpendingSubCategoryFields.id} = ?', whereArgs: [spendingSubCategory.id]);
+    await db.update(spending_sub_category_table, spendingSubCategory.toMap(),
+        where: '${SpendingSubCategoryFields.id} = ?',
+        whereArgs: [spendingSubCategory.id]);
   }
 
   // A method that retrieves all the spending sub category from the spending sub table.
-  Future<List<SpendingSubCategory>> getSpendingSubCategory(int categoryId) async {
+  Future<List<SpendingSubCategory>> getSpendingSubCategory(
+      int categoryId) async {
     Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(spending_sub_category_table,where: 'category_id = ?', whereArgs: [categoryId],);
-    return List.generate(maps.length, (index) => SpendingSubCategory.fromMap(maps[index]));
+    final List<Map<String, dynamic>> maps = await db.query(
+      spending_sub_category_table,
+      where: 'category_id = ?',
+      whereArgs: [categoryId],
+    );
+    return List.generate(
+        maps.length, (index) => SpendingSubCategory.fromMap(maps[index]));
   }
-
-
 }

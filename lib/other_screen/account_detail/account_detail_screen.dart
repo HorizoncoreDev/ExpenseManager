@@ -12,6 +12,7 @@ import '../../db_service/database_helper.dart';
 import '../../sign_in/sign_in_screen.dart';
 import '../../utils/global.dart';
 import '../../utils/helper.dart';
+import '../../utils/my_shared_preferences.dart';
 import '../edit_account_detail/edit_account_detail_screen.dart';
 import 'bloc/account_detail_bloc.dart';
 import 'bloc/account_detail_state.dart';
@@ -41,7 +42,9 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
   String email = "";
   bool isLoading = true;
 
-  List<ProfileModel> profileData = [];
+  ProfileModel? profileData;
+
+  String userEmail='';
 
   String getShortName(String name, String name1) {
 
@@ -57,14 +60,14 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
   Future<void> getProfileData() async {
     try {
       await Future.delayed(const Duration(seconds: 2));
-      List<ProfileModel> fetchedProfileData = await databaseHelper.getProfileData();
+     ProfileModel fetchedProfileData = await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-        fullName = profileData[0].first_name!;
-        email = profileData[0].email!;
+        fullName = profileData!.first_name!;
+        email = profileData!.email!;
 
-        dob = profileData[0].dob!;
-        selectedValue = profileData[0].gender==""?'Female':profileData[0].gender!;
+        dob = profileData!.dob!;
+        selectedValue = profileData!.gender==""?'Female':profileData!.gender!;
         isLoading = false;
       });
     } catch (error) {
@@ -77,7 +80,15 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   @override
   void initState() {
-    getProfileData();
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        getProfileData();
+      }
+    });
+
     super.initState();
   }
 

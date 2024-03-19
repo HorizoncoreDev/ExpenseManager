@@ -10,14 +10,15 @@ class TransactionFields {
     income_cat_id,
     sub_expense_cat_id,
     sub_income_cat_id,
-    payer_id,
-    payee_id,
     payment_method_id,
     status,
-    check_no,
+    transaction_date,
+    transaction_type,
     description,
     currency_id,
-    receipt_image,
+    receipt_image1,
+    receipt_image2,
+    receipt_image3,
     created_at,
     last_updated
   ];
@@ -29,14 +30,15 @@ class TransactionFields {
   static const String income_cat_id = 'income_cat_id';
   static const String sub_expense_cat_id = 'sub_expense_cat_id';
   static const String sub_income_cat_id = 'sub_income_cat_id';
-  static const String payer_id = 'payer_id';
-  static const String payee_id = 'payee_id';
   static const String payment_method_id = 'payment_method_id';
   static const String status = 'status';
-  static const String check_no = 'check_no';
+  static const String transaction_date = 'transaction_date';
+  static const String transaction_type = 'transaction_type';
   static const String description = 'description';
   static const String currency_id = 'currency_id';
-  static const String receipt_image = 'receipt_image';
+  static const String receipt_image1 = 'receipt_image1';
+  static const String receipt_image2 = 'receipt_image2';
+  static const String receipt_image3 = 'receipt_image3';
   static const String created_at = 'created_at';
   static const String last_updated = 'last_updated';
 }
@@ -49,14 +51,15 @@ class TransactionModel {
   int? income_cat_id;
   int? sub_expense_cat_id;
   int? sub_income_cat_id;
-  int? payer_id;
-  int? payee_id;
   int? payment_method_id;
   int? status;
-  String? check_no;
   String? description;
+  int? transaction_type;
+  String? transaction_date;
   int? currency_id;
-  String? receipt_image;
+  String? receipt_image1;
+  String? receipt_image2;
+  String? receipt_image3;
   String? created_at;
   String? last_updated;
 
@@ -68,14 +71,15 @@ class TransactionModel {
     this.income_cat_id,
     this.sub_expense_cat_id,
     this.sub_income_cat_id,
-    this.payer_id,
-    this.payee_id,
     this.payment_method_id,
     this.status,
-    this.check_no,
+    this.transaction_date,
+    this.transaction_type,
     this.description,
     this.currency_id,
-    this.receipt_image,
+    this.receipt_image1,
+    this.receipt_image2,
+    this.receipt_image3,
     this.created_at,
     this.last_updated,
   });
@@ -89,14 +93,15 @@ class TransactionModel {
       income_cat_id: map['income_cat_id'],
       sub_expense_cat_id: map['sub_expense_cat_id'],
       sub_income_cat_id: map['sub_income_cat_id'],
-      payer_id: map['payer_id'],
-      payee_id: map['payee_id'],
       payment_method_id: map['payment_method_id'],
       status: map['status'],
-      check_no: map['check_no'],
+      transaction_date: map['transaction_date'],
       description: map['description'],
+      transaction_type: map['transaction_type'],
       currency_id: map['currency_id'],
-      receipt_image: map['receipt_image'],
+      receipt_image1: map['receipt_image1'],
+      receipt_image2: map['receipt_image2'],
+      receipt_image3: map['receipt_image3'],
       created_at: map['created_at'],
       last_updated: map['last_updated'],
     );
@@ -111,14 +116,15 @@ class TransactionModel {
       'income_cat_id': income_cat_id,
       'sub_expense_cat_id': sub_expense_cat_id,
       'sub_income_cat_id': sub_income_cat_id,
-      'payer_id': payer_id,
-      'payee_id': payee_id,
       'payment_method_id': payment_method_id,
       'status': status,
-      'check_no': check_no,
+      'transaction_date': transaction_date,
+      'transaction_type': transaction_type,
       'description': description,
       'currency_id': currency_id,
-      'receipt_image': receipt_image,
+      'receipt_image1': receipt_image1,
+      'receipt_image2': receipt_image2,
+      'receipt_image3': receipt_image3,
       'created_at': created_at/*DateTime.parse(createdAt as String)*/, // Convert String to DateTime
       'last_updated': last_updated/*DateTime.parse(lastUpdated as String)*/,
     };

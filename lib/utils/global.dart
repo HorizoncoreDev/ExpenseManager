@@ -11,6 +11,18 @@ abstract class ImageConstanst {
 
 }
 
+abstract class AppConstanst {
+
+  static const int spendingTransaction = 1;
+  static const int incomeTransaction = 2;
+  static const int cashPaymentType = 1;
+  static const int rupeesCurrency = 1;
+  static const String priorityHigh = "High";
+  static const String priorityMedium = "Medium";
+  static const String priorityLow = "Low";
+
+}
+
 abstract class AppColors {
 
   static const primaryColor = Color(0xFF0DA6E7);
@@ -26,5 +38,10 @@ abstract class AppColors {
 
 abstract class SharedPreferencesKeys {
   static const isLogin = "isLogin";
+  static const isCategoriesAdded = "isCategoriesAdded";
+  static const isBudgetAdded = "isBudgetAdded";
+  static const userEmail = "userEmail";
+  static const isSkippedUser = "skippedUser";
+  static const skippedUserCurrentBalance = "skippedUserCurrentBalance";
 
 }

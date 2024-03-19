@@ -10,7 +10,12 @@ class AddSpendingBloc extends Bloc<AddSpendingEvent, AddSpendingState> {
 
   late BuildContext context;
 
-  AddSpendingBloc() : super(AddSpendingInitial());
+  AddSpendingBloc() : super(AddSpendingInitial()){
+
+    on<OnImageSelectedEvent>((event, emit) async {
+emit(SelectedImageState(event.image1, event.image2, event.image3));
+    });
+  }
 
 
 }

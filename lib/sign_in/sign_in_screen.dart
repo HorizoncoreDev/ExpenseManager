@@ -13,6 +13,7 @@ import '../db_models/profile_model.dart';
 import '../db_service/database_helper.dart';
 import '../utils/global.dart';
 import '../utils/helper.dart';
+import '../utils/my_shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -179,7 +180,11 @@ class _SignInScreenState extends State<SignInScreen> {
                             children: [
                               InkWell(
                                 onTap: (){
-                                  signInBloc.add(SignInSkipEvent());
+                                  MySharedPreferences.instance.addBoolToSF(SharedPreferencesKeys.isSkippedUser,true );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const BudgetScreen()),
+                                  );
                                 },
                                 child: const Text("Skip",
                                   style: TextStyle(
@@ -231,7 +236,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
             // Insert Profile Data
             await databaseHelper.insertProfileData(
-              ProfileModel(id: 0,
+              ProfileModel(
                   first_name: firstName,
                            last_name: lastName,
                            email: user.email ?? "",
@@ -239,10 +244,10 @@ class _SignInScreenState extends State<SignInScreen> {
                            dob: "",
                            profile_image: "",
                            mobile_number: "",
+                           current_balance: "0",
                            gender: ""),
             );
-
-
+          MySharedPreferences.instance.addStringToSF(SharedPreferencesKeys.userEmail, user.email);
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => BudgetScreen()));
         }

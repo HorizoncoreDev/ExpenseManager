@@ -23,6 +23,7 @@ class ProfileTableFields {
   static const String profile_image = 'profile_image';
   static const String mobile_number = 'mobile_number';
   static const String gender = 'gender';
+  static const String current_balance = 'current_balance';
 }
 
 class ProfileModel {
@@ -34,6 +35,7 @@ class ProfileModel {
   String? dob;
   String? profile_image;
   String? mobile_number;
+  String? current_balance;
   String? gender;
 
   ProfileModel({
@@ -45,6 +47,7 @@ class ProfileModel {
     this.dob,
     this.profile_image,
     this.mobile_number,
+    this.current_balance,
     this.gender,
   });
 
@@ -59,10 +62,24 @@ class ProfileModel {
         profile_image: map['profile_image'],
         mobile_number: map['mobile_number'],
         gender: map['gender'],
+      current_balance: map['current_balance'],
     );
   }
 
-  Map<String, dynamic> toMap() {
+  static ProfileModel fromJson(Map<String, Object?> json) => ProfileModel(
+      id: json[ProfileTableFields.id] as int,
+      first_name: json[ProfileTableFields.first_name] as String,
+      last_name: json[ProfileTableFields.last_name] as String,
+      email: json[ProfileTableFields.email] as String,
+      full_name: json[ProfileTableFields.full_name] as String,
+      dob: json[ProfileTableFields.dob] as String,
+      profile_image: json[ProfileTableFields.profile_image] as String,
+      mobile_number: json[ProfileTableFields.mobile_number] as String,
+      gender: json[ProfileTableFields.gender] as String,
+    current_balance: json[ProfileTableFields.current_balance] as String,
+  );
+
+      Map<String, dynamic> toMap() {
     return {
       'id': id,
       'first_name': first_name,
@@ -73,6 +90,7 @@ class ProfileModel {
       'profile_image': profile_image,
       'mobile_number': mobile_number,
       'gender': gender,
+      'current_balance': current_balance,
     };
   }
 }

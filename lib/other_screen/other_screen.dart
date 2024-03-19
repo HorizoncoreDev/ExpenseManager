@@ -1,6 +1,9 @@
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../utils/global.dart';
+import '../utils/my_shared_preferences.dart';
 import 'account_detail/account_detail_screen.dart';
 import 'bloc/other_bloc.dart';
 import 'bloc/other_state.dart';
@@ -17,24 +20,38 @@ class OtherScreen extends StatefulWidget {
 }
 
 class _OtherScreenState extends State<OtherScreen> {
-
   OtherBloc otherBloc = OtherBloc();
 
   List<GridItem> gridItemList = [
-    GridItem(iconData: Icons.account_circle, text: 'My family'),
+    // GridItem(iconData: Icons.account_circle, text: 'My family'),
     GridItem(iconData: Icons.settings, text: 'Category'),
     GridItem(iconData: Icons.settings, text: 'My Library'),
   ];
+
+  bool isSkippedUser = false;
+
+  @override
+  void initState() {
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
+        setState(() {
+          isSkippedUser = value;
+        });
+      }
+    }); // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     otherBloc.context = context;
     return BlocConsumer<OtherBloc, OtherState>(
       bloc: otherBloc,
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
-        if(state is OtherInitial){
+        if (state is OtherInitial) {
           return SafeArea(
             child: Scaffold(
               body: Container(
@@ -42,7 +59,8 @@ class _OtherScreenState extends State<OtherScreen> {
                   height: double.infinity,
                   child: SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 15),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -51,31 +69,36 @@ class _OtherScreenState extends State<OtherScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const Text("Other",
+                              const Text(
+                                "Other",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 25,
-                                    fontWeight: FontWeight.bold
-                                ),),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              if(!isSkippedUser)
                               InkWell(
-                                onTap: (){
+                                onTap: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => AccountDetailScreen()),
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            AccountDetailScreen()),
                                   );
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.grey
-                                  ),
-                                  child: const Text("MB",
+                                      color: Colors.grey),
+                                  child: const Text(
+                                    "MB",
                                     style: TextStyle(
                                       color: Colors.blue,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
-                                    ),),
+                                    ),
+                                  ),
                                 ),
                               )
                             ],
@@ -179,40 +202,43 @@ class _OtherScreenState extends State<OtherScreen> {
                       ),*/
 
                           15.heightBox,
-                          const Text("MANAGE",
+                          const Text(
+                            "MANAGE",
                             style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey,
-                                fontWeight: FontWeight.bold
-                            ),),
-
+                                fontWeight: FontWeight.bold),
+                          ),
                           10.heightBox,
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: const BoxDecoration(
                                 color: Colors.white10,
-                                borderRadius: BorderRadius.all(Radius.circular(10))
-                            ),
-                            child:
-                            Row(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            child: Row(
                               children: [
                                 InkWell(
-                                  onTap: (){
+                                  onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const FamilyAccountScreen()),
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const FamilyAccountScreen()),
                                     );
                                   },
                                   child: Column(
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8, horizontal: 8),
                                         decoration: const BoxDecoration(
                                             color: Colors.blueGrey,
-                                            borderRadius: BorderRadius.all(Radius.circular(10))
-                                        ),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10))),
                                         // alignment: Alignment.center,
-                                        child: Icon(Icons.account_circle,
+                                        child: Icon(
+                                          Icons.account_circle,
                                           color: Colors.blue,
                                         ),
                                       ),
@@ -230,22 +256,26 @@ class _OtherScreenState extends State<OtherScreen> {
                                 ),
                                 20.widthBox,
                                 InkWell(
-                                  onTap: (){
+                                  onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const CategoryScreen()),
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const CategoryScreen()),
                                     );
                                   },
                                   child: Column(
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8, horizontal: 8),
                                         decoration: const BoxDecoration(
                                             color: Colors.blueGrey,
-                                            borderRadius: BorderRadius.all(Radius.circular(10))
-                                        ),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10))),
                                         // alignment: Alignment.center,
-                                        child: Icon(Icons.settings,
+                                        child: Icon(
+                                          Icons.settings,
                                           color: Colors.blue,
                                         ),
                                       ),
@@ -263,22 +293,26 @@ class _OtherScreenState extends State<OtherScreen> {
                                 ),
                                 20.widthBox,
                                 InkWell(
-                                  onTap: (){
+                                  onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const MyLibraryScreen()),
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MyLibraryScreen()),
                                     );
                                   },
                                   child: Column(
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8, horizontal: 8),
                                         decoration: const BoxDecoration(
                                             color: Colors.blueGrey,
-                                            borderRadius: BorderRadius.all(Radius.circular(10))
-                                        ),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10))),
                                         // alignment: Alignment.center,
-                                        child: Icon(Icons.settings,
+                                        child: Icon(
+                                          Icons.settings,
                                           color: Colors.blue,
                                         ),
                                       ),
@@ -297,31 +331,33 @@ class _OtherScreenState extends State<OtherScreen> {
                               ],
                             ),
                           ),
-
                           15.heightBox,
-                          const Text("APP",
+                          const Text(
+                            "APP",
                             style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey,
-                                fontWeight: FontWeight.bold
-                            ),),
-
+                                fontWeight: FontWeight.bold),
+                          ),
                           10.heightBox,
                           Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: const BoxDecoration(
                                 color: Colors.white10,
-                                borderRadius: BorderRadius.all(Radius.circular(10))
-                            ),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
                             child: Column(
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   child: InkWell(
-                                    onTap: (){
+                                    onTap: () {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context) => const GeneralSettingScreen()),
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const GeneralSettingScreen()),
                                       );
                                     },
                                     child: Row(
@@ -331,8 +367,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                           padding: const EdgeInsets.all(6),
                                           decoration: const BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: Colors.blueGrey
-                                          ),
+                                              color: Colors.blueGrey),
                                           child: const Icon(
                                             Icons.settings,
                                             color: Colors.blue,
@@ -340,16 +375,17 @@ class _OtherScreenState extends State<OtherScreen> {
                                         ),
                                         15.widthBox,
                                         const Expanded(
-                                          child: Text("General settings",
+                                          child: Text(
+                                            "General settings",
                                             style: TextStyle(
                                                 fontSize: 16,
-                                                color: Colors.white
-                                            ),),
+                                                color: Colors.white),
+                                          ),
                                         ),
                                         const Icon(
                                           Icons.arrow_forward_ios_rounded,
                                           color: Colors.white,
-                                          size: 16  ,
+                                          size: 16,
                                         )
                                       ],
                                     ),
@@ -360,7 +396,8 @@ class _OtherScreenState extends State<OtherScreen> {
                                   color: Colors.grey,
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   child: Row(
                                     children: [
                                       15.widthBox,
@@ -368,8 +405,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         padding: const EdgeInsets.all(6),
                                         decoration: const BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color: Colors.blueGrey
-                                        ),
+                                            color: Colors.blueGrey),
                                         child: const Icon(
                                           Icons.settings,
                                           color: Colors.blue,
@@ -377,16 +413,17 @@ class _OtherScreenState extends State<OtherScreen> {
                                       ),
                                       15.widthBox,
                                       const Expanded(
-                                        child: Text("Invite friends",
+                                        child: Text(
+                                          "Invite friends",
                                           style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.white
-                                          ),),
+                                              color: Colors.white),
+                                        ),
                                       ),
                                       const Icon(
                                         Icons.arrow_forward_ios_rounded,
                                         color: Colors.white,
-                                        size: 16  ,
+                                        size: 16,
                                       )
                                     ],
                                   ),
@@ -396,9 +433,10 @@ class _OtherScreenState extends State<OtherScreen> {
                                   color: Colors.grey,
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   child: InkWell(
-                                    onTap: (){
+                                    onTap: () {
                                       _rateAppDialogue(otherBloc);
                                     },
                                     child: Row(
@@ -408,8 +446,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                           padding: const EdgeInsets.all(6),
                                           decoration: const BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: Colors.blueGrey
-                                          ),
+                                              color: Colors.blueGrey),
                                           child: const Icon(
                                             Icons.settings,
                                             color: Colors.blue,
@@ -417,16 +454,17 @@ class _OtherScreenState extends State<OtherScreen> {
                                         ),
                                         15.widthBox,
                                         const Expanded(
-                                          child: Text("Rate the app",
+                                          child: Text(
+                                            "Rate the app",
                                             style: TextStyle(
                                                 fontSize: 16,
-                                                color: Colors.white
-                                            ),),
+                                                color: Colors.white),
+                                          ),
                                         ),
                                         const Icon(
                                           Icons.arrow_forward_ios_rounded,
                                           color: Colors.white,
-                                          size: 16  ,
+                                          size: 16,
                                         )
                                       ],
                                     ),
@@ -437,7 +475,8 @@ class _OtherScreenState extends State<OtherScreen> {
                                   color: Colors.grey,
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   child: Row(
                                     children: [
                                       15.widthBox,
@@ -445,8 +484,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         padding: const EdgeInsets.all(6),
                                         decoration: const BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color: Colors.blueGrey
-                                        ),
+                                            color: Colors.blueGrey),
                                         child: const Icon(
                                           Icons.settings,
                                           color: Colors.blue,
@@ -454,17 +492,18 @@ class _OtherScreenState extends State<OtherScreen> {
                                       ),
                                       15.widthBox,
                                       const Expanded(
-                                        child: Text("Version",
+                                        child: Text(
+                                          "Version",
                                           style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.white
-                                          ),),
+                                              color: Colors.white),
+                                        ),
                                       ),
-                                      const Text("2.0.1",
+                                      const Text(
+                                        "2.0.1",
                                         style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white
-                                        ),),
+                                            fontSize: 16, color: Colors.white),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -475,8 +514,7 @@ class _OtherScreenState extends State<OtherScreen> {
                         ],
                       ),
                     ),
-                  )
-              ),
+                  )),
             ),
           );
         }
@@ -489,79 +527,101 @@ class _OtherScreenState extends State<OtherScreen> {
     await showDialog(
       context: otherBloc.context,
       builder: (cont) {
-        return  AlertDialog(
+        return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           alignment: Alignment.center,
           titlePadding: EdgeInsets.zero,
           actionsPadding: EdgeInsets.zero,
-          contentPadding: const EdgeInsets.symmetric(
-              horizontal: 20, vertical: 15),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           insetPadding: const EdgeInsets.all(15),
           backgroundColor: Colors.black,
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
-             // crossAxisAlignment: CrossAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                
                 Align(
-                  alignment: Alignment.topRight,
+                    alignment: Alignment.topRight,
                     child: InkWell(
-                      onTap: (){
-                        Navigator.pop(cont);
-                      },
-                        child: Icon(Icons.close,color: Colors.grey,))),
-
-                Text("Review",
+                        onTap: () {
+                          Navigator.pop(cont);
+                        },
+                        child: Icon(
+                          Icons.close,
+                          color: Colors.grey,
+                        ))),
+                Text(
+                  "Review",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 26,
-                    fontWeight: FontWeight.bold
-                  ),),
-
+                      fontWeight: FontWeight.bold),
+                ),
                 30.heightBox,
-
-                Text("Do you like this app?",
+                Text(
+                  "Do you like this app?",
                   style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                  ),),
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
                 30.heightBox,
                 Row(
                   children: [
                     Expanded(
                       child: Column(
                         children: [
-                          Icon(Icons.account_circle,color: Colors.grey,size: 50,),
-                          Text("No",
+                          Icon(
+                            Icons.account_circle,
+                            color: Colors.grey,
+                            size: 50,
+                          ),
+                          Text(
+                            "No",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
-                            ),),
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    Expanded(child:Column(
+                    Expanded(
+                        child: Column(
                       children: [
-                        Icon(Icons.account_circle,color: Colors.grey,size: 50,),
-                        Text("Like",
+                        Icon(
+                          Icons.account_circle,
+                          color: Colors.grey,
+                          size: 50,
+                        ),
+                        Text(
+                          "Like",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                          ),),
+                          ),
+                        ),
                       ],
                     )),
-                    Expanded(child:Column(
+                    Expanded(
+                        child: Column(
                       children: [
-                        Icon(Icons.account_circle,color: Colors.grey,size: 50,),
-                        Text("Like so much",
+                        Icon(
+                          Icons.account_circle,
+                          color: Colors.grey,
+                          size: 50,
+                        ),
+                        Text(
+                          "Like so much",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                          ),),
+                          ),
+                        ),
                       ],
                     )),
                   ],
@@ -572,47 +632,49 @@ class _OtherScreenState extends State<OtherScreen> {
                         text: "Please leave a review ",
                         style: TextStyle(
                           fontSize: 16,
-                          color:Colors.white,),
+                          color: Colors.white,
+                        ),
                         children: [
-                          TextSpan(
-                            text: "5 stars ",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color:Colors.blue,),),
-                          TextSpan(
-                            text: "for this app on the AppStore?",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color:Colors.white,),),
-                        ])),
-                
+                      TextSpan(
+                        text: "5 stars ",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      TextSpan(
+                        text: "for this app on the AppStore?",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ])),
                 30.heightBox,
                 InkWell(
-                  onTap: (){
-
-                  },
+                  onTap: () {},
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 15),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 15),
                     alignment: Alignment.center,
                     decoration: const BoxDecoration(
                         color: Colors.blue,
-                        borderRadius: BorderRadius.all(Radius.circular(10))
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    child: const Text(
+                      "Rate the app",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
-                    child:  const Text("Rate the app",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14
-                      ),),
                   ),
                 ),
                 10.heightBox,
-                Text("Your 5 star review is a great reward to us!",
+                Text(
+                  "Your 5 star review is a great reward to us!",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 12,
-                  ),),
-
+                  ),
+                ),
                 10.heightBox,
               ],
             ),
@@ -621,7 +683,6 @@ class _OtherScreenState extends State<OtherScreen> {
       },
     );
   }
-
 }
 
 class GridItem {

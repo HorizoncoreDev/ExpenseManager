@@ -1,6 +1,14 @@
+import 'package:expense_manager/db_models/category_model.dart';
+import 'package:expense_manager/db_models/income_category.dart';
+import 'package:expense_manager/db_service/database_helper.dart';
+import 'package:expense_manager/utils/global.dart';
+import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
+import '../db_models/spending_sub_category.dart';
 import '../overview_screen/add_spending/add_spending_screen.dart';
 import '../overview_screen/overview_screen.dart';
 import '../statistics/statistics_screen.dart';
@@ -25,10 +33,32 @@ class _DashBoardState extends State<DashBoard> {
   List<Widget> buildScreens() {
     return [
       const OverviewScreen(),
-      const AddSpendingScreen(),
+       Container(),
       const StatisticsScreen(),
     ];
   }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    MySharedPreferences.instance.getBoolValuesSF(SharedPreferencesKeys.isCategoriesAdded).then((value) {
+      if(value!=null) {
+        if (!value) {
+          Helper.addDefaultCategories().then((value) =>
+              MySharedPreferences.instance.addBoolToSF(SharedPreferencesKeys.isCategoriesAdded, true)
+          );
+        }
+      }else{
+        Helper.addDefaultCategories().then((value) =>
+            MySharedPreferences.instance.addBoolToSF(SharedPreferencesKeys.isCategoriesAdded, true)
+        );
+      }
+    });
+
+  }
+
+
 
 
   @override
@@ -69,11 +99,14 @@ class _DashBoardState extends State<DashBoard> {
         inactiveColorSecondary: Colors.blue,
       ),
       PersistentBottomNavBarItem(
-        icon: Icon(Icons.add),
+        icon: const Icon(Icons.add),
         contentPadding: 0,
         activeColorPrimary: Colors.blue,
         activeColorSecondary: Colors.white,
         inactiveColorPrimary: Colors.white,
+        onPressed: (contet){
+          Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => const AddSpendingScreen()),);
+        }
          ),
       PersistentBottomNavBarItem(
         icon: Icon(Icons.search),

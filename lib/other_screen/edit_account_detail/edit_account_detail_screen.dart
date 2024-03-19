@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 
 import '../../db_models/profile_model.dart';
 import '../../db_service/database_helper.dart';
+import '../../utils/global.dart';
+import '../../utils/my_shared_preferences.dart';
 import '../../utils/theme_notifier.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import 'bloc/edit_account_detail_bloc.dart';
@@ -41,7 +43,11 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   String shortName = "";
   bool isLoading = true;
 
-  List<ProfileModel> profileData = [];
+  ProfileModel? profileData;
+
+  String userEmail='';
+  String currentBalance='';
+  int id=0;
 
   bool validateEmail(String email) {
     RegExp emailRegex = RegExp(r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$");
@@ -62,15 +68,16 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   Future<void> getProfileData() async {
     try {
       await Future.delayed(const Duration(seconds: 2));
-      List<ProfileModel> fetchedProfileData = await databaseHelper.getProfileData();
+      ProfileModel fetchedProfileData = await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-
-        firstNameController.text = profileData[0].first_name!;
-        lastNameController.text = profileData[0].last_name!;
-        emailController.text = profileData[0].email!;
-        dob = profileData[0].dob!;
-        selectedValue = profileData[0].gender==""?'Female':profileData[0].gender!;
+id = profileData!.id!;
+        firstNameController.text = profileData!.first_name!;
+        lastNameController.text = profileData!.last_name!;
+        emailController.text = profileData!.email!;
+        dob = profileData!.dob!;
+        currentBalance = profileData!.current_balance!;
+        selectedValue = profileData!.gender==""?'Female':profileData!.gender!;
         isLoading = false;
       });
     } catch (error) {
@@ -83,7 +90,8 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
 
   Future<void> updateProfileData() async {
     await databaseHelper.updateProfileData(
-      ProfileModel(id: 0,
+      ProfileModel(
+        id: id,
           first_name: firstNameController.text,
                    last_name: lastNameController.text,
                    email: emailController.text,
@@ -91,6 +99,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                        ? "Select DOB"
                        : dateOfBirth!,
                    gender: selectedValue,
+      current_balance: currentBalance,
       full_name: "",
       profile_image: "",
       mobile_number: ""),
@@ -100,7 +109,14 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
 
   @override
   void initState() {
-    getProfileData();
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        getProfileData();
+      }
+    });
     super.initState();
   }
 

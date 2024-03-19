@@ -10,7 +10,6 @@ class UserTableFields {
     full_name,
     current_balance,
     profile_image,
-    mobile_number,
     created_at,
     last_updated
   ];
@@ -22,7 +21,6 @@ class UserTableFields {
   static const String full_name = 'full_name';
   static const String current_balance = 'current_balance';
   static const String profile_image = 'profile_image';
-  static const String mobile_number = 'mobile_number';
   static const String created_at = 'created_at';
   static const String last_updated = 'last_updated';
 
