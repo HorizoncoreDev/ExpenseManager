@@ -29,14 +29,13 @@ class IncomeCategory {
   int? status;
   Color color;
 
-  IncomeCategory({
-    this.id,
-    this.name,
-    this.parentId,
-    this.path,
-    this.status,
-    required this.color
-  });
+  IncomeCategory(
+      {this.id,
+      this.name,
+      this.parentId,
+      this.path,
+      this.status,
+      required this.color});
 
   factory IncomeCategory.fromMap(Map<String, dynamic> map) {
     return IncomeCategory(

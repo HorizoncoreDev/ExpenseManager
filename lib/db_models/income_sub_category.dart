@@ -15,7 +15,7 @@ class IncomeSubCategoryFields {
   static const String priority = 'priority';
 }
 
-class IncomeSubCategory{
+class IncomeSubCategory {
   int? id;
   String? name;
   int? categoryId;

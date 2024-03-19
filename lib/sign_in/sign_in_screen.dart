@@ -23,7 +23,6 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-
   SignInBloc signInBloc = SignInBloc();
 
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -31,7 +30,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
-
   late User? _user;
 
   @override
@@ -39,84 +37,90 @@ class _SignInScreenState extends State<SignInScreen> {
     signInBloc.context = context;
     return BlocConsumer<SignInBloc, SignInState>(
       bloc: signInBloc,
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
-        if(state is SignInInitial){
+        if (state is SignInInitial) {
           return SafeArea(
             child: Scaffold(
                 body: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.black87,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          decoration: const BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft:Radius.circular(15),
-                                  bottomRight: Radius.circular(15))
+              width: double.infinity,
+              height: double.infinity,
+              color: Helper.getBackgroundColor(context),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(15),
+                              bottomRight: Radius.circular(15))),
+                      child: Column(
+                        children: [
+                          20.heightBox,
+                          const Text(
+                            "Smart Expensee",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 26,
+                                fontWeight: FontWeight.w500),
                           ),
-                          child: Column(
+                          15.heightBox,
+                          const Text(
+                            "Login to sync data across multiple devices and\nexperience our many exciting features",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                          15.heightBox,
+                          Image.asset(
+                            ImageConstanst.icPhone,
+                            height: 350,
+                            width: 350,
+                          )
+                        ],
+                      ),
+                    ),
+                    20.heightBox,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: InkWell(
+                        onTap: () {
+                          googleSignup();
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 15),
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10))),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              20.heightBox,
-                              const Text("Smart Expensee",
+                              SvgPicture.asset(
+                                ImageConstanst.icGoogle,
+                                width: 18,
+                                height: 18,
+                              ),
+                              15.widthBox,
+                              Text(
+                                "Sign in with Google",
                                 style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w500
-                                ),),
-
-                              15.heightBox,
-                              const Text("Login to sync data across multiple devices and\nexperience our many exciting features",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),),
-
-                              15.heightBox,
-                              Image.asset(ImageConstanst.icPhone,
-                                height: 350,
-                                width: 350,)
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 14),
+                              ),
                             ],
                           ),
                         ),
+                      ),
+                    ),
 
-                        20.heightBox,
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 25),
-                          child: InkWell(
-                            onTap: (){
-                              googleSignup();
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 15),
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(10))
-                              ),
-                              child:  Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(ImageConstanst.icGoogle,width:18,height: 18,),
-                                  15.widthBox,
-                                  const Text("Sign in with Google",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14
-                                    ),),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        /*15.heightBox,
+                    /*15.heightBox,
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 25),
                           child: InkWell(
@@ -171,36 +175,43 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                         ),*/
 
-                        30.heightBox,
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal:25),
-                          child:  Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              InkWell(
-                                onTap: (){
-                                  MySharedPreferences.instance.addBoolToSF(SharedPreferencesKeys.isSkippedUser,true );
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const BudgetScreen()),
-                                  );
-                                },
-                                child: const Text("Skip",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16
-                                  ),),
-                              ),
-                              3.widthBox,
-                              const Icon(Icons.arrow_forward_ios_outlined,color: Colors.white,size: 10,)
-                            ],
+                    30.heightBox,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              MySharedPreferences.instance.addBoolToSF(
+                                  SharedPreferencesKeys.isSkippedUser, true);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const BudgetScreen()),
+                              );
+                            },
+                            child: Text(
+                              "Skip",
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 16),
+                            ),
                           ),
-                        )
-                      ],
-                    ),
-                  ),
-                )),
+                          3.widthBox,
+                          Icon(
+                            Icons.arrow_forward_ios_outlined,
+                            color: Helper.getTextColor(context),
+                            size: 10,
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            )),
           );
         }
         return Container();
@@ -211,18 +222,19 @@ class _SignInScreenState extends State<SignInScreen> {
   Future<void> googleSignup() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
-    try{
-
-      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+    try {
+      final GoogleSignInAccount? googleSignInAccount =
+          await googleSignIn.signIn();
       if (googleSignInAccount != null) {
         final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+            await googleSignInAccount.authentication;
         final AuthCredential authCredential = GoogleAuthProvider.credential(
             idToken: googleSignInAuthentication.idToken,
             accessToken: googleSignInAuthentication.accessToken);
 
         // Getting users credential
-        UserCredential? result = await auth.signInWithCredential(authCredential);
+        UserCredential? result =
+            await auth.signInWithCredential(authCredential);
         User? user = result.user;
 
         if (user != null) {
@@ -234,26 +246,26 @@ class _SignInScreenState extends State<SignInScreen> {
           String firstName = names.isNotEmpty ? names[0] : "";
           String lastName = names.length > 1 ? names.last : "";
 
-            // Insert Profile Data
-            await databaseHelper.insertProfileData(
-              ProfileModel(
-                  first_name: firstName,
-                           last_name: lastName,
-                           email: user.email ?? "",
-                           full_name: user.displayName ?? "",
-                           dob: "",
-                           profile_image: "",
-                           mobile_number: "",
-                           current_balance: "0",
-                           gender: ""),
-            );
-          MySharedPreferences.instance.addStringToSF(SharedPreferencesKeys.userEmail, user.email);
+          // Insert Profile Data
+          await databaseHelper.insertProfileData(
+            ProfileModel(
+                first_name: firstName,
+                last_name: lastName,
+                email: user.email ?? "",
+                full_name: user.displayName ?? "",
+                dob: "",
+                profile_image: "",
+                mobile_number: "",
+                current_balance: "0",
+                gender: ""),
+          );
+          MySharedPreferences.instance
+              .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => BudgetScreen()));
         }
       }
-
-    }catch(e) {
+    } catch (e) {
       Helper.showToast("some error occured $e");
     }
   }
@@ -264,7 +276,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
       if (loginResult.status == LoginStatus.success) {
         final AccessToken accessToken = loginResult.accessToken!;
-        final OAuthCredential credential = FacebookAuthProvider.credential(accessToken.token);
+        final OAuthCredential credential =
+            FacebookAuthProvider.credential(accessToken.token);
         return await FirebaseAuth.instance.signInWithCredential(credential);
       } else {
         throw FirebaseAuthException(
@@ -282,5 +295,4 @@ class _SignInScreenState extends State<SignInScreen> {
       throw e; // rethrow the exception
     }
   }
-
 }

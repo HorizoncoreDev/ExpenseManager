@@ -1,8 +1,3 @@
-
 abstract class IntroEvent {}
 
-class IntroStartEvent extends IntroEvent {
-}
-
-
-
+class IntroStartEvent extends IntroEvent {}

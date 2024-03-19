@@ -12,9 +12,7 @@ class TabChangedState extends OverviewState {
   TabChangedState(this.currentTabIndex);
 }
 
-
 class OverviewInitial extends OverviewState {}
-
 
 class OverviewStartState extends OverviewState {}
 

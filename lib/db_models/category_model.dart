@@ -33,7 +33,7 @@ class Category{
       name: map['name'] ?? '',
       color: Color(map['color']),
       icons: map['icon']?.toInt() ?? 0*/
-/*IconData(map['icon'], fontFamily: 'MaterialIcons')*//*
+/*IconData(map['icon'], fontFamily: 'MaterialIcons')*/ /*
 ,
     );
   }
@@ -75,12 +75,7 @@ class Category {
   Color color;
   String? icons;
 
-  Category({
-    this.id,
-    this.name,
-    required this.color,
-    this.icons
-  });
+  Category({this.id, this.name, required this.color, this.icons});
 
   factory Category.fromMap(Map<String, dynamic> map) {
     return Category(

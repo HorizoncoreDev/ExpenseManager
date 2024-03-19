@@ -1,9 +1,9 @@
 import 'package:expense_manager/statistics/search/search_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 
 import '../other_screen/other_screen.dart';
 import 'bloc/statistics_bloc.dart';
@@ -17,9 +17,7 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
-
   StatisticsBloc statisticsBloc = StatisticsBloc();
-
   List<Color> gradientColors = [
     Colors.cyan,
     Colors.blue,
@@ -47,21 +45,21 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     statisticsBloc.context = context;
     return BlocConsumer<StatisticsBloc, StatisticsState>(
       bloc: statisticsBloc,
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
-        if(state is StatisticsInitial){
+        if (state is StatisticsInitial) {
           return Scaffold(
               appBar: AppBar(
                 titleSpacing: 15,
-                backgroundColor: Colors.black87,
-                title: const Text("Statistics",
+                backgroundColor: Helper.getBackgroundColor(context),
+                title: Text("Statistics",
                     style: TextStyle(
                       fontSize: 22,
-                      color: Colors.white,)),
+                      color: Helper.getTextColor(context),
+                    )),
                 actions: [
                   InkWell(
-                    onTap: (){
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => SearchScreen()),
@@ -69,30 +67,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
-                      ),
-                      child: const Icon(
+                          color: Helper.getCardColor(context)),
+                      child: Icon(
                         Icons.search,
-                        color: Colors.white,
+                        color: Helper.getTextColor(context),
                         size: 20,
                       ),
                     ),
                   ),
                   10.widthBox,
                   InkWell(
-                    onTap: (){
+                    onTap: () {
                       showModalBottomSheet<void>(
                           context: context,
                           shape: const RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius.vertical(
+                            borderRadius: BorderRadius.vertical(
                               top: Radius.circular(10),
                             ),
                           ),
-                          clipBehavior:
-                          Clip.antiAliasWithSaveLayer,
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
                           isScrollControlled: true,
                           builder: (BuildContext context) {
                             return WillPopScope(
@@ -100,21 +95,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   return true;
                                 },
                                 child: Padding(
-                                    padding:
-                                    MediaQuery.of(context)
-                                        .viewInsets,
+                                    padding: MediaQuery.of(context).viewInsets,
                                     child: _bottomSheetView(statisticsBloc)));
                           });
                     },
                     child: Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
-                      ),
-                      child: const Icon(
+                          color: Helper.getCardColor(context)),
+                      child: Icon(
                         Icons.filter_alt_rounded,
-                        color: Colors.white,
+                        color: Helper.getTextColor(context),
                         size: 20,
                       ),
                     ),
@@ -123,19 +115,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Padding(
                     padding: const EdgeInsets.only(right: 15),
                     child: InkWell(
-                      onTap: (){
+                      onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => OtherScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => OtherScreen()),
                         );
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white10
+                            color: Helper.getCardColor(context)),
+                        child: const Icon(
+                          Icons.family_restroom_sharp,
+                          color: Colors.blue,
                         ),
-                        child:const Icon(Icons.family_restroom_sharp,color: Colors.blue,),
                       ),
                     ),
                   )
@@ -144,16 +139,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 child: Column(
                   children: [
                     20.heightBox,
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
                       child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            color: Colors.white10,
+                            color: Helper.getCardColor(context),
                           ),
                           child: Row(
                             children: [
@@ -163,27 +159,29 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                     setState(() {
                                       currPage = 1;
                                     });
-
                                   },
-                                  child:Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 8),
-                                        decoration: BoxDecoration(
-                                            borderRadius: const BorderRadius.only(
-                                                topLeft:Radius.circular(30),
-                                                bottomLeft: Radius.circular(30)),
+                                  child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8),
+                                      decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.only(
+                                              topLeft: Radius.circular(30),
+                                              bottomLeft: Radius.circular(30)),
+                                          color: currPage == 1
+                                              ? Colors.blue
+                                              : Helper.getCardColor(context)),
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          'Spending',
+                                          style: TextStyle(
+                                            fontSize: 16,
                                             color: currPage == 1
-                                                ? Colors.blue
-                                                : Colors.white10),
-                                        child: const Align(
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            'Spending',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.white,
-                                            ),
+                                                ? Colors.white
+                                                : Helper.getTextColor(context),
                                           ),
-                                        )),
+                                        ),
+                                      )),
                                 ),
                               ),
                               Expanded(
@@ -194,38 +192,37 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                     });
                                   },
                                   child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 8),
-                                        decoration: BoxDecoration(
-                                            borderRadius: const BorderRadius.only(
-                                                topRight:Radius.circular(30),
-                                                bottomRight: Radius.circular(30)),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8),
+                                      decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.only(
+                                              topRight: Radius.circular(30),
+                                              bottomRight: Radius.circular(30)),
+                                          color: currPage == 2
+                                              ? Colors.blue
+                                              : Helper.getCardColor(context)),
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          'Income',
+                                          style: TextStyle(
+                                            fontSize: 16,
                                             color: currPage == 2
-                                                ? Colors.blue
-                                                : Colors.white10),
-                                        child: const Align(
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            'Income',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.white,
-                                            ),
+                                                ? Colors.white
+                                                : Helper.getTextColor(context),
                                           ),
-                                        )),
+                                        ),
+                                      )),
                                 ),
                               ),
                             ],
                           )),
                     ),
-
-                     currPage == 1
-                        ? Expanded(
-                        child:_spendingView(statisticsBloc))
+                    currPage == 1
+                        ? Expanded(child: _spendingView(statisticsBloc))
                         : 0.heightBox,
-
                     currPage == 2
-                        ? Expanded(
-                        child:_incomeView(statisticsBloc))
+                        ? Expanded(child: _incomeView(statisticsBloc))
                         : 0.heightBox,
                     10.heightBox
                   ],
@@ -238,237 +235,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _spendingView(StatisticsBloc statisticsBloc) {
-    return  SingleChildScrollView(
+    return SingleChildScrollView(
       child: Column(
         children: [
           20.heightBox,
-
           Container(
-            color: Colors.white10,
-            child: AspectRatio(
-              aspectRatio: 1.70,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  right: 18,
-                  left: 12,
-                  top: 24,
-                  bottom: 12,
-                ),
-                child: LineChart(
-                   mainData(),
-                ),
-              ),
-            ),
-          ),
-
-          15.heightBox,
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30),
-            child: Row(
-              children: [
-                Icon(Icons.arrow_back_ios,color: Colors.white,size: 14,),
-                Expanded(
-                  child: Text("OCTOBER/2023",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 15
-                  ),),
-                ),
-                Text("\u20B92,096",
-                  style: TextStyle(
-                    color: Colors.blue,
-                      fontSize: 15
-                  ),)
-              ],
-            ),
-          ),
-          10.heightBox,
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: const BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius: BorderRadius.all(Radius.circular(10))
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15,right: 10),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.yellow
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.black
-
-                            ),
-                            child: const Icon(
-                              Icons.search,
-                              color: Colors.blue,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                        15.widthBox,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Dine out",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16
-                              ),),
-                              Text("-\u20B92,096",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14
-                                ),)
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text("-\u20B92,096",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16
-                              ),),
-                            Text("100% total spending",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14
-                              ),)
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  const Divider(
-                    thickness: 1,
-                    color: Colors.black12,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15,right: 10),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.yellow
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.black
-
-                            ),
-                            child: const Icon(
-                              Icons.home,
-                              color: Colors.blue,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                        15.widthBox,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Living",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),),
-                              Text("-\u20B95,100",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14
-                                ),)
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(
-                    thickness: 1,
-                    color: Colors.black12,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15,right: 10),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.yellow
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.black
-
-                            ),
-                            child: const Icon(
-                              Icons.car_repair_outlined,
-                              color: Colors.blue,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                        15.widthBox,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Commuting",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),),
-                              Text("-\u20B92,600",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14
-                                ),)
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-        ],
-      ),
-    );
-  }
-
-  Widget _incomeView(StatisticsBloc statisticsBloc) {
-    return  SingleChildScrollView(
-      child: Column(
-        children: [
-          20.heightBox,
-
-          Container(
-            color: Colors.white10,
+            color: Helper.getCardColor(context),
             child: AspectRatio(
               aspectRatio: 1.70,
               child: Padding(
@@ -484,25 +256,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
           ),
-
           15.heightBox,
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 30),
             child: Row(
               children: [
-                Icon(Icons.arrow_back_ios,color: Colors.white,size: 14,),
-                Expanded(
-                  child: Text("OCTOBER/2023",
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15
-                    ),),
+                Icon(
+                  Icons.arrow_back_ios,
+                  color: Helper.getTextColor(context),
+                  size: 14,
                 ),
-                Text("\u20B92,096",
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 15
-                  ),)
+                Expanded(
+                  child: Text(
+                    "OCTOBER/2023",
+                    style: TextStyle(
+                        color: Helper.getTextColor(context), fontSize: 15),
+                  ),
+                ),
+                Text(
+                  "\u20B92,096",
+                  style: TextStyle(color: Colors.blue, fontSize: 15),
+                )
               ],
             ),
           ),
@@ -511,29 +285,23 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: const BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius: BorderRadius.all(Radius.circular(10))
-              ),
+              decoration: BoxDecoration(
+                  color: Helper.getCardColor(context),
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 15,right: 10),
+                    padding: const EdgeInsets.only(left: 15, right: 10),
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(5),
                           decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.yellow
-                          ),
+                              shape: BoxShape.circle, color: Colors.yellow),
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.black
-
-                            ),
+                                shape: BoxShape.circle, color: Colors.black),
                             child: const Icon(
                               Icons.search,
                               color: Colors.blue,
@@ -546,32 +314,252 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Dine out",
+                              Text(
+                                "Dine out",
                                 style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),),
-                              Text("-\u20B92,096",
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 16),
+                              ),
+                              Text(
+                                "-\u20B92,096",
                                 style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14
-                                ),)
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 14),
+                              )
                             ],
                           ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text("-\u20B92,096",
+                            Text(
+                              "-\u20B92,096",
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16
-                              ),),
-                            Text("100% total spending",
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 16),
+                            ),
+                            Text(
+                              "100% total spending",
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14
-                              ),)
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 14),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  const Divider(
+                    thickness: 1,
+                    color: Colors.black12,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15, right: 10),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.yellow),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                                shape: BoxShape.circle, color: Colors.black),
+                            child: const Icon(
+                              Icons.home,
+                              color: Colors.blue,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        15.widthBox,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Living",
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 16),
+                              ),
+                              Text(
+                                "-\u20B95,100",
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 14),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(
+                    thickness: 1,
+                    color: Colors.black12,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15, right: 10),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.yellow),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                                shape: BoxShape.circle, color: Colors.black),
+                            child: const Icon(
+                              Icons.car_repair_outlined,
+                              color: Colors.blue,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        15.widthBox,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Commuting",
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 16),
+                              ),
+                              Text(
+                                "-\u20B92,600",
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 14),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _incomeView(StatisticsBloc statisticsBloc) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          20.heightBox,
+          Container(
+            color: Helper.getCardColor(context),
+            child: AspectRatio(
+              aspectRatio: 1.70,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  right: 18,
+                  left: 12,
+                  top: 24,
+                  bottom: 12,
+                ),
+                child: LineChart(
+                  mainData(),
+                ),
+              ),
+            ),
+          ),
+          15.heightBox,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 30),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.arrow_back_ios,
+                  color: Helper.getTextColor(context),
+                  size: 14,
+                ),
+                Expanded(
+                  child: Text(
+                    "OCTOBER/2023",
+                    style: TextStyle(
+                        color: Helper.getTextColor(context), fontSize: 15),
+                  ),
+                ),
+                Text(
+                  "\u20B92,096",
+                  style: TextStyle(color: Colors.blue, fontSize: 15),
+                )
+              ],
+            ),
+          ),
+          10.heightBox,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                  color: Helper.getCardColor(context),
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15, right: 10),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.yellow),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                                shape: BoxShape.circle, color: Colors.black),
+                            child: const Icon(
+                              Icons.search,
+                              color: Colors.blue,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        15.widthBox,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Dine out",
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 16),
+                              ),
+                              Text(
+                                "-\u20B92,096",
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 14),
+                              )
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              "-\u20B92,096",
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 16),
+                            ),
+                            Text(
+                              "100% total spending",
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 14),
+                            )
                           ],
                         )
                       ],
@@ -581,418 +569,411 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
           ),
-
         ],
       ),
     );
   }
 
   _bottomSheetView(StatisticsBloc statisticsBloc) {
-      return Container(
-            padding: EdgeInsets.only(bottom: 10),
-            color: Colors.black87,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+        padding: EdgeInsets.only(bottom: 10),
+        color: Helper.getBackgroundColor(context),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(15),
+                child: Row(
+                  //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: Row(
-                        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Clear filter",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16
-                          ),),
-                          Expanded(
-                            child: Text("Filter",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16
-                              ),),
-                          ),
-                          InkWell(
-                            onTap: (){
-                              Navigator.pop(context);
-                            },
-                            child: Text("Done",
-                              style: TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16
-                              ),),
-                          )
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      height: 1,
-                      thickness: 0.3,
-                      color: Colors.grey,
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
-                      child: Text("YEAR",
+                    Text(
+                      "Clear filter",
                       style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14
-                      ),),
+                          color: Helper.getTextColor(context), fontSize: 16),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 50),
-                        decoration: const BoxDecoration(
+                    Expanded(
+                      child: Text(
+                        "Filter",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        "Done",
+                        style: TextStyle(
                             color: Colors.blue,
-                            borderRadius: BorderRadius.all(Radius.circular(5))
-                        ),
-                        child: Text("2023",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Divider(
+                height: 1,
+                thickness: 0.3,
+                color: Helper.getTextColor(context),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                child: Text(
+                  "YEAR",
+                  style: TextStyle(
+                      color: Helper.getTextColor(context), fontSize: 14),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 50),
+                  decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                  child: Text(
+                    "2023",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                child: Text(
+                  "MONTH(Can filter by one or more)",
+                  style: TextStyle(
+                      color: Helper.getTextColor(context), fontSize: 14),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "January",
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16
-                          ),
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
                         ),
                       ),
                     ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
-                      child: Text("MONTH(Can filter by one or more)",
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14
-                        ),),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("January",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                          10.widthBox,
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("February",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                          10.widthBox,
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("March",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    10.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("April",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                          10.widthBox,
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("May",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                          10.widthBox,
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("June",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    10.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("July",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                          10.widthBox,
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("August",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                          10.widthBox,
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("September",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    10.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("October",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                          10.widthBox,
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("November",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                          10.widthBox,
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))
-                              ),
-                              child: Text("December",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
-                      child: Text("CATEGORY",
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14
-                        ),),
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          crossAxisSpacing: 10.0,
-                          mainAxisSpacing: 10.0,
-                          childAspectRatio:2.2 / 1,
+                    10.widthBox,
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "February",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
                         ),
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: gridItemList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          GridItem item = gridItemList[index];
-                          return Container(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.white10,
-                                borderRadius: BorderRadius.all(Radius.circular(5))
-                            ),
-                            child: Text(item.text,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14
-                              ),
-                            ),
-                          );
-                        },
+                      ),
+                    ),
+                    10.widthBox,
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "March",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ));
+              ),
+              10.heightBox,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "April",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    10.widthBox,
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "May",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    10.widthBox,
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "June",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              10.heightBox,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "July",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    10.widthBox,
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "August",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    10.widthBox,
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "September",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              10.heightBox,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "October",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    10.widthBox,
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "November",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    10.widthBox,
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          "December",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                child: Text(
+                  "CATEGORY",
+                  style: TextStyle(
+                      color: Helper.getTextColor(context), fontSize: 14),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
+                    childAspectRatio: 2.2 / 1,
+                  ),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: gridItemList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    GridItem item = gridItemList[index];
+                    return Container(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
+                          borderRadius: BorderRadius.all(Radius.circular(5))),
+                      child: Text(
+                        item.text,
+                        style: TextStyle(
+                            color: Helper.getTextColor(context), fontSize: 14),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 
-
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Colors.white,
+    final style = TextStyle(
+      color: Helper.getTextColor(context),
       fontSize: 12,
     );
     Widget text;
     switch (value.toInt()) {
       case 0:
-        text = const Text('1', style: style);
+        text = Text('1', style: style);
         break;
       case 1:
-        text = const Text('3', style: style);
+        text = Text('3', style: style);
         break;
       case 2:
-        text = const Text('5', style: style);
+        text = Text('5', style: style);
         break;
       case 3:
-        text = const Text('7', style: style);
+        text = Text('7', style: style);
         break;
       case 4:
-        text = const Text('9', style: style);
+        text = Text('9', style: style);
         break;
       case 5:
-        text = const Text('11', style: style);
+        text = Text('11', style: style);
         break;
       case 6:
-        text = const Text('13', style: style);
+        text = Text('13', style: style);
         break;
       case 7:
-        text = const Text('15', style: style);
+        text = Text('15', style: style);
         break;
       case 8:
-        text = const Text('17', style: style);
+        text = Text('17', style: style);
         break;
       case 9:
-        text = const Text('19', style: style);
+        text = Text('19', style: style);
         break;
       case 10:
-        text = const Text('21', style: style);
+        text = Text('21', style: style);
         break;
       case 11:
-        text = const Text('23', style: style);
+        text = Text('23', style: style);
         break;
       default:
-        text = const Text('', style: style);
+        text = Text('', style: style);
         break;
     }
 
@@ -1003,10 +984,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Colors.white,
-      fontSize: 12,
-    );
     String text;
     switch (value.toInt()) {
       case 0:
@@ -1031,7 +1008,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         return Container();
     }
 
-    return Text(text, style: style, textAlign: TextAlign.left);
+    return Text(text,
+        style: TextStyle(color: Helper.getTextColor(context)),
+        textAlign: TextAlign.left);
   }
 
   LineChartData mainData() {
@@ -1045,10 +1024,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ),
       titlesData: FlTitlesData(
         show: true,
-        rightTitles:  AxisTitles(
+        rightTitles: AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
-        topTitles:  AxisTitles(
+        topTitles: AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
         bottomTitles: AxisTitles(
@@ -1093,7 +1072,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
           barWidth: 5,
           isStrokeCapRound: true,
-          dotData:  FlDotData(
+          dotData: FlDotData(
             show: false,
           ),
           belowBarData: BarAreaData(
@@ -1108,7 +1087,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ],
     );
   }
-
 }
 
 class GridItem {

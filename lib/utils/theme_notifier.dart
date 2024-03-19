@@ -1,9 +1,7 @@
-import 'package:expense_manager/utils/global.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeNotifier with ChangeNotifier {
-
   bool _isDarkMode = false;
 
   bool get isDarkMode => _isDarkMode;
@@ -14,29 +12,41 @@ class ThemeNotifier with ChangeNotifier {
   }
 
   ThemeData? _themeData;
+
   ThemeData getTheme() => _themeData!;
   final darkTheme = ThemeData(
-    primarySwatch: Colors.blue,
-    primaryColor: Colors.blue,
-    brightness: Brightness.dark,
-    backgroundColor: Colors.black87,
-    hintColor: Colors.white,
-    dividerColor: Colors.black26,
-  );
+      primarySwatch: Colors.blue,
+      primaryColor: Colors.blue,
+      brightness: Brightness.dark,
+      backgroundColor: Colors.black87,
+      hintColor: Colors.white,
+      cardColor: const Color(0xff30302d),
+      dividerColor: const Color(0xff30302d),
+      canvasColor: Colors.blue,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: const Color(0xff30302d),
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.white60,
+      ));
 
   final lightTheme = ThemeData(
-    primarySwatch: Colors.blue,
-    primaryColor: Colors.blue,
-    brightness: Brightness.light,
-    backgroundColor: Colors.white60,
-    hintColor: Colors.black,
-    dividerColor: Colors.white54,
-  );
+      primarySwatch: Colors.blue,
+      primaryColor: Colors.blue,
+      brightness: Brightness.light,
+      backgroundColor: Colors.white60,
+      hintColor: Colors.black,
+      canvasColor: const Color(0xffdadae0),
+      cardColor: const Color(0xffe4e5e9),
+      dividerColor: Colors.blue,
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Colors.blue,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.black87));
 
   ThemeNotifier() {
     StorageManager.readData('themeMode').then((value) {
       print('value read from storage: $value');
-      var themeMode = value ?? 'light';
+      var themeMode = value ?? 'dark';
       if (themeMode == 'light') {
         _themeData = lightTheme;
       } else {

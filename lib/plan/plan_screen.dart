@@ -1,6 +1,7 @@
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'bloc/plan_bloc.dart';
 import 'bloc/plan_state.dart';
 
@@ -12,7 +13,6 @@ class PlanScreen extends StatefulWidget {
 }
 
 class _PlanScreenState extends State<PlanScreen> {
-
   PlanBloc planBloc = PlanBloc();
 
   bool isHappeningSelected = true;
@@ -25,10 +25,9 @@ class _PlanScreenState extends State<PlanScreen> {
     planBloc.context = context;
     return BlocConsumer<PlanBloc, PlanState>(
       bloc: planBloc,
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
-        if(state is PlanInitial){
+        if (state is PlanInitial) {
           return Scaffold(
               appBar: AppBar(
                 titleSpacing: 15,
@@ -38,21 +37,21 @@ class _PlanScreenState extends State<PlanScreen> {
                         text: "Plan",
                         style: TextStyle(
                           fontSize: 20,
-                          color: Colors.white,),
+                          color: Colors.white,
+                        ),
                         children: [
-                          TextSpan(
-                              text: "(10/2023)",
-                              style: TextStyle(
-                                fontSize:16,
-                                color: Colors.white,)),
-                        ])),
+                      TextSpan(
+                          text: "(10/2023)",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          )),
+                    ])),
                 actions: [
                   Container(
                     padding: const EdgeInsets.all(9),
                     decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.grey
-                    ),
+                        shape: BoxShape.circle, color: Colors.grey),
                     child: const Icon(
                       Icons.calendar_month_sharp,
                       color: Colors.white,
@@ -65,15 +64,15 @@ class _PlanScreenState extends State<PlanScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey
-                      ),
-                      child: const Text("MB",
+                          shape: BoxShape.circle, color: Colors.grey),
+                      child: const Text(
+                        "MB",
                         style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
-                        ),),
+                        ),
+                      ),
                     ),
                   )
                 ],
@@ -102,24 +101,25 @@ class _PlanScreenState extends State<PlanScreen> {
                                   });
                                 },
                                 child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 8),
-                                      decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.only(
-                                              topLeft:Radius.circular(30),
-                                              bottomLeft: Radius.circular(30)),
-                                          color: isHappeningSelected
-                                              ? Colors.blue
-                                              : Colors.grey),
-                                      child: const Align(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          'Happening',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white,
-                                          ),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(30),
+                                            bottomLeft: Radius.circular(30)),
+                                        color: isHappeningSelected
+                                            ? Colors.blue
+                                            : Colors.grey),
+                                    child: const Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Happening',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
                                         ),
-                                      )),
+                                      ),
+                                    )),
                               ),
                             ),
                             Expanded(
@@ -131,58 +131,65 @@ class _PlanScreenState extends State<PlanScreen> {
                                   });
                                 },
                                 child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 8),
-                                      decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.only(
-                                              topRight:Radius.circular(30),
-                                              bottomRight: Radius.circular(30)),
-                                          color:isHappeningSelected
-                                              ? Colors.grey
-                                              : Colors.blue),
-                                      child: const Align(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          'Finished',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white,
-                                          ),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.only(
+                                            topRight: Radius.circular(30),
+                                            bottomRight: Radius.circular(30)),
+                                        color: isHappeningSelected
+                                            ? Colors.grey
+                                            : Colors.blue),
+                                    child: const Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Finished',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
                                         ),
-                                      )),
+                                      ),
+                                    )),
                               ),
                             ),
                           ],
                         )),
-
                     20.heightBox,
                     Row(
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
                             decoration: const BoxDecoration(
                                 color: Colors.grey,
-                                borderRadius: BorderRadius.all(Radius.circular(10))
-                            ),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
                             child: const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text("Spending limit",
-                                      style: TextStyle(
-                                          color: Colors.white
-                                      ),),
-                                    Icon(Icons.edit,color: Colors.white,size: 16,)
+                                    Text(
+                                      "Spending limit",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    Icon(
+                                      Icons.edit,
+                                      color: Colors.white,
+                                      size: 16,
+                                    )
                                   ],
                                 ),
-                                Text("\u20B928,700",
+                                Text(
+                                  "\u20B928,700",
                                   style: TextStyle(
                                     color: Colors.pink,
                                     fontSize: 18,
-
-                                  ),)
+                                  ),
+                                )
                               ],
                             ),
                           ),
@@ -190,54 +197,54 @@ class _PlanScreenState extends State<PlanScreen> {
                         15.widthBox,
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
                             decoration: const BoxDecoration(
                                 color: Colors.grey,
-                                borderRadius: BorderRadius.all(Radius.circular(10))
-                            ),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
                             child: const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("Average Spending/day",
-                                  style: TextStyle(
-                                      color: Colors.white
-                                  ),),
-                                Text("\u20B9925.81",
+                                Text(
+                                  "Average Spending/day",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                Text(
+                                  "\u20B9925.81",
                                   style: TextStyle(
                                     color: Colors.blue,
                                     fontSize: 18,
-                                  ),)
+                                  ),
+                                )
                               ],
                             ),
                           ),
                         ),
                       ],
                     ),
-
                     20.heightBox,
                     const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Long press to drag or select the amount to enter",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13
-                          ),),
-                        Icon(Icons.lock_open,color: Colors.grey,size: 20,)
+                        Text(
+                          "Long press to drag or select the amount to enter",
+                          style: TextStyle(color: Colors.white, fontSize: 13),
+                        ),
+                        Icon(
+                          Icons.lock_open,
+                          color: Colors.grey,
+                          size: 20,
+                        )
                       ],
                     ),
                     10.heightBox,
-
                     currPage == 1
-                        ? Expanded(
-                        child: _happeningView(planBloc))
+                        ? Expanded(child: _happeningView(planBloc))
                         : 0.heightBox,
-
                     currPage == 2
-                        ? Expanded(
-                        child:_finishedView(planBloc))
+                        ? Expanded(child: _finishedView(planBloc))
                         : 0.heightBox,
-
                   ],
                 ),
               ));
@@ -264,20 +271,22 @@ class _PlanScreenState extends State<PlanScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Living",
+                      Text(
+                        "Living",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),),
+                            fontWeight: FontWeight.bold),
+                      ),
                       Column(
                         children: [
-                          Text("\u20B95,100",
+                          Text(
+                            "\u20B95,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
-                                fontWeight: FontWeight.bold
-                            ),),
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
                       )
                     ],
@@ -316,20 +325,22 @@ class _PlanScreenState extends State<PlanScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Living",
+                      Text(
+                        "Living",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),),
+                            fontWeight: FontWeight.bold),
+                      ),
                       Column(
                         children: [
-                          Text("\u20B95,100",
+                          Text(
+                            "\u20B95,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
-                                fontWeight: FontWeight.bold
-                            ),),
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
                       )
                     ],
@@ -368,20 +379,22 @@ class _PlanScreenState extends State<PlanScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Living",
+                      Text(
+                        "Living",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),),
+                            fontWeight: FontWeight.bold),
+                      ),
                       Column(
                         children: [
-                          Text("\u20B95,100",
+                          Text(
+                            "\u20B95,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
-                                fontWeight: FontWeight.bold
-                            ),),
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
                       )
                     ],
@@ -420,20 +433,22 @@ class _PlanScreenState extends State<PlanScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Living",
+                      Text(
+                        "Living",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),),
+                            fontWeight: FontWeight.bold),
+                      ),
                       Column(
                         children: [
-                          Text("\u20B95,100",
+                          Text(
+                            "\u20B95,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
-                                fontWeight: FontWeight.bold
-                            ),),
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
                       )
                     ],
@@ -472,20 +487,22 @@ class _PlanScreenState extends State<PlanScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Living",
+                      Text(
+                        "Living",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),),
+                            fontWeight: FontWeight.bold),
+                      ),
                       Column(
                         children: [
-                          Text("\u20B95,100",
+                          Text(
+                            "\u20B95,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
-                                fontWeight: FontWeight.bold
-                            ),),
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
                       )
                     ],
@@ -524,20 +541,22 @@ class _PlanScreenState extends State<PlanScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Living",
+                      Text(
+                        "Living",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),),
+                            fontWeight: FontWeight.bold),
+                      ),
                       Column(
                         children: [
-                          Text("\u20B95,100",
+                          Text(
+                            "\u20B95,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
-                                fontWeight: FontWeight.bold
-                            ),),
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
                       )
                     ],
@@ -585,18 +604,20 @@ class _PlanScreenState extends State<PlanScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Living",
+                      Text(
+                        "Living",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),),
-                      Text("\u20B95,100",
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "\u20B95,100",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
-                            fontWeight: FontWeight.bold
-                        ),)
+                            fontWeight: FontWeight.bold),
+                      )
                     ],
                   ),
                 ),
@@ -635,15 +656,15 @@ class SquareSliderComponentShape extends SliderComponentShape {
   @override
   void paint(PaintingContext context, Offset center,
       {required Animation<double> activationAnimation,
-        required Animation<double> enableAnimation,
-        required bool isDiscrete,
-        required TextPainter labelPainter,
-        required RenderBox parentBox,
-        required SliderThemeData sliderTheme,
-        required TextDirection textDirection,
-        required double value,
-        required double textScaleFactor,
-        required Size sizeWithOverflow}) {
+      required Animation<double> enableAnimation,
+      required bool isDiscrete,
+      required TextPainter labelPainter,
+      required RenderBox parentBox,
+      required SliderThemeData sliderTheme,
+      required TextDirection textDirection,
+      required double value,
+      required double textScaleFactor,
+      required Size sizeWithOverflow}) {
     final Canvas canvas = context.canvas;
     canvas.drawShadow(
         Path()
@@ -664,22 +685,21 @@ class SquareSliderComponentShape extends SliderComponentShape {
   }
 }
 
-
 class MyRoundedRectSliderTrackShape extends SliderTrackShape
-    with BaseSliderTrackShape{
+    with BaseSliderTrackShape {
   const MyRoundedRectSliderTrackShape();
 
   @override
-  void paint(PaintingContext context, Offset offset, {
-    required RenderBox parentBox,
-    required SliderThemeData sliderTheme,
-    required Animation<double> enableAnimation,
-    required Offset thumbCenter, Offset? secondaryOffset,
-    bool isEnabled = false,
-    bool isDiscrete = false,
-    double additionalTrackHeight = 8,
-    required TextDirection textDirection}) {
-
+  void paint(PaintingContext context, Offset offset,
+      {required RenderBox parentBox,
+      required SliderThemeData sliderTheme,
+      required Animation<double> enableAnimation,
+      required Offset thumbCenter,
+      Offset? secondaryOffset,
+      bool isEnabled = false,
+      bool isDiscrete = false,
+      double additionalTrackHeight = 8,
+      required TextDirection textDirection}) {
     if (sliderTheme.trackHeight == null || sliderTheme.trackHeight! <= 0) {
       return;
     }
@@ -730,7 +750,7 @@ class MyRoundedRectSliderTrackShape extends SliderTrackShape
       isDiscrete: isDiscrete,
     );
     final Radius activeTrackRadius =
-    Radius.circular((trackRect.height + additionalTrackHeight) / 2);
+        Radius.circular((trackRect.height + additionalTrackHeight) / 2);
 
     context.canvas.drawRRect(
       RRect.fromLTRBAndCorners(
@@ -754,12 +774,5 @@ class MyRoundedRectSliderTrackShape extends SliderTrackShape
       ),
       rightTrackPaint,
     );
-
-
   }
 }
-
-
-
-
-

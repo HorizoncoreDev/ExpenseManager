@@ -8,15 +8,14 @@ import 'intro_event.dart';
 import 'intro_state.dart';
 
 class IntroBloc extends Bloc<IntroEvent, IntroState> {
-
   late BuildContext context;
 
   IntroBloc() : super(IntroInitial()) {
-
     on<IntroStartEvent>(introStartEvent);
   }
 
-  Future<void> introStartEvent(IntroStartEvent event, Emitter<IntroState> emit) async {
+  Future<void> introStartEvent(
+      IntroStartEvent event, Emitter<IntroState> emit) async {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => SignInScreen()),

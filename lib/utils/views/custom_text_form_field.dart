@@ -39,38 +39,38 @@ class CustomBoxTextFormField extends StatelessWidget {
 
   const CustomBoxTextFormField(
       {super.key,
-        required this.controller,
-        this.keyboardType,
-        this.hintText,
-        this.hintColor,
-        this.focusNode,
-        this.contentPadding,
-        this.errorText,
-        this.textStyle,
-        this.textDirection,
-        this.fillColor,
-        this.textAlign,
-        this.padding,
-        this.focusedBorderColor,
-        this.suffixPadding,
-        this.filled,
-        this.minLines,
-        this.hintFontSize,
-        this.borderColor,
-        this.borderRadius,
-        this.maxLines,
-        this.suffixIcon,
-        this.obscureText,
-        this.maxLength,
-        this.horizontalPadding,
-        this.onChanged,
-        this.readOnly,
-        this.isBorder = true,
-        this.inputFormatters,
-        required this.validator,
-        this.textInputAction,
-        this.prefixIcon,
-        this.onSubmitted});
+      required this.controller,
+      this.keyboardType,
+      this.hintText,
+      this.hintColor,
+      this.focusNode,
+      this.contentPadding,
+      this.errorText,
+      this.textStyle,
+      this.textDirection,
+      this.fillColor,
+      this.textAlign,
+      this.padding,
+      this.focusedBorderColor,
+      this.suffixPadding,
+      this.filled,
+      this.minLines,
+      this.hintFontSize,
+      this.borderColor,
+      this.borderRadius,
+      this.maxLines,
+      this.suffixIcon,
+      this.obscureText,
+      this.maxLength,
+      this.horizontalPadding,
+      this.onChanged,
+      this.readOnly,
+      this.isBorder = true,
+      this.inputFormatters,
+      required this.validator,
+      this.textInputAction,
+      this.prefixIcon,
+      this.onSubmitted});
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +90,7 @@ class CustomBoxTextFormField extends StatelessWidget {
       maxLines: maxLines ?? 1,
       onChanged: onChanged ?? (text) {},
       onFieldSubmitted: onSubmitted ??
-              (term) {
+          (term) {
             FocusScope.of(context).nextFocus();
           },
       style: textStyle ??
@@ -108,23 +108,23 @@ class CustomBoxTextFormField extends StatelessWidget {
                   horizontal: padding ?? 10, vertical: padding ?? 12),
           border: isBorder
               ? OutlineInputBorder(
-              borderSide: BorderSide(
-                color: borderColor ?? AppColors.textFieldBorderColor,
-              ),
-              borderRadius: borderRadius ?? BorderRadius.circular(4))
+                  borderSide: BorderSide(
+                    color: borderColor ?? AppColors.textFieldBorderColor,
+                  ),
+                  borderRadius: borderRadius ?? BorderRadius.circular(4))
               : InputBorder.none,
           enabledBorder: isBorder
               ? OutlineInputBorder(
-              borderSide: BorderSide(
-                color: borderColor ?? AppColors.textFieldBorderColor,
-              ),
-              borderRadius: borderRadius ?? BorderRadius.circular(4))
+                  borderSide: BorderSide(
+                    color: borderColor ?? AppColors.textFieldBorderColor,
+                  ),
+                  borderRadius: borderRadius ?? BorderRadius.circular(4))
               : InputBorder.none,
           focusedBorder: isBorder
               ? OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: focusedBorderColor ?? AppColors.primaryColor),
-              borderRadius: borderRadius ?? BorderRadius.circular(4))
+                  borderSide: BorderSide(
+                      color: focusedBorderColor ?? AppColors.primaryColor),
+                  borderRadius: borderRadius ?? BorderRadius.circular(4))
               : InputBorder.none,
           filled: filled ?? true,
           fillColor: fillColor ?? AppColors.textFieldFillBorderColor,
@@ -133,7 +133,7 @@ class CustomBoxTextFormField extends StatelessWidget {
           hintStyle: TextStyle(
             color: hintColor ?? Colors.grey,
             fontSize: hintFontSize ?? 14,
-          //  fontFamily: AppConstants.fontFamily,
+            //  fontFamily: AppConstants.fontFamily,
             fontWeight: FontWeight.w400,
           ),
           labelStyle: const TextStyle(
@@ -148,7 +148,7 @@ class CustomBoxTextFormField extends StatelessWidget {
               child: suffixIcon),
           prefixIcon: Padding(
               padding:
-              EdgeInsets.symmetric(horizontal: horizontalPadding ?? 10),
+                  EdgeInsets.symmetric(horizontal: horizontalPadding ?? 10),
               child: prefixIcon)),
     );
   }

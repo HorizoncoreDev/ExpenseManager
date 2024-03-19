@@ -1,4 +1,3 @@
-
 const String expence_category_table = 'expence_category_table';
 
 class ExpenceCategoryFields {
@@ -53,7 +52,6 @@ class ExpenseCategory {
     };
   }
 }
-
 
 /*
 import 'dart:convert';

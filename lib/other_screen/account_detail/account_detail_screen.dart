@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +23,6 @@ class AccountDetailScreen extends StatefulWidget {
 }
 
 class _AccountDetailScreenState extends State<AccountDetailScreen> {
-
   AccountDetailBloc accountDetailBloc = AccountDetailBloc();
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
@@ -44,10 +41,9 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   ProfileModel? profileData;
 
-  String userEmail='';
+  String userEmail = '';
 
   String getShortName(String name, String name1) {
-
     String firstStr = name.split(" ").first;
     String secondStr = name1.split(" ").first;
 
@@ -60,14 +56,16 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
   Future<void> getProfileData() async {
     try {
       await Future.delayed(const Duration(seconds: 2));
-     ProfileModel fetchedProfileData = await databaseHelper.getProfileData(userEmail);
+      ProfileModel fetchedProfileData =
+          await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
         fullName = profileData!.first_name!;
         email = profileData!.email!;
 
         dob = profileData!.dob!;
-        selectedValue = profileData!.gender==""?'Female':profileData!.gender!;
+        selectedValue =
+            profileData!.gender == "" ? 'Female' : profileData!.gender!;
         isLoading = false;
       });
     } catch (error) {
@@ -97,46 +95,51 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     accountDetailBloc.context = context;
     return BlocConsumer<AccountDetailBloc, AccountDetailState>(
       bloc: accountDetailBloc,
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
-        if(state is AccountDetailInitial){
+        if (state is AccountDetailInitial) {
           return Scaffold(
             appBar: AppBar(
               leading: InkWell(
                   onTap: () {
                     Navigator.pop(context);
                   },
-                  child: const Icon(Icons.arrow_back_ios,color: Colors.white,size: 18,)),
-              backgroundColor: Colors.black87,
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Helper.getTextColor(context),
+                    size: 18,
+                  )),
+              backgroundColor: Helper.getBackgroundColor(context),
               titleSpacing: 0.0,
-              title: const Text("Account Details",
+              title: Text("Account Details",
                   style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white)),
+                      fontSize: 20, color: Helper.getTextColor(context))),
               elevation: 0.0,
               actions: [
                 InkWell(
-                  onTap: (){
+                  onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const EditAccountDetailScreen()),
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const EditAccountDetailScreen()),
                     );
                   },
                   child: Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white10
-                      ),
-                      child: const Icon(Icons.edit,color: Colors.white,)
-                  ),
+                          color: Helper.getCardColor(context)),
+                      child: Icon(
+                        Icons.edit,
+                        color: Helper.getTextColor(context),
+                      )),
                 ),
                 10.widthBox
               ],
             ),
             body: Container(
-              color: Colors.black87,
+              color: Helper.getBackgroundColor(context),
               height: double.infinity,
               padding: const EdgeInsets.all(15),
               child: SingleChildScrollView(
@@ -145,12 +148,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                   children: [
                     20.heightBox,
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
-                      decoration: const BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(10))
-                      ),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 15),
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
                       child: Row(
                         children: [
                           10.widthBox,
@@ -160,7 +162,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                    color: Colors.white70),
+                                    color: Helper.getTextColor(context)),
                               ),
                               child: Container(
                                   height: 50,
@@ -169,22 +171,25 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: Colors.white70),
-                                  child: const Center(
-                                      child: Icon(Icons.person,color: Colors.grey,size: 35,)))),
+                                  child: Center(
+                                      child: Icon(
+                                    Icons.person,
+                                    color: Helper.getTextColor(context),
+                                    size: 35,
+                                  )))),
                           20.widthBox,
-                           Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(fullName??"",
+                                Text(fullName ?? "",
                                     style: TextStyle(
-                                        color: Colors.white,
+                                        color: Helper.getTextColor(context),
                                         fontSize: 20,
-                                        fontWeight: FontWeight.bold
-                                    )),
-                                Text(email??"",
+                                        fontWeight: FontWeight.bold)),
+                                Text(email ?? "",
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 12,
                                     )),
                               ],
@@ -194,20 +199,19 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       ),
                     ),
                     20.heightBox,
-                    const Text("ACCOUNT",
+                    Text(
+                      "ACCOUNT",
                       style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.bold
-                      ),),
-
+                          color: Helper.getTextColor(context),
+                          fontWeight: FontWeight.bold),
+                    ),
                     5.heightBox,
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Colors.white10,
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                      ),
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
                       child: Column(
                         children: [
                           Padding(
@@ -218,22 +222,26 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   padding: const EdgeInsets.all(6),
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.blueGrey
-                                  ),
+                                      color: Colors.blueGrey),
                                   child: const Icon(
                                     Icons.settings,
                                     color: Colors.blue,
                                   ),
                                 ),
                                 15.widthBox,
-                                const Expanded(
-                                  child: Text("Account linked",
+                                Expanded(
+                                  child: Text(
+                                    "Account linked",
                                     style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.white
-                                    ),),
+                                        color: Helper.getTextColor(context)),
+                                  ),
                                 ),
-                                SvgPicture.asset(ImageConstanst.icGoogle,width:24,height: 24,),
+                                SvgPicture.asset(
+                                  ImageConstanst.icGoogle,
+                                  width: 24,
+                                  height: 24,
+                                ),
                               ],
                             ),
                           ),
@@ -249,31 +257,31 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   padding: const EdgeInsets.all(6),
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.blueGrey
-                                  ),
+                                      color: Colors.blueGrey),
                                   child: const Icon(
                                     Icons.settings,
                                     color: Colors.blue,
                                   ),
                                 ),
                                 15.widthBox,
-                                const Expanded(
-                                  child: Text("User code",
+                                Expanded(
+                                  child: Text(
+                                    "User code",
                                     style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.white
-                                    ),),
+                                        color: Helper.getTextColor(context)),
+                                  ),
                                 ),
-                                const Text("EZR64Q",
+                                const Text(
+                                  "EZR64Q",
                                   style: TextStyle(
-                                      color: Colors.blue,
-                                      fontSize: 17
-                                  ),),
+                                      color: Colors.blue, fontSize: 17),
+                                ),
                                 5.widthBox,
                                 const Icon(
                                   Icons.copy_rounded,
                                   color: Colors.blue,
-                                  size: 16  ,
+                                  size: 16,
                                 )
                               ],
                             ),
@@ -285,7 +293,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 25),
                             child: InkWell(
-                              onTap: () async{
+                              onTap: () async {
                                 /*await signOut();*/
 
                                 /*Navigator.pushReplacement(
@@ -293,25 +301,24 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                               },
                               child: Row(
                                 children: [
-
                                   Container(
                                     padding: const EdgeInsets.all(6),
                                     decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Colors.blueGrey
-                                    ),
+                                        color: Colors.blueGrey),
                                     child: const Icon(
                                       Icons.settings,
                                       color: Colors.blue,
                                     ),
                                   ),
                                   15.widthBox,
-                                  const Expanded(
-                                    child: Text("Logout",
+                                  Expanded(
+                                    child: Text(
+                                      "Logout",
                                       style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.white
-                                      ),),
+                                          color: Helper.getTextColor(context)),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -320,28 +327,26 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                         ],
                       ),
                     ),
-
                     20.heightBox,
-                    const Text("USER DATA",
+                    Text(
+                      "USER DATA",
                       style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.bold
-                      ),),
-
+                          color: Helper.getTextColor(context),
+                          fontWeight: FontWeight.bold),
+                    ),
                     5.heightBox,
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Colors.white10,
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                      ),
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
                       child: Column(
                         children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 25),
                             child: InkWell(
-                              onTap: (){
+                              onTap: () {
                                 _clearDataDialogue(accountDetailBloc);
                               },
                               child: Row(
@@ -350,8 +355,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                     padding: const EdgeInsets.all(6),
                                     decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Colors.blueGrey
-                                    ),
+                                        color: Colors.blueGrey),
                                     child: const Icon(
                                       Icons.settings,
                                       color: Colors.blue,
@@ -359,11 +363,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   ),
                                   15.widthBox,
                                   const Expanded(
-                                    child: Text("Clear data, refresh application",
+                                    child: Text(
+                                      "Clear data, refresh application",
                                       style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.blue
-                                      ),),
+                                          fontSize: 16, color: Colors.blue),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -376,7 +380,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 25),
                             child: InkWell(
-                              onTap: (){
+                              onTap: () {
                                 _deleteAccountDialogue(accountDetailBloc);
                               },
                               child: Row(
@@ -385,8 +389,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                     padding: const EdgeInsets.all(6),
                                     decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Colors.blueGrey
-                                    ),
+                                        color: Colors.blueGrey),
                                     child: const Icon(
                                       Icons.settings,
                                       color: Colors.redAccent,
@@ -394,11 +397,12 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   ),
                                   15.widthBox,
                                   const Expanded(
-                                    child: Text("Delete account, stop using",
+                                    child: Text(
+                                      "Delete account, stop using",
                                       style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.redAccent
-                                      ),),
+                                          color: Colors.redAccent),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -435,7 +439,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
             vertical: 15,
           ),
           insetPadding: const EdgeInsets.all(15),
-          backgroundColor: Colors.black,
+          backgroundColor: Helper.getCardColor(context),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -447,14 +451,15 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                     onTap: () {
                       Navigator.pop(cont);
                     },
-                    child: const Icon(Icons.close, color: Colors.grey),
+                    child:
+                        Icon(Icons.close, color: Helper.getTextColor(context)),
                   ),
                 ),
                 10.heightBox,
-                const Text(
+                Text(
                   "Are you sure you want to delete this account?",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Helper.getTextColor(context),
                     fontSize: 20,
                   ),
                 ),
@@ -465,13 +470,13 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       InkWell(
-                        onTap: (){
+                        onTap: () {
                           Navigator.pop(cont);
                         },
-                        child: const Text(
+                        child: Text(
                           "No",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -479,13 +484,13 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       ),
                       20.widthBox,
                       InkWell(
-                        onTap: (){
+                        onTap: () {
                           Navigator.pop(cont);
                         },
-                        child: const Text(
+                        child: Text(
                           "Yes",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -518,7 +523,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
             vertical: 15,
           ),
           insetPadding: const EdgeInsets.all(15),
-          backgroundColor: Colors.black,
+          backgroundColor: Helper.getCardColor(context),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -531,15 +536,16 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                     onTap: () {
                       Navigator.pop(cont);
                     },
-                    child: const Icon(Icons.close, color: Colors.grey),
+                    child:
+                        Icon(Icons.close, color: Helper.getTextColor(context)),
                   ),
                 ),
                 10.heightBox,
-                const Text(
+                Text(
                   "Are you sure you want to clear data?",
                   textAlign: TextAlign.start,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Helper.getTextColor(context),
                     fontSize: 20,
                   ),
                 ),
@@ -550,13 +556,13 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       InkWell(
-                        onTap: (){
+                        onTap: () {
                           Navigator.pop(cont);
                         },
-                        child: const Text(
+                        child: Text(
                           "No",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -564,13 +570,13 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       ),
                       20.widthBox,
                       InkWell(
-                        onTap: (){
+                        onTap: () {
                           Navigator.pop(cont);
                         },
-                        child: const Text(
+                        child: Text(
                           "Yes",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -587,17 +593,17 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     );
   }
 
- signOut() async {
+  signOut() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
     try {
       await FirebaseAuth.instance.signOut();
       await googleSignIn.signOut();
 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignInScreen()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => SignInScreen()));
     } catch (e) {
       Helper.showToast('Error signing out. Try again.');
     }
   }
-
 }

@@ -1,9 +1,11 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:provider/provider.dart';
+
 import 'bloc/general_setting_bloc.dart';
 import 'bloc/general_setting_state.dart';
 
@@ -15,7 +17,6 @@ class GeneralSettingScreen extends StatefulWidget {
 }
 
 class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
-
   GeneralSettingBloc generalSettingBloc = GeneralSettingBloc();
   late ThemeNotifier _themeNotifier;
 
@@ -39,74 +40,81 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
 
     return BlocConsumer<GeneralSettingBloc, GeneralSettingState>(
       bloc: generalSettingBloc,
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
-        if(state is GeneralSettingInitial){
+        if (state is GeneralSettingInitial) {
           return Scaffold(
               appBar: AppBar(
                 titleSpacing: 0,
-                backgroundColor: Colors.black87,
+                backgroundColor: Helper.getBackgroundColor(context),
                 leading: InkWell(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                     },
-                    child: const Icon(Icons.arrow_back_ios,color: Colors.white,)),
-                title: const Text("General Settings",
+                    child: Icon(
+                      Icons.arrow_back_ios,
+                      color: Helper.getTextColor(context),
+                    )),
+                title: Text(
+                  "General Settings",
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Helper.getTextColor(context),
                       fontSize: 24,
-                      fontWeight: FontWeight.bold
-                  ),),
+                      fontWeight: FontWeight.bold),
+                ),
               ),
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black87,
+                color: Helper.getBackgroundColor(context),
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       10.heightBox,
-                      const Text("DISPLAY",
+                      Text(
+                        "DISPLAY",
                         style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold
-                        ),),
-
+                            color: Helper.getTextColor(context),
+                            fontWeight: FontWeight.bold),
+                      ),
                       5.heightBox,
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
-                            borderRadius: BorderRadius.all(Radius.circular(10))
-                        ),
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10))),
                         child: Column(
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(left: 15,right: 5,top: 3,bottom: 3),
+                              padding: const EdgeInsets.only(
+                                  left: 15, right: 5, top: 3, bottom: 3),
                               child: Row(
                                 children: [
-                                  const Expanded(
-                                    child: Text("Dark mode",
+                                  Expanded(
+                                    child: Text(
+                                      "Dark mode",
                                       style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.white
-                                      ),),
+                                          color: Helper.getTextColor(context)),
+                                    ),
                                   ),
                                   FlutterSwitch(
                                     width: 40,
                                     height: 20,
                                     padding: 1,
-                                    value: _themeNotifier.getTheme().brightness == Brightness.dark,
+                                    value:
+                                        _themeNotifier.getTheme().brightness ==
+                                            Brightness.dark,
                                     borderRadius: 30.0,
                                     toggleColor: Colors.black,
                                     toggleSize: 15,
                                     switchBorder: Border.all(
                                       color: Colors.black,
-                                      width: 3.0,
+                                      width: 2.0,
                                     ),
                                     activeColor: Colors.green,
                                     inactiveColor: Colors.grey,
@@ -117,7 +125,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                         } else {
                                           _themeNotifier.setLightMode();
                                         }
-
                                       });
                                     },
                                   ),
@@ -129,27 +136,25 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               color: Colors.black12,
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(left: 15,right: 5,top: 3,bottom: 3),
+                              padding: const EdgeInsets.only(
+                                  left: 15, right: 5, top: 3, bottom: 3),
                               child: Row(
                                 children: [
-                                  const Expanded(
-                                    child: Text("Language",
+                                  Expanded(
+                                    child: Text(
+                                      "Language",
                                       style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.white
-                                      ),),
+                                          color: Helper.getTextColor(context)),
+                                    ),
                                   ),
-                                  const Text("English",
+                                  Text(
+                                    "English",
                                     style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.white
-                                    ),),
+                                        color: Helper.getTextColor(context)),
+                                  ),
                                   5.widthBox,
-                                  const Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    color: Colors.white,
-                                    size: 13  ,
-                                  )
                                 ],
                               ),
                             ),
@@ -158,27 +163,25 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               color: Colors.black12,
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(left: 15,right: 5,top: 3,bottom: 3),
+                              padding: const EdgeInsets.only(
+                                  left: 15, right: 5, top: 3, bottom: 3),
                               child: Row(
                                 children: [
-                                  const Expanded(
-                                    child: Text("Currency",
+                                  Expanded(
+                                    child: Text(
+                                      "Currency",
                                       style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.white
-                                      ),),
+                                          color: Helper.getTextColor(context)),
+                                    ),
                                   ),
-                                  const Text("INR",
+                                  Text(
+                                    "INR",
                                     style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.white
-                                    ),),
+                                        color: Helper.getTextColor(context)),
+                                  ),
                                   5.widthBox,
-                                  const Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    color: Colors.white,
-                                    size: 13  ,
-                                  )
                                 ],
                               ),
                             ),
@@ -186,27 +189,28 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                         ),
                       ),
                       20.heightBox,
-                      const Text("REMINDER",
+                      Text(
+                        "REMINDER",
                         style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold
-                        ),),
+                            color: Helper.getTextColor(context),
+                            fontWeight: FontWeight.bold),
+                      ),
                       5.heightBox,
                       Container(
-                        padding: const EdgeInsets.only(left: 20,right: 10,top: 10,bottom: 10),
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
-                            borderRadius: BorderRadius.all(Radius.circular(10))
-                        ),
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 10, top: 10, bottom: 10),
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10))),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.blueGrey
-                              ),
+                                  color: Colors.blueGrey),
                               child: const Icon(
                                 Icons.notifications,
                                 color: Colors.blue,
@@ -215,11 +219,12 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                             ),
                             20.widthBox,
                             Expanded(
-                              child: Text("Notification",
+                              child: Text(
+                                "Notification",
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white
-                                ),),
+                                    color: Helper.getTextColor(context)),
+                              ),
                             ),
                             FlutterSwitch(
                               width: 40,
@@ -231,7 +236,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               toggleSize: 15,
                               switchBorder: Border.all(
                                 color: Colors.black,
-                                width: 3.0,
+                                width: 2.0,
                               ),
                               activeColor: Colors.green,
                               inactiveColor: Colors.grey,
@@ -244,29 +249,29 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                           ],
                         ),
                       ),
-
                       20.heightBox,
-                      const Text("SECURE",
+                      Text(
+                        "SECURE",
                         style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold
-                        ),),
+                            color: Helper.getTextColor(context),
+                            fontWeight: FontWeight.bold),
+                      ),
                       5.heightBox,
                       Container(
-                        padding: const EdgeInsets.only(left: 20,right: 10,top: 10,bottom: 10),
-                        decoration: const BoxDecoration(
-                            color: Colors.white10,
-                            borderRadius: BorderRadius.all(Radius.circular(10))
-                        ),
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 10, top: 10, bottom: 10),
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10))),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.blueGrey
-                              ),
+                                  color: Colors.blueGrey),
                               child: const Icon(
                                 Icons.key_rounded,
                                 color: Colors.blue,
@@ -275,11 +280,12 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                             ),
                             20.widthBox,
                             Expanded(
-                              child: Text("Security code",
+                              child: Text(
+                                "Security code",
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white
-                                ),),
+                                    color: Helper.getTextColor(context)),
+                              ),
                             ),
                             FlutterSwitch(
                               width: 40,
@@ -291,7 +297,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               toggleSize: 15,
                               switchBorder: Border.all(
                                 color: Colors.black,
-                                width: 3.0,
+                                width: 2.0,
                               ),
                               activeColor: Colors.green,
                               inactiveColor: Colors.grey,
@@ -304,7 +310,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                           ],
                         ),
                       ),
-
                       10.heightBox
                     ],
                   ),

@@ -183,8 +183,9 @@ class DatabaseHelper {
 
   Future<ProfileModel> getProfileData(String email) async {
     Database db = await database;
-    final map = await db
-        .rawQuery("SELECT * FROM $profile_table WHERE ${ProfileTableFields.email} = ?", [email]);
+    final map = await db.rawQuery(
+        "SELECT * FROM $profile_table WHERE ${ProfileTableFields.email} = ?",
+        [email]);
 
     if (map.isNotEmpty) {
       return ProfileModel.fromJson(map.first);

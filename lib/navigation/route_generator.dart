@@ -1,7 +1,6 @@
 import 'package:expense_manager/navigation/routes_key.dart';
 import 'package:flutter/material.dart';
 
-import '../budget/budget_screen.dart';
 import '../intro_screen/intro_screen.dart';
 import '../sign_in/sign_in_screen.dart';
 
@@ -9,7 +8,6 @@ class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final args = settings.arguments;
     switch (settings.name) {
-
       case Routes.intro:
         return MaterialPageRoute(builder: (context) => const IntroScreen());
 

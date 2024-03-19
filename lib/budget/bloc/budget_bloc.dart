@@ -9,18 +9,17 @@ import 'budget_event.dart';
 import 'budget_state.dart';
 
 class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
-
   late BuildContext context;
 
   BudgetBloc() : super(BudgetInitial()) {
-
     on<BudgetDoneEvent>(budgetDoneEvent);
   }
 
-  Future<void> budgetDoneEvent(BudgetDoneEvent event, Emitter<BudgetState> emit) async {
-    if(event.budgetValue.isEmpty){
+  Future<void> budgetDoneEvent(
+      BudgetDoneEvent event, Emitter<BudgetState> emit) async {
+    if (event.budgetValue.isEmpty) {
       Helper.showToast('Enter your budget');
-    }else{
+    } else {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => DashBoard()),

@@ -1,15 +1,13 @@
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:provider/provider.dart';
 
 import '../dashboard/dashboard.dart';
 import '../utils/global.dart';
-import '../utils/helper.dart';
-import '../utils/theme_notifier.dart';
 import '../utils/views/custom_text_form_field.dart';
 import 'bloc/budget_bloc.dart';
 import 'bloc/budget_event.dart';
@@ -26,7 +24,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
   BudgetBloc budgetBloc = BudgetBloc();
 
   final FocusNode _focus = FocusNode();
-
   TextEditingController budgetController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   String userEmail = '';
@@ -36,8 +33,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
   void initState() {
     super.initState();
     _focus.addListener(_onFocusChange);
-    MySharedPreferences.instance.getBoolValuesSF(SharedPreferencesKeys.isSkippedUser).then((value) {
-      if(value!=null){
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
         isSkippedUser = value;
       }
     });
@@ -66,7 +65,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
   @override
   Widget build(BuildContext context) {
     budgetBloc.context = context;
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
     return BlocConsumer<BudgetBloc, BudgetState>(
       bloc: budgetBloc,
       listener: (context, state) {},
@@ -79,7 +77,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             child: Scaffold(
                 appBar: AppBar(
                   automaticallyImplyLeading: false,
-                  backgroundColor: themeNotifier.getTheme().backgroundColor,
+                  backgroundColor: Helper.getBackgroundColor(context),
                   titleSpacing: 10,
                   title: Row(
                     children: [
@@ -93,13 +91,13 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             size: 20,
                           )),
                       10.widthBox,
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           "Hello",
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                              color: Helper.getTextColor(context)),
                         ),
                       ),
                     ],
@@ -110,8 +108,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         if (budgetController.text.isEmpty) {
                           Helper.showToast('Enter your budget');
                         } else {
-
-                          if(!isSkippedUser) {
+                          if (!isSkippedUser) {
                             await DatabaseHelper.instance
                                 .getProfileData(userEmail)
                                 .then((profileData) async {
@@ -127,10 +124,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                     builder: (context) => const DashBoard()),
                               );
                             });
-                          }else{
-
+                          } else {
                             MySharedPreferences.instance.addStringToSF(
-                                SharedPreferencesKeys.skippedUserCurrentBalance, budgetController.text.toString());
+                                SharedPreferencesKeys.skippedUserCurrentBalance,
+                                budgetController.text.toString());
                             MySharedPreferences.instance.addBoolToSF(
                                 SharedPreferencesKeys.isBudgetAdded, true);
                             Navigator.push(
@@ -142,9 +139,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         }
                         //budgetBloc.add(BudgetDoneEvent(budgetController.text));
                       },
-                      child: const Text(
+                      child: Text(
                         "Done",
-                        style: TextStyle(fontSize: 14, color: Colors.white),
+                        style: TextStyle(
+                            fontSize: 14, color: Helper.getTextColor(context)),
                       ),
                     ),
                     10.widthBox,
@@ -153,7 +151,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 body: Container(
                   width: double.maxFinite,
                   height: double.maxFinite,
-                  color: themeNotifier.getTheme().backgroundColor,
+                  color: Helper.getBackgroundColor(context),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -164,12 +162,13 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           height: 150,
                         ),
                         10.heightBox,
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Text(
                             "Follow your plan to avoid unnecessary spending.Set\na budget for the month and try to follow it to\nachieve your financial goals.",
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white),
+                            style:
+                                TextStyle(color: Helper.getTextColor(context)),
                           ),
                         ),
                         20.heightBox,
@@ -200,8 +199,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                         bottomLeft: Radius.circular(5)),
                                     keyboardType: TextInputType.number,
                                     hintText: "Enter your budget",
-                                    fillColor: Colors.white10,
+                                    fillColor: Helper.getCardColor(context),
                                     borderColor: Colors.transparent,
+                                    textStyle: TextStyle(
+                                        color: Helper.getTextColor(context)),
                                     padding: 15,
                                     horizontalPadding: 5,
                                     //focusNode: _focus,
@@ -211,11 +212,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(
                                   vertical: 14.2, horizontal: 5),
-                              decoration: const BoxDecoration(
-                                  color: Colors.white10,
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   border: Border(
                                     left: BorderSide(
-                                      color: Colors.white10,
+                                      color: Helper.getCardColor(context),
                                     ),
                                   ),
                                   borderRadius: BorderRadius.only(
@@ -229,10 +230,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                       style: TextStyle(
                                           fontSize: 16, color: Colors.blue)),
                                   5.widthBox,
-                                  const Icon(
+                                  Icon(
                                     Icons.arrow_forward_ios_outlined,
                                     size: 14,
-                                    color: Colors.white,
+                                    color: Helper.getTextColor(context),
                                   )
                                 ],
                               ),

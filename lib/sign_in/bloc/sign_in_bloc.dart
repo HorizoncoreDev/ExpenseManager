@@ -7,17 +7,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../budget/budget_screen.dart';
 
-
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-
   late BuildContext context;
 
   SignInBloc() : super(SignInInitial()) {
-
     on<SignInSkipEvent>(signInSkipEvent);
   }
 
-  Future<void> signInSkipEvent(SignInSkipEvent event, Emitter<SignInState> emit) async {
+  Future<void> signInSkipEvent(
+      SignInSkipEvent event, Emitter<SignInState> emit) async {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const BudgetScreen()),

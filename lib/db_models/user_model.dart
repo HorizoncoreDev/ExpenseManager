@@ -23,7 +23,6 @@ class UserTableFields {
   static const String profile_image = 'profile_image';
   static const String created_at = 'created_at';
   static const String last_updated = 'last_updated';
-
 }
 
 class UserModel {
@@ -38,32 +37,30 @@ class UserModel {
   String? created_at;
   String? last_updated;
 
-  UserModel({
-    this.id,
-    this.username,
-    this.password,
-    this.email,
-    this.full_name,
-    this.current_balance,
-    this.profile_image,
-    this.mobile_number,
-    this.created_at,
-    this.last_updated
-  });
+  UserModel(
+      {this.id,
+      this.username,
+      this.password,
+      this.email,
+      this.full_name,
+      this.current_balance,
+      this.profile_image,
+      this.mobile_number,
+      this.created_at,
+      this.last_updated});
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      id: map['id'],
-      username: map['username'],
-      password: map['password'],
-      email: map['email'],
-      full_name: map['full_name'],
-      current_balance: map['current_balance'],
-      profile_image: map['profile_image'],
-      mobile_number: map['mobile_number'],
-      created_at: map['created_at'],
-      last_updated: map['last_updated']
-    );
+        id: map['id'],
+        username: map['username'],
+        password: map['password'],
+        email: map['email'],
+        full_name: map['full_name'],
+        current_balance: map['current_balance'],
+        profile_image: map['profile_image'],
+        mobile_number: map['mobile_number'],
+        created_at: map['created_at'],
+        last_updated: map['last_updated']);
   }
 
   Map<String, dynamic> toMap() {

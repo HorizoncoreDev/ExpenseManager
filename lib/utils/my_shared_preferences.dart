@@ -4,7 +4,7 @@ class MySharedPreferences {
   MySharedPreferences._privateConstructor();
 
   static final MySharedPreferences instance =
-  MySharedPreferences._privateConstructor();
+      MySharedPreferences._privateConstructor();
 
   addBoolToSF(var key, var value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

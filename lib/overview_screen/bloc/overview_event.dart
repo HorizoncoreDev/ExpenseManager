@@ -5,4 +5,3 @@ class ChangeTabEvent extends OverviewEvent {
 
   ChangeTabEvent(this.tabIndex);
 }
-

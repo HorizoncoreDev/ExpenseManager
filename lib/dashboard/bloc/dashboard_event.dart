@@ -1,5 +1,3 @@
-
-
 abstract class DashboardEvent {}
 
 class TabChange extends DashboardEvent {

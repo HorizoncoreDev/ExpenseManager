@@ -125,8 +125,9 @@ class TransactionModel {
       'receipt_image1': receipt_image1,
       'receipt_image2': receipt_image2,
       'receipt_image3': receipt_image3,
-      'created_at': created_at/*DateTime.parse(createdAt as String)*/, // Convert String to DateTime
-      'last_updated': last_updated/*DateTime.parse(lastUpdated as String)*/,
+      'created_at': created_at /*DateTime.parse(createdAt as String)*/,
+      // Convert String to DateTime
+      'last_updated': last_updated /*DateTime.parse(lastUpdated as String)*/,
     };
   }
 }

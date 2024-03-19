@@ -1,9 +1,3 @@
-
 abstract class SignInEvent {}
 
-
-class SignInSkipEvent extends SignInEvent {
-}
-
-
-
+class SignInSkipEvent extends SignInEvent {}

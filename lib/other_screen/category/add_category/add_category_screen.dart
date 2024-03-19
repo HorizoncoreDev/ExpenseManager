@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,22 +6,21 @@ import 'package:flutter_svg/svg.dart';
 import '../../../db_models/category_model.dart';
 import '../../../db_models/income_category.dart';
 import '../../../db_service/database_helper.dart';
+import '../../../utils/helper.dart';
 import '../../../utils/views/custom_text_form_field.dart';
 import 'bloc/add_category_bloc.dart';
 import 'bloc/add_category_state.dart';
 
 class AddCategoryScreen extends StatefulWidget {
-
   final int currPage;
 
-  const AddCategoryScreen({super.key,required this.currPage});
+  const AddCategoryScreen({super.key, required this.currPage});
 
   @override
   State<AddCategoryScreen> createState() => _AddCategoryScreenState();
 }
 
 class _AddCategoryScreenState extends State<AddCategoryScreen> {
-
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
 
@@ -43,7 +40,14 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
 
   TextEditingController nameController = TextEditingController();
 
-  List<String> myCategoriesIcons = ['ic_google', 'ic_facebook', 'ic_apple','ic_google', 'ic_facebook', 'ic_apple'];
+  List<String> myCategoriesIcons = [
+    'ic_google',
+    'ic_facebook',
+    'ic_apple',
+    'ic_google',
+    'ic_facebook',
+    'ic_apple'
+  ];
   String iconSelected = '';
   Color? isSelectedColor;
 
@@ -52,10 +56,10 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
 
     // Add save code here
     await databaseHelper.insertCategory(
-      Category(name: name, color: isSelectedColor!,icons: iconSelected),
+      Category(name: name, color: isSelectedColor!, icons: iconSelected),
     );
 
-    Navigator.pop(context,true);
+    Navigator.pop(context, true);
   }
 
   Future<void> _onIncomeSave() async {
@@ -63,10 +67,15 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
 
     // Add save code here
     await databaseHelper.insertIncomeCategory(
-      IncomeCategory(name: name, parentId: 1, path: iconSelected, status: 1, color: isSelectedColor!),
+      IncomeCategory(
+          name: name,
+          parentId: 1,
+          path: iconSelected,
+          status: 1,
+          color: isSelectedColor!),
     );
 
-    Navigator.pop(context,true);
+    Navigator.pop(context, true);
   }
 
   @override
@@ -74,46 +83,45 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
     addCategoryBloc.context = context;
     return BlocConsumer<AddCategoryBloc, AddCategoryState>(
       bloc: addCategoryBloc,
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
-        if(state is AddCategoryInitial){
+        if (state is AddCategoryInitial) {
           return Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.black87,
+                backgroundColor: Helper.getBackgroundColor(context),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
-                      onTap: (){
+                      onTap: () {
                         Navigator.pop(context);
                       },
-                      child: Text("Back",
+                      child: Text(
+                        "Back",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16
-                        ),),
+                            color: Helper.getTextColor(context), fontSize: 16),
+                      ),
                     ),
-                    const Text("Add category",
+                    Text("Add category",
                         style: TextStyle(
                             fontSize: 22,
-                            color: Colors.white,
+                            color: Helper.getTextColor(context),
                             fontWeight: FontWeight.bold)),
                     InkWell(
-                      onTap: (){
-                        if(widget.currPage == 1){
+                      onTap: () {
+                        if (widget.currPage == 1) {
                           _onSave();
-                        }else{
+                        } else {
                           _onIncomeSave();
                         }
                       },
-                      child: Text("Done",
+                      child: Text(
+                        "Done",
                         style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16
-                        ),),
+                            color: Helper.getTextColor(context), fontSize: 16),
+                      ),
                     ),
                   ],
                 ),
@@ -121,24 +129,25 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black87,
-                padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 10),
+                color: Helper.getBackgroundColor(context),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("NAME",
+                        Text(
+                          "NAME",
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14
-                          ),),
+                              color: Helper.getTextColor(context),
+                              fontSize: 14),
+                        ),
                         Container(
                           padding: const EdgeInsets.all(2),
                           decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.red
-                          ),
+                              shape: BoxShape.circle, color: Colors.red),
                           child: const Icon(
                             Icons.question_mark,
                             color: Colors.white,
@@ -147,28 +156,28 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         ),
                       ],
                     ),
-
                     10.heightBox,
                     CustomBoxTextFormField(
                         controller: nameController,
-                        borderRadius: const BorderRadius.all(
-                            Radius.circular(8)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(8)),
                         keyboardType: TextInputType.text,
-                        fillColor: Colors.white10,
+                        fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
-                        padding: 10 ,
+                        padding: 10,
+                        textStyle: TextStyle(
+                          color: Helper.getTextColor(context),
+                        ),
                         horizontalPadding: 5,
                         validator: (value) {
                           return null;
                         }),
-
                     20.heightBox,
-                    Text("COLOR",
+                    Text(
+                      "COLOR",
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14
-                      ),),
-
+                          color: Helper.getTextColor(context), fontSize: 14),
+                    ),
                     5.heightBox,
                     SizedBox(
                       height: 45,
@@ -180,7 +189,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         itemCount: colors.length,
                         itemBuilder: (context, index) {
                           return InkWell(
-                            onTap: (){
+                            onTap: () {
                               setState(() {
                                 isSelectedColor = colors[index];
                                 print("Selected color is $isSelectedColor");
@@ -189,10 +198,8 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                             child: Container(
                               width: 40,
                               height: 40,
-                              decoration:  BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: colors[index]
-                              ),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle, color: colors[index]),
                             ),
                           );
                         },
@@ -201,27 +208,25 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         },
                       ),
                     ),
-
                     20.heightBox,
-                    Text("ICON",
+                    Text(
+                      "ICON",
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14
-                      ),),
-
+                          color: Helper.getTextColor(context), fontSize: 14),
+                    ),
                     5.heightBox,
                     Expanded(
                       child: Container(
-                        decoration: const BoxDecoration(
-                            color: Color(0xff29292d),
-                            borderRadius: BorderRadius.all(Radius.circular(10))
-                        ),
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10))),
                         child: GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            childAspectRatio: 2 / 1,
-                            mainAxisSpacing: 4
-                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  childAspectRatio: 2 / 1,
+                                  mainAxisSpacing: 4),
                           shrinkWrap: true,
                           physics: const ScrollPhysics(),
                           itemCount: myCategoriesIcons.length,
@@ -229,12 +234,14 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                             return Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: InkWell(
-                                onTap: (){
-                                  setState(() {
-                                    iconSelected = myCategoriesIcons[index];
-                                  });
-                                },
-                                  child: SvgPicture.asset('asset/images/${myCategoriesIcons[index]}.svg',color: Color(0xff86859a))),
+                                  onTap: () {
+                                    setState(() {
+                                      iconSelected = myCategoriesIcons[index];
+                                    });
+                                  },
+                                  child: SvgPicture.asset(
+                                      'asset/images/${myCategoriesIcons[index]}.svg',
+                                      color: Color(0xff86859a))),
                             );
                           },
                         ),
@@ -248,5 +255,4 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
       },
     );
   }
-
 }

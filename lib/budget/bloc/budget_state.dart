@@ -6,6 +6,6 @@ class BudgetDoneState extends BudgetState {}
 
 class BudgetBackState extends BudgetState {}
 
-class BudgetDoneErrorState extends BudgetState{
+class BudgetDoneErrorState extends BudgetState {
   BudgetDoneErrorState();
 }

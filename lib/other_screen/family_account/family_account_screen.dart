@@ -1,4 +1,5 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,7 +14,6 @@ class FamilyAccountScreen extends StatefulWidget {
 }
 
 class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
-
   FamilyAccountBloc familyAccountBloc = FamilyAccountBloc();
 
   @override
@@ -21,38 +21,41 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
     familyAccountBloc.context = context;
     return BlocConsumer<FamilyAccountBloc, FamilyAccountState>(
       bloc: familyAccountBloc,
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
-        if(state is FamilyAccountInitial){
+        if (state is FamilyAccountInitial) {
           return Scaffold(
               appBar: AppBar(
                 titleSpacing: 15,
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.black,
+                backgroundColor: Helper.getBackgroundColor(context),
                 title: Row(
                   children: [
                     InkWell(
-                      onTap: (){
-                        Navigator.pop(context);
-                      },
-                        child: Icon(Icons.arrow_back_ios,color: Colors.white,)),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          color: Helper.getTextColor(context),
+                        )),
                     Text("Family Karan",
                         style: TextStyle(
                           fontSize: 22,
-                          color: Colors.white,)),
+                          color: Helper.getTextColor(context),
+                        )),
                   ],
                 ),
                 actions: [
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 15),
-                    decoration: const BoxDecoration(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                    decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.grey
-                    ),
-                    child: const Icon(
+                        color: Helper.getCardColor(context)),
+                    child: Icon(
                       Icons.edit,
-                      color: Colors.white,
+                      color: Helper.getTextColor(context),
                       size: 18,
                     ),
                   ),
@@ -61,65 +64,78 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
               body: Container(
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 width: double.infinity,
-                color: Colors.black,
+                color: Helper.getBackgroundColor(context),
                 child: Column(
                   children: [
                     10.heightBox,
                     Row(
                       children: [
                         Expanded(
-                          child: Text("Currently 2 members",
-                            style: TextStyle(color: Colors.white),),
+                          child: Text(
+                            "Currently 2 members",
+                            style:
+                                TextStyle(color: Helper.getTextColor(context)),
+                          ),
                         ),
                         RichText(
                             text: TextSpan(
                                 text: "CODE: ",
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color:Colors.blue,),
+                                  color: Colors.blue,
+                                ),
                                 children: [
-                                  TextSpan(
-                                    text: "615739",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color:Colors.blue,),),
-                                ])),
+                              TextSpan(
+                                text: "615739",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ])),
                         5.widthBox,
-                        Icon(Icons.qr_code_scanner,color: Colors.blue,size: 22,)
+                        Icon(
+                          Icons.qr_code_scanner,
+                          color: Colors.blue,
+                          size: 22,
+                        )
                       ],
                     ),
                     10.heightBox,
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                      ),
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
                       child: Column(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(left: 10,right: 10),
+                            padding: const EdgeInsets.only(left: 10, right: 10),
                             child: Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 7,horizontal: 7),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 7, horizontal: 7),
                                   decoration: const BoxDecoration(
                                       color: Colors.white,
-                                      borderRadius: BorderRadius.all(Radius.circular(10))
-                                  ),
-                                  child: Text("MB",
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  child: Text(
+                                    "MB",
                                     style: TextStyle(
                                         color: Colors.blue,
                                         fontSize: 18,
-                                        fontWeight: FontWeight.bold
-                                    ),),
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                                 20.widthBox,
-                                Text("Muskaan Bhatt",
+                                Text(
+                                  "Muskaan Bhatt",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Helper.getTextColor(context),
                                       fontSize: 16,
-                                      fontWeight: FontWeight.bold),)
+                                      fontWeight: FontWeight.bold),
+                                )
                               ],
                             ),
                           ),
@@ -128,54 +144,57 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                             color: Colors.black12,
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 10,right: 10),
+                            padding: const EdgeInsets.only(left: 10, right: 10),
                             child: Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 7,horizontal: 7),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 7, horizontal: 7),
                                   decoration: const BoxDecoration(
                                       color: Colors.white,
-                                      borderRadius: BorderRadius.all(Radius.circular(10))
-                                  ),
-                                  child: Text("TP",
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  child: Text(
+                                    "TP",
                                     style: TextStyle(
                                         color: Colors.blue,
                                         fontSize: 18,
-                                        fontWeight: FontWeight.bold
-                                    ),),
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                                 20.widthBox,
                                 Expanded(
-                                  child: Text("Thirali Patel",
+                                  child: Text(
+                                    "Thirali Patel",
                                     style: TextStyle(
-                                        color: Colors.white,
+                                        color: Helper.getTextColor(context),
                                         fontSize: 16,
-                                        fontWeight: FontWeight.bold),),
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                                Icon(Icons.arrow_circle_right_outlined,color: Colors.red,)
+                                Icon(
+                                  Icons.arrow_circle_right_outlined,
+                                  color: Colors.red,
+                                )
                               ],
                             ),
                           ),
-
                         ],
                       ),
                     ),
-
                     Expanded(child: Container()),
-
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 15),
                       alignment: Alignment.center,
                       decoration: const BoxDecoration(
                           color: Colors.blue,
-                          borderRadius: BorderRadius.all(Radius.circular(10))
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      child: const Text(
+                        "Leave",
+                        style: TextStyle(color: Colors.white, fontSize: 14),
                       ),
-                      child:  const Text("Leave",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14
-                        ),),
                     ),
                     30.heightBox
                   ],
