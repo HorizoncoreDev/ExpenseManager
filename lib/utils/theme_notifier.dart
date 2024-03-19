@@ -37,7 +37,7 @@ class ThemeNotifier with ChangeNotifier {
       hintColor: Colors.black,
       canvasColor: const Color(0xffdadae0),
       cardColor: const Color(0xffe4e5e9),
-      dividerColor: Colors.blue,
+      dividerColor: const Color(0xffe4e5e9),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           backgroundColor: Colors.blue,
           selectedItemColor: Colors.white,
