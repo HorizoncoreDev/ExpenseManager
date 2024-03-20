@@ -484,8 +484,9 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       ),
                       20.widthBox,
                       InkWell(
-                        onTap: () {
-                          Navigator.pop(cont);
+                        onTap: () async {
+                          deleteAccount();
+                          Navigator.pop(context);
                         },
                         child: Text(
                           "Yes",
@@ -572,7 +573,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       InkWell(
                         onTap: () async {
                           Navigator.pop(cont);
-                          await signOut();
+                          signOut();
                         },
                         child: Text(
                           "Yes",
@@ -697,5 +698,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     await databaseHelper.clearTransactionTable();
     Navigator.of(context, rootNavigator: true).
     push(MaterialPageRoute(builder: (context) => const BudgetScreen()));
+  }
+
+  Future<void> deleteAccount() async {
+    await databaseHelper.clearAllTables();
+    Navigator.of(context, rootNavigator: true).
+    push(MaterialPageRoute(builder: (context) => const SignInScreen()));
   }
 }

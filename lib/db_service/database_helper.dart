@@ -463,11 +463,11 @@ class DatabaseHelper {
     Helper.showToast("All transaction are cleared.");
   }
 
-  Future<void> clearAllTable() async{
+  Future<void> clearAllTables() async{
     Database db = await instance.database;
     await db.delete(transaction_table);
     await db.delete(profile_table);
-    Helper.showToast("All transaction are cleared.");
+    Helper.showToast("All transaction are deleted.");
   }
 
 }
