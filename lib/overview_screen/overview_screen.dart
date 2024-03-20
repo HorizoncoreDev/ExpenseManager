@@ -308,7 +308,7 @@ class OverviewScreenState extends State<OverviewScreen> {
               ],
             ),
             if (spendingTransaction.isNotEmpty) 20.heightBox,
-           /* if (spendingTransaction.isNotEmpty)
+            if (spendingTransaction.isNotEmpty)
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -322,7 +322,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                   ),
                 ],
               ),
-            15.heightBox,*/
+            15.heightBox,
             if (spendingTransaction.isNotEmpty)
               ListView.separated(
                 shrinkWrap: true,
