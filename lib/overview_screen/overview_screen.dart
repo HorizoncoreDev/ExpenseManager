@@ -1,10 +1,16 @@
+import 'package:expense_manager/db_models/profile_model.dart';
+import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/spending_detail_screen/spending_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 
+import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
 import '../statistics/search/search_screen.dart';
 import 'add_spending/add_spending_screen.dart';
@@ -16,11 +22,76 @@ class OverviewScreen extends StatefulWidget {
   const OverviewScreen({super.key});
 
   @override
-  State<OverviewScreen> createState() => _OverviewScreenState();
+  State<OverviewScreen> createState() => OverviewScreenState();
 }
 
-class _OverviewScreenState extends State<OverviewScreen> {
+class OverviewScreenState extends State<OverviewScreen> {
   OverviewBloc overviewBloc = OverviewBloc();
+  List<TransactionModel> spendingTransaction = [];
+  ProfileModel profileModel = ProfileModel();
+  String userEmail = "";
+  String currentBalance = "";
+  final databaseHelper = DatabaseHelper();
+
+  @override
+  void initState() {
+    getTransactions();
+    super.initState();
+  }
+
+  bool isToday(DateTime date) {
+    DateTime now = DateTime.now();
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
+  }
+
+  bool isYesterday(DateTime date) {
+    DateTime now = DateTime.now();
+    DateTime yesterday = DateTime(now.year, now.month, now.day - 1);
+    return date.year == yesterday.year &&
+        date.month == yesterday.month &&
+        date.day == yesterday.day;
+  }
+
+  getTransactions() async {
+    await DatabaseHelper.instance
+        .getTransactions(AppConstanst.spendingTransaction)
+        .then((value) {
+      setState(() {
+        spendingTransaction = value;
+        List<String> dates = [];
+
+        for (var t in spendingTransaction) {
+          if (!dates.contains(t.transaction_date!)) {
+            dates.add(t.transaction_date!);
+          }
+          /*  DateFormat format = DateFormat("dd/MM/yyyy HH:mm");
+          DateTime parsedDate = format.parse(t.transaction_date!);
+          if(isToday(parsedDate)){
+            List<TransactionModel> newTransaction = [];
+            dateWiseSpendingTransaction.add(DateWiseTransactionModel(
+              transactionDate: t.transaction_date!,
+              transactionTotal: ,
+              transactions:
+            ));
+          }*/
+        }
+        for (var d in dates) {
+          int totalAmount = 0;
+          List<TransactionModel> newTransaction = [];
+          for (var t in spendingTransaction) {
+            if (d == t.transaction_date) {
+              newTransaction.add(t);
+              totalAmount = totalAmount + t.amount!;
+            } else {
+              break;
+            }
+          }
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,13 +125,13 @@ class _OverviewScreenState extends State<OverviewScreen> {
                                   const EdgeInsets.symmetric(horizontal: 20),
                               child: Row(
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "-\u20B932,781.78",
+                                          "\u20B9$currentBalance",
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -92,10 +163,11 @@ class _OverviewScreenState extends State<OverviewScreen> {
                                   10.widthBox,
                                   InkWell(
                                     onTap: () {
-                                      Navigator.of(context, rootNavigator: true).push(
+                                      Navigator.push(
+                                        context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                            const OtherScreen()),
+                                                const OtherScreen()),
                                       );
                                     },
                                     child: Container(
@@ -159,7 +231,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 Container(
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -285,127 +358,155 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 ),
               ],
             ),
-
-            /*20.heightBox,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("TODAY, 03/10/2023",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14
-                ),),
-                Text("-\u20B928,700",
-                  style: TextStyle(
-                      color: Colors.pink,
-                      fontSize: 14
-                  ),),
-              ],
-            ),*/
-
-            15.heightBox,
-            /* Container(
-              padding: EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                  color: Color(0xff30302d),
-                  borderRadius: BorderRadius.all(Radius.circular(10))
-              ),
-              child: Row(
+            if (spendingTransaction.isNotEmpty) 20.heightBox,
+            if (spendingTransaction.isNotEmpty)
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    padding: EdgeInsets.all(5),
-                    decoration: const BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                    ),
-                    child: Icon(Icons.cake,color: Colors.blue,),
+                  Text(
+                    "TODAY, 03/10/2023",
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
-                  15.widthBox,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Dine out",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold
-                        ),),
-                        Text("Bbb",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                          ),)
-                      ],
-                    ),
+                  Text(
+                    "-\u20B928,700",
+                    style: TextStyle(color: Colors.pink, fontSize: 14),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text("-\u20B92,096",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),),
-                      Text("Cash/16:11",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),)
-                    ],
-                  )
                 ],
               ),
-            ),*/
-
-            Container(
-                decoration: BoxDecoration(
-                    color: Helper.getCardColor(context),
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: Column(
-                  children: [
-                    20.heightBox,
-                    Icon(
-                      Icons.account_balance_wallet,
-                      color: Helper.getTextColor(context),
-                      size: 80,
-                    ),
-                    10.heightBox,
-                    Text(
-                      "You don't have any expenses yet",
-                      style: TextStyle(color: Helper.getTextColor(context)),
-                    ),
-                    20.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 35),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.of(context, rootNavigator: true).push(
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const AddSpendingScreen()),
-                          );
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 15),
-                          alignment: Alignment.center,
+            15.heightBox,
+            if (spendingTransaction.isNotEmpty)
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const ScrollPhysics(),
+                itemCount: spendingTransaction.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                        color: Color(0xff30302d),
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(5),
                           decoration: const BoxDecoration(
-                              color: Colors.blue,
+                              color: Colors.black,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(11))),
-                          child: const Text(
-                            "Add spending",
-                            style: TextStyle(color: Colors.white, fontSize: 14),
+                                  BorderRadius.all(Radius.circular(10))),
+                          child: SvgPicture.asset(
+                            'asset/images/${spendingTransaction[index].cat_icon}.svg',
+                            color: spendingTransaction[index].cat_color,
+                            width: 24,
+                            height: 24,
+                          ),
+                        ),
+                        15.widthBox,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                spendingTransaction[index].cat_name!,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                spendingTransaction[index].description!,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              "-\u20B9${spendingTransaction[index].amount!}",
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              "${spendingTransaction[index].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${spendingTransaction[index].transaction_date!.split(' ')[1]}",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return 10.heightBox;
+                },
+              ),
+            if (spendingTransaction.isEmpty)
+              Container(
+                  decoration: BoxDecoration(
+                      color: Helper.getCardColor(context),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
+                  child: Column(
+                    children: [
+                      20.heightBox,
+                      Icon(
+                        Icons.account_balance_wallet,
+                        color: Helper.getTextColor(context),
+                        size: 80,
+                      ),
+                      10.heightBox,
+                      Text(
+                        "You don't have any expenses yet",
+                        style: TextStyle(color: Helper.getTextColor(context)),
+                      ),
+                      20.heightBox,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context, rootNavigator: true)
+                                .push(
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const AddSpendingScreen()),
+                            )
+                                .then((value) {
+                              if (value != null) {
+                                if (value) {
+                                  getTransactions();
+                                }
+                              }
+                            });
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 15),
+                            alignment: Alignment.center,
+                            decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            child: const Text(
+                              "Add spending",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    15.heightBox,
-                  ],
-                )),
+                      15.heightBox,
+                    ],
+                  )),
           ],
         ),
       ),
@@ -424,7 +525,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 Container(
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -558,7 +660,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                   style: TextStyle(
                       color: Helper.getTextColor(context), fontSize: 14),
                 ),
-                Text(
+                const Text(
                   "-\u20B928,700",
                   style: TextStyle(color: Colors.pink, fontSize: 14),
                 ),
@@ -569,7 +671,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                   color: Helper.getCardColor(context),
-                  borderRadius: BorderRadius.all(Radius.circular(10))),
+                  borderRadius: const BorderRadius.all(Radius.circular(10))),
               child: Row(
                 children: [
                   Container(

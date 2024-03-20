@@ -21,10 +21,11 @@ class _DashBoardState extends State<DashBoard> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   PersistentTabController controller = PersistentTabController(initialIndex: 0);
   bool hideNavBar = false;
+  GlobalKey<OverviewScreenState> overviewKey = GlobalKey<OverviewScreenState>();
 
   List<Widget> buildScreens() {
     return [
-      const OverviewScreen(),
+       OverviewScreen(key: overviewKey,),
       Container(),
       const StatisticsScreen(),
     ];
@@ -81,6 +82,7 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
+
     return [
       PersistentBottomNavBarItem(
         icon: Icon(Icons.home),
@@ -99,7 +101,16 @@ class _DashBoardState extends State<DashBoard> {
           inactiveColorPrimary: Helper.getTextColor(context),
           inactiveColorSecondary: Helper.getTextColor(context),
           onPressed: (contet){
-            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => const AddSpendingScreen()),);
+            Navigator.of(context, rootNavigator: true).
+            push(MaterialPageRoute(builder: (context) => const AddSpendingScreen()),).then((value) {
+
+              if(value!=null){
+                if(value){
+                  overviewKey.currentState?.getTransactions();
+                  //getTransactions();
+                }
+              }
+            });
           }),
       PersistentBottomNavBarItem(
         icon: Icon(Icons.search),
