@@ -61,7 +61,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
           await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-        fullName = profileData!.first_name!;
+        fullName = "${profileData!.first_name!} ${profileData!.last_name!}" ;
         email = profileData!.email!;
 
         dob = profileData!.dob!;

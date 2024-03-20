@@ -53,8 +53,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
     return emailRegex.hasMatch(email);
   }
 
-
-
   Future<void> getProfileData() async {
     try {
       await Future.delayed(const Duration(seconds: 2));
@@ -194,7 +192,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                     color: Colors.blueGrey,
                                   ),
                                   child: Text(
-                                    shortName,
+                                    shortName.toUpperCase(),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
