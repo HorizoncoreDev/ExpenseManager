@@ -13,6 +13,7 @@ import '../db_models/income_sub_category.dart';
 import '../db_models/payment_method_model.dart';
 import '../db_models/profile_model.dart';
 import '../db_models/spending_sub_category.dart';
+import '../utils/global.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper.init();
@@ -73,6 +74,9 @@ class DatabaseHelper {
       ${TransactionFields.income_cat_id} $integerType,
       ${TransactionFields.sub_expense_cat_id} $integerType,
       ${TransactionFields.sub_income_cat_id} $integerType,
+      ${TransactionFields.cat_name} $textType,
+      ${TransactionFields.cat_icon} $textType,
+      ${TransactionFields.cat_color} $integerType,
       ${TransactionFields.payment_method_id} $integerType,
       ${TransactionFields.status} $integerType,
       ${TransactionFields.transaction_date} $integerType,
@@ -328,6 +332,31 @@ class DatabaseHelper {
   Future<List<TransactionModel>> getTransactionData() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(transaction_table);
+    return List.generate(
+        maps.length, (index) => TransactionModel.fromMap(maps[index]));
+  }
+
+  Future<List<TransactionModel>> getTransactions(int transactionType) async {
+    Database db = await database;
+
+   /* final List<Map<String, dynamic>> maps = await db.rawQuery('''
+    SELECT t.*, c.name,c.color,c.icons
+    FROM $transaction_table AS t
+    INNER JOIN $category_table AS c ON t.${TransactionFields.expense_cat_id} = c.${CategoryFields.id}
+    WHERE t.${TransactionFields.transaction_type} = ?
+  ''', [AppConstanst.spendingTransaction]);
+
+    return List.generate(
+      maps.length,
+          (index) => TransactionModel.fromMap(maps[index]),
+    );*/
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      transaction_table,
+      where: '${TransactionFields.transaction_type} = ?',
+      whereArgs: [transactionType],
+      orderBy:'${TransactionFields.created_at} DESC'
+    );
     return List.generate(
         maps.length, (index) => TransactionModel.fromMap(maps[index]));
   }

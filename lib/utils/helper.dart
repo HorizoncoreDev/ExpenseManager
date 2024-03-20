@@ -2,7 +2,6 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../db_models/category_model.dart';
@@ -11,6 +10,7 @@ import '../db_models/spending_sub_category.dart';
 import '../db_service/database_helper.dart';
 
 class Helper {
+
   static void showToast(String message) {
     Fluttertoast.showToast(
         msg: message,
