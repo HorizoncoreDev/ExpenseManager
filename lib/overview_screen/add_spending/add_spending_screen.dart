@@ -283,8 +283,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                   10.widthBox,
                   InkWell(
                     onTap: () async {
-                      if (amountController.text.isEmpty ||
-                          amountController.text == "0") {
+                      if (amountController.text.isEmpty || amountController.text == "0") {
                         Helper.showToast("Please add amount");
                       } else if (selectedValue == "Spending"
                           ? selectedSpendingIndex == -1
