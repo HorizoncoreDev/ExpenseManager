@@ -193,6 +193,6 @@ class Helper {
 
   static void hideLoading(context) {
     //Get.back();
-    Navigator.of(context).pop();
+    Navigator.pop(context);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
+import 'package:expense_manager/sign_in/sign_in_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +40,6 @@ class _OtherScreenState extends State<OtherScreen> {
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
 
-
-
   @override
   void initState() {
     MySharedPreferences.instance
@@ -65,8 +64,6 @@ class _OtherScreenState extends State<OtherScreen> {
 
   Future<void> getProfileData() async {
     try {
-      Helper.showLoading(context);
-      await Future.delayed(const Duration(seconds: 2));
       ProfileModel fetchedProfileData =
       await databaseHelper.getProfileData(userEmail);
       setState(() {
@@ -77,6 +74,7 @@ class _OtherScreenState extends State<OtherScreen> {
       }
       );
       getShortName(profileData!.first_name!, profileData!.last_name!);
+
     } catch (error) {
       print('Error fetching Profile Data: $error');
      /* setState(() {
@@ -91,7 +89,6 @@ class _OtherScreenState extends State<OtherScreen> {
 
     String firstChar = firstStr.substring(0, 1);
     String secondChar = secondStr.substring(0, 1);
-
     return shortName = firstChar + secondChar;
   }
 
@@ -130,12 +127,25 @@ class _OtherScreenState extends State<OtherScreen> {
                               // if (!isSkippedUser)
                                 InkWell(
                                   onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const AccountDetailScreen()),
-                                    );
+                                    if(isSkippedUser){
+                                      MySharedPreferences.instance.addBoolToSF(
+                                          SharedPreferencesKeys.isSkippedUser, false);
+                                      Helper.showToast("Kindly proceed with your sign-in.");
+                                      Navigator.of(context, rootNavigator: true).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                            const SignInScreen()),
+                                      );
+                                    }
+                                    else {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                            const AccountDetailScreen()),
+                                      );
+                                    }
+
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(6),
@@ -143,7 +153,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         shape: BoxShape.circle,
                                         color: Helper.getCardColor(context)),
                                     child: Text(
-                                      shortName.toUpperCase(),
+                                      shortName == "" ? "AB" : shortName.characters.toString(),
                                       style: TextStyle(
                                         color: Colors.blue,
                                         fontWeight: FontWeight.bold,

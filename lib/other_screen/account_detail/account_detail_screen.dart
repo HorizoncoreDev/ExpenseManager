@@ -1,3 +1,5 @@
+import 'package:expense_manager/budget/budget_screen.dart';
+import 'package:expense_manager/overview_screen/overview_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -55,8 +57,6 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   Future<void> getProfileData() async {
     try {
-      Helper.showLoading(context);
-      await Future.delayed(const Duration(seconds: 2));
       ProfileModel fetchedProfileData =
           await databaseHelper.getProfileData(userEmail);
       setState(() {
@@ -69,7 +69,6 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
             profileData!.gender == "" ? 'Female' : profileData!.gender!;
         isLoading = false;
       });
-      Helper.hideLoading(context);
     } catch (error) {
       Helper.hideLoading(context);
       print('Error fetching Profile Data: $error');
@@ -120,7 +119,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
               actions: [
                 InkWell(
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
@@ -658,6 +657,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       20.widthBox,
                       InkWell(
                         onTap: () {
+                          clearData();
                           Navigator.pop(cont);
                         },
                         child: Text(
@@ -686,10 +686,16 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
       await FirebaseAuth.instance.signOut();
       await googleSignIn.signOut();
 
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => SignInScreen()));
+      Navigator.of(context, rootNavigator: true).
+      push(MaterialPageRoute(builder: (context) => const SignInScreen()));
     } catch (e) {
       Helper.showToast('Error signing out. Try again.');
     }
+  }
+
+  Future<void> clearData() async {
+    await databaseHelper.clearTransactionTable();
+    Navigator.of(context, rootNavigator: true).
+    push(MaterialPageRoute(builder: (context) => const BudgetScreen()));
   }
 }
