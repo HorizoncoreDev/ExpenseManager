@@ -1,5 +1,6 @@
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
+import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
 import 'package:expense_manager/overview_screen/spending_detail_screen/spending_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
@@ -9,6 +10,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../db_models/transaction_model.dart';
@@ -29,89 +31,121 @@ class OverviewScreen extends StatefulWidget {
 class OverviewScreenState extends State<OverviewScreen> {
   OverviewBloc overviewBloc = OverviewBloc();
   List<TransactionModel> spendingTransaction = [];
-  ProfileModel profileModel = ProfileModel();
+  List<DateWiseTransactionModel> dateWiseSpendingTransaction = [];
   String userEmail = "";
-  String currentBalance = "";
+  int currentBalance = 0;
+  int actualBudget = 0;
+  bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
+  ProfileModel profileModel = ProfileModel();
+  int totalSpending = 0;
 
   @override
   void initState() {
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
-        .then((value) {
-      if (value != null) {
-        userEmail = value;
-        getProfileData();
-      }
-    });
     getTransactions();
     super.initState();
-  }
-
-  bool isToday(DateTime date) {
-    DateTime now = DateTime.now();
-    return date.year == now.year && date.month == now.month && date.day == now.day;
-  }
-
-  bool isYesterday(DateTime date) {
-    DateTime now = DateTime.now();
-    DateTime yesterday = DateTime(now.year, now.month, now.day - 1);
-    return date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day;
   }
 
   getProfileData() async {
     try {
       ProfileModel fetchedProfileData =
-      await databaseHelper.getProfileData(userEmail);
-        setState(() {
-          profileModel = fetchedProfileData;
-          currentBalance = profileModel.current_balance!;
-        });
+          await databaseHelper.getProfileData(userEmail);
+      setState(() {
+        profileModel = fetchedProfileData;
+        currentBalance = int.parse(profileModel.current_balance!);
+        actualBudget = int.parse(profileModel.actual_budget!);
+      });
     } catch (error) {
       print('Error fetching Profile Data: $error');
-     /* setState(() {
-        isLoading = false;
-      });*/
     }
   }
 
   getTransactions() async {
-    await databaseHelper
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
+        isSkippedUser = value;
+        if (isSkippedUser) {
+          MySharedPreferences.instance
+              .getStringValuesSF(
+                  SharedPreferencesKeys.skippedUserCurrentBalance)
+              .then((value) {
+            if (value != null) {
+              currentBalance = int.parse(value);
+            }
+          });
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
+              .then((value) {
+            if (value != null) {
+              actualBudget = int.parse(value);
+            }
+          });
+        } else {
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.userEmail)
+              .then((value) {
+            if (value != null) {
+              userEmail = value;
+              getProfileData();
+            }
+          });
+        }
+      }
+    });
+
+    dateWiseSpendingTransaction = [];
+    await DatabaseHelper.instance
         .getTransactions(AppConstanst.spendingTransaction)
         .then((value) {
       setState(() {
         spendingTransaction = value;
         List<String> dates = [];
 
-        for(var t in spendingTransaction){
-          if(!dates.contains(t.transaction_date!)) {
-            dates.add(t.transaction_date!);
-          }
-          /*  DateFormat format = DateFormat("dd/MM/yyyy HH:mm");
+        DateTime now = DateTime.now();
+        String currentMonthName = DateFormat('MMMM').format(now);
+
+        for (var t in spendingTransaction) {
+          DateFormat format = DateFormat("dd/MM/yyyy");
           DateTime parsedDate = format.parse(t.transaction_date!);
-          if(isToday(parsedDate)){
-            List<TransactionModel> newTransaction = [];
-            dateWiseSpendingTransaction.add(DateWiseTransactionModel(
-              transactionDate: t.transaction_date!,
-              transactionTotal: ,
-              transactions:
-            ));
-          }*/
+          String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+if(transactionMonthName == currentMonthName) {
+  if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+    dates.add(t.transaction_date!.split(' ')[0]);
+  }
+  totalSpending = totalSpending + t.amount!;
+}
+
         }
-        for(var d in dates){
-          int totalAmount=0;
+        dates.sort((a, b) => b.compareTo(a));
+
+        for (var date in dates) {
+          int totalAmount = 0;
           List<TransactionModel> newTransaction = [];
-          for(var t in spendingTransaction){
-            if(d == t.transaction_date){
+          for (var t in spendingTransaction) {
+            if (date == t.transaction_date!.split(' ')[0]) {
               newTransaction.add(t);
-              totalAmount = totalAmount+t.amount!;
-            }else{
-              break;
+              totalAmount = totalAmount + t.amount!;
+            } else {
+              DateWiseTransactionModel? found =
+                  dateWiseSpendingTransaction.firstWhereOrNull((element) =>
+                      element.transactionDate!.split(' ')[0] == date);
+              if (found == null) {
+                continue;
+              } else {
+                break;
+              }
             }
           }
+
+          dateWiseSpendingTransaction.add(DateWiseTransactionModel(
+              transactionDate: date,
+              transactionTotal: totalAmount,
+              transactionDay: Helper.getTransactionDay(date),
+              transactions: newTransaction));
         }
       });
-
     });
   }
 
@@ -154,14 +188,14 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       children: [
                                         Text(
                                           "\u20B9${currentBalance.toString()}",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
                                               fontSize: 20),
                                         ),
                                         Text(
-                                          "TODAY, 03/10/2023",
-                                          style: TextStyle(
+                                          "TODAY, ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
+                                          style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 13),
                                         )
@@ -253,7 +287,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                 Container(
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
-                      borderRadius: const BorderRadius.all(Radius.circular(10))),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -263,15 +298,19 @@ class OverviewScreenState extends State<OverviewScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "\u20B928,700",
+                              "\u20B9$actualBudget",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
                             ),
                             Text(
-                              "You are spending on plan!",
+                              currentBalance < 0
+                                  ? "You are spending over budget!"
+                                  : "You are spending on plan!",
                               style: TextStyle(
-                                  color: Helper.getTextColor(context),
+                                  color: currentBalance < 0
+                                      ? Colors.red
+                                      : Helper.getTextColor(context),
                                   fontSize: 12),
                             ),
                             10.heightBox,
@@ -294,7 +333,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                             ),
                             5.heightBox,
                             Text(
-                              "\u20B928,700",
+                              currentBalance == actualBudget
+                                  ? "\u20B90"
+                                  : "\u20B9${(actualBudget - currentBalance).toString()}",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
@@ -306,7 +347,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   padding: const EdgeInsets.all(5),
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.yellow),
+                                      color:  Color(0xffc4c45e)),
                                 ),
                                 5.widthBox,
                                 Text(
@@ -319,7 +360,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                             ),
                             5.heightBox,
                             Text(
-                              "\u20B926,604",
+                              currentBalance == actualBudget
+                                  ? "\u20B9$actualBudget"
+                                  : "\u20B9${currentBalance.toString()}",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
@@ -379,102 +422,132 @@ class OverviewScreenState extends State<OverviewScreen> {
                 ),
               ],
             ),
-            if (spendingTransaction.isNotEmpty) 20.heightBox,
-            if (spendingTransaction.isNotEmpty)
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "TODAY, 03/10/2023",
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
-                  Text(
-                    "-\u20B928,700",
-                    style: TextStyle(color: Colors.pink, fontSize: 14),
-                  ),
-                ],
-              ),
-            15.heightBox,
-            if (spendingTransaction.isNotEmpty)
+            if (dateWiseSpendingTransaction.isNotEmpty) 20.heightBox,
+            if (dateWiseSpendingTransaction.isNotEmpty)
               ListView.separated(
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
-                itemCount: spendingTransaction.length,
+                itemCount: dateWiseSpendingTransaction.length,
                 itemBuilder: (context, index) {
-                  return  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                        color: Color(0xff30302d),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.all(Radius.circular(10))),
-                          child: SvgPicture.asset(
-                            'asset/images/${spendingTransaction[index].cat_icon}.svg',
-                            color: spendingTransaction[index].cat_color,
-                            width: 24,
-                            height: 24,
+                  return Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "${dateWiseSpendingTransaction[index].transactionDay}, ${dateWiseSpendingTransaction[index].transactionDate}",
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 14),
                           ),
-                        ),
-                        15.widthBox,
-                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                spendingTransaction[index].cat_name!,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                               Text(
-                                spendingTransaction[index].description!,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              )
-                            ],
+                          Text(
+                            "-\u20B9${dateWiseSpendingTransaction[index].transactionTotal}",
+                            style: const TextStyle(
+                                color: Colors.pink, fontSize: 14),
                           ),
-                        ),
-                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              "-\u20B9${spendingTransaction[index].amount!}",
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              "${spendingTransaction[index].payment_method_id==AppConstanst.cashPaymentType?'Cash':''}/${spendingTransaction[index].transaction_date!.split(' ')[1]}",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
+                        ],
+                      ),
+                      15.heightBox,
+                      if (dateWiseSpendingTransaction[index]
+                          .transactions!
+                          .isNotEmpty)
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const ScrollPhysics(),
+                          itemCount: dateWiseSpendingTransaction[index]
+                              .transactions!
+                              .length,
+                          itemBuilder: (context, index1) {
+                            return Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10))),
+                                    child: SvgPicture.asset(
+                                      'asset/images/${dateWiseSpendingTransaction[index].transactions![index1].cat_icon}.svg',
+                                      color: dateWiseSpendingTransaction[index]
+                                          .transactions![index1]
+                                          .cat_color,
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                  ),
+                                  15.widthBox,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          dateWiseSpendingTransaction[index]
+                                              .transactions![index1]
+                                              .cat_name!,
+                                          style: TextStyle(
+                                              color: Helper.getTextColor(context),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          dateWiseSpendingTransaction[index]
+                                              .transactions![index1]
+                                              .description!,
+                                          style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 14,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        "-\u20B9${dateWiseSpendingTransaction[index].transactions![index1].amount!}",
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        "${dateWiseSpendingTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseSpendingTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
+                                        style:  TextStyle(
+                                          color: Helper.getTextColor(context),
+                                          fontSize: 14,
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
                               ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return 10.heightBox;
+                          },
+                        ),
+                    ],
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return 10.heightBox;
                 },
               ),
-
-            if (spendingTransaction.isEmpty)
+            if (dateWiseSpendingTransaction.isEmpty) 15.heightBox,
+            if (dateWiseSpendingTransaction.isEmpty)
               Container(
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
-                      borderRadius: const BorderRadius.all(Radius.circular(10))),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Column(
                     children: [
                       20.heightBox,
@@ -493,13 +566,15 @@ class OverviewScreenState extends State<OverviewScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 35),
                         child: InkWell(
                           onTap: () {
-                            Navigator.of(context, rootNavigator: true).push(
+                            Navigator.of(context, rootNavigator: true)
+                                .push(
                               MaterialPageRoute(
                                   builder: (context) =>
                                       const AddSpendingScreen()),
-                            ).then((value) {
-                              if(value!=null){
-                                if(value){
+                            )
+                                .then((value) {
+                              if (value != null) {
+                                if (value) {
                                   getTransactions();
                                 }
                               }
@@ -543,7 +618,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                 Container(
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
-                      borderRadius: const BorderRadius.all(Radius.circular(10))),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -596,7 +672,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   padding: const EdgeInsets.all(5),
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.yellow),
+                                      color:  Color(0xffc4c45e)),
                                 ),
                                 5.widthBox,
                                 Text(
@@ -752,18 +828,21 @@ class OverviewScreenState extends State<OverviewScreen> {
   }
 
   List<PieChartSectionData> showingSections() {
+    double spendingPercentage =
+        currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
+    double remainingPercentage = currentBalance > 0 ? 100 - spendingPercentage : 0;
     return List.generate(2, (i) {
-      final fontSize = 12.0;
-      final radius = 40.0;
+      const fontSize = 12.0;
+      const radius = 40.0;
       const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
       switch (i) {
         case 0:
           return PieChartSectionData(
             color: const Color(0xffc4c45e),
-            value: 92.7,
-            title: '92.7%',
+            value: spendingPercentage,
+            title: '${spendingPercentage}%',
             radius: radius,
-            titleStyle: TextStyle(
+            titleStyle: const TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -773,10 +852,10 @@ class OverviewScreenState extends State<OverviewScreen> {
         case 1:
           return PieChartSectionData(
             color: Colors.blue,
-            value: 7.3,
-            title: '7.3%',
+            value: remainingPercentage,
+            title: '$remainingPercentage%',
             radius: radius,
-            titleStyle: TextStyle(
+            titleStyle: const TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
               color: Colors.white,

@@ -156,4 +156,58 @@ class TransactionModel {
       'last_updated': last_updated /*DateTime.parse(lastUpdated as String)*/,
     };
   }
+
+  factory TransactionModel.fromJson(Map<String, dynamic> json) {
+    return TransactionModel(
+      id: json['id'],
+      member_id: json['member_id'],
+      member_email: json['member_email'],
+      amount: json['amount'],
+      expense_cat_id: json['expense_cat_id'],
+      income_cat_id: json['income_cat_id'],
+      sub_expense_cat_id: json['sub_expense_cat_id'],
+      sub_income_cat_id: json['sub_income_cat_id'],
+      cat_name: json['cat_name'],
+      cat_icon: json['cat_icon'],
+      cat_color: json['cat_color'],
+      payment_method_id: json['payment_method_id'],
+      status: json['status'],
+      transaction_date: json['transaction_date'],
+      transaction_type: json['transaction_type'],
+      description: json['description'],
+      currency_id: json['currency_id'],
+      receipt_image1: json['receipt_image1'],
+      receipt_image2: json['receipt_image2'],
+      receipt_image3: json['receipt_image3'],
+      created_at: json['created_at'],
+      last_updated: json['last_updated'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'member_id': member_id,
+      'member_email': member_email,
+      'amount': amount,
+      'expense_cat_id': expense_cat_id,
+      'income_cat_id': income_cat_id,
+      'sub_expense_cat_id': sub_expense_cat_id,
+      'sub_income_cat_id': sub_income_cat_id,
+      'cat_name': cat_name,
+      'cat_icon': cat_icon,
+      'cat_color': cat_color,
+      'payment_method_id': payment_method_id,
+      'status': status,
+      'transaction_date': transaction_date,
+      'transaction_type': transaction_type,
+      'description': description,
+      'currency_id': currency_id,
+      'receipt_image1': receipt_image1,
+      'receipt_image2': receipt_image2,
+      'receipt_image3': receipt_image3,
+      'created_at': created_at,
+      'last_updated': last_updated,
+    };
+  }
 }

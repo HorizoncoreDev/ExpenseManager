@@ -159,6 +159,7 @@ class DatabaseHelper {
       ${ProfileTableFields.profile_image} $textType,
       ${ProfileTableFields.mobile_number} $textType,
       ${ProfileTableFields.current_balance} $textType,
+      ${ProfileTableFields.actual_budget} $textType,
       ${ProfileTableFields.gender} $textType
       )
    ''');

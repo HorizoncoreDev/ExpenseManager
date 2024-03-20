@@ -114,6 +114,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 .then((profileData) async {
                               profileData.current_balance =
                                   budgetController.text.toString();
+                              profileData.actual_budget =
+                                  budgetController.text.toString();
                               await DatabaseHelper.instance
                                   .updateProfileData(profileData);
                               MySharedPreferences.instance.addBoolToSF(
@@ -127,6 +129,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           } else {
                             MySharedPreferences.instance.addStringToSF(
                                 SharedPreferencesKeys.skippedUserCurrentBalance,
+                                budgetController.text.toString());
+                            MySharedPreferences.instance.addStringToSF(
+                                SharedPreferencesKeys.skippedUserActualBudget,
                                 budgetController.text.toString());
                             MySharedPreferences.instance.addBoolToSF(
                                 SharedPreferencesKeys.isBudgetAdded, true);

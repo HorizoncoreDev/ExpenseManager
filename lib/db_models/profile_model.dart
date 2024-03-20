@@ -11,6 +11,8 @@ class ProfileTableFields {
     dob,
     profile_image,
     mobile_number,
+    current_balance,
+    actual_budget,
     gender
   ];
 
@@ -24,6 +26,7 @@ class ProfileTableFields {
   static const String mobile_number = 'mobile_number';
   static const String gender = 'gender';
   static const String current_balance = 'current_balance';
+  static const String actual_budget = 'actual_budget';
 }
 
 class ProfileModel {
@@ -36,6 +39,7 @@ class ProfileModel {
   String? profile_image;
   String? mobile_number;
   String? current_balance;
+  String? actual_budget;
   String? gender;
 
   ProfileModel({
@@ -48,6 +52,7 @@ class ProfileModel {
     this.profile_image,
     this.mobile_number,
     this.current_balance,
+    this.actual_budget,
     this.gender,
   });
 
@@ -63,6 +68,7 @@ class ProfileModel {
       mobile_number: map['mobile_number'],
       gender: map['gender'],
       current_balance: map['current_balance'],
+      actual_budget: map['actual_budget'],
     );
   }
 
@@ -77,6 +83,7 @@ class ProfileModel {
         mobile_number: json[ProfileTableFields.mobile_number] as String,
         gender: json[ProfileTableFields.gender] as String,
         current_balance: json[ProfileTableFields.current_balance] as String,
+    actual_budget: json[ProfileTableFields.actual_budget] as String,
       );
 
   Map<String, dynamic> toMap() {
@@ -91,6 +98,7 @@ class ProfileModel {
       'mobile_number': mobile_number,
       'gender': gender,
       'current_balance': current_balance,
+      'actual_budget': actual_budget,
     };
   }
 }
