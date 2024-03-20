@@ -675,7 +675,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                       overflow:
                                                           TextOverflow.ellipsis,
                                                       style: TextStyle(
-                                                          color: selectedSpendingSubIndex == index ? Colors.white : Colors.black87,
+                                                          color: selectedSpendingSubIndex == index ? Colors.white : Helper.getTextColor(context),
                                                           fontSize: 12),
                                                     ),
                                                   ),

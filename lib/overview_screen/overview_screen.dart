@@ -92,11 +92,10 @@ class _OverviewScreenState extends State<OverviewScreen> {
                                   10.widthBox,
                                   InkWell(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
+                                      Navigator.of(context, rootNavigator: true).push(
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const OtherScreen()),
+                                            const OtherScreen()),
                                       );
                                     },
                                     child: Container(
@@ -396,7 +395,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                           decoration: const BoxDecoration(
                               color: Colors.blue,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
+                                  BorderRadius.all(Radius.circular(11))),
                           child: const Text(
                             "Add spending",
                             style: TextStyle(color: Colors.white, fontSize: 14),

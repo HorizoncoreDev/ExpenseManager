@@ -1,3 +1,5 @@
+import 'package:expense_manager/db_models/profile_model.dart';
+import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
@@ -27,8 +29,17 @@ class _OtherScreenState extends State<OtherScreen> {
     GridItem(iconData: Icons.settings, text: 'Category'),
     GridItem(iconData: Icons.settings, text: 'My Library'),
   ];
-
+  DatabaseHelper helper = DatabaseHelper();
+  final databaseHelper = DatabaseHelper.instance;
   bool isSkippedUser = false;
+  String userEmail = '';
+  ProfileModel? profileData;
+  int id = 0;
+  String shortName = "";
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
+
+
 
   @override
   void initState() {
@@ -40,8 +51,50 @@ class _OtherScreenState extends State<OtherScreen> {
           isSkippedUser = value;
         });
       }
-    }); // TODO: implement initState
+    });
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        getProfileData();
+      }
+    });// TODO: implement initState
     super.initState();
+  }
+
+  Future<void> getProfileData() async {
+    try {
+      Helper.showLoading(context);
+      await Future.delayed(const Duration(seconds: 2));
+      ProfileModel fetchedProfileData =
+      await databaseHelper.getProfileData(userEmail);
+      setState(() {
+        profileData = fetchedProfileData;
+        id = profileData!.id!;
+        firstNameController.text = profileData!.first_name!;
+        lastNameController.text = profileData!.last_name!;
+
+      }
+      );
+      getShortName(profileData!.first_name!, profileData!.last_name!);
+      Helper.hideLoading(context);
+    } catch (error) {
+      print('Error fetching Profile Data: $error');
+     /* setState(() {
+        isLoading = false;
+      });*/
+    }
+  }
+
+  String getShortName(String name, String name1) {
+    String firstStr = name.split(" ").first;
+    String secondStr = name1.split(" ").first;
+
+    String firstChar = firstStr.substring(0, 1);
+    String secondChar = secondStr.substring(0, 1);
+
+    return shortName = firstChar + secondChar;
   }
 
   @override
@@ -76,7 +129,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold),
                               ),
-                              if (!isSkippedUser)
+                              // if (!isSkippedUser)
                                 InkWell(
                                   onTap: () {
                                     Navigator.push(
@@ -91,8 +144,8 @@ class _OtherScreenState extends State<OtherScreen> {
                                     decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: Helper.getCardColor(context)),
-                                    child: const Text(
-                                      "MB",
+                                    child: Text(
+                                      shortName.toUpperCase(),
                                       style: TextStyle(
                                         color: Colors.blue,
                                         fontWeight: FontWeight.bold,
