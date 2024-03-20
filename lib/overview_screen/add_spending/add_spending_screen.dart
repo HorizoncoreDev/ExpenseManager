@@ -201,9 +201,43 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
           created_at: DateTime.now().toString(),
           last_updated: DateTime.now().toString()),
     )
-        .then((value) {
+        .then((value) async {
       if (value != null) {
-       // Helper.hideLoading(context);
+        // Helper.hideLoading(context);
+        DateTime now = DateTime.now();
+        String currentMonthName = DateFormat('MMMM').format(now);
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(formattedDate());
+        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+        if(currentMonthName == transactionMonthName) {
+          if (selectedValue == "Spending") {
+            if (isSkippedUser) {
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                  SharedPreferencesKeys.skippedUserCurrentBalance)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance =
+                  (int.parse(value) - int.parse(amountController.text))
+                      .toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentBalance,
+                      updateBalance);
+                }
+              });
+            } else {
+              await DatabaseHelper.instance
+                  .getProfileData(userEmail)
+                  .then((profileData) async {
+                profileData.current_balance =
+                    (int.parse(profileData.current_balance!) -
+                        int.parse(amountController.text))
+                        .toString();
+                await DatabaseHelper.instance.updateProfileData(profileData);
+              });
+            }
+          }
+        }
         Helper.showToast(selectedValue == "Spending"
             ? "Spending created successfully"
             : "Income created successfully");
@@ -309,7 +343,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               selectedIncomeSubIndex == -1)) {
                         Helper.showToast("Please select sub category");
                       } else {
-                     //   Helper.showLoading(context);
+                        //   Helper.showLoading(context);
                         if (!isSkippedUser) {
                           await databaseHelper
                               .getProfileData(userEmail)
@@ -698,12 +732,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                       overflow:
                                                           TextOverflow.ellipsis,
                                                       style: TextStyle(
-                                                          color:
-                                                              selectedSpendingSubIndex ==
-                                                                      index
-                                                                  ? Colors.white
-                                                                  : Helper.getTextColor(context)
-                                                          ,
+                                                          color: selectedSpendingSubIndex ==
+                                                                  index
+                                                              ? Colors.white
+                                                              : Helper
+                                                                  .getTextColor(
+                                                                      context),
                                                           fontSize: 12),
                                                     ),
                                                   ),
@@ -935,7 +969,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       5.widthBox,
                       InkWell(
                         onTap: () {
-                          _incrementDate();
+                          DateFormat format = DateFormat("dd/MM/yyyy");
+                          String formattedDateTime = DateFormat('dd/MM/yyyy').format(DateTime.now());
+
+                          if(format.parse(formattedDateTime).isAfter(format.parse(formattedDate()))) {
+                            _incrementDate();
+                          }
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(

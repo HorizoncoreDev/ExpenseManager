@@ -1,14 +1,17 @@
+import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
 import 'package:expense_manager/overview_screen/spending_detail_screen/spending_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
@@ -29,6 +32,13 @@ class OverviewScreenState extends State<OverviewScreen> {
   OverviewBloc overviewBloc = OverviewBloc();
   List<TransactionModel> spendingTransaction = [];
   List<DateWiseTransactionModel> dateWiseSpendingTransaction = [];
+  String userEmail = "";
+  int currentBalance = 0;
+  int actualBudget = 0;
+  bool isSkippedUser = false;
+  final databaseHelper = DatabaseHelper();
+  ProfileModel profileModel = ProfileModel();
+  int totalSpending = 0;
 
   @override
   void initState() {
@@ -36,17 +46,77 @@ class OverviewScreenState extends State<OverviewScreen> {
     super.initState();
   }
 
+  getProfileData() async {
+    try {
+      ProfileModel fetchedProfileData =
+          await databaseHelper.getProfileData(userEmail);
+      setState(() {
+        profileModel = fetchedProfileData;
+        currentBalance = int.parse(profileModel.current_balance!);
+        actualBudget = int.parse(profileModel.actual_budget!);
+      });
+    } catch (error) {
+      print('Error fetching Profile Data: $error');
+    }
+  }
+
   getTransactions() async {
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
+        isSkippedUser = value;
+        if (isSkippedUser) {
+          MySharedPreferences.instance
+              .getStringValuesSF(
+                  SharedPreferencesKeys.skippedUserCurrentBalance)
+              .then((value) {
+            if (value != null) {
+              currentBalance = int.parse(value);
+            }
+          });
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
+              .then((value) {
+            if (value != null) {
+              actualBudget = int.parse(value);
+            }
+          });
+        } else {
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.userEmail)
+              .then((value) {
+            if (value != null) {
+              userEmail = value;
+              getProfileData();
+            }
+          });
+        }
+      }
+    });
+
+    dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
         .getTransactions(AppConstanst.spendingTransaction)
         .then((value) {
       setState(() {
         spendingTransaction = value;
         List<String> dates = [];
+
+        DateTime now = DateTime.now();
+        String currentMonthName = DateFormat('MMMM').format(now);
+
         for (var t in spendingTransaction) {
-          if (!dates.contains(t.transaction_date!.split(' ')[0])) {
-            dates.add(t.transaction_date!.split(' ')[0]);
-          }
+          DateFormat format = DateFormat("dd/MM/yyyy");
+          DateTime parsedDate = format.parse(t.transaction_date!);
+          String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+if(transactionMonthName == currentMonthName) {
+  if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+    dates.add(t.transaction_date!.split(' ')[0]);
+  }
+  totalSpending = totalSpending + t.amount!;
+}
+
         }
         dates.sort((a, b) => b.compareTo(a));
 
@@ -111,21 +181,21 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   const EdgeInsets.symmetric(horizontal: 20),
                               child: Row(
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "-\u20B932,781.78",
-                                          style: TextStyle(
+                                          "\u20B9${currentBalance.toString()}",
+                                          style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
                                               fontSize: 20),
                                         ),
                                         Text(
-                                          "TODAY, 03/10/2023",
-                                          style: TextStyle(
+                                          "TODAY, ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
+                                          style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 13),
                                         )
@@ -228,15 +298,19 @@ class OverviewScreenState extends State<OverviewScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "\u20B928,700",
+                              "\u20B9$actualBudget",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
                             ),
                             Text(
-                              "You are spending on plan!",
+                              currentBalance < 0
+                                  ? "You are spending over budget!"
+                                  : "You are spending on plan!",
                               style: TextStyle(
-                                  color: Helper.getTextColor(context),
+                                  color: currentBalance < 0
+                                      ? Colors.red
+                                      : Helper.getTextColor(context),
                                   fontSize: 12),
                             ),
                             10.heightBox,
@@ -259,7 +333,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                             ),
                             5.heightBox,
                             Text(
-                              "\u20B928,700",
+                              currentBalance == actualBudget
+                                  ? "\u20B90"
+                                  : "\u20B9${(actualBudget - currentBalance).toString()}",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
@@ -271,7 +347,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   padding: const EdgeInsets.all(5),
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.yellow),
+                                      color:  Color(0xffc4c45e)),
                                 ),
                                 5.widthBox,
                                 Text(
@@ -284,7 +360,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                             ),
                             5.heightBox,
                             Text(
-                              "\u20B926,604",
+                              currentBalance == actualBudget
+                                  ? "\u20B9$actualBudget"
+                                  : "\u20B9${currentBalance.toString()}",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
@@ -379,7 +457,6 @@ class OverviewScreenState extends State<OverviewScreen> {
                               .transactions!
                               .length,
                           itemBuilder: (context, index1) {
-
                             return Container(
                               padding: const EdgeInsets.all(10),
                               decoration: const BoxDecoration(
@@ -464,6 +541,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                   return 10.heightBox;
                 },
               ),
+            if (dateWiseSpendingTransaction.isEmpty) 15.heightBox,
             if (dateWiseSpendingTransaction.isEmpty)
               Container(
                   decoration: BoxDecoration(
@@ -594,7 +672,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   padding: const EdgeInsets.all(5),
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.yellow),
+                                      color:  Color(0xffc4c45e)),
                                 ),
                                 5.widthBox,
                                 Text(
@@ -750,18 +828,21 @@ class OverviewScreenState extends State<OverviewScreen> {
   }
 
   List<PieChartSectionData> showingSections() {
+    double spendingPercentage =
+        currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
+    double remainingPercentage = currentBalance > 0 ? 100 - spendingPercentage : 0;
     return List.generate(2, (i) {
-      final fontSize = 12.0;
-      final radius = 40.0;
+      const fontSize = 12.0;
+      const radius = 40.0;
       const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
       switch (i) {
         case 0:
           return PieChartSectionData(
             color: const Color(0xffc4c45e),
-            value: 92.7,
-            title: '92.7%',
+            value: spendingPercentage,
+            title: '${spendingPercentage}%',
             radius: radius,
-            titleStyle: TextStyle(
+            titleStyle: const TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -771,10 +852,10 @@ class OverviewScreenState extends State<OverviewScreen> {
         case 1:
           return PieChartSectionData(
             color: Colors.blue,
-            value: 7.3,
-            title: '7.3%',
+            value: remainingPercentage,
+            title: '$remainingPercentage%',
             radius: radius,
-            titleStyle: TextStyle(
+            titleStyle: const TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
               color: Colors.white,

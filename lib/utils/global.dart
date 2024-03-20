@@ -37,4 +37,5 @@ abstract class SharedPreferencesKeys {
   static const userEmail = "userEmail";
   static const isSkippedUser = "skippedUser";
   static const skippedUserCurrentBalance = "skippedUserCurrentBalance";
+  static const skippedUserActualBudget = "skippedUserActualBudget";
 }

@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:expense_manager/dashboard/dashboard.dart';
@@ -16,8 +15,17 @@ import 'intro_screen/intro_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   bool isBudgetAdded = false;
+  bool isSkippedUser = false;
+
   MySharedPreferences.instance
       .getBoolValuesSF(SharedPreferencesKeys.isBudgetAdded)
+      .then((value) {
+    if (value != null) {
+      isBudgetAdded = value;
+    }
+  });
+  MySharedPreferences.instance
+      .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
       .then((value) {
     if (value != null) {
       isBudgetAdded = value;
@@ -34,14 +42,18 @@ void main() async {
 
   return runApp(ChangeNotifierProvider<ThemeNotifier>(
     create: (_) => ThemeNotifier(),
-    child: MyApp(isBudgetAdded: isBudgetAdded),
+    child: MyApp(
+      isBudgetAdded: isBudgetAdded,
+      isSkippedUser: isSkippedUser,
+    ),
   ));
 }
 
 class MyApp extends StatelessWidget {
   bool isBudgetAdded;
+  bool isSkippedUser;
 
-  MyApp({super.key, required this.isBudgetAdded});
+  MyApp({super.key, required this.isBudgetAdded, required this.isSkippedUser});
 
   // This widget is the root of your application.
   @override
@@ -51,15 +63,23 @@ class MyApp extends StatelessWidget {
     User? user = FirebaseAuth.instance.currentUser;
 
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: themeNotifier.getTheme(),
-      home: user == null
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: themeNotifier.getTheme(),
+        home: isBudgetAdded
+            ? const DashBoard()
+            : isSkippedUser
+                ? const BudgetScreen()
+                : user == null
+                    ? const IntroScreen()
+                    : const BudgetScreen()
+
+        /*user == null
           ? const IntroScreen()
           : isBudgetAdded
               ? const DashBoard()
-              : const BudgetScreen(),
-    );
+              : const BudgetScreen(),*/
+        );
   }
 }
 

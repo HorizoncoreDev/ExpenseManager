@@ -26,7 +26,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
   AccountDetailBloc accountDetailBloc = AccountDetailBloc();
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
-
+  MySharedPreferences? mySharedPreferences;
   String? dateOfBirth;
   String dob = "";
 
@@ -55,12 +55,13 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   Future<void> getProfileData() async {
     try {
+      Helper.showLoading(context);
       await Future.delayed(const Duration(seconds: 2));
       ProfileModel fetchedProfileData =
           await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-        fullName = profileData!.first_name!;
+        fullName = "${profileData!.first_name!} ${profileData!.last_name!}" ;
         email = profileData!.email!;
 
         dob = profileData!.dob!;
@@ -68,7 +69,9 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
             profileData!.gender == "" ? 'Female' : profileData!.gender!;
         isLoading = false;
       });
+      Helper.hideLoading(context);
     } catch (error) {
+      Helper.hideLoading(context);
       print('Error fetching Profile Data: $error');
       setState(() {
         isLoading = false;
@@ -86,7 +89,6 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
         getProfileData();
       }
     });
-
     super.initState();
   }
 
@@ -249,7 +251,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                             thickness: 0.2,
                             color: Colors.grey,
                           ),
-                          Padding(
+                         /* Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 25),
                             child: Row(
                               children: [
@@ -289,13 +291,12 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           const Divider(
                             thickness: 0.2,
                             color: Colors.grey,
-                          ),
+                          ),*/
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 25),
                             child: InkWell(
                               onTap: () async {
-                                /*await signOut();*/
-
+                                await _logOutDialog(accountDetailBloc);
                                 /*Navigator.pushReplacement(
                                     context, MaterialPageRoute(builder: (context) => SignInScreen()));*/
                               },
@@ -507,6 +508,92 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     );
   }
 
+  Future _logOutDialog(AccountDetailBloc accountDetailBloc) async {
+    await showDialog(
+      context: accountDetailBloc.context,
+      builder: (cont) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          alignment: Alignment.center,
+          titlePadding: EdgeInsets.zero,
+          actionsPadding: EdgeInsets.zero,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 15,
+          ),
+          insetPadding: const EdgeInsets.all(15),
+          backgroundColor: Helper.getCardColor(context),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pop(cont);
+                    },
+                    child:
+                    Icon(Icons.close, color: Helper.getTextColor(context)),
+                  ),
+                ),
+                10.heightBox,
+                Text(
+                  "Are you sure you want to logout?",
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    color: Helper.getTextColor(context),
+                    fontSize: 20,
+                  ),
+                ),
+                20.heightBox,
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(cont);
+                        },
+                        child: Text(
+                          "No",
+                          style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      20.widthBox,
+                      InkWell(
+                        onTap: () async {
+                          Navigator.pop(cont);
+                          await signOut();
+                        },
+                        child: Text(
+                          "Yes",
+                          style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
   Future _clearDataDialogue(AccountDetailBloc accountDetailBloc) async {
     await showDialog(
       context: accountDetailBloc.context,
@@ -595,7 +682,6 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   signOut() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
-
     try {
       await FirebaseAuth.instance.signOut();
       await googleSignIn.signOut();
