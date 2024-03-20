@@ -3,6 +3,7 @@ import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../db_models/category_model.dart';
@@ -194,5 +195,57 @@ class Helper {
   static void hideLoading(context) {
     //Get.back();
     Navigator.of(context).pop();
+  }
+
+  static String getWeekdayName(int weekday) {
+    switch (weekday) {
+      case 1:
+        return 'Monday';
+      case 2:
+        return 'Tuesday';
+      case 3:
+        return 'Wednesday';
+      case 4:
+        return 'Thursday';
+      case 5:
+        return 'Friday';
+      case 6:
+        return 'Saturday';
+      case 7:
+        return 'Sunday';
+      default:
+        return '';
+    }
+  }
+
+  static bool isToday(DateTime date) {
+    DateTime now = DateTime.now();
+    return date.year == now.year && date.month == now.month && date.day == now.day;
+  }
+
+  static bool isYesterday(DateTime date) {
+    DateTime now = DateTime.now();
+    DateTime yesterday = DateTime(now.year, now.month, now.day - 1);
+    return date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day;
+  }
+
+  static String getTransactionDay(String date){
+    var transactionDay = "";
+    DateFormat format = DateFormat("dd/MM/yyyy");
+    DateTime parsedDate = format.parse(date);
+    if(isToday(parsedDate)){
+      transactionDay = "TODAY";
+    }else if(isYesterday(parsedDate)){
+      transactionDay = "YESTERDAY";
+    }else{
+      transactionDay = Helper.getWeekdayName(parsedDate.weekday);
+    }
+    return transactionDay;
+  }
+
+  static bool isAfterDay(String date){
+    DateFormat format = DateFormat("dd/MM/yyyy");
+    DateTime parsedDate = format.parse(date);
+    return parsedDate.isAfter(parsedDate);
   }
 }

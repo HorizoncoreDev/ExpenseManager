@@ -1,4 +1,5 @@
 import 'package:expense_manager/db_service/database_helper.dart';
+import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
 import 'package:expense_manager/overview_screen/spending_detail_screen/spending_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
@@ -7,6 +8,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
@@ -26,6 +28,7 @@ class OverviewScreen extends StatefulWidget {
 class OverviewScreenState extends State<OverviewScreen> {
   OverviewBloc overviewBloc = OverviewBloc();
   List<TransactionModel> spendingTransaction = [];
+  List<DateWiseTransactionModel> dateWiseSpendingTransaction = [];
 
   @override
   void initState() {
@@ -39,6 +42,39 @@ class OverviewScreenState extends State<OverviewScreen> {
         .then((value) {
       setState(() {
         spendingTransaction = value;
+        List<String> dates = [];
+        for (var t in spendingTransaction) {
+          if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+            dates.add(t.transaction_date!.split(' ')[0]);
+          }
+        }
+        dates.sort((a, b) => b.compareTo(a));
+
+        for (var date in dates) {
+          int totalAmount = 0;
+          List<TransactionModel> newTransaction = [];
+          for (var t in spendingTransaction) {
+            if (date == t.transaction_date!.split(' ')[0]) {
+              newTransaction.add(t);
+              totalAmount = totalAmount + t.amount!;
+            } else {
+              DateWiseTransactionModel? found =
+                  dateWiseSpendingTransaction.firstWhereOrNull((element) =>
+                      element.transactionDate!.split(' ')[0] == date);
+              if (found == null) {
+                continue;
+              } else {
+                break;
+              }
+            }
+          }
+
+          dateWiseSpendingTransaction.add(DateWiseTransactionModel(
+              transactionDate: date,
+              transactionTotal: totalAmount,
+              transactionDay: Helper.getTransactionDay(date),
+              transactions: newTransaction));
+        }
       });
     });
   }
@@ -181,7 +217,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                 Container(
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
-                      borderRadius: const BorderRadius.all(Radius.circular(10))),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -307,102 +344,132 @@ class OverviewScreenState extends State<OverviewScreen> {
                 ),
               ],
             ),
-            if (spendingTransaction.isNotEmpty) 20.heightBox,
-            if (spendingTransaction.isNotEmpty)
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "TODAY, 03/10/2023",
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
-                  Text(
-                    "-\u20B928,700",
-                    style: TextStyle(color: Colors.pink, fontSize: 14),
-                  ),
-                ],
-              ),
-            15.heightBox,
-            if (spendingTransaction.isNotEmpty)
+            if (dateWiseSpendingTransaction.isNotEmpty) 20.heightBox,
+            if (dateWiseSpendingTransaction.isNotEmpty)
               ListView.separated(
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
-                itemCount: spendingTransaction.length,
+                itemCount: dateWiseSpendingTransaction.length,
                 itemBuilder: (context, index) {
-                  return  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                        color: Color(0xff30302d),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.all(Radius.circular(10))),
-                          child: SvgPicture.asset(
-                            'asset/images/${spendingTransaction[index].cat_icon}.svg',
-                            color: spendingTransaction[index].cat_color,
-                            width: 24,
-                            height: 24,
+                  return Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "${dateWiseSpendingTransaction[index].transactionDay}, ${dateWiseSpendingTransaction[index].transactionDate}",
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 14),
                           ),
-                        ),
-                        15.widthBox,
-                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                spendingTransaction[index].cat_name!,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                               Text(
-                                spendingTransaction[index].description!,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              )
-                            ],
+                          Text(
+                            "-\u20B9${dateWiseSpendingTransaction[index].transactionTotal}",
+                            style: const TextStyle(
+                                color: Colors.pink, fontSize: 14),
                           ),
-                        ),
-                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              "-\u20B9${spendingTransaction[index].amount!}",
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              "${spendingTransaction[index].payment_method_id==AppConstanst.cashPaymentType?'Cash':''}/${spendingTransaction[index].transaction_date!.split(' ')[1]}",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
+                        ],
+                      ),
+                      15.heightBox,
+                      if (dateWiseSpendingTransaction[index]
+                          .transactions!
+                          .isNotEmpty)
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const ScrollPhysics(),
+                          itemCount: dateWiseSpendingTransaction[index]
+                              .transactions!
+                              .length,
+                          itemBuilder: (context, index1) {
+
+                            return Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                  color: Color(0xff30302d),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10))),
+                                    child: SvgPicture.asset(
+                                      'asset/images/${dateWiseSpendingTransaction[index].transactions![index1].cat_icon}.svg',
+                                      color: dateWiseSpendingTransaction[index]
+                                          .transactions![index1]
+                                          .cat_color,
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                  ),
+                                  15.widthBox,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          dateWiseSpendingTransaction[index]
+                                              .transactions![index1]
+                                              .cat_name!,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          dateWiseSpendingTransaction[index]
+                                              .transactions![index1]
+                                              .description!,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        "-\u20B9${dateWiseSpendingTransaction[index].transactions![index1].amount!}",
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        "${dateWiseSpendingTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseSpendingTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
                               ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return 10.heightBox;
+                          },
+                        ),
+                    ],
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return 10.heightBox;
                 },
               ),
-
-            if (spendingTransaction.isEmpty)
+            if (dateWiseSpendingTransaction.isEmpty)
               Container(
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
-                      borderRadius: const BorderRadius.all(Radius.circular(10))),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Column(
                     children: [
                       20.heightBox,
@@ -421,13 +488,15 @@ class OverviewScreenState extends State<OverviewScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 35),
                         child: InkWell(
                           onTap: () {
-                            Navigator.of(context, rootNavigator: true).push(
+                            Navigator.of(context, rootNavigator: true)
+                                .push(
                               MaterialPageRoute(
                                   builder: (context) =>
                                       const AddSpendingScreen()),
-                            ).then((value) {
-                              if(value!=null){
-                                if(value){
+                            )
+                                .then((value) {
+                              if (value != null) {
+                                if (value) {
                                   getTransactions();
                                 }
                               }
@@ -471,7 +540,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                 Container(
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
-                      borderRadius: const BorderRadius.all(Radius.circular(10))),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
