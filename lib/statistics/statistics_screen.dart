@@ -148,7 +148,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         setState(() {
           if (value.isNotEmpty) {
             incomeTransaction = value;
-          }  else{
+          } else {
             Helper.showToast("Data not found");
           }
         });
@@ -161,7 +161,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         setState(() {
           if (value.isNotEmpty) {
             spendingTransaction = value;
-          }  else{
+          } else {
             Helper.showToast("Data not found");
           }
         });
@@ -524,8 +524,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             Navigator.of(context, rootNavigator: true)
                                 .push(
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AddSpendingScreen()),
+                                  builder: (context) => AddSpendingScreen(
+                                        transactionName: AppConstanst
+                                            .spendingTransactionName,
+                                      )),
                             )
                                 .then((value) {
                               if (value != null) {
@@ -716,8 +718,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             Navigator.of(context, rootNavigator: true)
                                 .push(
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AddSpendingScreen()),
+                                  builder: (context) => AddSpendingScreen(
+                                        transactionName: AppConstanst
+                                            .spendingTransactionName,
+                                      )),
                             )
                                 .then((value) {
                               if (value != null) {
@@ -816,9 +820,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 thickness: 0.3,
                 color: Helper.getTextColor(context),
               ),
-
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -829,7 +833,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           Text(
                             "YEAR",
                             style: TextStyle(
-                                color: Helper.getTextColor(context), fontSize: 14),
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
                           ),
                           10.heightBox,
                           InkWell(
@@ -837,14 +842,16 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               selectYear(context);
                             },
                             child: Container(
-                              padding:
-                              const EdgeInsets.symmetric(vertical: 5, horizontal: 50),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 50),
                               decoration: const BoxDecoration(
                                   color: Colors.blue,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5))),
                               child: Text(
                                 showYear,
-                                style: TextStyle(color: Colors.white, fontSize: 16),
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
                               ),
                             ),
                           ),
@@ -856,7 +863,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           Text(
                             "MONTH(Can filter by one or more)",
                             style: TextStyle(
-                                color: Helper.getTextColor(context), fontSize: 14),
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
                           ),
                           10.heightBox,
                           InkWell(
@@ -864,14 +872,16 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               selectMonth(context);
                             },
                             child: Container(
-                              padding:
-                              const EdgeInsets.symmetric(vertical: 5, horizontal: 50),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 50),
                               decoration: const BoxDecoration(
                                   color: Colors.blue,
-                                  borderRadius: BorderRadius.all(Radius.circular(5))),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5))),
                               child: Text(
                                 showMonth,
-                                style: const TextStyle(color: Colors.white, fontSize: 16),
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 16),
                               ),
                             ),
                           ),
@@ -881,10 +891,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   ),
                 ),
               ),
-
-
-
-
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
@@ -1171,12 +1177,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, setState) {
-          return   AlertDialog(
+          return AlertDialog(
             title: const Text("Select Month"),
             content: SizedBox(
                 width: 200,
                 height: 200,
-                child:  GridView.builder(
+                child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     crossAxisSpacing: 10.0,
@@ -1190,7 +1196,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     return InkWell(
                       onTap: () {
                         setState(() {
-                          monthList[index].isSelected = !monthList[index].isSelected;
+                          monthList[index].isSelected =
+                              !monthList[index].isSelected;
                           selectedMonths = monthList
                               .where((month) => month.isSelected)
                               .toList();
@@ -1205,7 +1212,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 ? Colors.blue
                                 : Helper.getCardColor(context),
                             borderRadius:
-                            const BorderRadius.all(Radius.circular(5))),
+                                const BorderRadius.all(Radius.circular(5))),
                         child: Text(
                           monthList[index].text,
                           style: TextStyle(
@@ -1215,18 +1222,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                     );
                   },
-                )
-
-            ),
+                )),
           );
         });
-
-
       },
     );
   }
-
-
 }
 
 class GridItem {

@@ -21,15 +21,15 @@ import '../../db_models/income_category.dart';
 import '../../db_models/income_sub_category.dart';
 import '../../db_models/spending_sub_category.dart';
 import '../../db_service/database_helper.dart';
-import '../../statistics/statistics_screen.dart';
 import '../../utils/my_shared_preferences.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import 'bloc/add_spending_bloc.dart';
 import 'bloc/add_spending_state.dart';
 
 class AddSpendingScreen extends StatefulWidget {
+  String transactionName;
 
-  const AddSpendingScreen({super.key});
+  AddSpendingScreen({super.key, required this.transactionName});
 
   @override
   State<AddSpendingScreen> createState() => _AddSpendingScreenState();
@@ -44,8 +44,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
 
   int currPage = 1;
   bool isSkippedUser = false;
-  String selectedValue = 'Spending';
-  List<String> dropdownItems = ['Spending', 'Income'];
+  String selectedValue = AppConstanst.spendingTransactionName;
+  List<String> dropdownItems = [
+    AppConstanst.spendingTransactionName,
+    AppConstanst.incomeTransactionName
+  ];
 
   final List<String> amount = [
     "500",
@@ -137,7 +140,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         isSkippedUser = value;
       }
     });
-    getSpendingCategory();
+    selectedValue = widget.transactionName;
+    if (selectedValue == AppConstanst.spendingTransactionName) {
+      getSpendingCategory();
+    } else {
+      getIncomeCategory();
+    }
   }
 
   void _incrementDate() {
@@ -176,25 +184,26 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
           sub_expense_cat_id: selectedSpendingSubIndex,
           income_cat_id: selectedIncomeIndex,
           sub_income_cat_id: selectedIncomeSubIndex,
-          cat_name: selectedValue == "Spending"
+          cat_name: selectedValue == AppConstanst.spendingTransactionName
               ? selectedSpendingSubIndex != -1
                   ? spendingSubCategories[selectedSpendingSubIndex].name
                   : categories[selectedSpendingIndex].name
               : selectedIncomeSubIndex != -1
                   ? incomeSubCategories[selectedIncomeSubIndex].name
                   : incomeCategories[selectedIncomeIndex].name,
-          cat_color: selectedValue == "Spending"
+          cat_color: selectedValue == AppConstanst.spendingTransactionName
               ? categories[selectedSpendingIndex].color
               : incomeCategories[selectedIncomeIndex].color,
-          cat_icon: selectedValue == "Spending"
+          cat_icon: selectedValue == AppConstanst.spendingTransactionName
               ? categories[selectedSpendingIndex].icons
               : incomeCategories[selectedIncomeIndex].path,
           payment_method_id: AppConstanst.cashPaymentType,
           status: 1,
           transaction_date: '${formattedDate()} ${formattedTime()}',
-          transaction_type: selectedValue == "Spending"
-              ? AppConstanst.spendingTransaction
-              : AppConstanst.incomeTransaction,
+          transaction_type:
+              selectedValue == AppConstanst.spendingTransactionName
+                  ? AppConstanst.spendingTransaction
+                  : AppConstanst.incomeTransaction,
           description: descriptionController.text,
           currency_id: AppConstanst.rupeesCurrency,
           receipt_image1: image1?.path ?? "",
@@ -203,10 +212,65 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
           created_at: DateTime.now().toString(),
           last_updated: DateTime.now().toString()),
     )
-        .then((value) {
+        .then((value) async {
       if (value != null) {
-       // Helper.hideLoading(context);
-        Helper.showToast(selectedValue == "Spending"
+        // Helper.hideLoading(context);
+        DateTime now = DateTime.now();
+        String currentMonthName = DateFormat('MMMM').format(now);
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(formattedDate());
+        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+        if (currentMonthName == transactionMonthName) {
+          if (isSkippedUser) {
+            if (selectedValue == AppConstanst.spendingTransactionName) {
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                      SharedPreferencesKeys.skippedUserCurrentBalance)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance =
+                      (int.parse(value) - int.parse(amountController.text))
+                          .toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentBalance,
+                      updateBalance);
+                }
+              });
+            } else {
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                      SharedPreferencesKeys.skippedUserCurrentIncome)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance =
+                      (int.parse(value) + int.parse(amountController.text))
+                          .toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentIncome,
+                      updateBalance);
+                }
+              });
+            }
+          } else {
+            await DatabaseHelper.instance
+                .getProfileData(userEmail)
+                .then((profileData) async {
+              if (selectedValue == AppConstanst.spendingTransactionName) {
+                profileData.current_balance =
+                    (int.parse(profileData.current_balance!) -
+                            int.parse(amountController.text))
+                        .toString();
+              } else {
+                profileData.current_income =
+                    (int.parse(profileData.current_income!) +
+                            int.parse(amountController.text))
+                        .toString();
+              }
+              await DatabaseHelper.instance.updateProfileData(profileData);
+            });
+          }
+        }
+        Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
             ? "Spending created successfully"
             : "Income created successfully");
         Navigator.of(context).pop(true);
@@ -276,7 +340,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 setState(() {
                                   var val = value as String;
                                   selectedValue = val;
-                                  if (selectedValue == 'Spending') {
+                                  if (selectedValue ==
+                                      AppConstanst.spendingTransactionName) {
                                     getSpendingCategory();
                                   } else {
                                     getIncomeCategory();
@@ -297,20 +362,23 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                   10.widthBox,
                   InkWell(
                     onTap: () async {
-                      if (amountController.text.isEmpty || amountController.text == "0") {
+                      if (amountController.text.isEmpty ||
+                          amountController.text == "0") {
                         Helper.showToast("Please add amount");
-                      } else if (selectedValue == "Spending"
+                      } else if (selectedValue ==
+                              AppConstanst.spendingTransactionName
                           ? selectedSpendingIndex == -1
                           : selectedIncomeIndex == -1) {
                         Helper.showToast("Please select category");
-                      } else if (selectedValue == "Spending"
+                      } else if (selectedValue ==
+                              AppConstanst.spendingTransactionName
                           ? (spendingSubCategories.isNotEmpty &&
                               selectedSpendingSubIndex == -1)
                           : (incomeSubCategories.isNotEmpty &&
                               selectedIncomeSubIndex == -1)) {
                         Helper.showToast("Please select sub category");
                       } else {
-                     //   Helper.showLoading(context);
+                        //   Helper.showLoading(context);
                         if (!isSkippedUser) {
                           await databaseHelper
                               .getProfileData(userEmail)
@@ -446,7 +514,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       ),
                     ),
                     20.heightBox,
-                    selectedValue == "Spending"
+                    selectedValue == AppConstanst.spendingTransactionName
                         ? Row(
                             children: [
                               Text(
@@ -559,7 +627,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             ],
                           ),
                     5.heightBox,
-                    selectedValue == "Spending"
+                    selectedValue == AppConstanst.spendingTransactionName
                         ? Stack(
                             children: [
                               GridView.builder(
@@ -699,13 +767,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                       overflow:
                                                           TextOverflow.ellipsis,
                                                       style: TextStyle(
-
-                                                          color:
-                                                              selectedSpendingSubIndex ==
-                                                                      index
-                                                                  ? Colors.white
-                                                                  : Helper.getTextColor(context)
-                                                          ,
+                                                          color: selectedSpendingSubIndex ==
+                                                                  index
+                                                              ? Colors.white
+                                                              : Helper
+                                                                  .getTextColor(
+                                                                      context),
                                                           fontSize: 12),
                                                     ),
                                                   ),
@@ -783,7 +850,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                   color: selectedIncomeIndex ==
                                                           index
                                                       ? Colors.white
-                                                      : Colors.black87,
+                                                      : Helper.getTextColor(
+                                                          context),
                                                   fontSize: 10),
                                             ),
                                           ),
@@ -937,7 +1005,15 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       5.widthBox,
                       InkWell(
                         onTap: () {
-                          _incrementDate();
+                          DateFormat format = DateFormat("dd/MM/yyyy");
+                          String formattedDateTime =
+                              DateFormat('dd/MM/yyyy').format(DateTime.now());
+
+                          if (format
+                              .parse(formattedDateTime)
+                              .isAfter(format.parse(formattedDate()))) {
+                            _incrementDate();
+                          }
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(

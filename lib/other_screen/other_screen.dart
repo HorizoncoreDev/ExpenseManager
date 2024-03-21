@@ -74,11 +74,9 @@ class _OtherScreenState extends State<OtherScreen> {
         id = profileData!.id!;
         firstNameController.text = profileData!.first_name!;
         lastNameController.text = profileData!.last_name!;
-
       }
       );
       getShortName(profileData!.first_name!, profileData!.last_name!);
-      Helper.hideLoading(context);
     } catch (error) {
       print('Error fetching Profile Data: $error');
      /* setState(() {

@@ -257,6 +257,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 profile_image: "",
                 mobile_number: "",
                 current_balance: "0",
+                current_income: "0",
+                actual_budget: "0",
                 gender: ""),
           );
           MySharedPreferences.instance

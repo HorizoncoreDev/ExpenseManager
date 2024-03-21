@@ -103,7 +103,7 @@ class _DashBoardState extends State<DashBoard> {
           inactiveColorSecondary: Helper.getTextColor(context),
           onPressed: (contet){
             Navigator.of(context, rootNavigator: true).
-            push(MaterialPageRoute(builder: (context) => const AddSpendingScreen()),).then((value) {
+            push(MaterialPageRoute(builder: (context) =>  AddSpendingScreen(transactionName: AppConstanst.spendingTransactionName,)),).then((value) {
 
               if(value!=null){
                 if(value){
