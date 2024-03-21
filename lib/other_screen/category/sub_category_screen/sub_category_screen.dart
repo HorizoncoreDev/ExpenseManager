@@ -39,7 +39,6 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
   Future<void> getSpendingSubCategory() async {
     isLoading = true;
     try {
-      await Future.delayed(const Duration(seconds: 2));
       List<SpendingSubCategory> fetchedSpendingSubCategories =
           await databaseHelper.getSpendingSubCategory(widget.categoryId);
       setState(() {
@@ -71,7 +70,6 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
   Future<void> getIncomeSubCategory() async {
     isLoading = true;
     try {
-      await Future.delayed(const Duration(seconds: 2));
       List<IncomeSubCategory> fetchedIncomeSubCategories =
           await databaseHelper.getIncomeSubCategory(widget.categoryId);
       setState(() {

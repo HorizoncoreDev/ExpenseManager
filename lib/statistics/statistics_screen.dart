@@ -116,8 +116,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     padding: const EdgeInsets.only(right: 15),
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
+                        Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute(
                               builder: (context) => OtherScreen()),
                         );
