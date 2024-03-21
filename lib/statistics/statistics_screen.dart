@@ -546,7 +546,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
           ),
           10.heightBox,
+
           if (incomeTransaction.isNotEmpty)
+
             ListView.separated(
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
