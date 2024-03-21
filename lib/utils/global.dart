@@ -17,6 +17,8 @@ abstract class AppConstanst {
   static const String priorityHigh = "High";
   static const String priorityMedium = "Medium";
   static const String priorityLow = "Low";
+  static const String spendingTransactionName = "Spending";
+  static const String incomeTransactionName = "Income";
 }
 
 abstract class AppColors {
@@ -37,5 +39,6 @@ abstract class SharedPreferencesKeys {
   static const userEmail = "userEmail";
   static const isSkippedUser = "skippedUser";
   static const skippedUserCurrentBalance = "skippedUserCurrentBalance";
+  static const skippedUserCurrentIncome = "skippedUserCurrentIncome";
   static const skippedUserActualBudget = "skippedUserActualBudget";
 }

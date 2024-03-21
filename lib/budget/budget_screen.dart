@@ -131,6 +131,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 SharedPreferencesKeys.skippedUserCurrentBalance,
                                 budgetController.text.toString());
                             MySharedPreferences.instance.addStringToSF(
+                                SharedPreferencesKeys.skippedUserCurrentIncome,
+                                "0");
+                            MySharedPreferences.instance.addStringToSF(
                                 SharedPreferencesKeys.skippedUserActualBudget,
                                 budgetController.text.toString());
                             MySharedPreferences.instance.addBoolToSF(
@@ -224,7 +227,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                       color: Helper.getCardColor(context),
                                     ),
                                   ),
-                                  borderRadius: BorderRadius.only(
+                                  borderRadius: const BorderRadius.only(
                                       topRight: Radius.circular(5),
                                       bottomRight: Radius.circular(5))),
                               child: Row(

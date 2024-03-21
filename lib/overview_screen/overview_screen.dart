@@ -30,15 +30,16 @@ class OverviewScreen extends StatefulWidget {
 
 class OverviewScreenState extends State<OverviewScreen> {
   OverviewBloc overviewBloc = OverviewBloc();
-  List<TransactionModel> spendingTransaction = [];
   List<DateWiseTransactionModel> dateWiseSpendingTransaction = [];
+  List<DateWiseTransactionModel> dateWiseIncomeTransaction = [];
   String userEmail = "";
   int currentBalance = 0;
+  int currentIncome = 0;
   int actualBudget = 0;
+  int selectedTabIndex = 0;
   bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
   ProfileModel profileModel = ProfileModel();
-  int totalSpending = 0;
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class OverviewScreenState extends State<OverviewScreen> {
       setState(() {
         profileModel = fetchedProfileData;
         currentBalance = int.parse(profileModel.current_balance!);
+        currentIncome = int.parse(profileModel.current_income!);
         actualBudget = int.parse(profileModel.actual_budget!);
       });
     } catch (error) {
@@ -95,31 +97,46 @@ class OverviewScreenState extends State<OverviewScreen> {
       }
     });
 
+    List<TransactionModel> spendingTransaction = [];
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
         .getTransactions(AppConstanst.spendingTransaction)
-        .then((value) {
-      setState(() {
-        spendingTransaction = value;
-        List<String> dates = [];
+        .then((value) async {
+      spendingTransaction = value;
+      List<String> dates = [];
 
-        DateTime now = DateTime.now();
-        String currentMonthName = DateFormat('MMMM').format(now);
+      DateTime now = DateTime.now();
+      String currentMonthName = DateFormat('MMMM').format(now);
 
-        for (var t in spendingTransaction) {
-          DateFormat format = DateFormat("dd/MM/yyyy");
-          DateTime parsedDate = format.parse(t.transaction_date!);
-          String transactionMonthName = DateFormat('MMMM').format(parsedDate);
-if(transactionMonthName == currentMonthName) {
-  if (!dates.contains(t.transaction_date!.split(' ')[0])) {
-    dates.add(t.transaction_date!.split(' ')[0]);
-  }
-  totalSpending = totalSpending + t.amount!;
-}
-
+      for (var t in spendingTransaction) {
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(t.transaction_date!);
+        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+        if (transactionMonthName == currentMonthName) {
+          if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+            dates.add(t.transaction_date!.split(' ')[0]);
+          }
         }
+      }
+      if (dates.isEmpty) {
+        if (isSkippedUser) {
+          MySharedPreferences.instance.addStringToSF(
+              SharedPreferencesKeys.skippedUserCurrentBalance,
+              actualBudget.toString());
+          currentBalance = actualBudget;
+          setState(() {});
+        } else {
+          currentBalance = actualBudget;
+          setState(() {});
+          await DatabaseHelper.instance
+              .getProfileData(userEmail)
+              .then((profileData) async {
+            profileData.current_balance = profileData.actual_budget;
+            await DatabaseHelper.instance.updateProfileData(profileData);
+          });
+        }
+      } else {
         dates.sort((a, b) => b.compareTo(a));
-
         for (var date in dates) {
           int totalAmount = 0;
           List<TransactionModel> newTransaction = [];
@@ -138,14 +155,116 @@ if(transactionMonthName == currentMonthName) {
               }
             }
           }
-
           dateWiseSpendingTransaction.add(DateWiseTransactionModel(
               transactionDate: date,
               transactionTotal: totalAmount,
               transactionDay: Helper.getTransactionDay(date),
               transactions: newTransaction));
         }
-      });
+        setState(() {});
+      }
+    });
+  }
+
+  getIncomeTransactions() async {
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
+        isSkippedUser = value;
+        if (isSkippedUser) {
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentIncome)
+              .then((value) {
+            if (value != null) {
+              currentIncome = int.parse(value);
+            }
+          });
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
+              .then((value) {
+            if (value != null) {
+              actualBudget = int.parse(value);
+            }
+          });
+        } else {
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.userEmail)
+              .then((value) {
+            if (value != null) {
+              userEmail = value;
+              getProfileData();
+            }
+          });
+        }
+      }
+    });
+
+    List<TransactionModel> incomeTransaction = [];
+    dateWiseIncomeTransaction = [];
+    await DatabaseHelper.instance
+        .getTransactions(AppConstanst.incomeTransaction)
+        .then((value) async {
+      incomeTransaction = value;
+      List<String> dates = [];
+
+      DateTime now = DateTime.now();
+      String currentMonthName = DateFormat('MMMM').format(now);
+
+      for (var t in incomeTransaction) {
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(t.transaction_date!);
+        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+        if (transactionMonthName == currentMonthName) {
+          if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+            dates.add(t.transaction_date!.split(' ')[0]);
+          }
+        }
+      }
+      if (dates.isEmpty) {
+        if (isSkippedUser) {
+          MySharedPreferences.instance.addStringToSF(
+              SharedPreferencesKeys.skippedUserCurrentIncome, "0");
+          currentIncome = 0;
+          setState(() {});
+        } else {
+          currentIncome = 0;
+          setState(() {});
+          await DatabaseHelper.instance
+              .getProfileData(userEmail)
+              .then((profileData) async {
+            profileData.current_income = "0";
+            await DatabaseHelper.instance.updateProfileData(profileData);
+          });
+        }
+      } else {
+        dates.sort((a, b) => b.compareTo(a));
+        for (var date in dates) {
+          int totalAmount = 0;
+          List<TransactionModel> newTransaction = [];
+          for (var t in incomeTransaction) {
+            if (date == t.transaction_date!.split(' ')[0]) {
+              newTransaction.add(t);
+              totalAmount = totalAmount + t.amount!;
+            } else {
+              DateWiseTransactionModel? found =
+                  dateWiseIncomeTransaction.firstWhereOrNull((element) =>
+                      element.transactionDate!.split(' ')[0] == date);
+              if (found == null) {
+                continue;
+              } else {
+                break;
+              }
+            }
+          }
+          dateWiseIncomeTransaction.add(DateWiseTransactionModel(
+              transactionDate: date,
+              transactionTotal: totalAmount,
+              transactionDay: Helper.getTransactionDay(date),
+              transactions: newTransaction));
+        }
+        setState(() {});
+      }
     });
   }
 
@@ -187,7 +306,7 @@ if(transactionMonthName == currentMonthName) {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "\u20B9${currentBalance.toString()}",
+                                          "\u20B9${(selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
                                           style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -240,7 +359,7 @@ if(transactionMonthName == currentMonthName) {
                                 ],
                               ),
                             ),
-                            const TabBar(
+                            TabBar(
                               labelColor: Colors.white,
                               unselectedLabelColor: Colors.white60,
                               indicatorColor: Colors.white,
@@ -248,10 +367,18 @@ if(transactionMonthName == currentMonthName) {
                               padding: EdgeInsets.zero,
                               indicatorPadding: EdgeInsets.zero,
                               labelPadding: EdgeInsets.zero,
-                              tabs: [
+                              tabs: const [
                                 Tab(child: Text("Spending")),
                                 Tab(child: Text("Income")),
                               ],
+                              onTap: (index) {
+                                selectedTabIndex = index;
+                                if (index == 0) {
+                                  getTransactions();
+                                } else {
+                                  getIncomeTransactions();
+                                }
+                              },
                             ),
                             Expanded(
                               child: TabBarView(
@@ -345,9 +472,9 @@ if(transactionMonthName == currentMonthName) {
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(5),
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color:  Color(0xffc4c45e)),
+                                      color: Colors.amberAccent.shade100),
                                 ),
                                 5.widthBox,
                                 Text(
@@ -381,7 +508,7 @@ if(transactionMonthName == currentMonthName) {
                             ),
                             sectionsSpace: 0,
                             centerSpaceRadius: 40,
-                            sections: showingSections(),
+                            sections: showingSpendingSections(),
                           ),
                         ),
                       ),
@@ -569,8 +696,10 @@ if(transactionMonthName == currentMonthName) {
                             Navigator.of(context, rootNavigator: true)
                                 .push(
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AddSpendingScreen()),
+                                  builder: (context) => AddSpendingScreen(
+                                        transactionName: AppConstanst
+                                            .spendingTransactionName,
+                                      )),
                             )
                                 .then((value) {
                               if (value != null) {
@@ -629,65 +758,49 @@ if(transactionMonthName == currentMonthName) {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "\u20B928,700",
+                              "\u20B9$currentIncome",
                               style: TextStyle(
-                                  color: Helper.getTextColor(context),
+                                  color: currentIncome < actualBudget
+                                      ? Colors.red
+                                      : Helper.getTextColor(context),
                                   fontSize: 20),
                             ),
                             Text(
-                              "You are spending on plan!",
+                              currentIncome >= actualBudget
+                                  ? 'Income is same as target'
+                                  : "Income is not as expected!",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 12),
                             ),
                             10.heightBox,
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.blue),
-                                ),
-                                5.widthBox,
-                                Text(
-                                  "Spent",
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context),
-                                      fontSize: 12),
-                                ),
-                              ],
+                            Text(
+                              "Plan",
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 12),
                             ),
                             5.heightBox,
                             Text(
-                              "\u20B928,700",
+                              "\u20B9$actualBudget",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
                             ),
                             10.heightBox,
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color:  Color(0xffc4c45e)),
-                                ),
-                                5.widthBox,
-                                Text(
-                                  "Remaining",
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context),
-                                      fontSize: 12),
-                                ),
-                              ],
+                            Text(
+                              currentIncome>=actualBudget? "More than the Target": "Less than the Target",
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 12),
                             ),
                             5.heightBox,
                             Text(
-                              "\u20B926,604",
+                              currentIncome>=actualBudget?'\u20B9$actualBudget+${currentIncome - actualBudget}':"\u20B9${actualBudget - currentIncome}",
                               style: TextStyle(
-                                  color: Helper.getTextColor(context),
+                                  color: currentIncome < actualBudget
+                                      ? Colors.amberAccent.shade100
+                                      : Helper.getTextColor(context),
                                   fontSize: 20),
                             ),
                             5.heightBox
@@ -704,7 +817,7 @@ if(transactionMonthName == currentMonthName) {
                             ),
                             sectionsSpace: 0,
                             centerSpaceRadius: 40,
-                            sections: showingSections(),
+                            sections: showingIncomeSections(),
                           ),
                         ),
                       ),
@@ -744,93 +857,197 @@ if(transactionMonthName == currentMonthName) {
                 ),
               ],
             ),
-            20.heightBox,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "TODAY, 03/10/2023",
-                  style: TextStyle(
-                      color: Helper.getTextColor(context), fontSize: 14),
-                ),
-                const Text(
-                  "-\u20B928,700",
-                  style: TextStyle(color: Colors.pink, fontSize: 14),
-                ),
-              ],
-            ),
-            10.heightBox,
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  color: Helper.getCardColor(context),
-                  borderRadius: const BorderRadius.all(Radius.circular(10))),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: const BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: const Icon(
-                      Icons.cake,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  15.widthBox,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Dine out",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          "Bbb",
-                          style: TextStyle(
-                            color: Helper.getTextColor(context),
-                            fontSize: 14,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+            if (dateWiseIncomeTransaction.isNotEmpty) 20.heightBox,
+            if (dateWiseIncomeTransaction.isNotEmpty)
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const ScrollPhysics(),
+                itemCount: dateWiseIncomeTransaction.length,
+                itemBuilder: (context, index) {
+                  return Column(
                     children: [
-                      Text(
-                        "-\u20B92,096",
-                        style: TextStyle(
-                            color: Helper.getTextColor(context),
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "${dateWiseIncomeTransaction[index].transactionDay}, ${dateWiseIncomeTransaction[index].transactionDate}",
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 14),
+                          ),
+                          Text(
+                            "+\u20B9${dateWiseIncomeTransaction[index].transactionTotal}",
+                            style: const TextStyle(
+                                color: Colors.green, fontSize: 14),
+                          ),
+                        ],
                       ),
-                      Text(
-                        "Cash/16:11",
-                        style: TextStyle(
-                          color: Helper.getTextColor(context),
-                          fontSize: 14,
+                      15.heightBox,
+                      if (dateWiseIncomeTransaction[index]
+                          .transactions!
+                          .isNotEmpty)
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const ScrollPhysics(),
+                          itemCount: dateWiseIncomeTransaction[index]
+                              .transactions!
+                              .length,
+                          itemBuilder: (context, index1) {
+                            return Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                  color: Color(0xff30302d),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10))),
+                                    child: SvgPicture.asset(
+                                      'asset/images/${dateWiseIncomeTransaction[index].transactions![index1].cat_icon}.svg',
+                                      color: dateWiseIncomeTransaction[index]
+                                          .transactions![index1]
+                                          .cat_color,
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                  ),
+                                  15.widthBox,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          dateWiseIncomeTransaction[index]
+                                              .transactions![index1]
+                                              .cat_name!,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          dateWiseIncomeTransaction[index]
+                                              .transactions![index1]
+                                              .description!,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        "+\u20B9${dateWiseIncomeTransaction[index].transactions![index1].amount!}",
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        "${dateWiseIncomeTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseIncomeTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return 10.heightBox;
+                          },
                         ),
-                      )
                     ],
-                  )
-                ],
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return 10.heightBox;
+                },
               ),
-            ),
+            if (dateWiseIncomeTransaction.isEmpty) 10.heightBox,
+            if (dateWiseIncomeTransaction.isEmpty)
+              Container(
+                  decoration: BoxDecoration(
+                      color: Helper.getCardColor(context),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
+                  child: Column(
+                    children: [
+                      20.heightBox,
+                      Icon(
+                        Icons.account_balance_wallet,
+                        color: Helper.getTextColor(context),
+                        size: 80,
+                      ),
+                      10.heightBox,
+                      Text(
+                        "You don't have any income yet",
+                        style: TextStyle(color: Helper.getTextColor(context)),
+                      ),
+                      20.heightBox,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context, rootNavigator: true)
+                                .push(
+                              MaterialPageRoute(
+                                  builder: (context) => AddSpendingScreen(
+                                        transactionName:
+                                            AppConstanst.incomeTransactionName,
+                                      )),
+                            )
+                                .then((value) {
+                              if (value != null) {
+                                if (value) {
+                                  getIncomeTransactions();
+                                }
+                              }
+                            });
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 15),
+                            alignment: Alignment.center,
+                            decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            child: const Text(
+                              "Add income",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14),
+                            ),
+                          ),
+                        ),
+                      ),
+                      15.heightBox,
+                    ],
+                  )),
           ],
         ),
       ),
     );
   }
 
-  List<PieChartSectionData> showingSections() {
+  List<PieChartSectionData> showingSpendingSections() {
     double spendingPercentage =
         currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
-    double remainingPercentage = currentBalance > 0 ? 100 - spendingPercentage : 0;
+    double remainingPercentage =
+        currentBalance > 0 ? 100 - spendingPercentage : 0;
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;
@@ -838,9 +1055,9 @@ if(transactionMonthName == currentMonthName) {
       switch (i) {
         case 0:
           return PieChartSectionData(
-            color: const Color(0xffc4c45e),
-            value: spendingPercentage,
-            title: '${spendingPercentage}%',
+            color: Colors.amberAccent.shade100,
+            value: spendingPercentage.toPrecision(2),
+            title: '${spendingPercentage.toPrecision(2)}%',
             radius: radius,
             titleStyle: const TextStyle(
               fontSize: fontSize,
@@ -852,8 +1069,50 @@ if(transactionMonthName == currentMonthName) {
         case 1:
           return PieChartSectionData(
             color: Colors.blue,
-            value: remainingPercentage,
-            title: '$remainingPercentage%',
+            value: remainingPercentage.toPrecision(2),
+            title: '${remainingPercentage.toPrecision(2)}%',
+            radius: radius,
+            titleStyle: const TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: shadows,
+            ),
+          );
+
+        default:
+          throw Error();
+      }
+    });
+  }
+
+  List<PieChartSectionData> showingIncomeSections() {
+    double incomePercentage =
+        currentIncome < actualBudget ? (currentIncome / actualBudget) * 100 : 100;
+    double remainingPercentage = currentIncome > 0 ? 100 - incomePercentage : 0;
+    return List.generate(2, (i) {
+      const fontSize = 12.0;
+      const radius = 40.0;
+      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
+      switch (i) {
+        case 0:
+          return PieChartSectionData(
+            color: Colors.amberAccent.shade100,
+            value: remainingPercentage.toPrecision(2),
+            title: '${remainingPercentage.toPrecision(2)}%',
+            radius: radius,
+            titleStyle: const TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: shadows,
+            ),
+          );
+        case 1:
+          return PieChartSectionData(
+            color: Colors.red,
+            value: incomePercentage.toPrecision(2),
+            title: '${incomePercentage.toPrecision(2)}%',
             radius: radius,
             titleStyle: const TextStyle(
               fontSize: fontSize,

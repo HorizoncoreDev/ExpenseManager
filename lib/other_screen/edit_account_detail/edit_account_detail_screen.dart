@@ -45,6 +45,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
 
   String userEmail = '';
   String currentBalance = '';
+  String currentIncome = '';
   int id = 0;
 
   bool validateEmail(String email) {
@@ -66,6 +67,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         emailController.text = profileData!.email!;
         dob = profileData!.dob!;
         currentBalance = profileData!.current_balance!;
+        currentIncome = profileData!.current_income!;
         selectedValue =
             profileData!.gender == "" ? 'Female' : profileData!.gender!;
         isLoading = false;
@@ -100,6 +102,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
           dob: dateOfBirth == null ? "Select DOB" : dateOfBirth!,
           gender: selectedValue,
           current_balance: currentBalance,
+          current_income: currentIncome,
           full_name: "",
           profile_image: "",
           mobile_number: ""),

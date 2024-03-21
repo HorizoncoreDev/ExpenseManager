@@ -161,7 +161,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                     ),
                                     5.widthBox,
                                     Text(
-                                      "Collected",
+                                      "Spent",
                                       style: TextStyle(
                                           color: Helper.getTextColor(context),
                                           fontSize: 12),
@@ -190,7 +190,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                     ),
                                     5.widthBox,
                                     Text(
-                                      "Missing",
+                                      "Remaining",
                                       style: TextStyle(
                                           color: Helper.getTextColor(context),
                                           fontSize: 12),

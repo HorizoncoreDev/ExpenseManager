@@ -27,7 +27,8 @@ import 'bloc/add_spending_bloc.dart';
 import 'bloc/add_spending_state.dart';
 
 class AddSpendingScreen extends StatefulWidget {
-  const AddSpendingScreen({super.key});
+  String transactionName;
+   AddSpendingScreen({super.key,required this.transactionName});
 
   @override
   State<AddSpendingScreen> createState() => _AddSpendingScreenState();
@@ -42,8 +43,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
 
   int currPage = 1;
   bool isSkippedUser = false;
-  String selectedValue = 'Spending';
-  List<String> dropdownItems = ['Spending', 'Income'];
+  String selectedValue = AppConstanst.spendingTransactionName;
+  List<String> dropdownItems = [AppConstanst.spendingTransactionName, AppConstanst.incomeTransactionName];
 
   final List<String> amount = [
     "500",
@@ -135,7 +136,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         isSkippedUser = value;
       }
     });
-    getSpendingCategory();
+    selectedValue = widget.transactionName;
+    if(selectedValue == AppConstanst.spendingTransactionName) {
+      getSpendingCategory();
+    }else{
+     getIncomeCategory();
+    }
   }
 
   void _incrementDate() {
@@ -174,23 +180,23 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
           sub_expense_cat_id: selectedSpendingSubIndex,
           income_cat_id: selectedIncomeIndex,
           sub_income_cat_id: selectedIncomeSubIndex,
-          cat_name: selectedValue == "Spending"
+          cat_name: selectedValue == AppConstanst.spendingTransactionName
               ? selectedSpendingSubIndex != -1
                   ? spendingSubCategories[selectedSpendingSubIndex].name
                   : categories[selectedSpendingIndex].name
               : selectedIncomeSubIndex != -1
                   ? incomeSubCategories[selectedIncomeSubIndex].name
                   : incomeCategories[selectedIncomeIndex].name,
-          cat_color: selectedValue == "Spending"
+          cat_color: selectedValue == AppConstanst.spendingTransactionName
               ? categories[selectedSpendingIndex].color
               : incomeCategories[selectedIncomeIndex].color,
-          cat_icon: selectedValue == "Spending"
+          cat_icon: selectedValue == AppConstanst.spendingTransactionName
               ? categories[selectedSpendingIndex].icons
               : incomeCategories[selectedIncomeIndex].path,
           payment_method_id: AppConstanst.cashPaymentType,
           status: 1,
           transaction_date: '${formattedDate()} ${formattedTime()}',
-          transaction_type: selectedValue == "Spending"
+          transaction_type: selectedValue == AppConstanst.spendingTransactionName
               ? AppConstanst.spendingTransaction
               : AppConstanst.incomeTransaction,
           description: descriptionController.text,
@@ -210,35 +216,57 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         DateTime parsedDate = format.parse(formattedDate());
         String transactionMonthName = DateFormat('MMMM').format(parsedDate);
         if(currentMonthName == transactionMonthName) {
-          if (selectedValue == "Spending") {
             if (isSkippedUser) {
-              MySharedPreferences.instance
-                  .getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentBalance)
-                  .then((value) {
-                if (value != null) {
-                  String updateBalance =
-                  (int.parse(value) - int.parse(amountController.text))
-                      .toString();
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.skippedUserCurrentBalance,
-                      updateBalance);
-                }
-              });
+              if (selectedValue == AppConstanst.spendingTransactionName) {
+                MySharedPreferences.instance
+                    .getStringValuesSF(
+                    SharedPreferencesKeys.skippedUserCurrentBalance)
+                    .then((value) {
+                  if (value != null) {
+                    String updateBalance =
+                    (int.parse(value) - int.parse(amountController.text))
+                        .toString();
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.skippedUserCurrentBalance,
+                        updateBalance);
+                  }
+                });
+              }else{
+                MySharedPreferences.instance
+                    .getStringValuesSF(
+                    SharedPreferencesKeys.skippedUserCurrentIncome)
+                    .then((value) {
+                  if (value != null) {
+                    String updateBalance =
+                    (int.parse(value) + int.parse(amountController.text))
+                        .toString();
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.skippedUserCurrentIncome,
+                        updateBalance);
+                  }
+                });
+              }
             } else {
               await DatabaseHelper.instance
                   .getProfileData(userEmail)
                   .then((profileData) async {
-                profileData.current_balance =
-                    (int.parse(profileData.current_balance!) -
-                        int.parse(amountController.text))
-                        .toString();
+                if (selectedValue == AppConstanst.spendingTransactionName) {
+                  profileData.current_balance =
+                      (int.parse(profileData.current_balance!) -
+                          int.parse(amountController.text))
+                          .toString();
+                }else{
+                  profileData.current_income =
+                      (int.parse(profileData.current_income!) +
+                          int.parse(amountController.text))
+                          .toString();
+                }
                 await DatabaseHelper.instance.updateProfileData(profileData);
               });
             }
-          }
+
         }
-        Helper.showToast(selectedValue == "Spending"
+        Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
             ? "Spending created successfully"
             : "Income created successfully");
         Navigator.of(context).pop(true);
@@ -308,7 +336,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 setState(() {
                                   var val = value as String;
                                   selectedValue = val;
-                                  if (selectedValue == 'Spending') {
+                                  if (selectedValue == AppConstanst.spendingTransactionName) {
                                     getSpendingCategory();
                                   } else {
                                     getIncomeCategory();
@@ -332,11 +360,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       if (amountController.text.isEmpty ||
                           amountController.text == "0") {
                         Helper.showToast("Please add amount");
-                      } else if (selectedValue == "Spending"
+                      } else if (selectedValue == AppConstanst.spendingTransactionName
                           ? selectedSpendingIndex == -1
                           : selectedIncomeIndex == -1) {
                         Helper.showToast("Please select category");
-                      } else if (selectedValue == "Spending"
+                      } else if (selectedValue == AppConstanst.spendingTransactionName
                           ? (spendingSubCategories.isNotEmpty &&
                               selectedSpendingSubIndex == -1)
                           : (incomeSubCategories.isNotEmpty &&
@@ -479,7 +507,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       ),
                     ),
                     20.heightBox,
-                    selectedValue == "Spending"
+                    selectedValue == AppConstanst.spendingTransactionName
                         ? Row(
                             children: [
                               Text(
@@ -592,7 +620,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             ],
                           ),
                     5.heightBox,
-                    selectedValue == "Spending"
+                    selectedValue == AppConstanst.spendingTransactionName
                         ? Stack(
                             children: [
                               GridView.builder(
@@ -815,7 +843,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                   color: selectedIncomeIndex ==
                                                           index
                                                       ? Colors.white
-                                                      : Colors.black87,
+                                                      : Helper.getTextColor(context),
                                                   fontSize: 10),
                                             ),
                                           ),

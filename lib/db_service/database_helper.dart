@@ -158,6 +158,7 @@ class DatabaseHelper {
       ${ProfileTableFields.profile_image} $textType,
       ${ProfileTableFields.mobile_number} $textType,
       ${ProfileTableFields.current_balance} $textType,
+      ${ProfileTableFields.current_income} $textType,
       ${ProfileTableFields.actual_budget} $textType,
       ${ProfileTableFields.gender} $textType
       )
@@ -358,6 +359,26 @@ class DatabaseHelper {
       whereArgs: [transactionType],
       orderBy:'${TransactionFields.created_at} DESC'
     );
+    return List.generate(
+        maps.length, (index) => TransactionModel.fromMap(maps[index]));
+  }
+
+  Future<List<TransactionModel>> getTransactionList(String category) async {
+    Database db = await database;
+     List<Map<String, dynamic>> maps=[];
+    if(category.isNotEmpty) {
+      maps = await db.query(
+          transaction_table,
+          where: '${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE',
+          whereArgs: ['%$category%','%$category%'],
+          orderBy: '${TransactionFields.created_at} DESC'
+      );
+    }else{
+      maps = await db.query(
+          transaction_table,
+          orderBy: '${TransactionFields.created_at} DESC'
+      );
+    }
     return List.generate(
         maps.length, (index) => TransactionModel.fromMap(maps[index]));
   }
