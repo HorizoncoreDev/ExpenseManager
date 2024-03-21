@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/db_models/user_model.dart';
+import 'package:expense_manager/statistics/statistics_screen.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -383,6 +385,86 @@ class DatabaseHelper {
     return List.generate(
         result.length, (index) => TransactionModel.fromMap(result[index]));
   }
+
+/*  Future<List<TransactionModel>> fetchDataForYearMonthsAndCategory(int year,
+      List<MonthData> months, String category, int transactionType) async {
+    Database db = await database;
+
+    List<String> selectedMonthNames = months
+        .where((monthData) => monthData.isSelected)
+        .map((monthData) => monthData.text)
+        .toList();
+
+    // Convert list of month names to their respective numeric representations
+    List<int> monthNumbers = selectedMonthNames.map((monthName) {
+      return DateTime.parse(
+              "2022-${DateTime.parse("${monthName.replaceAll(" ", "")} 1").month}-01")
+          .month;
+    }).toList();
+
+    // Query to fetch data
+    final List<Map<String, dynamic>> result = await db.query(
+      transaction_table,
+      where:
+          '${TransactionFields.transaction_date} LIKE ? AND ${TransactionFields.transaction_type} = ? AND ${TransactionFields.cat_name} = ?',
+      whereArgs: [
+        '$year-%', // Filter by year
+        transactionType,
+        category,
+      ],
+      orderBy: '${TransactionFields.transaction_date} DESC',
+    );
+
+    // Filter out the transactions that match the specified months
+    List<Map<String, dynamic>> filteredResult = result.where((transaction) {
+      int transactionMonth =
+          DateTime.parse(transaction[TransactionFields.transaction_date]).month;
+      return monthNumbers.contains(transactionMonth);
+    }).toList();
+
+    return List.generate(filteredResult.length,
+        (index) => TransactionModel.fromMap(filteredResult[index]));
+  }*/
+
+
+  Future<List<TransactionModel>> fetchDataForYearMonthsAndCategory(int year,
+      List<MonthData> months, String category, int transactionType) async {
+    Database db = await database;
+
+    List<String> selectedMonthNames = months
+        .where((monthData) => monthData.isSelected)
+        .map((monthData) => monthData.text)
+        .toList();
+
+    // Construct a list of LIKE expressions for each selected month
+    List<String> monthFilters = selectedMonthNames.map((monthName) => '%-$monthName-%').toList();
+    String combinedMonthFilter = '(${monthFilters.join(' OR ')})';
+
+    // Prepare the SQL statement with parameter binding
+   /* String sql = '''
+    SELECT *
+    FROM $transaction_table
+    WHERE ${TransactionFields.transaction_date} LIKE ?
+      AND ${TransactionFields.transaction_type} = ?
+      AND ${TransactionFields.cat_name} = ?
+    ORDER BY ${TransactionFields.transaction_date} DESC
+  ''';*/
+
+    // Execute the query with prepared arguments
+    List<Map<String, dynamic>> result = await db.query(
+      transaction_table,
+      whereArgs: [
+        '$year-$combinedMonthFilter',
+        transactionType,
+        category,
+      ],
+    );
+
+    // Convert results to TransactionModel objects
+    return List.generate(result.length,
+            (index) => TransactionModel.fromMap(result[index]));
+  }
+
 
   // Update Transaction Detail
   Future<void> updateTransactionData(TransactionModel transactionModel) async {

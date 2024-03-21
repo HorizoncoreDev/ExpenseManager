@@ -22,12 +22,13 @@ class _DashBoardState extends State<DashBoard> {
   PersistentTabController controller = PersistentTabController(initialIndex: 0);
   bool hideNavBar = false;
   GlobalKey<OverviewScreenState> overviewKey = GlobalKey<OverviewScreenState>();
+  GlobalKey<StatisticsScreenState> overviewKey1 = GlobalKey<StatisticsScreenState>();
 
   List<Widget> buildScreens() {
     return [
        OverviewScreen(key: overviewKey,),
       Container(),
-      const StatisticsScreen(),
+      StatisticsScreen(key: overviewKey1),
     ];
   }
 
@@ -107,6 +108,8 @@ class _DashBoardState extends State<DashBoard> {
               if(value!=null){
                 if(value){
                   overviewKey.currentState?.getTransactions();
+                  overviewKey1.currentState?.getTransactions();
+                  overviewKey1.currentState?.getIncomeData();
                   //getTransactions();
                 }
               }

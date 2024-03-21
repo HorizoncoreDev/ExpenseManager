@@ -28,6 +28,7 @@ import 'bloc/add_spending_bloc.dart';
 import 'bloc/add_spending_state.dart';
 
 class AddSpendingScreen extends StatefulWidget {
+
   const AddSpendingScreen({super.key});
 
   @override
