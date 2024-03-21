@@ -100,7 +100,7 @@ class OverviewScreenState extends State<OverviewScreen> {
     List<TransactionModel> spendingTransaction = [];
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
-        .getTransactions(AppConstanst.spendingTransaction)
+        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];

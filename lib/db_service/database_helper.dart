@@ -343,18 +343,6 @@ class DatabaseHelper {
   Future<List<TransactionModel>> getTransactions(int transactionType) async {
     Database db = await database;
 
-    /* final List<Map<String, dynamic>> maps = await db.rawQuery('''
-    SELECT t.*, c.name,c.color,c.icons
-    FROM $transaction_table AS t
-    INNER JOIN $category_table AS c ON t.${TransactionFields.expense_cat_id} = c.${CategoryFields.id}
-    WHERE t.${TransactionFields.transaction_type} = ?
-  ''', [AppConstanst.spendingTransaction]);
-
-    return List.generate(
-      maps.length,
-          (index) => TransactionModel.fromMap(maps[index]),
-    );*/
-
     final List<Map<String, dynamic>> maps = await db.query(transaction_table,
         where: '${TransactionFields.transaction_type} = ?',
         whereArgs: [transactionType],
@@ -429,15 +417,31 @@ class DatabaseHelper {
 
   Future<List<TransactionModel>> getTransactionList(String category) async {
     Database db = await database;
+    // Get the current month and year
+    DateTime now = DateTime.now();
+    int currentMonth = now.month;
+    int currentYear = now.year;
+
+
     List<Map<String, dynamic>> maps = [];
     if (category.isNotEmpty) {
       maps = await db.query(transaction_table,
           where:
-              '${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE',
-          whereArgs: ['%$category%', '%$category%'],
+              'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ? AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE',
+          whereArgs: [
+            (currentMonth.toString().padLeft(2, '0')),
+            (currentYear.toString()),
+            '%$category%', '%$category%'
+          ],
           orderBy: '${TransactionFields.created_at} DESC');
     } else {
       maps = await db.query(transaction_table,
+          where:
+          'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ? AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ?',
+          whereArgs: [
+            (currentMonth.toString().padLeft(2, '0')),
+            (currentYear.toString()),
+          ],
           orderBy: '${TransactionFields.created_at} DESC');
     }
     return List.generate(
