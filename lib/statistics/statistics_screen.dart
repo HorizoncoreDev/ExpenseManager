@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../other_screen/other_screen.dart';
+import '../utils/my_shared_preferences.dart';
 import 'bloc/statistics_bloc.dart';
 import 'bloc/statistics_state.dart';
 
@@ -61,13 +62,21 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   List<MonthData> selectedMonths = [];
   String selectedCategory = "";
   int selectedCategoryIndex = -1;
-
+  String userEmail = "";
   int isIncome = 0;
 
   @override
   void initState() {
-    getTransactions();
-    getIncomeData();
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+      }
+      getTransactions();
+      getIncomeData();
+    });
+
     super.initState();
   }
 
@@ -85,7 +94,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   getTransactions() async {
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction)
+        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,userEmail)
         .then((value) {
       setState(() {
         totalAmount = 0;
@@ -113,7 +122,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   getIncomeData() async {
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction)
+        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction,userEmail)
         .then((value) {
       setState(() {
         totalIncomeAmount = 0;
@@ -140,7 +149,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   getFilteredData(int year, List<MonthData> months, String category) async {
-    if (isIncome == 1) {
+   /* if (isIncome == 1) {
       await DatabaseHelper.instance
           .fetchDataForYearMonthsAndCategory(
               year, months, category, AppConstanst.incomeTransaction)
@@ -166,7 +175,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           }
         });
       });
-    }
+    }*/
   }
 
   @override

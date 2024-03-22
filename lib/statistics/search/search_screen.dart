@@ -11,6 +11,7 @@ import '../../db_models/transaction_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../overview_screen/add_spending/DateWiseTransactionModel.dart';
 import '../../utils/global.dart';
+import '../../utils/my_shared_preferences.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import 'bloc/search_bloc.dart';
 import 'bloc/search_state.dart';
@@ -24,7 +25,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   SearchBloc searchBloc = SearchBloc();
-
+  String userEmail = "";
   TextEditingController searchController = TextEditingController();
   List<DateWiseTransactionModel> dateWiseTransaction = [];
   List<DateWiseTransactionModel> originalDateWiseTransaction = [];
@@ -32,7 +33,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void initState() {
-    getTransactions("");
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+      }
+      getTransactions("");
+    });
     getCategories();
     super.initState();
   }
@@ -220,7 +228,7 @@ class _SearchScreenState extends State<SearchScreen> {
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(category.toLowerCase())
+        .getTransactionList(category.toLowerCase(),userEmail)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];

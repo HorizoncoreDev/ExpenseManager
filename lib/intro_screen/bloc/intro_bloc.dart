@@ -16,9 +16,9 @@ class IntroBloc extends Bloc<IntroEvent, IntroState> {
 
   Future<void> introStartEvent(
       IntroStartEvent event, Emitter<IntroState> emit) async {
-    Navigator.push(
+    Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => SignInScreen()),
-    );
+      MaterialPageRoute(builder: (context) => const SignInScreen()),(Route<dynamic> route) => false);
+
   }
 }

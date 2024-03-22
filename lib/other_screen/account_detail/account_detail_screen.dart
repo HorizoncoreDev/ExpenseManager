@@ -1,5 +1,4 @@
 import 'package:expense_manager/budget/budget_screen.dart';
-import 'package:expense_manager/overview_screen/overview_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +60,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
           await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-        fullName = "${profileData!.first_name!} ${profileData!.last_name!}" ;
+        fullName = "${profileData!.first_name!} ${profileData!.last_name!}";
         email = profileData!.email!;
 
         dob = profileData!.dob!;
@@ -250,7 +249,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                             thickness: 0.2,
                             color: Colors.grey,
                           ),
-                         /* Padding(
+                          /* Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 25),
                             child: Row(
                               children: [
@@ -538,7 +537,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       Navigator.pop(cont);
                     },
                     child:
-                    Icon(Icons.close, color: Helper.getTextColor(context)),
+                        Icon(Icons.close, color: Helper.getTextColor(context)),
                   ),
                 ),
                 10.heightBox,
@@ -594,6 +593,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
       },
     );
   }
+
   Future _clearDataDialogue(AccountDetailBloc accountDetailBloc) async {
     await showDialog(
       context: accountDetailBloc.context,
@@ -687,8 +687,13 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
       await FirebaseAuth.instance.signOut();
       await googleSignIn.signOut();
 
-      Navigator.of(context, rootNavigator: true).
-      push(MaterialPageRoute(builder: (context) => const SignInScreen()));
+      MySharedPreferences.instance
+          .addStringToSF(SharedPreferencesKeys.userEmail, "");
+      MySharedPreferences.instance
+          .addBoolToSF(SharedPreferencesKeys.isBudgetAdded, false);
+
+      Navigator.of(context, rootNavigator: true)
+          .push(MaterialPageRoute(builder: (context) => const SignInScreen()));
     } catch (e) {
       Helper.showToast('Error signing out. Try again.');
     }
@@ -696,13 +701,19 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   Future<void> clearData() async {
     await databaseHelper.clearTransactionTable();
-    Navigator.of(context, rootNavigator: true).
-    push(MaterialPageRoute(builder: (context) => const BudgetScreen()));
+    MySharedPreferences.instance
+        .addStringToSF(SharedPreferencesKeys.userEmail, "");
+    MySharedPreferences.instance
+        .addBoolToSF(SharedPreferencesKeys.isBudgetAdded, false);
+
+
+    Navigator.of(context, rootNavigator: true)
+        .push(MaterialPageRoute(builder: (context) => const BudgetScreen()));
   }
 
   Future<void> deleteAccount() async {
     await databaseHelper.clearAllTables();
-    Navigator.of(context, rootNavigator: true).
-    push(MaterialPageRoute(builder: (context) => const SignInScreen()));
+    Navigator.of(context, rootNavigator: true)
+        .push(MaterialPageRoute(builder: (context) => const SignInScreen()));
   }
 }
