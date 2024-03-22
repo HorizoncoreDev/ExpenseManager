@@ -388,44 +388,77 @@ class DatabaseHelper {
         result.length, (index) => TransactionModel.fromMap(result[index]));
   }
 
+  //Get transaction data for filter
   Future<List<TransactionModel>> fetchDataForYearMonthsAndCategory(int year,
       List<MonthData> months, String category, int transactionType) async {
     Database db = await database;
+    String query = '''SELECT * FROM $transaction_table WHERE ''';
+    /*   List<int?> selectedMonthNumbers =
+        months.map((monthData) => monthNameToNumber[monthData.text]).toList();*/
 
-    List<String> selectedMonthNames = months
-        .where((monthData) => monthData.isSelected)
-        .map((monthData) => monthData.text)
+    List<int> selectedMonthNumbers = months
+        .map((monthData) => monthNameToNumber[monthData.text])
+        .where((monthNumber) => monthNumber != null)
+        .map((monthNumber) => monthNumber!)
         .toList();
 
-    // Construct a list of LIKE expressions for each selected month
-    List<String> monthFilters =
-        selectedMonthNames.map((monthName) => '%-$monthName-%').toList();
-    String combinedMonthFilter = '(${monthFilters.join(' OR ')})';
+    List<String> conditions = [];
 
-    // Prepare the SQL statement with parameter binding
-    /* String sql = '''
-    SELECT *
-    FROM $transaction_table
-    WHERE ${TransactionFields.transaction_date} LIKE ?
-      AND ${TransactionFields.transaction_type} = ?
-      AND ${TransactionFields.cat_name} = ?
-    ORDER BY ${TransactionFields.transaction_date} DESC
-  ''';*/
+    for (int month in selectedMonthNumbers) {
+      conditions.add('SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?');
+    }
 
-    // Execute the query with prepared arguments
-    List<Map<String, dynamic>> result = await db.query(
-      transaction_table,
-      whereArgs: [
-        '$year-$combinedMonthFilter',
-        transactionType,
-        category,
-      ],
-    );
+    query += conditions.join(' OR '); // Combine conditions using OR operator
+    query +=
+    '''
+  AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? 
+  ORDER BY ${TransactionFields.transaction_date} DESC
+''';
 
-    // Convert results to TransactionModel objects
-    return List.generate(
-        result.length, (index) => TransactionModel.fromMap(result[index]));
+
+    print('query from alpesh $query');
+    // Construct the where clause and where arguments
+    /*  String whereClause = "strftime('%Y', transaction_date) = ? AND ";
+    whereClause += '(${selectedMonthNumbers
+            .map((month) =>
+                'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?')
+            .join(' OR ')}) AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ';
+    whereClause += "cat_name = ? AND ";
+    whereClause += "transaction_type = ?";*/
+
+    List<dynamic> whereArgs = [
+      ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
+    ];
+    print('query from alpesh ${whereArgs.toString()}');
+    try {
+      List<Map<String, dynamic>> result = await db.rawQuery(
+        query,
+        whereArgs,
+      );
+
+      return List.generate(
+          result.length, (index) => TransactionModel.fromMap(result[index]));
+    } catch (e) {
+      print('Error fetching data: $e');
+      return [];
+    }
   }
+
+// Helper function to get the month number from month name
+  final Map<String, int> monthNameToNumber = {
+    'January': 1,
+    'February': 2,
+    'March': 3,
+    'April': 4,
+    'May': 5,
+    'June': 6,
+    'July': 7,
+    'August': 8,
+    'September': 9,
+    'October': 10,
+    'November': 11,
+    'December': 12,
+  };
 
   Future<List<TransactionModel>> getTransactionList(String category) async {
     Database db = await database;
