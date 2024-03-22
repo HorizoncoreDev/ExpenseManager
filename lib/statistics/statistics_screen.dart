@@ -426,8 +426,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Color(0xff30302d),
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                       child: Row(
                         children: [
@@ -1106,7 +1106,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           ),
           barWidth: 5,
           isStrokeCapRound: true,
-          dotData: FlDotData(
+          dotData: const FlDotData(
             show: false,
           ),
           belowBarData: BarAreaData(

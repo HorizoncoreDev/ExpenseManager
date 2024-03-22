@@ -323,8 +323,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   ),
                                   InkWell(
                                       onTap: () {
-                                        Navigator.push(
-                                          context,
+                                        Navigator.of(context, rootNavigator: true).push(
                                           MaterialPageRoute(
                                               builder: (context) =>
                                               const SearchScreen()),
@@ -1097,7 +1096,7 @@ class OverviewScreenState extends State<OverviewScreen> {
         case 0:
           return PieChartSectionData(
             color: Helper.getChartColor(context),
-            value: remainingPercentage.toPrecision(2),
+            value: remainingPercentage.toPrecision(2) ?? 100,
             title: '${remainingPercentage.toPrecision(2)}%',
             radius: radius,
             titleStyle: const TextStyle(

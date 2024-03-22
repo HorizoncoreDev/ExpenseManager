@@ -23,6 +23,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
   final List<String> imageList = [
   ];
   List<TransactionModel> spendingTransaction = [];
+  List<TransactionModel> incomeTransaction = [];
   String userEmail = "";
   int currentBalance = 0;
   int actualBudget = 0;
@@ -78,6 +79,30 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
         }
       });
     });
+
+    await DatabaseHelper.instance
+        .getTransactions(AppConstanst.incomeTransaction)
+        .then((value) {
+      setState(() {
+
+        incomeTransaction = value;
+        for (int i = 0; i < incomeTransaction.length; i++) {
+          String getImage1 = incomeTransaction[i].receipt_image1.toString();
+          String getImage2 = incomeTransaction[i].receipt_image2.toString();
+          String getImage3 = incomeTransaction[i].receipt_image3.toString();
+          if(getImage1.isNotEmpty){
+            imageList.add(getImage1);
+          }
+          if(getImage2.isNotEmpty){
+            imageList.add(getImage2);
+          }
+          if(getImage3.isNotEmpty){
+            imageList.add(getImage3);
+          }
+        }
+      });
+    });
+
   }
 
   @override

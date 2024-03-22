@@ -272,7 +272,7 @@ class _SignInScreenState extends State<SignInScreen> {
     }
   }
 
-  Future<UserCredential> signInWithFacebook() async {
+  /*Future<UserCredential> signInWithFacebook() async {
     try {
       final LoginResult loginResult = await FacebookAuth.instance.login();
 
@@ -296,5 +296,5 @@ class _SignInScreenState extends State<SignInScreen> {
       print('Other Exception: $e');
       throw e; // rethrow the exception
     }
-  }
+  }*/
 }

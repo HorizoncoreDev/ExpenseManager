@@ -363,7 +363,9 @@ class DatabaseHelper {
     final List<Map<String, dynamic>> result = await db.query(
       transaction_table,
       where:
-          'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ? AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.transaction_type} = ?',
+          'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = '
+              '? AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) ='
+              ' ? AND ${TransactionFields.transaction_type} = ?',
       whereArgs: [
         (currentMonth.toString().padLeft(2, '0')),
         (currentYear.toString()),

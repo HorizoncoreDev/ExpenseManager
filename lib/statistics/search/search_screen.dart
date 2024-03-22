@@ -1,4 +1,5 @@
 import 'package:expense_manager/statistics/search/CommonCategoryModel.dart';
+import 'package:expense_manager/statistics/statistics_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,42 @@ class _SearchScreenState extends State<SearchScreen> {
   List<DateWiseTransactionModel> dateWiseTransaction = [];
   List<DateWiseTransactionModel> originalDateWiseTransaction = [];
   List<CommonCategoryModel> categoryList = [];
+  List<TransactionModel> spendingTransaction = [];
+  List<TransactionModel> incomeTransaction = [];
+  String showYear = 'Select Year';
+  String showMonth = 'Select month';
+  DateTime _selectedYear = DateTime.now();
+  int isIncome = 0;
+  List<GridItem> gridItemList = [
+    GridItem(text: 'Dine out'),
+    GridItem(text: 'Living'),
+    GridItem(text: 'Commuting'),
+    GridItem(text: 'Wear'),
+    GridItem(text: 'Enjoyment'),
+    GridItem(text: 'Child care'),
+    GridItem(text: 'Gift'),
+    GridItem(text: 'Housing'),
+    GridItem(text: 'Health'),
+    GridItem(text: 'Personal'),
+    GridItem(text: 'Other'),
+  ];
+  List<MonthData> monthList = [
+    MonthData(text: 'January'),
+    MonthData(text: 'February'),
+    MonthData(text: 'March'),
+    MonthData(text: 'April'),
+    MonthData(text: 'May'),
+    MonthData(text: 'June'),
+    MonthData(text: 'July'),
+    MonthData(text: 'August'),
+    MonthData(text: 'September'),
+    MonthData(text: 'October'),
+    MonthData(text: 'November'),
+    MonthData(text: 'December'),
+  ];
+  List<MonthData> selectedMonths = [];
+  String selectedCategory = "";
+  int selectedCategoryIndex = -1;
 
   @override
   void initState() {
@@ -38,20 +75,50 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   getCategories() async {
-  await DatabaseHelper.instance.categorys().then((value) {
-    if(value.isNotEmpty){
-      for(var s in value){
-       categoryList.add(CommonCategoryModel(catId: s.id,catName: s.name));
+    await DatabaseHelper.instance.categorys().then((value) {
+      if (value.isNotEmpty) {
+        for (var s in value) {
+          categoryList.add(CommonCategoryModel(catId: s.id, catName: s.name));
+        }
       }
-    }
-  });
-  await DatabaseHelper.instance.getIncomeCategory().then((value) {
-    if(value.isNotEmpty){
-      for(var s in value){
-        categoryList.add(CommonCategoryModel(catId: s.id,catName: s.name));
+    });
+    await DatabaseHelper.instance.getIncomeCategory().then((value) {
+      if (value.isNotEmpty) {
+        for (var s in value) {
+          categoryList.add(CommonCategoryModel(catId: s.id, catName: s.name));
+        }
       }
+    });
+  }
+
+  getFilteredData(int year, List<MonthData> months, String category) async {
+    if (isIncome == 1) {
+      await DatabaseHelper.instance
+          .fetchDataForYearMonthsAndCategory(
+          year, months, category, AppConstanst.incomeTransaction)
+          .then((value) {
+        setState(() {
+          if (value.isNotEmpty) {
+            incomeTransaction = value;
+          } else {
+            Helper.showToast("Data not found");
+          }
+        });
+      });
+    } else {
+      await DatabaseHelper.instance
+          .fetchDataForYearMonthsAndCategory(
+          year, months, category, AppConstanst.spendingTransaction)
+          .then((value) {
+        setState(() {
+          if (value.isNotEmpty) {
+            spendingTransaction = value;
+          } else {
+            Helper.showToast("Data not found");
+          }
+        });
+      });
     }
-  });
   }
 
   @override
@@ -97,16 +164,20 @@ class _SearchScreenState extends State<SearchScreen> {
                           clipBehavior: Clip.antiAliasWithSaveLayer,
                           isScrollControlled: true,
                           builder: (BuildContext context) {
-                            return WillPopScope(
-                                onWillPop: () async {
-                                  /*orderListingController
-                                      .isFilterClicked
-                                      .value = false;*/
-                                  return true;
-                                },
-                                child: Padding(
-                                    padding: MediaQuery.of(context).viewInsets,
-                                    child: _bottomSheetView(searchBloc)));
+                            return StatefulBuilder(
+                              builder: (context, setState) {
+                                return WillPopScope(
+                                    onWillPop: () async {
+                                      return true;
+                                    },
+                                    child: Padding(
+                                        padding: MediaQuery
+                                            .of(context)
+                                            .viewInsets,
+                                        child: _bottomSheetView(searchBloc, setState)));
+                              },
+
+                            );
                           });
                     },
                     child: Container(
@@ -149,38 +220,38 @@ class _SearchScreenState extends State<SearchScreen> {
                     CustomBoxTextFormField(
                         controller: searchController,
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
+                        const BorderRadius.all(Radius.circular(10)),
                         keyboardType: TextInputType.text,
                         hintText: "Search by category, note",
                         fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 10,
                         textStyle:
-                            TextStyle(color: Helper.getTextColor(context)),
+                        TextStyle(color: Helper.getTextColor(context)),
                         horizontalPadding: 5,
                         suffixIcon: searchController.text.isNotEmpty
                             ? InkWell(
-                                onTap: () {
-                                  searchController.clear();
-                                  getTransactions("");
-                                },
-                                child: const Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: Icon(
-                                    Icons.close,
-                                    size: 22,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
+                          onTap: () {
+                            searchController.clear();
+                            getTransactions("");
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.close,
+                              size: 22,
+                              color: Helper.getTextColor(context),
+                            ),
+                          ),
+                        )
                             : const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(
-                                  Icons.search,
-                                  size: 22,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                          padding: EdgeInsets.only(right: 10),
+                          child: Icon(
+                            Icons.search,
+                            size: 22,
+                            color: Colors.grey,
+                          ),
+                        ),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
                             getTransactions(value);
@@ -254,8 +325,8 @@ class _SearchScreenState extends State<SearchScreen> {
             }
           } else {
             DateWiseTransactionModel? found =
-                dateWiseTransaction.firstWhereOrNull((element) =>
-                    element.transactionDate!.split(' ')[0] == date);
+            dateWiseTransaction.firstWhereOrNull((element) =>
+            element.transactionDate!.split(' ')[0] == date);
             if (found == null) {
               continue;
             } else {
@@ -306,13 +377,17 @@ class _SearchScreenState extends State<SearchScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${dateWiseTransaction[index].transactionDay}, ${dateWiseTransaction[index].transactionDate}",
+                    "${dateWiseTransaction[index]
+                        .transactionDay}, ${dateWiseTransaction[index]
+                        .transactionDate}",
                     style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                   Text(
                     dateWiseTransaction[index].transactionTotal! < 0
-                        ? "-\u20B9${dateWiseTransaction[index].transactionTotal.toString().replaceAll("-", '')}"
-                        : '+\u20B9${dateWiseTransaction[index].transactionTotal}',
+                        ? "-\u20B9${dateWiseTransaction[index].transactionTotal
+                        .toString().replaceAll("-", '')}"
+                        : '+\u20B9${dateWiseTransaction[index]
+                        .transactionTotal}',
                     style: const TextStyle(color: Colors.pink, fontSize: 14),
                   ),
                 ],
@@ -326,8 +401,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   itemBuilder: (context, index1) {
                     return Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                          color: Color(0xff30302d),
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                       child: Row(
                         children: [
@@ -336,9 +411,10 @@ class _SearchScreenState extends State<SearchScreen> {
                             decoration: const BoxDecoration(
                                 color: Colors.black,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
+                                BorderRadius.all(Radius.circular(10))),
                             child: SvgPicture.asset(
-                              'asset/images/${dateWiseTransaction[index].transactions![index1].cat_icon}.svg',
+                              'asset/images/${dateWiseTransaction[index]
+                                  .transactions![index1].cat_icon}.svg',
                               color: dateWiseTransaction[index]
                                   .transactions![index1]
                                   .cat_color,
@@ -355,26 +431,26 @@ class _SearchScreenState extends State<SearchScreen> {
                                   dateWiseTransaction[index]
                                       .transactions![index1]
                                       .cat_name!,
-                                  style: const TextStyle(
-                                      color: Colors.white,
+                                  style: TextStyle(
+                                      color: Helper.getTextColor(context),
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   (dateWiseTransaction[index]
-                                                  .transactions![index1]
-                                                  .description ==
-                                              null ||
-                                          dateWiseTransaction[index]
-                                              .transactions![index1]
-                                              .description!
-                                              .isEmpty)
+                                      .transactions![index1]
+                                      .description ==
+                                      null ||
+                                      dateWiseTransaction[index]
+                                          .transactions![index1]
+                                          .description!
+                                          .isEmpty)
                                       ? 'No note'
                                       : dateWiseTransaction[index]
-                                          .transactions![index1]
-                                          .description!,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                      .transactions![index1]
+                                      .description!,
+                                  style: TextStyle(
+                                    color: Helper.getTextColor(context),
                                     fontSize: 14,
                                   ),
                                 )
@@ -386,20 +462,28 @@ class _SearchScreenState extends State<SearchScreen> {
                             children: [
                               Text(
                                 dateWiseTransaction[index]
-                                            .transactions![index1]
-                                            .transaction_type ==
-                                        AppConstanst.spendingTransaction
-                                    ? "-\u20B9${dateWiseTransaction[index].transactions![index1].amount!}"
-                                    : "+\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
-                                style: const TextStyle(
-                                    color: Colors.white,
+                                    .transactions![index1]
+                                    .transaction_type ==
+                                    AppConstanst.spendingTransaction
+                                    ? "-\u20B9${dateWiseTransaction[index]
+                                    .transactions![index1].amount!}"
+                                    : "+\u20B9${dateWiseTransaction[index]
+                                    .transactions![index1].amount!}",
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context),
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                "${dateWiseTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                "${dateWiseTransaction[index]
+                                    .transactions![index1].payment_method_id ==
+                                    AppConstanst.cashPaymentType
+                                    ? 'Cash'
+                                    : ''}/${dateWiseTransaction[index]
+                                    .transactions![index1].transaction_date!
+                                    .split(' ')[1]}",
+                                style: TextStyle(
+                                  color: Helper.getTextColor(context),
                                   fontSize: 14,
                                 ),
                               )
@@ -423,7 +507,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  _bottomSheetView(SearchBloc searchBloc) {
+  _bottomSheetView(SearchBloc searchBloc, StateSetter setState) {
     return Container(
         padding: const EdgeInsets.only(bottom: 10),
         color: Helper.getBackgroundColor(context),
@@ -437,10 +521,15 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: Row(
                   //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Clear filter",
-                      style: TextStyle(
-                          color: Helper.getTextColor(context), fontSize: 16),
+                    InkWell(
+                      onTap: () {
+                        clearSelection(setState);
+                      },
+                      child: Text(
+                        "Clear filter",
+                        style: TextStyle(
+                            color: Helper.getTextColor(context), fontSize: 16),
+                      ),
                     ),
                     Expanded(
                       child: Text(
@@ -454,7 +543,16 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.of(context).pop(false);
+                        if (showYear != "Select Year" &&
+                            selectedMonths.isNotEmpty &&
+                            selectedCategory.isNotEmpty) {
+                          getFilteredData(int.parse(showYear), selectedMonths,
+                              selectedCategory);
+                        } else {
+                          Helper.showToast("Please select proper details");
+                        }
+
+                        Navigator.pop(context);
                       },
                       child: const Text(
                         "Done",
@@ -474,284 +572,84 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
-                child: Text(
-                  "YEAR",
-                  style: TextStyle(
-                      color: Helper.getTextColor(context), fontSize: 14),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 50),
-                  decoration: const BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
-                  child: const Text(
-                    "2023",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                child: Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "YEAR",
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
+                          ),
+                          10.heightBox,
+                          InkWell(
+                            onTap: () {
+                              selectYear(context, setState);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 50),
+                              decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(5))),
+                              child: Text(
+                                showYear,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "MONTH(Can filter one or more)",
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
+                          ),
+                          10.heightBox,
+                          InkWell(
+                            onTap: () {
+                              selectMonth(context, setState);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 50),
+                              decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(5))),
+                              child: Text(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                showMonth,
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
                 ),
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
-                child: Text(
-                  "MONTH(Can filter by one or more)",
-                  style: TextStyle(
-                      color: Helper.getTextColor(context), fontSize: 14),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "January",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    10.widthBox,
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "February",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    10.widthBox,
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "March",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              10.heightBox,
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "April",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    10.widthBox,
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "May",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    10.widthBox,
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "June",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              10.heightBox,
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "July",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    10.widthBox,
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "August",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    10.widthBox,
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "September",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              10.heightBox,
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "October",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    10.widthBox,
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "November",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    10.widthBox,
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          "December",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Text(
                   "CATEGORY",
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                  style: TextStyle(
+                      color: Helper.getTextColor(context), fontSize: 14),
                 ),
               ),
               Padding(
@@ -761,24 +659,40 @@ class _SearchScreenState extends State<SearchScreen> {
                     crossAxisCount: 4,
                     crossAxisSpacing: 10.0,
                     mainAxisSpacing: 10.0,
-                    childAspectRatio: 2 / 1,
+                    childAspectRatio: 2.2 / 1,
                   ),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: categoryList.length,
+                  itemCount: gridItemList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: Helper.getCardColor(context),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(5))),
-                      child: Text(
-                        categoryList[index].catName!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Helper.getTextColor(context), fontSize: 14),
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          if (selectedCategoryIndex != -1) {
+                            gridItemList[selectedCategoryIndex].isSelected =
+                            false;
+                          }
+                          gridItemList[index].isSelected = true;
+                          selectedCategoryIndex = index;
+                          selectedCategory = gridItemList[index].text;
+                          print(
+                              'selected category ${gridItemList[index].text}');
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: gridItemList[index].isSelected
+                                ? Colors.blue
+                                : Helper.getCardColor(context),
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          gridItemList[index].text,
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 14),
+                        ),
                       ),
                     );
                   },
@@ -788,10 +702,119 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ));
   }
+
+  void clearSelection(StateSetter setState) {
+    setState(() {
+      for (var month in monthList) {
+        month.isSelected = false;
+      }
+      for (var item in gridItemList) {
+        item.isSelected = false;
+      }
+      selectedMonths.clear();
+      showYear = 'Select Year';
+    });
+  }
+
+  selectYear(context, StateSetter setState) async {
+    print("Calling date picker");
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Select Year"),
+          content: SizedBox(
+            width: 300,
+            height: 300,
+            child: YearPicker(
+              firstDate: DateTime(DateTime
+                  .now()
+                  .year - 10, 1),
+              lastDate: DateTime.now(),
+              //lastDate: DateTime(2025),
+              initialDate: DateTime.now(),
+              selectedDate: _selectedYear,
+              onChanged: (DateTime dateTime) {
+                print(dateTime.year);
+                setState(() {
+                  _selectedYear = dateTime;
+                  showYear = "${dateTime.year}";
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  selectMonth(context, StateSetter setState) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: const Text("Select Month"),
+            content: SizedBox(
+                width: 200,
+                height: 200,
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
+                    childAspectRatio: 2.2 / 1,
+                  ),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: monthList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      onTap: () {
+                        List<String> showMonthList = [];
+                        setState(() {
+                          monthList[index].isSelected =
+                          !monthList[index].isSelected;
+                          selectedMonths = monthList
+                              .where((month) => month.isSelected)
+                              .toList();
+                          for(var i in selectedMonths){
+                            showMonthList.add(i.text);
+                          }
+                          showMonth = showMonthList.join(", ");
+                          print('selected months ${selectedMonths.length}');
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: monthList[index].isSelected
+                                ? Colors.blue
+                                : Helper.getCardColor(context),
+                            borderRadius:
+                            const BorderRadius.all(Radius.circular(5))),
+                        child: Text(
+                          monthList[index].text,
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 14),
+                        ),
+                      ),
+                    );
+                  },
+                )),
+          );
+        });
+      },
+    );
+  }
 }
 
 class GridItem {
   final String text;
+  bool isSelected;
 
-  GridItem({required this.text});
+  GridItem({required this.text, this.isSelected = false});
 }

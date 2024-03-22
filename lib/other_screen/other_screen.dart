@@ -1,3 +1,4 @@
+
 import 'package:contacts_service/contacts_service.dart';
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
@@ -7,8 +8,8 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../utils/global.dart';
 import '../utils/my_shared_preferences.dart';
 import 'account_detail/account_detail_screen.dart';
@@ -375,8 +376,8 @@ class _OtherScreenState extends State<OtherScreen> {
                                       horizontal: 10),
                                   child: InkWell(
                                     onTap: () {
-                                      Navigator.push(context,
-                                          MaterialPageRoute(builder: (context)=> InviteFriendsScreen()));
+                                      requestContactPermission();
+
                                     },
                                     child: Row(
                                       children: [
@@ -668,6 +669,24 @@ class _OtherScreenState extends State<OtherScreen> {
         );
       },
     );
+  }
+
+  Future<void> requestContactPermission() async {
+      PermissionStatus status = await Permission.contacts.status;
+      if(!status.isGranted){
+        status = await Permission.contacts.request();
+      }
+      if (status.isGranted) {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context)=> InviteFriendsScreen()));
+      }
+      else if(status.isPermanentlyDenied){
+        openAppSettings();
+        Helper.showToast("Permission is permanently denied");
+      }
+      else{
+        Helper.showToast("Please allow to access contacts!!");
+      }
   }
 
 }
