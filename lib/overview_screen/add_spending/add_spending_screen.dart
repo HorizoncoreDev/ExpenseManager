@@ -380,6 +380,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       } else {
                         //   Helper.showLoading(context);
                         if (!isSkippedUser) {
+                          print("USER NOT SKIPPED $isSkippedUser");
                           await databaseHelper
                               .getProfileData(userEmail)
                               .then((value) async {
@@ -387,6 +388,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 context, value.id!, value.email!);
                           });
                         } else {
+                          print("USER SKIPPED $isSkippedUser");
                           createSpendingIncome(context, -1, "");
                         }
                       }

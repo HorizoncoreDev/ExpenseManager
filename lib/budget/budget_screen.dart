@@ -109,6 +109,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           Helper.showToast('Enter your budget');
                         } else {
                           if (!isSkippedUser) {
+                            print("NO skipped");
                             await DatabaseHelper.instance
                                 .getProfileData(userEmail)
                                 .then((profileData) async {
@@ -127,6 +128,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               );
                             });
                           } else {
+                            print("SKipped");
                             MySharedPreferences.instance.addStringToSF(
                                 SharedPreferencesKeys.skippedUserCurrentBalance,
                                 budgetController.text.toString());
