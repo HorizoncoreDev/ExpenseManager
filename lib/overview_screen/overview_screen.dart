@@ -100,7 +100,7 @@ class OverviewScreenState extends State<OverviewScreen> {
       }
     });
 
-    await DatabaseHelper.instance.fetchDataForYearMonthsAndCategory().then((value){
+    await DatabaseHelper.instance.fetchDataForYearMonthsAndCategory1().then((value){
       if(value.isNotEmpty){
         print('object.....${value.length}');
       }

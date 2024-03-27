@@ -1,6 +1,7 @@
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/add_spending_screen.dart';
+import 'package:expense_manager/statistics/search/CommonCategoryModel.dart';
 import 'package:expense_manager/statistics/search/search_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
@@ -32,19 +33,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   List<TransactionModel> spendingTransaction = [];
   List<TransactionModel> incomeTransaction = [];
-  List<GridItem> gridItemList = [
-    GridItem(text: 'Dine out'),
-    GridItem(text: 'Living'),
-    GridItem(text: 'Commuting'),
-    GridItem(text: 'Wear'),
-    GridItem(text: 'Enjoyment'),
-    GridItem(text: 'Child care'),
-    GridItem(text: 'Gift'),
-    GridItem(text: 'Housing'),
-    GridItem(text: 'Health'),
-    GridItem(text: 'Personal'),
-    GridItem(text: 'Other'),
-  ];
+  List<CommonCategoryModel> categoryList = [];
   List<MonthData> monthList = [
     MonthData(text: 'January'),
     MonthData(text: 'February'),
@@ -77,6 +66,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       getIncomeData();
     });
 
+    getCategories();
     super.initState();
   }
 
@@ -148,8 +138,25 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     });
   }
 
+  getCategories() async {
+    await DatabaseHelper.instance.categorys().then((value) {
+      if (value.isNotEmpty) {
+        for (var s in value) {
+          categoryList.add(CommonCategoryModel(catId: s.id, catName: s.name));
+        }
+      }
+    });
+    await DatabaseHelper.instance.getIncomeCategory().then((value) {
+      if (value.isNotEmpty) {
+        for (var s in value) {
+          categoryList.add(CommonCategoryModel(catId: s.id, catName: s.name));
+        }
+      }
+    });
+  }
+
   getFilteredData(int year, List<MonthData> months, String category) async {
-   /* if (isIncome == 1) {
+    if (isIncome == 1) {
       await DatabaseHelper.instance
           .fetchDataForYearMonthsAndCategory(
               year, months, category, AppConstanst.incomeTransaction)
@@ -170,12 +177,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         setState(() {
           if (value.isNotEmpty) {
             spendingTransaction = value;
+            print('query from alpesh $value');
           } else {
             Helper.showToast("Data not found");
           }
         });
       });
-    }*/
+    }
   }
 
   @override
@@ -435,8 +443,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Color(0xff30302d),
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                       child: Row(
                         children: [
@@ -629,8 +637,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 10),
-                      decoration: const BoxDecoration(
-                          color: Color(0xff30302d),
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                       child: Row(
                         children: [
@@ -804,13 +812,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         if (showYear != "Select Year" &&
                             selectedMonths.isNotEmpty &&
                             selectedCategory.isNotEmpty) {
-                          getFilteredData(int.parse(showYear), selectedMonths,
-                              selectedCategory);
+                          getFilteredData(int.parse(showYear), selectedMonths, selectedCategory);
+                          Navigator.pop(context);
                         } else {
-                          Helper.showToast("Please select proper details");
+                          Helper.showToast("Please ensure you select a year, month, and category to retrieve data");
                         }
-
-                        Navigator.pop(context);
                       },
                       child: const Text(
                         "Done",
@@ -851,7 +857,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 50),
+                                  vertical: 5, horizontal: 20),
                               decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   borderRadius:
@@ -865,11 +871,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                         ],
                       ),
+                      10.widthBox,
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "MONTH(Can filter by one or more)",
+                            "MONTH (Can filter by one or more)",
                             style: TextStyle(
                                 color: Helper.getTextColor(context),
                                 fontSize: 14),
@@ -881,7 +888,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 50),
+                                  vertical: 5, horizontal: 20),
                               decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   borderRadius:
@@ -919,35 +926,38 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   ),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: gridItemList.length,
+                  itemCount: categoryList.length,
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
                       onTap: () {
                         setState(() {
                           if (selectedCategoryIndex != -1) {
-                            gridItemList[selectedCategoryIndex].isSelected =
+                            categoryList[selectedCategoryIndex].isSelected =
                                 false;
                           }
-                          gridItemList[index].isSelected = true;
+                          categoryList[index].isSelected = true;
                           selectedCategoryIndex = index;
-                          selectedCategory = gridItemList[index].text;
-                          print(
-                              'selected category ${gridItemList[index].text}');
+                          selectedCategory = categoryList[index].catName ?? "";
                         });
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                            color: gridItemList[index].isSelected
+                            color: categoryList[index].isSelected
                                 ? Colors.blue
                                 : Helper.getCardColor(context),
                             borderRadius: BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          gridItemList[index].text,
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 14),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Text(
+                            categoryList[index].catName ?? "",
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
+                          ),
                         ),
                       ),
                     );
@@ -964,11 +974,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       for (var month in monthList) {
         month.isSelected = false;
       }
-      for (var item in gridItemList) {
+      for (var item in categoryList) {
         item.isSelected = false;
       }
       selectedMonths.clear();
       showYear = 'Select Year';
+      showMonth = 'Select Month';
     });
   }
 
@@ -1209,7 +1220,16 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           selectedMonths = monthList
                               .where((month) => month.isSelected)
                               .toList();
-                          print('selected months ${selectedMonths.length}');
+                          String selectedMonthsString = selectedMonths
+                              .take(
+                                  2) // Take only the first two selected months
+                              .map((month) => month.text)
+                              .join(", "); // Join the names with commas
+                          if (selectedMonthsString.length > 2) {
+                            selectedMonthsString += ", ..";
+                          }
+                          showMonth = selectedMonthsString;
+                          Navigator.pop(context);
                         });
                       },
                       child: Container(
@@ -1236,13 +1256,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       },
     );
   }
-}
-
-class GridItem {
-  final String text;
-  bool isSelected;
-
-  GridItem({required this.text, this.isSelected = false});
 }
 
 class MonthData {
