@@ -48,7 +48,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     MonthData(text: 'December'),
   ];
   List<MonthData> selectedMonths = [];
-  String selectedCategory = "";
+  late int selectedCategory;
   int selectedCategoryIndex = -1;
   int isIncome = 0;
 
@@ -81,20 +81,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         spendingTransaction = value;
         for (var item in spendingTransaction) {
           totalAmount += item.amount ?? 0;
-          // Split the date string into its components
-          List<String> dateTimeComponents = item.transaction_date!.split(' ');
-          List<String> dateComponents = dateTimeComponents[0].split('/');
-          List<String> timeComponents = dateTimeComponents[1].split(':');
-
-          // Extract individual components
-          int day = int.parse(dateComponents[0]);
-          int month = int.parse(dateComponents[1]);
-          int year = int.parse(dateComponents[2]);
-          int hour = int.parse(timeComponents[0]);
-          int minute = int.parse(timeComponents[1]);
-
-          final originalDate = DateTime(year, month, day, hour, minute);
-          mDate = DateFormat('MMMM/yyyy').format(originalDate);
+          mDate = getMonth(item.transaction_date!)!;
         }
       });
     });
@@ -109,23 +96,27 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         incomeTransaction = value;
         for (var item in incomeTransaction) {
           totalIncomeAmount += item.amount ?? 0;
-          // Split the date string into its components
-          List<String> dateTimeComponents = item.transaction_date!.split(' ');
-          List<String> dateComponents = dateTimeComponents[0].split('/');
-          List<String> timeComponents = dateTimeComponents[1].split(':');
-
-          // Extract individual components
-          int day = int.parse(dateComponents[0]);
-          int month = int.parse(dateComponents[1]);
-          int year = int.parse(dateComponents[2]);
-          int hour = int.parse(timeComponents[0]);
-          int minute = int.parse(timeComponents[1]);
-
-          final originalDate = DateTime(year, month, day, hour, minute);
-          mDate = DateFormat('MMMM/yyyy').format(originalDate);
+          mDate = getMonth(item.transaction_date!)!;
         }
       });
     });
+  }
+
+  String? getMonth(String date){
+
+    List<String> dateTimeComponents = date.split(' ');
+    List<String> dateComponents = dateTimeComponents[0].split('/');
+    List<String> timeComponents = dateTimeComponents[1].split(':');
+
+    // Extract individual components
+    int day = int.parse(dateComponents[0]);
+    int month = int.parse(dateComponents[1]);
+    int year = int.parse(dateComponents[2]);
+    int hour = int.parse(timeComponents[0]);
+    int minute = int.parse(timeComponents[1]);
+
+    final originalDate = DateTime(year, month, day, hour, minute);
+    return DateFormat('MMMM/yyyy').format(originalDate);
   }
 
   getCategories() async {
@@ -153,7 +144,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
+            totalIncomeAmount = 0;
             incomeTransaction = value;
+            for (var item in incomeTransaction) {
+              totalIncomeAmount += item.amount ?? 0;
+              mDate = getMonth(item.transaction_date!)!;
+            }
           } else {
             Helper.showToast("Data not found");
           }
@@ -166,8 +162,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
+            totalAmount = 0;
             spendingTransaction = value;
-            print('query from alpesh $value');
+            for (var item in spendingTransaction) {
+              totalAmount += item.amount ?? 0;
+              mDate = getMonth(item.transaction_date!)!;
+            }
           } else {
             Helper.showToast("Data not found");
           }
@@ -802,8 +802,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       onTap: () {
                         if (showYear != "Select Year" &&
                             selectedMonths.isNotEmpty &&
-                            selectedCategory.isNotEmpty) {
-                          getFilteredData(int.parse(showYear), selectedMonths, selectedCategory);
+                            selectedCategory != null) {
+                          print("categoryId....$selectedCategory");
+                          getFilteredData(int.parse(showYear), selectedMonths, selectedCategory.toString());
                           Navigator.pop(context);
                         } else {
                           Helper.showToast("Please ensure you select a year, month, and category to retrieve data");
@@ -928,7 +929,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           }
                           categoryList[index].isSelected = true;
                           selectedCategoryIndex = index;
-                          selectedCategory = categoryList[index].catName ?? "";
+                          selectedCategory = categoryList[index].catId!;
+                          print("selected cat name ${categoryList[index].catName} and Id ${categoryList[index].catId}");
                         });
                       },
                       child: Container(

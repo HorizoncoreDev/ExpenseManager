@@ -392,9 +392,8 @@ class DatabaseHelper {
   Future<List<TransactionModel>> fetchDataForYearMonthsAndCategory(int year,
       List<MonthData> months, String category, int transactionType) async {
     Database db = await database;
+
     String query = '''SELECT * FROM $transaction_table WHERE ''';
-    /*   List<int?> selectedMonthNumbers =
-        months.map((monthData) => monthNameToNumber[monthData.text]).toList();*/
 
     List<int> selectedMonthNumbers = months
         .map((monthData) => monthNameToNumber[monthData.text])
@@ -409,33 +408,33 @@ class DatabaseHelper {
     }
 
     query += conditions.join(' OR '); // Combine conditions using OR operator
-    query +=
-    '''
-  AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? 
+    query += '''
+  AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ?
+  AND transaction_type = ?
+  AND (
+         (transaction_type = 1 AND expense_cat_id = ?)
+         OR
+         (transaction_type = 2 AND income_cat_id = ?)
+      )
   ORDER BY ${TransactionFields.transaction_date} DESC
 ''';
 
-
-    print('query from alpesh $query');
-    // Construct the where clause and where arguments
-    /*  String whereClause = "strftime('%Y', transaction_date) = ? AND ";
-    whereClause += '(${selectedMonthNumbers
-            .map((month) =>
-                'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?')
-            .join(' OR ')}) AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ';
-    whereClause += "cat_name = ? AND ";
-    whereClause += "transaction_type = ?";*/
-
     List<dynamic> whereArgs = [
       ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
+      year.toString(),
+      transactionType,
+      category
     ];
-    print('query from alpesh ${whereArgs.toString()}');
+
+    print("Query.....$query");
+    print("Query whereArgs.....${whereArgs.toString()}");
+
     try {
       List<Map<String, dynamic>> result = await db.rawQuery(
         query,
         whereArgs,
       );
-
+      print("Query result.....${result.toString()}");
       return List.generate(
           result.length, (index) => TransactionModel.fromMap(result[index]));
     } catch (e) {
@@ -444,7 +443,6 @@ class DatabaseHelper {
     }
   }
 
-// Helper function to get the month number from month name
   final Map<String, int> monthNameToNumber = {
     'January': 1,
     'February': 2,
