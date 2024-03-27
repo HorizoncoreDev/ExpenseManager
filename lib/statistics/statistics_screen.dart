@@ -1126,7 +1126,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           ),
           barWidth: 5,
           isStrokeCapRound: true,
-          dotData: FlDotData(
+          dotData: const FlDotData(
             show: false,
           ),
           belowBarData: BarAreaData(

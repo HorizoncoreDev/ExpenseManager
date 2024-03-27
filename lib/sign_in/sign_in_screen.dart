@@ -335,4 +335,5 @@ class _SignInScreenState extends State<SignInScreen> {
       Helper.showToast("some error occured $e");
     }
   }
+
 }

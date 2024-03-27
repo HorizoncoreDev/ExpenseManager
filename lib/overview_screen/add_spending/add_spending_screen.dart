@@ -180,10 +180,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
           member_id: id,
           member_email: email,
           amount: int.parse(amountController.text),
-          expense_cat_id: selectedSpendingIndex,
-          sub_expense_cat_id: selectedSpendingSubIndex,
-          income_cat_id: selectedIncomeIndex,
-          sub_income_cat_id: selectedIncomeSubIndex,
+          expense_cat_id: categories[selectedSpendingIndex].id,
+          sub_expense_cat_id: spendingSubCategories[selectedSpendingSubIndex].id,
+          income_cat_id:selectedValue == AppConstanst.incomeTransactionName? incomeCategories[selectedIncomeIndex].id:-1,
+          sub_income_cat_id:selectedValue == AppConstanst.incomeTransactionName? incomeSubCategories[selectedIncomeSubIndex].id:-1,
           cat_name: selectedValue == AppConstanst.spendingTransactionName
               ? selectedSpendingSubIndex != -1
                   ? spendingSubCategories[selectedSpendingSubIndex].name

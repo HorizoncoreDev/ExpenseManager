@@ -371,7 +371,11 @@ class DatabaseHelper {
     final List<Map<String, dynamic>> result = await db.query(
       transaction_table,
       where:
-          'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ? AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.transaction_type} = ? AND ${TransactionFields.member_email} = ?',
+          'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?'
+              ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) =?'
+              ' AND ${TransactionFields.transaction_type} = ?'
+      ' AND ${TransactionFields.member_email} = ?',
+
       whereArgs: [
         (currentMonth.toString().padLeft(2, '0')),
         (currentYear.toString()),
@@ -401,13 +405,11 @@ class DatabaseHelper {
     'December': 12,
   };
 
-  Future<List<TransactionModel>> fetchDataForYearMonthsAndCategory1() async {
+
+  Future<List<TransactionModel>> fetchAllDataForYearMonthsAndCategory(String year,
+      List<MonthData> months, int expenseCatId,int incomeCatId,String email) async {
     Database db = await database;
     String query = '''SELECT * FROM $transaction_table WHERE ''';
-
-    List<MonthData> months = [];
-    months.add(new MonthData(text: 'March'));
-    months.add(new MonthData(text: 'February'));
 
     List<int> selectedMonthNumbers = months
         .map((monthData) => monthNameToNumber[monthData.text])
@@ -425,23 +427,20 @@ class DatabaseHelper {
     query +=
     '''
   AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? 
+   AND ${TransactionFields.expense_cat_id} = ?
+   AND ${TransactionFields.income_cat_id} = ?
+   AND ${TransactionFields.member_email} = ?
   ORDER BY ${TransactionFields.transaction_date} DESC
 ''';
 
-    // Construct the where clause and where arguments
-    /*  String whereClause = "strftime('%Y', transaction_date) = ? AND ";
-    whereClause += '(${selectedMonthNumbers
-            .map((month) =>
-                'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?')
-            .join(' OR ')}) AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ';
-    whereClause += "cat_name = ? AND ";
-    whereClause += "transaction_type = ?";*/
-
     List<dynamic> whereArgs = [
       ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
+      year,
+      expenseCatId,
+      incomeCatId,
+      email
     ];
-
-    print('object....$query....${whereArgs.toString()}');
+    print('object....${whereArgs}');
     try {
       List<Map<String, dynamic>> result = await db.rawQuery(
         query,
@@ -496,7 +495,6 @@ class DatabaseHelper {
       year.toString(),
       transactionType
     ];
-print('object...$query...${whereArgs}');
     try {
       List<Map<String, dynamic>> result = await db.rawQuery(
         query,
