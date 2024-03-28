@@ -25,6 +25,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+
   SearchBloc searchBloc = SearchBloc();
   String userEmail = "";
   TextEditingController searchController = TextEditingController();
@@ -55,6 +56,8 @@ class _SearchScreenState extends State<SearchScreen> {
   List<MonthData> selectedMonths = [];
   String selectedCategory = "";
   int selectedCategoryIndex = -1;
+
+  bool isFilterCleared = false;
 
   @override
   void initState() {
@@ -93,21 +96,23 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  getFilteredData() async {
+  getFilteredData(String value) async {
     int expenseCatId = -1;
     int incomeCatId = -1;
-    if (categoryList[selectedCategoryIndex].catType ==
-        AppConstanst.incomeTransaction) {
-      incomeCatId = categoryList[selectedCategoryIndex].catId!;
-    } else {
-      expenseCatId = categoryList[selectedCategoryIndex].catId!;
+    if(selectedCategoryIndex!=-1) {
+      if (categoryList[selectedCategoryIndex].catType ==
+          AppConstanst.incomeTransaction) {
+        incomeCatId = categoryList[selectedCategoryIndex].catId!;
+      } else {
+        expenseCatId = categoryList[selectedCategoryIndex].catId!;
+      }
     }
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
 
     await DatabaseHelper.instance
         .fetchAllDataForYearMonthsAndCategory(
-        showYear, selectedMonths, expenseCatId, incomeCatId, userEmail)
+        showYear, selectedMonths, expenseCatId, incomeCatId, userEmail,value)
         .then((value) {
         spendingTransaction = value;
         List<String> dates = [];
@@ -148,6 +153,7 @@ class _SearchScreenState extends State<SearchScreen> {
               transactionDay: Helper.getTransactionDay(date),
               transactions: newTransaction));
         }
+        print('object....${dates}');
         setState(() {});
     });
   }
@@ -223,7 +229,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                   10.widthBox,
-                  Padding(
+                  /*  Padding(
                     padding: const EdgeInsets.only(right: 15),
                     child: Container(
                       padding: const EdgeInsets.all(8),
@@ -235,7 +241,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         color: Colors.blue,
                       ),
                     ),
-                  )
+                  )*/
                 ],
               ),
               body: Container(
@@ -263,7 +269,12 @@ class _SearchScreenState extends State<SearchScreen> {
                             ? InkWell(
                                 onTap: () {
                                   searchController.clear();
-                                  getTransactions("");
+                                  if (showYear != "Select Year" &&
+                                  selectedMonths.isNotEmpty) {
+                                    getFilteredData("");
+                                  }else {
+                                    getTransactions("");
+                                  }
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.only(right: 10),
@@ -284,10 +295,20 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
-                            getTransactions(value);
+                            if (showYear != "Select Year" &&
+                                selectedMonths.isNotEmpty) {
+                              getFilteredData(value);
+                            } else {
+                              getTransactions(value);
+                            }
                           } else {
                             dateWiseTransaction = originalDateWiseTransaction;
-                            getTransactions("");
+                            if (showYear != "Select Year" &&
+                                selectedMonths.isNotEmpty) {
+                              getFilteredData("");
+                            }else {
+                              getTransactions("");
+                            }
                           }
                         },
                         validator: (value) {
@@ -561,13 +582,23 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.pop(context);
-                        if (showYear != "Select Year" &&
-                            selectedMonths.isNotEmpty &&
-                            selectedCategory.isNotEmpty) {
-                          getFilteredData();
-                        } else {
+                        if(isFilterCleared){
+                          Navigator.pop(context);
                           getTransactions("");
+                        }else {
+                          isFilterCleared = false;
+                          if (showYear != "Select Year" &&
+                              selectedMonths.isNotEmpty) {
+                            Navigator.pop(context);
+                            getFilteredData("");
+                          } else if (showYear == "Select Year" ||
+                              selectedMonths.isEmpty) {
+                            Helper.showToast(
+                                "Please ensure you select a year and month to retrieve data");
+                          } else {
+                            Navigator.pop(context);
+                            getTransactions("");
+                          }
                         }
                       },
                       child: const Text(
@@ -719,6 +750,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void clearSelection(StateSetter setState) {
     setState(() {
+      isFilterCleared = true;
       for (var month in monthList) {
         month.isSelected = false;
       }
@@ -846,4 +878,5 @@ class _SearchScreenState extends State<SearchScreen> {
       },
     );
   }
+
 }
