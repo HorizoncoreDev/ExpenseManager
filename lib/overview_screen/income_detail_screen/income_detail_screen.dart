@@ -944,7 +944,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
     dateWiseTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForYearMonthsAndCategory(
-        showYear, selectedMonths, categoryList[selectedCategoryIndex].catId!, -1, userEmail,AppConstanst.incomeTransaction)
+        showYear, selectedMonths, categoryList[selectedCategoryIndex].catId!, -1, userEmail,AppConstanst.incomeTransaction, searchController.text)
         .then((value) {
       incomeTransaction = value;
       List<String> dates = [];

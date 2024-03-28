@@ -159,7 +159,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     if (isIncome == 1) {
       await DatabaseHelper.instance
           .fetchDataForYearMonthsAndCategory(
-          showYear, selectedMonths, categoryList[selectedCategoryIndex].catId!,-1,"", AppConstanst.incomeTransaction)
+          showYear, selectedMonths, categoryList[selectedCategoryIndex].catId!,-1,"", AppConstanst.incomeTransaction,"")
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
@@ -172,7 +172,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     } else {
       await DatabaseHelper.instance
           .fetchDataForYearMonthsAndCategory(
-          showYear, selectedMonths, -1,categoryList[selectedCategoryIndex].catId!,"", AppConstanst.spendingTransaction)
+          showYear, selectedMonths, -1,categoryList[selectedCategoryIndex].catId!,"", AppConstanst.spendingTransaction,"")
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
