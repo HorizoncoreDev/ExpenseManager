@@ -155,11 +155,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     });
   }
 
-  getFilteredData(int year, List<MonthData> months, String category) async {
+  getFilteredData() async {
     if (isIncome == 1) {
       await DatabaseHelper.instance
           .fetchDataForYearMonthsAndCategory(
-              year, months, category, AppConstanst.incomeTransaction)
+          showYear, selectedMonths, categoryList[selectedCategoryIndex].catId!,-1,"", AppConstanst.incomeTransaction)
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
@@ -172,7 +172,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     } else {
       await DatabaseHelper.instance
           .fetchDataForYearMonthsAndCategory(
-              year, months, category, AppConstanst.spendingTransaction)
+          showYear, selectedMonths, -1,categoryList[selectedCategoryIndex].catId!,"", AppConstanst.spendingTransaction)
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
@@ -812,7 +812,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         if (showYear != "Select Year" &&
                             selectedMonths.isNotEmpty &&
                             selectedCategory.isNotEmpty) {
-                          getFilteredData(int.parse(showYear), selectedMonths, selectedCategory);
+                          getFilteredData();
                           Navigator.pop(context);
                         } else {
                           Helper.showToast("Please ensure you select a year, month, and category to retrieve data");

@@ -205,7 +205,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                         padding:
                                             MediaQuery.of(context).viewInsets,
                                         child: _bottomSheetView(
-                                            searchBloc, setState)));
+                                             setState)));
                               },
                             );
                           });
@@ -321,7 +321,7 @@ class _SearchScreenState extends State<SearchScreen> {
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(category.toLowerCase(), userEmail)
+        .getTransactionList(category.toLowerCase(), userEmail,-1)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -525,7 +525,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  _bottomSheetView(SearchBloc searchBloc, StateSetter setState) {
+  _bottomSheetView( StateSetter setState) {
     return Container(
         padding: const EdgeInsets.only(bottom: 10),
         color: Helper.getBackgroundColor(context),
@@ -711,6 +711,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   },
                 ),
               ),
+              15.heightBox
             ],
           ),
         ));
