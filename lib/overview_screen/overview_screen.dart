@@ -36,14 +36,20 @@ class OverviewScreenState extends State<OverviewScreen> {
   int currentBalance = 0;
   int currentIncome = 0;
   int actualBudget = 0;
-  int selectedTabIndex = 0;
   bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
   ProfileModel profileModel = ProfileModel();
 
   @override
   void initState() {
-    getTransactions();
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+      }
+      getTransactions();
+    });
     super.initState();
   }
 
@@ -85,29 +91,22 @@ class OverviewScreenState extends State<OverviewScreen> {
             }
           });
         } else {
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.userEmail)
-              .then((value) {
-            if (value != null) {
-              userEmail = value;
               getProfileData();
-            }
-          });
         }
       }
     });
 
+
     List<TransactionModel> spendingTransaction = [];
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction)
+        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,userEmail)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
 
       DateTime now = DateTime.now();
       String currentMonthName = DateFormat('MMMM').format(now);
-
       for (var t in spendingTransaction) {
         DateFormat format = DateFormat("dd/MM/yyyy");
         DateTime parsedDate = format.parse(t.transaction_date!);
@@ -117,7 +116,15 @@ class OverviewScreenState extends State<OverviewScreen> {
             dates.add(t.transaction_date!.split(' ')[0]);
           }
         }
+        if(!isSkippedUser) {
+          if (t.member_email == "" && t.member_id == -1) {
+            t.member_id = profileModel.id;
+            t.member_email = profileModel.email;
+            await databaseHelper.updateTransaction(t);
+          }
+        }
       }
+
       if (dates.isEmpty) {
         if (isSkippedUser) {
           MySharedPreferences.instance.addStringToSF(
@@ -306,7 +313,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "\u20B9${(selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
+                                          "\u20B9${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
                                           style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -370,7 +377,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 Tab(child: Text("Income")),
                               ],
                               onTap: (index) {
-                                selectedTabIndex = index;
+                                AppConstanst.selectedTabIndex = index;
                                 if (index == 0) {
                                   getTransactions();
                                 } else {
@@ -1049,7 +1056,7 @@ class OverviewScreenState extends State<OverviewScreen> {
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;
-      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
+      const shadows = [Shadow(color: Colors.black, blurRadius: 1)];
       switch (i) {
         case 0:
           return PieChartSectionData(
@@ -1059,8 +1066,7 @@ class OverviewScreenState extends State<OverviewScreen> {
             radius: radius,
             titleStyle: const TextStyle(
               fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
               shadows: shadows,
             ),
           );
@@ -1072,8 +1078,7 @@ class OverviewScreenState extends State<OverviewScreen> {
             radius: radius,
             titleStyle: const TextStyle(
               fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
               shadows: shadows,
             ),
           );
@@ -1087,11 +1092,11 @@ class OverviewScreenState extends State<OverviewScreen> {
   List<PieChartSectionData> showingIncomeSections() {
     double incomePercentage =
     currentIncome < actualBudget ? (currentIncome / actualBudget) * 100 : 100;
-    double remainingPercentage = currentIncome > 0 ? 100 - incomePercentage : 0;
+    double remainingPercentage = currentIncome > 0 ? 100 - incomePercentage : 100;
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;
-      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
+      const shadows = [Shadow(color: Colors.black, blurRadius: 1)];
       switch (i) {
         case 0:
           return PieChartSectionData(
@@ -1101,8 +1106,7 @@ class OverviewScreenState extends State<OverviewScreen> {
             radius: radius,
             titleStyle: const TextStyle(
               fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
               shadows: shadows,
             ),
           );
@@ -1114,8 +1118,7 @@ class OverviewScreenState extends State<OverviewScreen> {
             radius: radius,
             titleStyle: const TextStyle(
               fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
               shadows: shadows,
             ),
           );

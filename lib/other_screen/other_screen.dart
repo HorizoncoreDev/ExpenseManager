@@ -137,6 +137,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                     MySharedPreferences.instance.addBoolToSF(
                                         SharedPreferencesKeys.isSkippedUser,
                                         false);
+                                    AppConstanst.signInClicked++;
                                     Helper.showToast(
                                         "Kindly proceed with your sign-in.");
                                     Navigator.of(context, rootNavigator: true)

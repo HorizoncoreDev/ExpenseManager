@@ -1,10 +1,9 @@
+import 'package:expense_manager/dashboard/dashboard.dart';
 import 'package:expense_manager/sign_in/bloc/bloc.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -26,11 +25,9 @@ class _SignInScreenState extends State<SignInScreen> {
   SignInBloc signInBloc = SignInBloc();
 
   final FirebaseAuth auth = FirebaseAuth.instance;
-  final FacebookLogin facebookLogin = FacebookLogin();
 
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
-  late User? _user;
 
   @override
   Widget build(BuildContext context) {
@@ -186,11 +183,11 @@ class _SignInScreenState extends State<SignInScreen> {
                             onTap: () {
                               MySharedPreferences.instance.addBoolToSF(
                                   SharedPreferencesKeys.isSkippedUser, true);
-                              Navigator.push(
+                              Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const BudgetScreen()),
-                              );
+                                  (Route<dynamic> route) => false);
                             },
                             child: Text(
                               "Skip",
@@ -238,33 +235,100 @@ class _SignInScreenState extends State<SignInScreen> {
         User? user = result.user;
 
         if (user != null) {
-          setState(() {
-            _user = user;
-          });
           // Extracting first and last names from displayName
           List<String> names = user.displayName?.split(" ") ?? [];
           String firstName = names.isNotEmpty ? names[0] : "";
           String lastName = names.length > 1 ? names.last : "";
 
-          // Insert Profile Data
-          await databaseHelper.insertProfileData(
-            ProfileModel(
-                first_name: firstName,
-                last_name: lastName,
-                email: user.email ?? "",
-                full_name: user.displayName ?? "",
-                dob: "",
-                profile_image: "",
-                mobile_number: "",
-                current_balance: "0",
-                current_income: "0",
-                actual_budget: "0",
-                gender: ""),
-          );
-          MySharedPreferences.instance
-              .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => BudgetScreen()));
+          var currentBalance = "0";
+          var currentIncome = "0";
+          var currentActualBudget = "0";
+
+          if (AppConstanst.signInClicked == 1) {
+
+            AppConstanst.signInClicked = 0;
+            MySharedPreferences.instance.getStringValuesSF(
+                SharedPreferencesKeys.skippedUserCurrentBalance).then((value) {
+              currentBalance = value!;
+              MySharedPreferences.instance.getStringValuesSF(
+                  SharedPreferencesKeys.skippedUserCurrentIncome).then((value) {
+                currentIncome = value!;
+                MySharedPreferences.instance.getStringValuesSF(
+                    SharedPreferencesKeys.skippedUserActualBudget).then((value) async {
+                  currentActualBudget = value!;
+
+                  await databaseHelper.insertProfileData(
+                    ProfileModel(
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: user.email ?? "",
+                        full_name: user.displayName ?? "",
+                        dob: "",
+                        profile_image: "",
+                        mobile_number: "",
+                        current_balance: currentBalance,
+                        current_income: currentIncome,
+                        actual_budget: currentActualBudget,
+                        gender: ""),
+                  );
+
+                });
+              });
+            });
+
+
+
+
+            await DatabaseHelper.instance
+                .getTransactionList("", "",-1)
+                .then((value) async {
+
+              for (var t in value) {
+                    t.member_id = -1;
+                    t.member_email = user.email;
+                    await databaseHelper.updateTransaction(t);
+              }
+            });
+
+            MySharedPreferences.instance
+                .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
+            MySharedPreferences.instance.addStringToSF(
+                SharedPreferencesKeys.skippedUserCurrentBalance,
+                "0");
+            MySharedPreferences.instance.addStringToSF(
+                SharedPreferencesKeys.skippedUserCurrentIncome,
+                "0");
+            MySharedPreferences.instance.addStringToSF(
+                SharedPreferencesKeys.skippedUserActualBudget,
+                "0");
+
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const DashBoard()), (
+                Route<dynamic> route) => false);
+          } else {
+            // Insert Profile Data
+            await databaseHelper.insertProfileData(
+              ProfileModel(
+                  first_name: firstName,
+                  last_name: lastName,
+                  email: user.email ?? "",
+                  full_name: user.displayName ?? "",
+                  dob: "",
+                  profile_image: "",
+                  mobile_number: "",
+                  current_balance: "0",
+                  current_income: "0",
+                  actual_budget: "0",
+                  gender: ""),
+            );
+            MySharedPreferences.instance
+                .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const BudgetScreen()), (
+                Route<dynamic> route) => false);
+          }
         }
       }
     } catch (e) {
@@ -272,29 +336,4 @@ class _SignInScreenState extends State<SignInScreen> {
     }
   }
 
-  /*Future<UserCredential> signInWithFacebook() async {
-    try {
-      final LoginResult loginResult = await FacebookAuth.instance.login();
-
-      if (loginResult.status == LoginStatus.success) {
-        final AccessToken accessToken = loginResult.accessToken!;
-        final OAuthCredential credential =
-            FacebookAuthProvider.credential(accessToken.token);
-        return await FirebaseAuth.instance.signInWithCredential(credential);
-      } else {
-        throw FirebaseAuthException(
-          code: 'Facebook Login Failed',
-          message: 'The Facebook login was not successful.',
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      // Handle Firebase authentication exceptions
-      print('Firebase Auth Exception: ${e.message}');
-      throw e; // rethrow the exception
-    } catch (e) {
-      // Handle other exceptions
-      print('Other Exception: $e');
-      throw e; // rethrow the exception
-    }
-  }*/
 }

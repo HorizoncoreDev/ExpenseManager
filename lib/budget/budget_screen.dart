@@ -121,14 +121,13 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   .updateProfileData(profileData);
                               MySharedPreferences.instance.addBoolToSF(
                                   SharedPreferencesKeys.isBudgetAdded, true);
-                              Navigator.push(
+                              Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const DashBoard()),
-                              );
+                                      (Route<dynamic> route) => false);
                             });
                           } else {
-                            print("SKipped");
                             MySharedPreferences.instance.addStringToSF(
                                 SharedPreferencesKeys.skippedUserCurrentBalance,
                                 budgetController.text.toString());
@@ -140,11 +139,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 budgetController.text.toString());
                             MySharedPreferences.instance.addBoolToSF(
                                 SharedPreferencesKeys.isBudgetAdded, true);
-                            Navigator.push(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => const DashBoard()),
-                            );
+                                    (Route<dynamic> route) => false);
                           }
                         }
                         //budgetBloc.add(BudgetDoneEvent(budgetController.text));

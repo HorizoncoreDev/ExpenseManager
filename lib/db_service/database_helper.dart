@@ -182,6 +182,7 @@ class DatabaseHelper {
         whereArgs: [profileModel.email]);
   }
 
+
   // A method that retrieves Profile Data from the Profile table.
   Future<List<ProfileModel>> getProfileDataList() async {
     Database db = await database;
@@ -340,6 +341,13 @@ class DatabaseHelper {
         maps.length, (index) => TransactionModel.fromMap(maps[index]));
   }
 
+  Future<void> updateTransaction(TransactionModel transactionModel) async {
+    final db = await database;
+    await db.update(transaction_table, transactionModel.toMap(),
+        where: '${TransactionFields.id} = ?',
+        whereArgs: [transactionModel.id]);
+  }
+
   Future<List<TransactionModel>> getTransactions(int transactionType) async {
     Database db = await database;
 
@@ -353,7 +361,7 @@ class DatabaseHelper {
 
   //Get transaction data for current month
   Future<List<TransactionModel>> fetchDataForCurrentMonth(
-      int transactionType) async {
+      int transactionType,String email) async {
     Database db = await database;
     // Get the current month and year
     DateTime now = DateTime.now();
@@ -363,13 +371,16 @@ class DatabaseHelper {
     final List<Map<String, dynamic>> result = await db.query(
       transaction_table,
       where:
-          'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = '
-              '? AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) ='
-              ' ? AND ${TransactionFields.transaction_type} = ?',
+          'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?'
+              ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) =?'
+              ' AND ${TransactionFields.transaction_type} = ?'
+      ' AND ${TransactionFields.member_email} = ?',
+
       whereArgs: [
         (currentMonth.toString().padLeft(2, '0')),
         (currentYear.toString()),
         transactionType,
+        email,
       ],
       orderBy: '${TransactionFields.transaction_date} DESC',
     );
@@ -378,46 +389,124 @@ class DatabaseHelper {
         result.length, (index) => TransactionModel.fromMap(result[index]));
   }
 
-  Future<List<TransactionModel>> fetchDataForYearMonthsAndCategory(int year,
-      List<MonthData> months, String category, int transactionType) async {
-    Database db = await database;
 
-    List<String> selectedMonthNames = months
-        .where((monthData) => monthData.isSelected)
-        .map((monthData) => monthData.text)
+  final Map<String, int> monthNameToNumber = {
+    'January': 1,
+    'February': 2,
+    'March': 3,
+    'April': 4,
+    'May': 5,
+    'June': 6,
+    'July': 7,
+    'August': 8,
+    'September': 9,
+    'October': 10,
+    'November': 11,
+    'December': 12,
+  };
+
+
+  Future<List<TransactionModel>> fetchAllDataForYearMonthsAndCategory(String year,
+      List<MonthData> months, int expenseCatId,int incomeCatId,String email) async {
+    Database db = await database;
+    String query = '''SELECT * FROM $transaction_table WHERE ''';
+
+    List<int> selectedMonthNumbers = months
+        .map((monthData) => monthNameToNumber[monthData.text])
+        .where((monthNumber) => monthNumber != null)
+        .map((monthNumber) => monthNumber!)
         .toList();
 
-    // Construct a list of LIKE expressions for each selected month
-    List<String> monthFilters =
-        selectedMonthNames.map((monthName) => '%-$monthName-%').toList();
-    String combinedMonthFilter = '(${monthFilters.join(' OR ')})';
+    List<String> conditions = [];
 
-    // Prepare the SQL statement with parameter binding
-    /* String sql = '''
-    SELECT *
-    FROM $transaction_table
-    WHERE ${TransactionFields.transaction_date} LIKE ?
-      AND ${TransactionFields.transaction_type} = ?
-      AND ${TransactionFields.cat_name} = ?
-    ORDER BY ${TransactionFields.transaction_date} DESC
-  ''';*/
+    for (int month in selectedMonthNumbers) {
+      conditions.add('SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?');
+    }
 
-    // Execute the query with prepared arguments
-    List<Map<String, dynamic>> result = await db.query(
-      transaction_table,
-      whereArgs: [
-        '$year-$combinedMonthFilter',
-        transactionType,
-        category,
-      ],
-    );
+    query += conditions.join(' OR '); // Combine conditions using OR operator
+    query +=
+    '''
+  AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? 
+   AND ${TransactionFields.expense_cat_id} = ?
+   AND ${TransactionFields.income_cat_id} = ?
+   AND ${TransactionFields.member_email} = ?
+  ORDER BY ${TransactionFields.transaction_date} DESC
+''';
 
-    // Convert results to TransactionModel objects
-    return List.generate(
-        result.length, (index) => TransactionModel.fromMap(result[index]));
+    List<dynamic> whereArgs = [
+      ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
+      year,
+      expenseCatId,
+      incomeCatId,
+      email
+    ];
+    print('object....${whereArgs}');
+    try {
+      List<Map<String, dynamic>> result = await db.rawQuery(
+        query,
+        whereArgs,
+      );
+
+      return List.generate(
+          result.length, (index) => TransactionModel.fromMap(result[index]));
+    } catch (e) {
+      print('Error fetching data: $e');
+      return [];
+    }
   }
 
-  Future<List<TransactionModel>> getTransactionList(String category) async {
+  Future<List<TransactionModel>> fetchDataForYearMonthsAndCategory(String year,
+  List<MonthData> months, int expenseCatId,int incomeCatId,String email, int transactionType) async {
+    Database db = await database;
+    String query = '''SELECT * FROM $transaction_table WHERE ''';
+
+    List<int> selectedMonthNumbers = months
+        .map((monthData) => monthNameToNumber[monthData.text])
+        .where((monthNumber) => monthNumber != null)
+        .map((monthNumber) => monthNumber!)
+        .toList();
+
+    List<String> conditions = [];
+
+    for (int month in selectedMonthNumbers) {
+      conditions.add('SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?');
+    }
+
+    query += conditions.join(' OR '); // Combine conditions using OR operator
+    query +=
+    '''
+  AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? 
+   AND ${TransactionFields.expense_cat_id} = ?
+   AND ${TransactionFields.income_cat_id} = ?
+   AND ${TransactionFields.member_email} = ?
+   AND ${TransactionFields.transaction_type} = ?
+  ORDER BY ${TransactionFields.transaction_date} DESC
+''';
+
+    List<dynamic> whereArgs = [
+      ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
+      year,
+      expenseCatId,
+      incomeCatId,
+      email,
+      transactionType
+    ];
+    print('object....${whereArgs}');
+    try {
+      List<Map<String, dynamic>> result = await db.rawQuery(
+        query,
+        whereArgs,
+      );
+
+      return List.generate(
+          result.length, (index) => TransactionModel.fromMap(result[index]));
+    } catch (e) {
+      print('Error fetching data: $e');
+      return [];
+    }
+  }
+
+  Future<List<TransactionModel>> getTransactionList(String category,String email,int transactionType) async {
     Database db = await database;
     // Get the current month and year
     DateTime now = DateTime.now();
@@ -426,25 +515,74 @@ class DatabaseHelper {
 
 
     List<Map<String, dynamic>> maps = [];
-    if (category.isNotEmpty) {
-      maps = await db.query(transaction_table,
-          where:
-              'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ? AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE',
-          whereArgs: [
-            (currentMonth.toString().padLeft(2, '0')),
-            (currentYear.toString()),
-            '%$category%', '%$category%'
-          ],
-          orderBy: '${TransactionFields.created_at} DESC');
-    } else {
-      maps = await db.query(transaction_table,
-          where:
-          'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ? AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ?',
-          whereArgs: [
-            (currentMonth.toString().padLeft(2, '0')),
-            (currentYear.toString()),
-          ],
-          orderBy: '${TransactionFields.created_at} DESC');
+    if(transactionType!=-1) {
+      if (category.isNotEmpty) {
+        maps = await db.query(transaction_table,
+            where:
+            'SUBSTR(${TransactionFields
+                .transaction_date}, 4, 2) = ? AND SUBSTR(${TransactionFields
+                .transaction_date}, 7, 4) = ? AND ${TransactionFields
+                .cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields
+                .description} LIKE ? COLLATE NOCASE AND ${TransactionFields
+                .member_email} = ?',
+            whereArgs: [
+              (currentMonth.toString().padLeft(2, '0')),
+              (currentYear.toString()),
+              '%$category%', '%$category%',
+              email
+            ],
+            orderBy: '${TransactionFields.created_at} DESC');
+      }
+      else {
+        maps = await db.query(transaction_table,
+            where:
+            'SUBSTR(${TransactionFields
+                .transaction_date}, 4, 2) = ? AND SUBSTR(${TransactionFields
+                .transaction_date}, 7, 4) = ? AND ${TransactionFields
+                .member_email} = ?',
+            whereArgs: [
+              (currentMonth.toString().padLeft(2, '0')),
+              (currentYear.toString()),
+              email
+            ],
+            orderBy: '${TransactionFields.created_at} DESC');
+      }
+    }else{
+      if (category.isNotEmpty) {
+        maps = await db.query(transaction_table,
+            where:
+            'SUBSTR(${TransactionFields
+                .transaction_date}, 4, 2) = ? AND SUBSTR(${TransactionFields
+                .transaction_date}, 7, 4) = ? AND ${TransactionFields
+                .cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields
+                .description} LIKE ? COLLATE NOCASE '
+                'AND ${TransactionFields.member_email} = ? '
+                'AND ${TransactionFields.transaction_type} = ?',
+            whereArgs: [
+              (currentMonth.toString().padLeft(2, '0')),
+              (currentYear.toString()),
+              '%$category%', '%$category%',
+              email,
+              transactionType
+            ],
+            orderBy: '${TransactionFields.created_at} DESC');
+      }
+      else {
+        maps = await db.query(transaction_table,
+            where:
+            'SUBSTR(${TransactionFields
+                .transaction_date}, 4, 2) = ? AND SUBSTR(${TransactionFields
+                .transaction_date}, 7, 4) = ? '
+                'AND ${TransactionFields.member_email} = ? '
+                'AND ${TransactionFields.transaction_type} = ?',
+            whereArgs: [
+              (currentMonth.toString().padLeft(2, '0')),
+              (currentYear.toString()),
+              email,
+              transactionType
+            ],
+            orderBy: '${TransactionFields.created_at} DESC');
+      }
     }
     return List.generate(
         maps.length, (index) => TransactionModel.fromMap(maps[index]));

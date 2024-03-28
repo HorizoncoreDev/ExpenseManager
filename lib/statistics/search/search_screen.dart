@@ -12,6 +12,7 @@ import '../../db_models/transaction_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../overview_screen/add_spending/DateWiseTransactionModel.dart';
 import '../../utils/global.dart';
+import '../../utils/my_shared_preferences.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import 'bloc/search_bloc.dart';
 import 'bloc/search_state.dart';
@@ -25,7 +26,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   SearchBloc searchBloc = SearchBloc();
-
+  String userEmail = "";
   TextEditingController searchController = TextEditingController();
   List<DateWiseTransactionModel> dateWiseTransaction = [];
   List<DateWiseTransactionModel> originalDateWiseTransaction = [];
@@ -36,19 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
   String showMonth = 'Select month';
   DateTime _selectedYear = DateTime.now();
   int isIncome = 0;
-  List<GridItem> gridItemList = [
-    GridItem(text: 'Dine out'),
-    GridItem(text: 'Living'),
-    GridItem(text: 'Commuting'),
-    GridItem(text: 'Wear'),
-    GridItem(text: 'Enjoyment'),
-    GridItem(text: 'Child care'),
-    GridItem(text: 'Gift'),
-    GridItem(text: 'Housing'),
-    GridItem(text: 'Health'),
-    GridItem(text: 'Personal'),
-    GridItem(text: 'Other'),
-  ];
+
   List<MonthData> monthList = [
     MonthData(text: 'January'),
     MonthData(text: 'February'),
@@ -69,7 +58,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void initState() {
-    getTransactions("");
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+      }
+      getTransactions("");
+    });
     getCategories();
     super.initState();
   }
@@ -78,47 +74,82 @@ class _SearchScreenState extends State<SearchScreen> {
     await DatabaseHelper.instance.categorys().then((value) {
       if (value.isNotEmpty) {
         for (var s in value) {
-          categoryList.add(CommonCategoryModel(catId: s.id, catName: s.name));
+          categoryList.add(CommonCategoryModel(
+              catId: s.id,
+              catName: s.name,
+              catType: AppConstanst.spendingTransaction));
         }
       }
     });
     await DatabaseHelper.instance.getIncomeCategory().then((value) {
       if (value.isNotEmpty) {
         for (var s in value) {
-          categoryList.add(CommonCategoryModel(catId: s.id, catName: s.name));
+          categoryList.add(CommonCategoryModel(
+              catId: s.id,
+              catName: s.name,
+              catType: AppConstanst.incomeTransaction));
         }
       }
     });
   }
 
-  getFilteredData(int year, List<MonthData> months, String category) async {
-    if (isIncome == 1) {
-      await DatabaseHelper.instance
-          .fetchDataForYearMonthsAndCategory(
-          year, months, category, AppConstanst.incomeTransaction)
-          .then((value) {
-        setState(() {
-          if (value.isNotEmpty) {
-            incomeTransaction = value;
-          } else {
-            Helper.showToast("Data not found");
-          }
-        });
-      });
+  getFilteredData() async {
+    int expenseCatId = -1;
+    int incomeCatId = -1;
+    if (categoryList[selectedCategoryIndex].catType ==
+        AppConstanst.incomeTransaction) {
+      incomeCatId = categoryList[selectedCategoryIndex].catId!;
     } else {
-      await DatabaseHelper.instance
-          .fetchDataForYearMonthsAndCategory(
-          year, months, category, AppConstanst.spendingTransaction)
-          .then((value) {
-        setState(() {
-          if (value.isNotEmpty) {
-            spendingTransaction = value;
-          } else {
-            Helper.showToast("Data not found");
-          }
-        });
-      });
+      expenseCatId = categoryList[selectedCategoryIndex].catId!;
     }
+    List<TransactionModel> spendingTransaction = [];
+    dateWiseTransaction = [];
+
+    await DatabaseHelper.instance
+        .fetchAllDataForYearMonthsAndCategory(
+        showYear, selectedMonths, expenseCatId, incomeCatId, userEmail)
+        .then((value) {
+        spendingTransaction = value;
+        List<String> dates = [];
+        for (var t in spendingTransaction) {
+            if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+              dates.add(t.transaction_date!.split(' ')[0]);
+            }
+        }
+        dates.sort((a, b) => b.compareTo(a));
+        for (var date in dates) {
+          int totalAmount = 0;
+          List<TransactionModel> newTransaction = [];
+          var incomeTransactionTotal = 0;
+          var spendingTransactionTotal = 0;
+          for (var t in spendingTransaction) {
+            if (date == t.transaction_date!.split(' ')[0]) {
+              newTransaction.add(t);
+              if (t.transaction_type == AppConstanst.incomeTransaction) {
+                incomeTransactionTotal = incomeTransactionTotal + t.amount!;
+              } else {
+                spendingTransactionTotal = spendingTransactionTotal + t.amount!;
+              }
+            } else {
+              DateWiseTransactionModel? found =
+                  dateWiseTransaction.firstWhereOrNull((element) =>
+                      element.transactionDate!.split(' ')[0] == date);
+              if (found == null) {
+                continue;
+              } else {
+                break;
+              }
+            }
+          }
+          totalAmount = incomeTransactionTotal - spendingTransactionTotal;
+          dateWiseTransaction.add(DateWiseTransactionModel(
+              transactionDate: date,
+              transactionTotal: totalAmount,
+              transactionDay: Helper.getTransactionDay(date),
+              transactions: newTransaction));
+        }
+        setState(() {});
+    });
   }
 
   @override
@@ -171,12 +202,11 @@ class _SearchScreenState extends State<SearchScreen> {
                                       return true;
                                     },
                                     child: Padding(
-                                        padding: MediaQuery
-                                            .of(context)
-                                            .viewInsets,
-                                        child: _bottomSheetView(searchBloc, setState)));
+                                        padding:
+                                            MediaQuery.of(context).viewInsets,
+                                        child: _bottomSheetView(
+                                             setState)));
                               },
-
                             );
                           });
                     },
@@ -220,38 +250,38 @@ class _SearchScreenState extends State<SearchScreen> {
                     CustomBoxTextFormField(
                         controller: searchController,
                         borderRadius:
-                        const BorderRadius.all(Radius.circular(10)),
+                            const BorderRadius.all(Radius.circular(10)),
                         keyboardType: TextInputType.text,
                         hintText: "Search by category, note",
                         fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 10,
                         textStyle:
-                        TextStyle(color: Helper.getTextColor(context)),
+                            TextStyle(color: Helper.getTextColor(context)),
                         horizontalPadding: 5,
                         suffixIcon: searchController.text.isNotEmpty
                             ? InkWell(
-                          onTap: () {
-                            searchController.clear();
-                            getTransactions("");
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 10),
-                            child: Icon(
-                              Icons.close,
-                              size: 22,
-                              color: Helper.getTextColor(context),
-                            ),
-                          ),
-                        )
+                                onTap: () {
+                                  searchController.clear();
+                                  getTransactions("");
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 22,
+                                    color: Helper.getTextColor(context),
+                                  ),
+                                ),
+                              )
                             : const Padding(
-                          padding: EdgeInsets.only(right: 10),
-                          child: Icon(
-                            Icons.search,
-                            size: 22,
-                            color: Colors.grey,
-                          ),
-                        ),
+                                padding: EdgeInsets.only(right: 10),
+                                child: Icon(
+                                  Icons.search,
+                                  size: 22,
+                                  color: Colors.grey,
+                                ),
+                              ),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
                             getTransactions(value);
@@ -291,7 +321,7 @@ class _SearchScreenState extends State<SearchScreen> {
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(category.toLowerCase())
+        .getTransactionList(category.toLowerCase(), userEmail,-1)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -325,8 +355,8 @@ class _SearchScreenState extends State<SearchScreen> {
             }
           } else {
             DateWiseTransactionModel? found =
-            dateWiseTransaction.firstWhereOrNull((element) =>
-            element.transactionDate!.split(' ')[0] == date);
+                dateWiseTransaction.firstWhereOrNull((element) =>
+                    element.transactionDate!.split(' ')[0] == date);
             if (found == null) {
               continue;
             } else {
@@ -377,17 +407,13 @@ class _SearchScreenState extends State<SearchScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${dateWiseTransaction[index]
-                        .transactionDay}, ${dateWiseTransaction[index]
-                        .transactionDate}",
+                    "${dateWiseTransaction[index].transactionDay}, ${dateWiseTransaction[index].transactionDate}",
                     style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                   Text(
                     dateWiseTransaction[index].transactionTotal! < 0
-                        ? "-\u20B9${dateWiseTransaction[index].transactionTotal
-                        .toString().replaceAll("-", '')}"
-                        : '+\u20B9${dateWiseTransaction[index]
-                        .transactionTotal}',
+                        ? "-\u20B9${dateWiseTransaction[index].transactionTotal.toString().replaceAll("-", '')}"
+                        : '+\u20B9${dateWiseTransaction[index].transactionTotal}',
                     style: const TextStyle(color: Colors.pink, fontSize: 14),
                   ),
                 ],
@@ -403,7 +429,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                           color: Helper.getCardColor(context),
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10))),
                       child: Row(
                         children: [
                           Container(
@@ -411,10 +438,9 @@ class _SearchScreenState extends State<SearchScreen> {
                             decoration: const BoxDecoration(
                                 color: Colors.black,
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
+                                    BorderRadius.all(Radius.circular(10))),
                             child: SvgPicture.asset(
-                              'asset/images/${dateWiseTransaction[index]
-                                  .transactions![index1].cat_icon}.svg',
+                              'asset/images/${dateWiseTransaction[index].transactions![index1].cat_icon}.svg',
                               color: dateWiseTransaction[index]
                                   .transactions![index1]
                                   .cat_color,
@@ -438,17 +464,17 @@ class _SearchScreenState extends State<SearchScreen> {
                                 ),
                                 Text(
                                   (dateWiseTransaction[index]
-                                      .transactions![index1]
-                                      .description ==
-                                      null ||
-                                      dateWiseTransaction[index]
-                                          .transactions![index1]
-                                          .description!
-                                          .isEmpty)
+                                                  .transactions![index1]
+                                                  .description ==
+                                              null ||
+                                          dateWiseTransaction[index]
+                                              .transactions![index1]
+                                              .description!
+                                              .isEmpty)
                                       ? 'No note'
                                       : dateWiseTransaction[index]
-                                      .transactions![index1]
-                                      .description!,
+                                          .transactions![index1]
+                                          .description!,
                                   style: TextStyle(
                                     color: Helper.getTextColor(context),
                                     fontSize: 14,
@@ -462,26 +488,18 @@ class _SearchScreenState extends State<SearchScreen> {
                             children: [
                               Text(
                                 dateWiseTransaction[index]
-                                    .transactions![index1]
-                                    .transaction_type ==
-                                    AppConstanst.spendingTransaction
-                                    ? "-\u20B9${dateWiseTransaction[index]
-                                    .transactions![index1].amount!}"
-                                    : "+\u20B9${dateWiseTransaction[index]
-                                    .transactions![index1].amount!}",
+                                            .transactions![index1]
+                                            .transaction_type ==
+                                        AppConstanst.spendingTransaction
+                                    ? "-\u20B9${dateWiseTransaction[index].transactions![index1].amount!}"
+                                    : "+\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
                                 style: TextStyle(
                                     color: Helper.getTextColor(context),
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                "${dateWiseTransaction[index]
-                                    .transactions![index1].payment_method_id ==
-                                    AppConstanst.cashPaymentType
-                                    ? 'Cash'
-                                    : ''}/${dateWiseTransaction[index]
-                                    .transactions![index1].transaction_date!
-                                    .split(' ')[1]}",
+                                "${dateWiseTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
                                 style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 14,
@@ -507,7 +525,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  _bottomSheetView(SearchBloc searchBloc, StateSetter setState) {
+  _bottomSheetView( StateSetter setState) {
     return Container(
         padding: const EdgeInsets.only(bottom: 10),
         color: Helper.getBackgroundColor(context),
@@ -543,16 +561,14 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     InkWell(
                       onTap: () {
+                        Navigator.pop(context);
                         if (showYear != "Select Year" &&
                             selectedMonths.isNotEmpty &&
                             selectedCategory.isNotEmpty) {
-                          getFilteredData(int.parse(showYear), selectedMonths,
-                              selectedCategory);
+                          getFilteredData();
                         } else {
-                          Helper.showToast("Please select proper details");
+                          getTransactions("");
                         }
-
-                        Navigator.pop(context);
                       },
                       child: const Text(
                         "Done",
@@ -572,80 +588,77 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
-                child: Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "YEAR",
-                            style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 14),
-                          ),
-                          10.heightBox,
-                          InkWell(
-                            onTap: () {
-                              selectYear(context, setState);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 50),
-                              decoration: const BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
-                              child: Text(
-                                showYear,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "MONTH(Can filter one or more)",
-                            style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 14),
-                          ),
-                          10.heightBox,
-                          InkWell(
-                            onTap: () {
-                              selectMonth(context, setState);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 50),
-                              decoration: const BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
-                              child: Text(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                showMonth,
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "YEAR",
+                      style: TextStyle(
+                          color: Helper.getTextColor(context), fontSize: 14),
+                    ),
+                    15.widthBox,
+                    Text(
+                      "MONTH(Can filter one or more)",
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                          color: Helper.getTextColor(context), fontSize: 14),
+                    ),
+                  ],
                 ),
               ),
               Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          selectYear(context, setState);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 50),
+                          decoration: const BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(5))),
+                          child: Text(
+                            showYear,
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 16),
+                          ),
+                        ),
+                      ),
+                      15.widthBox,
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            selectMonth(context, setState);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 10),
+                            decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            child: Text(
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              showMonth,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+              Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Text(
                   "CATEGORY",
                   style: TextStyle(
@@ -659,36 +672,36 @@ class _SearchScreenState extends State<SearchScreen> {
                     crossAxisCount: 4,
                     crossAxisSpacing: 10.0,
                     mainAxisSpacing: 10.0,
-                    childAspectRatio: 2.2 / 1,
+                    childAspectRatio: 2,
                   ),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: gridItemList.length,
+                  itemCount: categoryList.length,
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
                       onTap: () {
                         setState(() {
                           if (selectedCategoryIndex != -1) {
-                            gridItemList[selectedCategoryIndex].isSelected =
-                            false;
+                            categoryList[selectedCategoryIndex].isSelected =
+                                false;
                           }
-                          gridItemList[index].isSelected = true;
+                          categoryList[index].isSelected = true;
                           selectedCategoryIndex = index;
-                          selectedCategory = gridItemList[index].text;
-                          print(
-                              'selected category ${gridItemList[index].text}');
+                          selectedCategory = categoryList[index].catName!;
                         });
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 5),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                            color: gridItemList[index].isSelected
+                            color: categoryList[index].isSelected
                                 ? Colors.blue
                                 : Helper.getCardColor(context),
-                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(5))),
                         child: Text(
-                          gridItemList[index].text,
+                          categoryList[index].catName!,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Helper.getTextColor(context),
                               fontSize: 14),
@@ -698,6 +711,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   },
                 ),
               ),
+              15.heightBox
             ],
           ),
         ));
@@ -708,11 +722,14 @@ class _SearchScreenState extends State<SearchScreen> {
       for (var month in monthList) {
         month.isSelected = false;
       }
-      for (var item in gridItemList) {
+      for (var item in categoryList) {
         item.isSelected = false;
       }
       selectedMonths.clear();
+      showMonth = 'Select Month';
       showYear = 'Select Year';
+      selectedCategoryIndex = -1;
+      selectedCategory = '';
     });
   }
 
@@ -727,15 +744,12 @@ class _SearchScreenState extends State<SearchScreen> {
             width: 300,
             height: 300,
             child: YearPicker(
-              firstDate: DateTime(DateTime
-                  .now()
-                  .year - 10, 1),
+              firstDate: DateTime(DateTime.now().year - 10, 1),
               lastDate: DateTime.now(),
               //lastDate: DateTime(2025),
               initialDate: DateTime.now(),
               selectedDate: _selectedYear,
               onChanged: (DateTime dateTime) {
-                print(dateTime.year);
                 setState(() {
                   _selectedYear = dateTime;
                   showYear = "${dateTime.year}";
@@ -753,68 +767,83 @@ class _SearchScreenState extends State<SearchScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setState) {
+        return StatefulBuilder(builder: (context, setState1) {
           return AlertDialog(
             title: const Text("Select Month"),
+            contentPadding:
+                const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
             content: SizedBox(
-                width: 200,
-                height: 200,
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
-                    childAspectRatio: 2.2 / 1,
-                  ),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: monthList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      onTap: () {
-                        List<String> showMonthList = [];
-                        setState(() {
-                          monthList[index].isSelected =
-                          !monthList[index].isSelected;
-                          selectedMonths = monthList
-                              .where((month) => month.isSelected)
-                              .toList();
-                          for(var i in selectedMonths){
-                            showMonthList.add(i.text);
-                          }
-                          showMonth = showMonthList.join(", ");
-                          print('selected months ${selectedMonths.length}');
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: monthList[index].isSelected
-                                ? Colors.blue
-                                : Helper.getCardColor(context),
-                            borderRadius:
-                            const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          monthList[index].text,
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 14),
+              width: double.maxFinite,
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 10.0,
+                      mainAxisSpacing: 10.0,
+                      childAspectRatio: 2.2 / 1,
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: monthList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          setState1(() {
+                            monthList[index].isSelected =
+                                !monthList[index].isSelected;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              color: monthList[index].isSelected
+                                  ? Colors.blue
+                                  : Colors.transparent,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5))),
+                          child: Text(
+                            monthList[index].text,
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                )),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    List<String> showMonthList = [];
+                    selectedMonths =
+                        monthList.where((month) => month.isSelected).toList();
+                    for (var i in selectedMonths) {
+                      showMonthList.add(i.text);
+                    }
+                    showMonth = showMonthList.join(", ");
+                    Navigator.pop(context);
+                  });
+                },
+                child: const Text(
+                  "Done",
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                ),
+              )
+            ],
           );
         });
       },
     );
   }
-}
-
-class GridItem {
-  final String text;
-  bool isSelected;
-
-  GridItem({required this.text, this.isSelected = false});
 }

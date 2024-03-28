@@ -14,6 +14,9 @@ abstract class AppConstanst {
   static const int incomeTransaction = 2;
   static const int cashPaymentType = 1;
   static const int rupeesCurrency = 1;
+  static int signInClicked = 0;
+  static int selectedTabIndex = 0;
+
   static const String priorityHigh = "High";
   static const String priorityMedium = "Medium";
   static const String priorityLow = "Low";
