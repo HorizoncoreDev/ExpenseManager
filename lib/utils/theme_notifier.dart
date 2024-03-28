@@ -23,8 +23,9 @@ class ThemeNotifier with ChangeNotifier {
       cardColor: const Color(0xff30302d),
       dividerColor: const Color(0xff30302d),
       canvasColor: Colors.blue,
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: const Color(0xff30302d),
+      disabledColor : Colors.amberAccent.shade100,
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(0xff30302d),
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.white60,
       ));
@@ -35,6 +36,7 @@ class ThemeNotifier with ChangeNotifier {
       brightness: Brightness.light,
       backgroundColor: Colors.white60,
       hintColor: Colors.black,
+      disabledColor: Colors.amberAccent.shade400,
       canvasColor: const Color(0xffdadae0),
       cardColor: const Color(0xffe4e5e9),
       dividerColor: const Color(0xffe4e5e9),

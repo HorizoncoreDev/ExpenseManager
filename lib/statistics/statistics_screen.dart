@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/add_spending_screen.dart';
@@ -12,8 +14,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mrx_charts/mrx_charts.dart';
 
 import '../other_screen/other_screen.dart';
+import '../utils/my_shared_preferences.dart';
 import 'bloc/statistics_bloc.dart';
 import 'bloc/statistics_state.dart';
 
@@ -49,13 +53,22 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   ];
   List<MonthData> selectedMonths = [];
   late int selectedCategory;
+  String selectedCategoryName = "";
   int selectedCategoryIndex = -1;
-  int isIncome = 0;
+  String userEmail = "";
 
   @override
   void initState() {
-    getTransactions();
-    getIncomeData();
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+      }
+      getTransactions();
+      getIncomeData();
+    });
+
     getCategories();
     super.initState();
   }
@@ -74,7 +87,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   getTransactions() async {
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction)
+        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction, userEmail)
         .then((value) {
       setState(() {
         totalAmount = 0;
@@ -89,7 +102,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   getIncomeData() async {
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction)
+        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction, userEmail)
         .then((value) {
       setState(() {
         totalIncomeAmount = 0;
@@ -102,8 +115,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     });
   }
 
-  String? getMonth(String date){
-
+  String? getMonth(String date) {
     List<String> dateTimeComponents = date.split(' ');
     List<String> dateComponents = dateTimeComponents[0].split('/');
     List<String> timeComponents = dateTimeComponents[1].split(':');
@@ -137,7 +149,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   getFilteredData(int year, List<MonthData> months, String category) async {
-    if (isIncome == 1) {
+    if (currPage == 2) {
       await DatabaseHelper.instance
           .fetchDataForYearMonthsAndCategory(
               year, months, category, AppConstanst.incomeTransaction)
@@ -151,6 +163,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               mDate = getMonth(item.transaction_date!)!;
             }
           } else {
+            getIncomeData();
             Helper.showToast("Data not found");
           }
         });
@@ -169,6 +182,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               mDate = getMonth(item.transaction_date!)!;
             }
           } else {
+            getTransactions();
             Helper.showToast("Data not found");
           }
         });
@@ -257,8 +271,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     padding: const EdgeInsets.only(right: 15),
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
+                        Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute(
                               builder: (context) => OtherScreen()),
                         );
@@ -330,7 +343,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                   onTap: () {
                                     setState(() {
                                       currPage = 2;
-                                      isIncome = 1;
                                     });
                                   },
                                   child: Container(
@@ -392,8 +404,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   top: 24,
                   bottom: 12,
                 ),
-                child: LineChart(
-                  mainData(),
+                child: Chart(
+                  layers: layers(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30.0).copyWith(
+                    bottom: 12.0,
+                  ),
                 ),
               ),
             ),
@@ -802,12 +818,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       onTap: () {
                         if (showYear != "Select Year" &&
                             selectedMonths.isNotEmpty &&
-                            selectedCategory != null) {
+                            selectedCategoryName.isNotEmpty) {
                           print("categoryId....$selectedCategory");
-                          getFilteredData(int.parse(showYear), selectedMonths, selectedCategory.toString());
+                          getFilteredData(int.parse(showYear), selectedMonths,
+                              selectedCategory.toString());
                           Navigator.pop(context);
                         } else {
-                          Helper.showToast("Please ensure you select a year, month, and category to retrieve data");
+                          Helper.showToast(
+                              "Please ensure you select a year, month, and category to retrieve data");
                         }
                       },
                       child: const Text(
@@ -829,75 +847,73 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
-                child: Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "YEAR",
+                      style: TextStyle(
+                          color: Helper.getTextColor(context), fontSize: 14),
+                    ),
+                    15.widthBox,
+                    Text(
+                      "MONTH(Can filter one or more)",
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                          color: Helper.getTextColor(context), fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "YEAR",
-                            style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 14),
+                      InkWell(
+                        onTap: () {
+                          selectYear(context, setState);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 50),
+                          decoration: const BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(5))),
+                          child: Text(
+                            showYear,
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 16),
                           ),
-                          10.heightBox,
-                          InkWell(
-                            onTap: () {
-                              selectYear(context);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 20),
-                              decoration: const BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              child: Text(
-                                showYear,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                      10.widthBox,
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "MONTH (Can filter by one or more)",
-                            style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 14),
-                          ),
-                          10.heightBox,
-                          InkWell(
-                            onTap: () {
-                              selectMonth(context);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 20),
-                              decoration: const BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              child: Text(
-                                showMonth,
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
+                      15.widthBox,
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            selectMonth(context, setState);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 10),
+                            decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            child: Text(
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              showMonth,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 16),
                             ),
                           ),
-                        ],
-                      )
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-              ),
+                  )),
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
@@ -914,7 +930,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     crossAxisCount: 4,
                     crossAxisSpacing: 10.0,
                     mainAxisSpacing: 10.0,
-                    childAspectRatio: 2.2 / 1,
+                    childAspectRatio: 2,
                   ),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -930,7 +946,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           categoryList[index].isSelected = true;
                           selectedCategoryIndex = index;
                           selectedCategory = categoryList[index].catId!;
-                          print("selected cat name ${categoryList[index].catName} and Id ${categoryList[index].catId}");
+                          selectedCategoryName = categoryList[index].catName!;
+                          print(
+                              "selected cat name $selectedCategoryName and Id $selectedCategory");
                         });
                       },
                       child: Container(
@@ -976,7 +994,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     });
   }
 
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+  /* Widget bottomTitleWidgets(double value, TitleMeta meta) {
     final style = TextStyle(
       color: Helper.getTextColor(context),
       fontSize: 12,
@@ -1028,6 +1046,26 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       axisSide: meta.axisSide,
       child: text,
     );
+  }*/
+
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    final style = TextStyle(
+      color: Helper.getTextColor(context),
+      fontSize: 12,
+    );
+    Widget text;
+
+    int dayOfMonth = value.toInt();
+    if (dayOfMonth % 2 != 0 && dayOfMonth >= 1 && dayOfMonth <= 31) {
+      text = Text('$dayOfMonth', style: style);
+    } else {
+      text = Text('', style: style);
+    }
+
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      child: text,
+    );
   }
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
@@ -1059,6 +1097,18 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         style: TextStyle(color: Helper.getTextColor(context)),
         textAlign: TextAlign.left);
   }
+
+  List<FlSpot> chartData = [
+    FlSpot(0, 1),
+    FlSpot(1, 3),
+    FlSpot(2, 1),
+    FlSpot(3, 7),
+    FlSpot(4, 1),
+    FlSpot(5, 1),
+    FlSpot(6, 1),
+    FlSpot(7, 1),
+    FlSpot(8, 0),
+  ];
 
   LineChartData mainData() {
     return LineChartData(
@@ -1104,22 +1154,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       maxY: 6,
       lineBarsData: [
         LineChartBarData(
-          spots: const [
-            FlSpot(0, 3),
-            FlSpot(2.6, 2),
-            FlSpot(4.9, 5),
-            FlSpot(6.8, 3.1),
-            FlSpot(8, 4),
-            FlSpot(9.5, 3),
-            FlSpot(11, 4),
-          ],
+          spots: chartData,
           isCurved: true,
           gradient: LinearGradient(
             colors: gradientColors,
           ),
           barWidth: 5,
           isStrokeCapRound: true,
-          dotData: FlDotData(
+          dotData: const FlDotData(
             show: false,
           ),
           belowBarData: BarAreaData(
@@ -1153,7 +1195,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     }
   }
 
-  selectYear(context) async {
+  selectYear(context, StateSetter setState) async {
     print("Calling date picker");
     showDialog(
       context: context,
@@ -1184,7 +1226,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  selectMonth(context) async {
+  selectMonth(context, StateSetter setState) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1249,7 +1291,181 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       },
     );
   }
+
+  /*List<ChartLayer> layers() {
+    final now = DateTime.now();
+    final from = DateTime(now.year, now.month, 1); // Start of current month
+    final to = DateTime(now.year, now.month + 1, 0); // End of current month
+
+    // Calculate number of weeks in the current month
+    final daysInMonth = to.day;
+    final weeksInMonth = ((daysInMonth - 1) / 7).ceil();
+
+    // Calculate frequency based on number of weeks
+    final frequency = daysInMonth / weeksInMonth;
+
+   *//* final from = DateTime(2021, 1);
+    final to = DateTime(2021, 12);
+    final frequency =
+        (to.millisecondsSinceEpoch - from.millisecondsSinceEpoch) / 12.0;*//*
+
+    return [
+      ChartHighlightLayer(
+        shape: () => ChartHighlightLineShape<ChartLineDataItem>(
+          backgroundColor: const Color(0xFF331B6D),
+          currentPos: (item) => item.currentValuePos,
+          radius: const BorderRadius.all(Radius.circular(8.0)),
+          width: 60.0,
+        ),
+      ),
+      ChartAxisLayer(
+        settings: ChartAxisSettings(
+          x: ChartAxisSettingsAxis(
+            frequency: frequency.toDouble(),
+            max: to.millisecondsSinceEpoch.toDouble(),
+            min: from.millisecondsSinceEpoch.toDouble(),
+            textStyle: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 10.0,
+            ),
+          ),
+          y: ChartAxisSettingsAxis(
+            frequency: 100.0,
+            max: 400.0,
+            min: 0.0,
+            textStyle: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 10.0,
+            ),
+          ),
+        ),
+        labelX: (value) => DateFormat('MMM')
+            .format(DateTime.fromMillisecondsSinceEpoch(value.toInt())),
+        labelY: (value) => value.toInt().toString(),
+      ),
+      ChartLineLayer(
+        items: List.generate(
+          4,
+          (index) => ChartLineDataItem(
+            x: (index * frequency.toDouble()) + from.millisecondsSinceEpoch,
+            value: Random().nextInt(380) + 20,
+          ),
+        ),
+        settings: const ChartLineSettings(
+          color: Color(0xFF8043F9),
+          thickness: 4.0,
+        ),
+      ),
+      ChartTooltipLayer(
+        shape: () => ChartTooltipLineShape<ChartLineDataItem>(
+          backgroundColor: Colors.white,
+          circleBackgroundColor: Colors.white,
+          circleBorderColor: const Color(0xFF331B6D),
+          circleSize: 4.0,
+          circleBorderThickness: 2.0,
+          currentPos: (item) => item.currentValuePos,
+          onTextValue: (item) => '€${item.value.toString()}',
+          marginBottom: 6.0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12.0,
+            vertical: 8.0,
+          ),
+          radius: 6.0,
+          textStyle: const TextStyle(
+            color: Color(0xFF8043F9),
+            letterSpacing: 0.2,
+            fontSize: 14.0,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    ];
+  }*/
+
+  List<ChartLayer> layers() {
+    final from = DateTime(2021, 1, 1);
+    final to = DateTime(2021, 12, 31);
+    final frequency = (to.difference(from).inDays) / 12.0;
+
+    return [
+      ChartHighlightLayer(
+        shape: () => ChartHighlightLineShape<ChartLineDataItem>(
+          backgroundColor: const Color(0xFF331B6D),
+          currentPos: (item) => item.currentValuePos,
+          radius: const BorderRadius.all(Radius.circular(8.0)),
+          width: 60.0,
+        ),
+      ),
+      ChartAxisLayer(
+        settings: ChartAxisSettings(
+          x: ChartAxisSettingsAxis(
+            frequency: frequency.toDouble(),
+            max: to.millisecondsSinceEpoch.toDouble(),
+            min: from.millisecondsSinceEpoch.toDouble(),
+            textStyle: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 10.0,
+            ),
+          ),
+          y: ChartAxisSettingsAxis(
+            frequency: 100.0,
+            max: 400.0,
+            min: 0.0,
+            textStyle: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 10.0,
+            ),
+          ),
+        ),
+        labelX: (value) =>
+            DateFormat('MMM').format(DateTime.fromMillisecondsSinceEpoch(value.toInt())),
+        labelY: (value) => value.toInt().toString(),
+      ),
+      ChartLineLayer(
+        items: List.generate(
+          4,
+              (index) => ChartLineDataItem(
+            x: (index * frequency.toDouble()) + from.millisecondsSinceEpoch,
+            value: Random().nextInt(380) + 20,
+          ),
+        ),
+        settings: const ChartLineSettings(
+          color: Color(0xFF8043F9),
+          thickness: 4.0,
+        ),
+      ),
+      ChartTooltipLayer(
+        shape: () => ChartTooltipLineShape<ChartLineDataItem>(
+          backgroundColor: Colors.white,
+          circleBackgroundColor: Colors.white,
+          circleBorderColor: const Color(0xFF331B6D),
+          circleSize: 4.0,
+          circleBorderThickness: 2.0,
+          currentPos: (item) => item.currentValuePos,
+          onTextValue: (item) => '€${item.value.toString()}',
+          marginBottom: 6.0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12.0,
+            vertical: 8.0,
+          ),
+          radius: 6.0,
+          textStyle: const TextStyle(
+            color: Color(0xFF8043F9),
+            letterSpacing: 0.2,
+            fontSize: 14.0,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    ];
+  }
+
+
+
+
+
 }
+
 
 class MonthData {
   final String text;

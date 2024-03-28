@@ -109,6 +109,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           Helper.showToast('Enter your budget');
                         } else {
                           if (!isSkippedUser) {
+                            print("NO skipped");
                             await DatabaseHelper.instance
                                 .getProfileData(userEmail)
                                 .then((profileData) async {
@@ -120,11 +121,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   .updateProfileData(profileData);
                               MySharedPreferences.instance.addBoolToSF(
                                   SharedPreferencesKeys.isBudgetAdded, true);
-                              Navigator.push(
+                              Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const DashBoard()),
-                              );
+                                      (Route<dynamic> route) => false);
                             });
                           } else {
                             MySharedPreferences.instance.addStringToSF(
@@ -138,11 +139,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 budgetController.text.toString());
                             MySharedPreferences.instance.addBoolToSF(
                                 SharedPreferencesKeys.isBudgetAdded, true);
-                            Navigator.push(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => const DashBoard()),
-                            );
+                                    (Route<dynamic> route) => false);
                           }
                         }
                         //budgetBloc.add(BudgetDoneEvent(budgetController.text));

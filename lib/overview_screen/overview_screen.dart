@@ -36,14 +36,22 @@ class OverviewScreenState extends State<OverviewScreen> {
   int currentBalance = 0;
   int currentIncome = 0;
   int actualBudget = 0;
-  int selectedTabIndex = 0;
   bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
   ProfileModel profileModel = ProfileModel();
 
   @override
   void initState() {
-    getTransactions();
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+      }
+      getTransactions();
+    });
+
+
     super.initState();
   }
 
@@ -63,6 +71,8 @@ class OverviewScreenState extends State<OverviewScreen> {
   }
 
   getTransactions() async {
+
+
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
         .then((value) {
@@ -85,29 +95,22 @@ class OverviewScreenState extends State<OverviewScreen> {
             }
           });
         } else {
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.userEmail)
-              .then((value) {
-            if (value != null) {
-              userEmail = value;
               getProfileData();
-            }
-          });
         }
       }
     });
 
+
     List<TransactionModel> spendingTransaction = [];
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
-        .getTransactions(AppConstanst.spendingTransaction)
+        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,userEmail)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
 
       DateTime now = DateTime.now();
       String currentMonthName = DateFormat('MMMM').format(now);
-
       for (var t in spendingTransaction) {
         DateFormat format = DateFormat("dd/MM/yyyy");
         DateTime parsedDate = format.parse(t.transaction_date!);
@@ -117,7 +120,15 @@ class OverviewScreenState extends State<OverviewScreen> {
             dates.add(t.transaction_date!.split(' ')[0]);
           }
         }
+        if(!isSkippedUser) {
+          if (t.member_email == "" && t.member_id == -1) {
+            t.member_id = profileModel.id;
+            t.member_email = profileModel.email;
+            await databaseHelper.updateTransaction(t);
+          }
+        }
       }
+
       if (dates.isEmpty) {
         if (isSkippedUser) {
           MySharedPreferences.instance.addStringToSF(
@@ -306,7 +317,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "\u20B9${(selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
+                                          "\u20B9${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
                                           style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -323,8 +334,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   ),
                                   InkWell(
                                       onTap: () {
-                                        Navigator.push(
-                                          context,
+                                        Navigator.of(context, rootNavigator: true).push(
                                           MaterialPageRoute(
                                               builder: (context) =>
                                               const SearchScreen()),
@@ -338,8 +348,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   10.widthBox,
                                   InkWell(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
+                                      Navigator.of(context, rootNavigator: true).push(
                                         MaterialPageRoute(
                                             builder: (context) =>
                                             const OtherScreen()),
@@ -372,7 +381,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 Tab(child: Text("Income")),
                               ],
                               onTap: (index) {
-                                selectedTabIndex = index;
+                                AppConstanst.selectedTabIndex = index;
                                 if (index == 0) {
                                   getTransactions();
                                 } else {
@@ -474,7 +483,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   padding: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.amberAccent.shade100),
+                                      color: Helper.getChartColor(context),),
                                 ),
                                 5.widthBox,
                                 Text(
@@ -586,10 +595,10 @@ class OverviewScreenState extends State<OverviewScreen> {
                           itemBuilder: (context, index1) {
                             return Container(
                               padding: const EdgeInsets.all(10),
-                              decoration: const BoxDecoration(
-                                  color: Color(0xff30302d),
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
+                                  const BorderRadius.all(Radius.circular(10))),
                               child: Row(
                                 children: [
                                   Container(
@@ -617,8 +626,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           dateWiseSpendingTransaction[index]
                                               .transactions![index1]
                                               .cat_name!,
-                                          style: const TextStyle(
-                                              color: Colors.white,
+                                          style: TextStyle(
+                                              color: Helper.getTextColor(context),
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -626,8 +635,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           dateWiseSpendingTransaction[index]
                                               .transactions![index1]
                                               .description!,
-                                          style: const TextStyle(
-                                            color: Colors.white,
+                                          style: TextStyle(
+                                            color: Helper.getTextColor(context),
                                             fontSize: 14,
                                           ),
                                         )
@@ -639,15 +648,15 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     children: [
                                       Text(
                                         "-\u20B9${dateWiseSpendingTransaction[index].transactions![index1].amount!}",
-                                        style: const TextStyle(
-                                            color: Colors.white,
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         "${dateWiseSpendingTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseSpendingTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style:  TextStyle(
+                                          color: Helper.getTextColor(context),
                                           fontSize: 14,
                                         ),
                                       )
@@ -799,7 +808,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                               currentIncome>=actualBudget?'\u20B9$actualBudget+${currentIncome - actualBudget}':"\u20B9${actualBudget - currentIncome}",
                               style: TextStyle(
                                   color: currentIncome < actualBudget
-                                      ? Colors.amberAccent.shade100
+                                      ? Helper.getChartColor(context)
                                       : Helper.getTextColor(context),
                                   fontSize: 20),
                             ),
@@ -894,15 +903,15 @@ class OverviewScreenState extends State<OverviewScreen> {
                           itemBuilder: (context, index1) {
                             return Container(
                               padding: const EdgeInsets.all(10),
-                              decoration: const BoxDecoration(
-                                  color: Color(0xff30302d),
+                              decoration:  BoxDecoration(
+                                  color: Helper.getCardColor(context),
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
+                                  const BorderRadius.all(Radius.circular(10))),
                               child: Row(
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(5),
-                                    decoration: const BoxDecoration(
+                                    decoration:  const BoxDecoration(
                                         color: Colors.black,
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(10))),
@@ -925,8 +934,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           dateWiseIncomeTransaction[index]
                                               .transactions![index1]
                                               .cat_name!,
-                                          style: const TextStyle(
-                                              color: Colors.white,
+                                          style:  TextStyle(
+                                              color: Helper.getTextColor(context),
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -934,8 +943,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           dateWiseIncomeTransaction[index]
                                               .transactions![index1]
                                               .description!,
-                                          style: const TextStyle(
-                                            color: Colors.white,
+                                          style:  TextStyle(
+                                            color: Helper.getTextColor(context),
                                             fontSize: 14,
                                           ),
                                         )
@@ -947,15 +956,15 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     children: [
                                       Text(
                                         "+\u20B9${dateWiseIncomeTransaction[index].transactions![index1].amount!}",
-                                        style: const TextStyle(
-                                            color: Colors.white,
+                                        style:  TextStyle(
+                                            color: Helper.getTextColor(context),
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         "${dateWiseIncomeTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseIncomeTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style:  TextStyle(
+                                          color: Helper.getTextColor(context),
                                           fontSize: 14,
                                         ),
                                       )
@@ -1051,18 +1060,17 @@ class OverviewScreenState extends State<OverviewScreen> {
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;
-      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
+      const shadows = [Shadow(color: Colors.black, blurRadius: 1)];
       switch (i) {
         case 0:
           return PieChartSectionData(
-            color: Colors.amberAccent.shade100,
+            color: Helper.getChartColor(context),
             value: spendingPercentage.toPrecision(2),
             title: '${spendingPercentage.toPrecision(2)}%',
             radius: radius,
             titleStyle: const TextStyle(
               fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
               shadows: shadows,
             ),
           );
@@ -1074,8 +1082,7 @@ class OverviewScreenState extends State<OverviewScreen> {
             radius: radius,
             titleStyle: const TextStyle(
               fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
               shadows: shadows,
             ),
           );
@@ -1089,22 +1096,21 @@ class OverviewScreenState extends State<OverviewScreen> {
   List<PieChartSectionData> showingIncomeSections() {
     double incomePercentage =
     currentIncome < actualBudget ? (currentIncome / actualBudget) * 100 : 100;
-    double remainingPercentage = currentIncome > 0 ? 100 - incomePercentage : 0;
+    double remainingPercentage = currentIncome > 0 ? 100 - incomePercentage : 100;
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;
-      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
+      const shadows = [Shadow(color: Colors.black, blurRadius: 1)];
       switch (i) {
         case 0:
           return PieChartSectionData(
-            color: Colors.amberAccent.shade100,
-            value: remainingPercentage.toPrecision(2),
+            color: Helper.getChartColor(context),
+            value: remainingPercentage.toPrecision(2) ?? 100,
             title: '${remainingPercentage.toPrecision(2)}%',
             radius: radius,
             titleStyle: const TextStyle(
               fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
               shadows: shadows,
             ),
           );
@@ -1116,8 +1122,7 @@ class OverviewScreenState extends State<OverviewScreen> {
             radius: radius,
             titleStyle: const TextStyle(
               fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
               shadows: shadows,
             ),
           );

@@ -162,6 +162,10 @@ class Helper {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
     return themeNotifier.getTheme().cardColor;
   }
+static Color getChartColor(BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().disabledColor;
+  }
 
   static BottomNavigationBarThemeData getBottomNavigationColor(
       BuildContext context) {
@@ -194,7 +198,7 @@ class Helper {
 
   static void hideLoading(context) {
     //Get.back();
-    Navigator.of(context).pop();
+    Navigator.pop(context);
   }
 
   static String getWeekdayName(int weekday) {

@@ -103,8 +103,7 @@ class _DashBoardState extends State<DashBoard> {
           inactiveColorSecondary: Helper.getTextColor(context),
           onPressed: (contet){
             Navigator.of(context, rootNavigator: true).
-            push(MaterialPageRoute(builder: (context) =>  AddSpendingScreen(transactionName: AppConstanst.spendingTransactionName,)),).then((value) {
-
+            push(MaterialPageRoute(builder: (context) =>  AddSpendingScreen(transactionName: AppConstanst.selectedTabIndex==0?AppConstanst.spendingTransactionName:AppConstanst.incomeTransactionName,)),).then((value) {
               if(value!=null){
                 if(value){
                   overviewKey.currentState?.getTransactions();

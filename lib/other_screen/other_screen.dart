@@ -1,10 +1,15 @@
+
+import 'package:contacts_service/contacts_service.dart';
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
+import 'package:expense_manager/other_screen/invite_friends_screen.dart';
+import 'package:expense_manager/sign_in/sign_in_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../utils/global.dart';
 import '../utils/my_shared_preferences.dart';
 import 'account_detail/account_detail_screen.dart';
@@ -29,6 +34,7 @@ class _OtherScreenState extends State<OtherScreen> {
     GridItem(iconData: Icons.settings, text: 'Category'),
     GridItem(iconData: Icons.settings, text: 'My Library'),
   ];
+
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
   bool isSkippedUser = false;
@@ -38,7 +44,6 @@ class _OtherScreenState extends State<OtherScreen> {
   String shortName = "";
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-
 
 
   @override
@@ -59,14 +64,12 @@ class _OtherScreenState extends State<OtherScreen> {
         userEmail = value;
         getProfileData();
       }
-    });// TODO: implement initState
+    }); // TODO: implement initState
     super.initState();
   }
 
   Future<void> getProfileData() async {
     try {
-      Helper.showLoading(context);
-      await Future.delayed(const Duration(seconds: 2));
       ProfileModel fetchedProfileData =
       await databaseHelper.getProfileData(userEmail);
       setState(() {
@@ -79,19 +82,22 @@ class _OtherScreenState extends State<OtherScreen> {
       getShortName(profileData!.first_name!, profileData!.last_name!);
     } catch (error) {
       print('Error fetching Profile Data: $error');
-     /* setState(() {
+      /* setState(() {
         isLoading = false;
       });*/
     }
   }
 
   String getShortName(String name, String name1) {
-    String firstStr = name.split(" ").first;
-    String secondStr = name1.split(" ").first;
+    String firstStr = name
+        .split(" ")
+        .first;
+    String secondStr = name1
+        .split(" ")
+        .first;
 
     String firstChar = firstStr.substring(0, 1);
     String secondChar = secondStr.substring(0, 1);
-
     return shortName = firstChar + secondChar;
   }
 
@@ -128,130 +134,49 @@ class _OtherScreenState extends State<OtherScreen> {
                                     fontWeight: FontWeight.bold),
                               ),
                               // if (!isSkippedUser)
-                                InkWell(
-                                  onTap: () {
+                              InkWell(
+                                onTap: () {
+                                  if (isSkippedUser) {
+                                    MySharedPreferences.instance.addBoolToSF(
+                                        SharedPreferencesKeys.isSkippedUser,
+                                        false);
+                                    AppConstanst.signInClicked++;
+                                    Helper.showToast(
+                                        "Kindly proceed with your sign-in.");
+                                    Navigator.of(context, rootNavigator: true)
+                                        .push(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                          const SignInScreen()),
+                                    );
+                                  }
+                                  else {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              const AccountDetailScreen()),
+                                          const AccountDetailScreen()),
                                     );
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Helper.getCardColor(context)),
-                                    child: Text(
-                                      shortName.toUpperCase(),
-                                      style: TextStyle(
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Helper.getCardColor(context)),
+                                  child: Text(
+                                    shortName == "" ? "AB" : shortName
+                                        .characters.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
                                     ),
                                   ),
-                                )
+                                ),
+                              )
                             ],
                           ),
-                          /*20.heightBox,
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
-                          decoration: const BoxDecoration(
-                            color: Colors.grey,
-                          borderRadius: BorderRadius.only(
-                              topRight:Radius.circular(10),
-                          topLeft: Radius.circular(10))
-                          ),
-                        child: Row(
-                          children: [
-                            10.widthBox,
-                            Container(
-                                height: 50,
-                                width: 50,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                      color: Colors.white70),
-                                ),
-                                child: Container(
-                                    height: 50,
-                                    width: 50,
-                                    margin: const EdgeInsets.all(3),
-                                    decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.white70),
-                                    child: const Center(
-                                        child: Icon(Icons.person,color: Colors.grey,size: 35,)))),
-                            20.widthBox,
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Muskan Bhatt",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold
-                                      )),
-                                  Text("muskanbhatt13@gmail.com",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                      )),
-                                ],
-                              ),
-                            ),
-                            const Icon(Icons.arrow_forward,color: Colors.white,size: 20,)
-                          ],
-                        ),
-                      ),
-                      Container(
-                        decoration: const BoxDecoration(
-                            color: Colors.blueGrey,
-                            borderRadius: BorderRadius.only(
-                                bottomLeft:Radius.circular(10),
-                                bottomRight: Radius.circular(10))
-                        ),
-                        child: Row(
-                          children: [
-                            const Padding(
-                        padding:  EdgeInsets.only(top: 5,bottom: 5,left: 35,right: 20),
-                              child: Text("FREE",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11
-                              ),),
-                            ),
-                            Container(
-                              height: 26,
-                              width: 1, // Width of the divider
-                              color: Colors.grey,
-                            ),
-                            12.widthBox,
-                            Expanded(
-                              child: RichText(
-                                  text: const TextSpan(
-                                      text: "Maximum spending 17,000",
-                                      style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.white,),
-                                      children: [
-                                        TextSpan(
-                                            text: " / month",
-                                            style: TextStyle(
-                                                fontSize:8,
-                                                color: Colors.white,)),
-                                      ])),
-                            ),
-                            const Padding(
-                              padding:  EdgeInsets.only(top: 5,bottom: 5,left: 35,right: 20),
-                              child: Icon(Icons.arrow_forward_ios,color: Colors.white,size: 15,),
-                            )
-                          ],
-                        ),
-                      ),*/
-
                           15.heightBox,
                           Text(
                             "MANAGE",
@@ -312,7 +237,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              const CategoryScreen()),
+                                          const CategoryScreen()),
                                     );
                                   },
                                   child: Column(
@@ -349,7 +274,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              const MyLibraryScreen()),
+                                          const MyLibraryScreen()),
                                     );
                                   },
                                   child: Column(
@@ -408,7 +333,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const GeneralSettingScreen()),
+                                            const GeneralSettingScreen()),
                                       );
                                     },
                                     child: Row(
@@ -450,35 +375,41 @@ class _OtherScreenState extends State<OtherScreen> {
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10),
-                                  child: Row(
-                                    children: [
-                                      15.widthBox,
-                                      Container(
-                                        padding: const EdgeInsets.all(6),
-                                        decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.blueGrey),
-                                        child: const Icon(
-                                          Icons.settings,
-                                          color: Colors.blue,
+                                  child: InkWell(
+                                    onTap: () {
+                                      requestContactPermission();
+
+                                    },
+                                    child: Row(
+                                      children: [
+                                        15.widthBox,
+                                        Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.blueGrey),
+                                          child: const Icon(
+                                            Icons.settings,
+                                            color: Colors.blue,
+                                          ),
                                         ),
-                                      ),
-                                      15.widthBox,
-                                      Expanded(
-                                        child: Text(
-                                          "Invite friends",
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              color:
-                                                  Helper.getTextColor(context)),
+                                        15.widthBox,
+                                        Expanded(
+                                          child: Text(
+                                            "Invite friends",
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color:
+                                                Helper.getTextColor(context)),
+                                          ),
                                         ),
-                                      ),
-                                      Icon(
-                                        Icons.arrow_forward_ios_rounded,
-                                        color: Helper.getTextColor(context),
-                                        size: 16,
-                                      )
-                                    ],
+                                        Icon(
+                                          Icons.arrow_forward_ios_rounded,
+                                          color: Helper.getTextColor(context),
+                                          size: 16,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                                 const Divider(
@@ -551,7 +482,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                           style: TextStyle(
                                               fontSize: 16,
                                               color:
-                                                  Helper.getTextColor(context)),
+                                              Helper.getTextColor(context)),
                                         ),
                                       ),
                                       Text(
@@ -559,7 +490,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         style: TextStyle(
                                             fontSize: 16,
                                             color:
-                                                Helper.getTextColor(context)),
+                                            Helper.getTextColor(context)),
                                       ),
                                     ],
                                   ),
@@ -592,7 +523,7 @@ class _OtherScreenState extends State<OtherScreen> {
           titlePadding: EdgeInsets.zero,
           actionsPadding: EdgeInsets.zero,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           insetPadding: const EdgeInsets.all(15),
           backgroundColor: Helper.getCardColor(context),
           content: SizedBox(
@@ -649,38 +580,38 @@ class _OtherScreenState extends State<OtherScreen> {
                     ),
                     Expanded(
                         child: Column(
-                      children: [
-                        const Icon(
-                          Icons.account_circle,
-                          color: Colors.grey,
-                          size: 50,
-                        ),
-                        Text(
-                          "Like",
-                          style: TextStyle(
-                            color: Helper.getTextColor(context),
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    )),
+                          children: [
+                            const Icon(
+                              Icons.account_circle,
+                              color: Colors.grey,
+                              size: 50,
+                            ),
+                            Text(
+                              "Like",
+                              style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        )),
                     Expanded(
                         child: Column(
-                      children: [
-                        const Icon(
-                          Icons.account_circle,
-                          color: Colors.grey,
-                          size: 50,
-                        ),
-                        Text(
-                          "Like so much",
-                          style: TextStyle(
-                            color: Helper.getTextColor(context),
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    )),
+                          children: [
+                            const Icon(
+                              Icons.account_circle,
+                              color: Colors.grey,
+                              size: 50,
+                            ),
+                            Text(
+                              "Like so much",
+                              style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        )),
                   ],
                 ),
                 30.heightBox,
@@ -692,21 +623,21 @@ class _OtherScreenState extends State<OtherScreen> {
                           color: Helper.getTextColor(context),
                         ),
                         children: [
-                      const TextSpan(
-                        text: "5 stars ",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      TextSpan(
-                        text: "for this app on the AppStore?",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Helper.getTextColor(context),
-                        ),
-                      ),
-                    ])),
+                          const TextSpan(
+                            text: "5 stars ",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          TextSpan(
+                            text: "for this app on the AppStore?",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Helper.getTextColor(context),
+                            ),
+                          ),
+                        ])),
                 30.heightBox,
                 InkWell(
                   onTap: () {},
@@ -740,6 +671,25 @@ class _OtherScreenState extends State<OtherScreen> {
       },
     );
   }
+
+  Future<void> requestContactPermission() async {
+      PermissionStatus status = await Permission.contacts.status;
+      if(!status.isGranted){
+        status = await Permission.contacts.request();
+      }
+      if (status.isGranted) {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context)=> InviteFriendsScreen()));
+      }
+      else if(status.isPermanentlyDenied){
+        openAppSettings();
+        Helper.showToast("Permission is permanently denied");
+      }
+      else{
+        Helper.showToast("Please allow to access contacts!!");
+      }
+  }
+
 }
 
 class GridItem {
@@ -748,3 +698,4 @@ class GridItem {
 
   GridItem({required this.iconData, required this.text});
 }
+

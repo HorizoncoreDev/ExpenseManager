@@ -1,4 +1,5 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:expense_manager/other_screen/account_detail/account_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         firstNameController.text = profileData!.first_name!;
         lastNameController.text = profileData!.last_name!;
         emailController.text = profileData!.email!;
-        dob = profileData!.dob!;
+        dateOfBirth = profileData!.dob!;
         currentBalance = profileData!.current_balance!;
         currentIncome = profileData!.current_income!;
         selectedValue =
@@ -93,6 +94,9 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   }
 
   Future<void> updateProfileData() async {
+    setState(() {
+      isLoading = true;
+    });
     await databaseHelper.updateProfileData(
       ProfileModel(
           id: id,
@@ -107,6 +111,10 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
           profile_image: "",
           mobile_number: ""),
     );
+    setState(() {
+      isLoading = false;
+    });
+    Helper.showToast("Profile update successful!");
     getProfileData();
   }
 
@@ -468,6 +476,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                 setState(() {
                                   updateProfileData();
                                 });
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> AccountDetailScreen()));
                               },
                               child: Container(
                                 width: double.infinity,

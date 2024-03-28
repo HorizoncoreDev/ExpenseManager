@@ -7,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../db_models/category_model.dart';
 import '../../db_models/income_category.dart';
+import '../../db_models/spending_sub_category.dart';
 import '../../db_service/database_helper.dart';
 import 'add_category/add_category_screen.dart';
 import 'bloc/category_bloc.dart';
@@ -31,8 +32,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
   Future<void> getSpendingCategorys() async {
     try {
       // Simulating asynchronous database fetching
-      await Future.delayed(const Duration(seconds: 2));
       List<Category> fetchedCategories = await databaseHelper.categorys();
+
       setState(() {
         // Update the state with the fetched categories.
         categories = fetchedCategories;
@@ -46,12 +47,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
     }
   }
 
+
   List<IncomeCategory> incomeCategories = [];
 
   Future<void> getIncomeCategorys() async {
     try {
       // Simulating asynchronous database fetching
-      await Future.delayed(const Duration(seconds: 2));
       List<IncomeCategory> fetchedIncomeCategories =
           await databaseHelper.getIncomeCategory();
       setState(() {
@@ -613,8 +614,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                            /*Text("7 subcategories",
-                                    style: TextStyle(color: Colors.white),),*/
+                                            Text("",
+                                    style: TextStyle(color: Colors.white),),
                                           ],
                                         ),
                                       ),

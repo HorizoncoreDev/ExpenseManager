@@ -88,8 +88,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   Future<void> getSpendingSubCategory() async {
     try {
       List<SpendingSubCategory> fetchedSpendingSubCategories =
-          await databaseHelper
-              .getSpendingSubCategory(selectedItemList[0].id!.toInt());
+          await databaseHelper.getSpendingSubCategory(selectedItemList[0].id!.toInt());
       setState(() {
         spendingSubCategories = fetchedSpendingSubCategories;
       });
@@ -180,10 +179,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
           member_id: id,
           member_email: email,
           amount: int.parse(amountController.text),
-          expense_cat_id: selectedSpendingIndex,
-          sub_expense_cat_id: selectedSpendingSubIndex,
-          income_cat_id: selectedIncomeIndex,
-          sub_income_cat_id: selectedIncomeSubIndex,
+          expense_cat_id: categories[selectedSpendingIndex].id,
+          sub_expense_cat_id: spendingSubCategories[selectedSpendingSubIndex].id,
+          income_cat_id:selectedValue == AppConstanst.incomeTransactionName? incomeCategories[selectedIncomeIndex].id:-1,
+          sub_income_cat_id:selectedValue == AppConstanst.incomeTransactionName? incomeSubCategories[selectedIncomeSubIndex].id:-1,
           cat_name: selectedValue == AppConstanst.spendingTransactionName
               ? selectedSpendingSubIndex != -1
                   ? spendingSubCategories[selectedSpendingSubIndex].name
@@ -380,6 +379,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       } else {
                         //   Helper.showLoading(context);
                         if (!isSkippedUser) {
+                          print("USER NOT SKIPPED $isSkippedUser");
                           await databaseHelper
                               .getProfileData(userEmail)
                               .then((value) async {
@@ -387,6 +387,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 context, value.id!, value.email!);
                           });
                         } else {
+                          print("USER SKIPPED $isSkippedUser");
                           createSpendingIncome(context, -1, "");
                         }
                       }
