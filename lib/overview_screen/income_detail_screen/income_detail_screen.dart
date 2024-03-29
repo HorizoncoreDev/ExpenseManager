@@ -62,6 +62,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   String showYear = 'Select Year';
   String showMonth = 'Select month';
   DateTime _selectedYear = DateTime.now();
+  bool isFilterCleared = false;
 
   @override
   void initState() {
@@ -78,7 +79,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   }
 
   getCategories() async {
-    await DatabaseHelper.instance.categorys().then((value) {
+    await DatabaseHelper.instance.getIncomeCategory().then((value) {
       if (value.isNotEmpty) {
         for (var s in value) {
           categoryList.add(CommonCategoryModel(
@@ -108,8 +109,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
 
   getIncomeTransactions(String value) async {
     date = DateFormat('MM/yyyy').format(DateTime.now());
-    showYear = DateFormat('yyyy').format(DateTime.now());
-    showMonth = DateFormat('MMMM').format(DateTime.now());
+    // showYear = DateFormat('yyyy').format(DateTime.now());
+    // showMonth = DateFormat('MMMM').format(DateTime.now());
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
         .then((value) {
@@ -402,6 +403,9 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                 ? InkWell(
                               onTap: () {
                                 searchController.clear();
+                                if(showYear != "Select Year" && selectedMonths.isNotEmpty){
+                                  getFilteredData("");
+                                }
                                 getIncomeTransactions("");
                                 },
                               child: Padding(
@@ -422,10 +426,20 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                             ),
                             onChanged: (value) {
                               if (value.isNotEmpty) {
-                                getIncomeTransactions(value);
+                                if (showYear != "Select Year" &&
+                                    selectedMonths.isNotEmpty) {
+                                  getFilteredData(value);
+                                } else {
+                                  getIncomeTransactions(value);
+                                }
                               } else {
                                 dateWiseTransaction = originalDateWiseTransaction;
-                                getIncomeTransactions("");
+                                if (showYear != "Select Year" &&
+                                    selectedMonths.isNotEmpty) {
+                                  getFilteredData("");
+                                }else {
+                                  getIncomeTransactions("");
+                                }
                               }
                             },
                             validator: (value) {
@@ -653,13 +667,23 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.pop(context);
-                        if (showYear != "Select Year" &&
-                            selectedMonths.isNotEmpty &&
-                            selectedCategory.isNotEmpty) {
-                          getFilteredData();
-                        } else {
+                        if(isFilterCleared){
+                          Navigator.pop(context);
                           getIncomeTransactions("");
+                        }else {
+                          isFilterCleared = false;
+                          if (showYear != "Select Year" &&
+                              selectedMonths.isNotEmpty) {
+                            Navigator.pop(context);
+                            getFilteredData("");
+                          } else if (showYear == "Select Year" ||
+                              selectedMonths.isEmpty) {
+                            Helper.showToast(
+                                "Please ensure you select a year and month to retrieve data");
+                          } else {
+                            Navigator.pop(context);
+                            getIncomeTransactions("");
+                          }
                         }
                       },
                       child: const Text(
@@ -811,6 +835,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
 
   void clearSelection(StateSetter setState) {
     setState(() {
+      isFilterCleared = true;
       for (var month in monthList) {
         month.isSelected = false;
       }
@@ -884,8 +909,25 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       return InkWell(
                         onTap: () {
                           setState1(() {
-                            monthList[index].isSelected =
-                            !monthList[index].isSelected;
+                            setState1(() {
+                              monthList[index].isSelected = true;
+                              for (int i = 0; i < monthList.length; i++) {
+                                if (i != index) {
+                                  monthList[i].isSelected = false;
+                                }
+                              }
+                            });
+                            setState(() {
+                              List<String> showMonthList = [];
+                              selectedMonths = monthList
+                                  .where((month) => month.isSelected)
+                                  .toList();
+                              for (var i in selectedMonths) {
+                                showMonthList.add(i.text);
+                              }
+                              showMonth = showMonthList.join(", ");
+                              Navigator.pop(context);
+                            });
                           });
                         },
                         child: Container(
@@ -939,12 +981,18 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
     );
   }
 
-  getFilteredData() async {
+  getFilteredData(String value) async {
     List<TransactionModel> incomeTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForYearMonthsAndCategory(
-        showYear, selectedMonths, categoryList[selectedCategoryIndex].catId!, -1, userEmail,AppConstanst.incomeTransaction, searchController.text)
+        showYear,
+        selectedMonths,
+        selectedCategoryIndex != -1
+            ? categoryList[selectedCategoryIndex].catId!
+            : -1,
+        -1, userEmail,
+        AppConstanst.incomeTransaction, value)
         .then((value) {
       incomeTransaction = value;
       List<String> dates = [];
@@ -985,6 +1033,12 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
             transactionDay: Helper.getTransactionDay(date),
             transactions: newTransaction));
       }
+      if (dateWiseTransaction.isNotEmpty) {
+        var dates = dateWiseTransaction[0].transactionDate!.split('/');
+        date = '${dates[1]}/${dates[2]}';
+      }
+      // incomePercentage =
+      // totalMonthlySpentAmount > 0 ? (totalMonthlySpentAmount / actualBudget) * 100 : 100;
       setState(() {});
     });
   }

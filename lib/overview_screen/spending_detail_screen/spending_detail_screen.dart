@@ -1002,7 +1002,6 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
             }
           }
         }
-
         dateWiseTransaction.add(DateWiseTransactionModel(
             transactionDate: date,
             transactionTotal: totalAmount,
