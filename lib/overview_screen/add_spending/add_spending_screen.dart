@@ -88,8 +88,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   Future<void> getSpendingSubCategory() async {
     try {
       List<SpendingSubCategory> fetchedSpendingSubCategories =
-          await databaseHelper
-              .getSpendingSubCategory(selectedItemList[0].id!.toInt());
+          await databaseHelper.getSpendingSubCategory(selectedItemList[0].id!.toInt());
       setState(() {
         spendingSubCategories = fetchedSpendingSubCategories;
       });
