@@ -467,6 +467,7 @@ class DatabaseHelper {
       int transactionType,
       String category) async {
     Database db = await database;
+
     String query = '''SELECT * FROM $transaction_table WHERE ''';
 
     List<int> selectedMonthNumbers = months
@@ -481,7 +482,7 @@ class DatabaseHelper {
       conditions.add('SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?');
     }
 
-    query += conditions.join(' OR '); // Combine conditions using OR operator
+    query += '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
     query += ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
 
     whereArgs = [
@@ -517,7 +518,7 @@ class DatabaseHelper {
         query,
         whereArgs,
       );
-
+      print("Query result.....${result.toString()}");
       return List.generate(
           result.length, (index) => TransactionModel.fromMap(result[index]));
     } catch (e) {
@@ -528,6 +529,7 @@ class DatabaseHelper {
 
   Future<List<TransactionModel>> getTransactionList(
       String category, String email, int transactionType) async {
+
     Database db = await database;
     // Get the current month and year
     DateTime now = DateTime.now();
@@ -592,6 +594,7 @@ class DatabaseHelper {
             ],
             orderBy: '${TransactionFields.created_at} DESC');
       }
+
     }
     return List.generate(
         maps.length, (index) => TransactionModel.fromMap(maps[index]));
