@@ -38,7 +38,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   int currentBalance = 0;
   int currentIncome = 0;
   int actualBudget = 0;
-  int totalAmount = 0;
+  int totalMonthlyIncomeAmount = 0;
   double incomePercentage = 0;
   String date = '';
   List<CommonCategoryModel> categoryList = [];
@@ -94,13 +94,14 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   getProfileData() async {
     try {
       ProfileModel fetchedProfileData =
-      await databaseHelper.getProfileData(userEmail);
+          await databaseHelper.getProfileData(userEmail);
       setState(() {
         currentBalance = int.parse(fetchedProfileData.current_balance!);
         actualBudget = int.parse(fetchedProfileData.actual_budget!);
         currentIncome = int.parse(fetchedProfileData.current_income!);
-        incomePercentage =
-        currentIncome < actualBudget ? (currentIncome / actualBudget) * 100 : 100;
+        incomePercentage = currentIncome < actualBudget
+            ? (currentIncome / actualBudget) * 100
+            : 100;
       });
     } catch (error) {
       print('Error fetching Profile Data: $error');
@@ -183,6 +184,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
         }
       } else {
         dates.sort((a, b) => b.compareTo(a));
+        totalMonthlyIncomeAmount = 0;
         for (var date in dates) {
           int totalAmount = 0;
           List<TransactionModel> newTransaction = [];
@@ -192,8 +194,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
               totalAmount = totalAmount + t.amount!;
             } else {
               DateWiseTransactionModel? found =
-              dateWiseTransaction.firstWhereOrNull((element) =>
-              element.transactionDate!.split(' ')[0] == date);
+                  dateWiseTransaction.firstWhereOrNull((element) =>
+                      element.transactionDate!.split(' ')[0] == date);
               if (found == null) {
                 continue;
               } else {
@@ -206,7 +208,17 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
               transactionTotal: totalAmount,
               transactionDay: Helper.getTransactionDay(date),
               transactions: newTransaction));
+          totalMonthlyIncomeAmount = totalMonthlyIncomeAmount + totalAmount;
         }
+        if (dateWiseTransaction.isNotEmpty) {
+          var dates = dateWiseTransaction[0].transactionDate!.split('/');
+          date = '${dates[1]}/${dates[2]}';
+        }
+        //Have change
+        double percentage = totalMonthlyIncomeAmount > 0
+            ? (totalMonthlyIncomeAmount / actualBudget) * 100
+            : 100;
+        // incomePercentage = totalMonthlyIncomeAmount > 0 ? 100 - percentage : 0;
         setState(() {});
       }
     });
@@ -265,17 +277,16 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                           builder: (BuildContext context) {
                             return StatefulBuilder(
                                 builder: (context, setState) {
-                                  return WillPopScope(
-                                      onWillPop: () async {
-                                        return true;
-                                      },
-                                      child: Padding(
-                                          padding: MediaQuery
-                                              .of(context)
-                                              .viewInsets,
-                                          child:
-                                          _bottomSheetView(incomeDetailBloc, setState)));
-                                });
+                              return WillPopScope(
+                                  onWillPop: () async {
+                                    return true;
+                                  },
+                                  child: Padding(
+                                      padding:
+                                          MediaQuery.of(context).viewInsets,
+                                      child: _bottomSheetView(
+                                          incomeDetailBloc, setState)));
+                            });
                           });
                     },
                     child: Container(
@@ -302,12 +313,12 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                     child: Column(
                       children: [
                         Container(
-                          padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 15),
                           decoration: BoxDecoration(
                               color: Helper.getCardColor(context),
                               borderRadius:
-                              BorderRadius.all(Radius.circular(10))),
+                                  BorderRadius.all(Radius.circular(10))),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -316,7 +327,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                 lineWidth: 5.0,
                                 percent: incomePercentage / 100,
                                 center: Text(
-                                  "$incomePercentage%",
+                                  "${incomePercentage.toPrecision(2)}%",
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -390,7 +401,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                         CustomBoxTextFormField(
                             controller: searchController,
                             borderRadius:
-                            const BorderRadius.all(Radius.circular(5)),
+                                const BorderRadius.all(Radius.circular(5)),
                             keyboardType: TextInputType.text,
                             hintText: "Notes, categories",
                             fillColor: Helper.getCardColor(context),
@@ -398,32 +409,34 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                             padding: 10,
                             horizontalPadding: 5,
                             textStyle:
-                            TextStyle(color: Helper.getTextColor(context)),
+                                TextStyle(color: Helper.getTextColor(context)),
                             suffixIcon: searchController.text.isNotEmpty
                                 ? InkWell(
-                              onTap: () {
-                                searchController.clear();
-                                if(showYear != "Select Year" && selectedMonths.isNotEmpty){
-                                  getFilteredData("");
-                                }
-                                getIncomeTransactions("");
-                                },
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: Icon(
-                                  Icons.close,
-                                  size: 22,
-                                  color: Helper.getTextColor(context),
-                                ),
-                              ),
-                            ): const Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: Icon(
-                                Icons.search,
-                                size: 22,
-                                color: Colors.grey,
-                              ),
-                            ),
+                                    onTap: () {
+                                      searchController.clear();
+                                      if (showYear != "Select Year" &&
+                                          selectedMonths.isNotEmpty) {
+                                        getFilteredData("");
+                                      }
+                                      getIncomeTransactions("");
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 10),
+                                      child: Icon(
+                                        Icons.close,
+                                        size: 22,
+                                        color: Helper.getTextColor(context),
+                                      ),
+                                    ),
+                                  )
+                                : const Padding(
+                                    padding: EdgeInsets.only(right: 10),
+                                    child: Icon(
+                                      Icons.search,
+                                      size: 22,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
                             onChanged: (value) {
                               if (value.isNotEmpty) {
                                 if (showYear != "Select Year" &&
@@ -433,11 +446,12 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                   getIncomeTransactions(value);
                                 }
                               } else {
-                                dateWiseTransaction = originalDateWiseTransaction;
+                                dateWiseTransaction =
+                                    originalDateWiseTransaction;
                                 if (showYear != "Select Year" &&
                                     selectedMonths.isNotEmpty) {
                                   getFilteredData("");
-                                }else {
+                                } else {
                                   getIncomeTransactions("");
                                 }
                               }
@@ -445,8 +459,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                             validator: (value) {
                               return null;
                             }),
-                        if (dateWiseTransaction.isNotEmpty)
-                        20.heightBox,
+                        if (dateWiseTransaction.isNotEmpty) 20.heightBox,
                         if (dateWiseTransaction.isNotEmpty)
                           ListView.separated(
                             shrinkWrap: true,
@@ -456,7 +469,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                               return Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         "${dateWiseTransaction[index].transactionDay}, ${dateWiseTransaction[index].transactionDate}",
@@ -484,22 +498,28 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                         return Container(
                                           padding: const EdgeInsets.all(10),
                                           decoration: BoxDecoration(
-                                              color: Helper.getCardColor(context),
+                                              color:
+                                                  Helper.getCardColor(context),
                                               borderRadius:
-                                              const BorderRadius.all(Radius.circular(10))),
+                                                  const BorderRadius.all(
+                                                      Radius.circular(10))),
                                           child: Row(
                                             children: [
                                               Container(
-                                                padding: const EdgeInsets.all(5),
+                                                padding:
+                                                    const EdgeInsets.all(5),
                                                 decoration: const BoxDecoration(
                                                     color: Colors.black,
-                                                    borderRadius: BorderRadius.all(
-                                                        Radius.circular(10))),
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                10))),
                                                 child: SvgPicture.asset(
                                                   'asset/images/${dateWiseTransaction[index].transactions![index1].cat_icon}.svg',
-                                                  color: dateWiseTransaction[index]
-                                                      .transactions![index1]
-                                                      .cat_color,
+                                                  color:
+                                                      dateWiseTransaction[index]
+                                                          .transactions![index1]
+                                                          .cat_color,
                                                   width: 24,
                                                   height: 24,
                                                 ),
@@ -508,23 +528,28 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                               Expanded(
                                                 child: Column(
                                                   crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
                                                       dateWiseTransaction[index]
                                                           .transactions![index1]
                                                           .cat_name!,
                                                       style: TextStyle(
-                                                          color: Helper.getTextColor(context),
+                                                          color: Helper
+                                                              .getTextColor(
+                                                                  context),
                                                           fontSize: 16,
-                                                          fontWeight: FontWeight.bold),
+                                                          fontWeight:
+                                                              FontWeight.bold),
                                                     ),
                                                     Text(
                                                       dateWiseTransaction[index]
                                                           .transactions![index1]
                                                           .description!,
                                                       style: TextStyle(
-                                                        color: Helper.getTextColor(context),
+                                                        color:
+                                                            Helper.getTextColor(
+                                                                context),
                                                         fontSize: 14,
                                                       ),
                                                     )
@@ -532,19 +557,25 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                                 ),
                                               ),
                                               Column(
-                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
                                                 children: [
                                                   Text(
                                                     "+\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
                                                     style: TextStyle(
-                                                        color: Helper.getTextColor(context),
+                                                        color:
+                                                            Helper.getTextColor(
+                                                                context),
                                                         fontSize: 16,
-                                                        fontWeight: FontWeight.bold),
+                                                        fontWeight:
+                                                            FontWeight.bold),
                                                   ),
                                                   Text(
-                                                    "${dateWiseTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
-                                                    style:  TextStyle(
-                                                      color: Helper.getTextColor(context),
+                                                    dateWiseTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
+                                                    style: TextStyle(
+                                                      color:
+                                                          Helper.getTextColor(
+                                                              context),
                                                       fontSize: 14,
                                                     ),
                                                   )
@@ -554,70 +585,72 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                           ),
                                         );
                                       },
-                                      separatorBuilder: (BuildContext context, int index) {
+                                      separatorBuilder:
+                                          (BuildContext context, int index) {
                                         return 10.heightBox;
                                       },
                                     ),
                                 ],
                               );
                             },
-                            separatorBuilder: (BuildContext context, int index) {
+                            separatorBuilder:
+                                (BuildContext context, int index) {
                               return 10.heightBox;
                             },
                           ),
+                        if (dateWiseTransaction.isEmpty) 20.heightBox,
                         if (dateWiseTransaction.isEmpty)
-                          20.heightBox,
-                        if (dateWiseTransaction.isEmpty)
-                        Container(
-                            decoration: BoxDecoration(
-                                color: Helper.getCardColor(context),
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
-                            child: Column(
-                              children: [
-                                20.heightBox,
-                                Icon(
-                                  Icons.account_balance_wallet,
-                                  color: Helper.getTextColor(context),
-                                  size: 80,
-                                ),
-                                10.heightBox,
-                                Text(
-                                  "You don't have any income yet",
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context)),
-                                ),
-                                20.heightBox,
-                                Padding(
-                                  padding:
-                                  const EdgeInsets.symmetric(horizontal: 35),
-                                  child: InkWell(
-                                    onTap: () {
-                                      /*Navigator.push(
+                          Container(
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              child: Column(
+                                children: [
+                                  20.heightBox,
+                                  Icon(
+                                    Icons.account_balance_wallet,
+                                    color: Helper.getTextColor(context),
+                                    size: 80,
+                                  ),
+                                  10.heightBox,
+                                  Text(
+                                    "You don't have any income yet",
+                                    style: TextStyle(
+                                        color: Helper.getTextColor(context)),
+                                  ),
+                                  20.heightBox,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 35),
+                                    child: InkWell(
+                                      onTap: () {
+                                        /*Navigator.push(
                                         context,
                                         MaterialPageRoute(builder: (context) => const AddSpendingScreen()),
                                       );*/
-                                    },
-                                    child: Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 15, horizontal: 15),
-                                      alignment: Alignment.center,
-                                      decoration: const BoxDecoration(
-                                          color: Colors.blue,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10))),
-                                      child: const Text(
-                                        "Add spending",
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 14),
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 15, horizontal: 15),
+                                        alignment: Alignment.center,
+                                        decoration: const BoxDecoration(
+                                            color: Colors.blue,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10))),
+                                        child: const Text(
+                                          "Add spending",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                15.heightBox,
-                              ],
-                            )),
+                                  15.heightBox,
+                                ],
+                              )),
                       ],
                     ),
                   ),
@@ -667,10 +700,10 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        if(isFilterCleared){
+                        if (isFilterCleared) {
                           Navigator.pop(context);
                           getIncomeTransactions("");
-                        }else {
+                        } else {
                           isFilterCleared = false;
                           if (showYear != "Select Year" &&
                               selectedMonths.isNotEmpty) {
@@ -704,7 +737,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
               ),
               Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -738,7 +771,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                           decoration: const BoxDecoration(
                               color: Colors.blue,
                               borderRadius:
-                              BorderRadius.all(Radius.circular(5))),
+                                  BorderRadius.all(Radius.circular(5))),
                           child: Text(
                             showYear,
                             style: const TextStyle(
@@ -758,7 +791,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                             decoration: const BoxDecoration(
                                 color: Colors.blue,
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(5))),
+                                    BorderRadius.all(Radius.circular(5))),
                             child: Text(
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
@@ -774,7 +807,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                   )),
               Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Text(
                   "CATEGORY",
                   style: TextStyle(
@@ -799,7 +832,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                         setState(() {
                           if (selectedCategoryIndex != -1) {
                             categoryList[selectedCategoryIndex].isSelected =
-                            false;
+                                false;
                           }
                           categoryList[index].isSelected = true;
                           selectedCategoryIndex = index;
@@ -814,7 +847,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                 ? Colors.blue
                                 : Helper.getCardColor(context),
                             borderRadius:
-                            const BorderRadius.all(Radius.circular(5))),
+                                const BorderRadius.all(Radius.circular(5))),
                         child: Text(
                           categoryList[index].catName!,
                           textAlign: TextAlign.center,
@@ -888,7 +921,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
           return AlertDialog(
             title: const Text("Select Month"),
             contentPadding:
-            const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
             content: SizedBox(
               width: double.maxFinite,
               child: ListView(
@@ -896,7 +929,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 children: [
                   GridView.builder(
                     gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 10.0,
                       mainAxisSpacing: 10.0,
@@ -938,7 +971,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                   ? Colors.blue
                                   : Colors.transparent,
                               borderRadius:
-                              const BorderRadius.all(Radius.circular(5))),
+                                  const BorderRadius.all(Radius.circular(5))),
                           child: Text(
                             monthList[index].text,
                             style: TextStyle(
@@ -986,13 +1019,15 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
     dateWiseTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForYearMonthsAndCategory(
-        showYear,
-        selectedMonths,
-        selectedCategoryIndex != -1
-            ? categoryList[selectedCategoryIndex].catId!
-            : -1,
-        -1, userEmail,
-        AppConstanst.incomeTransaction, value)
+            showYear,
+            selectedMonths,
+            selectedCategoryIndex != -1
+                ? categoryList[selectedCategoryIndex].catId!
+                : -1,
+            -1,
+            userEmail,
+            AppConstanst.incomeTransaction,
+            value)
         .then((value) {
       incomeTransaction = value;
       List<String> dates = [];
@@ -1017,8 +1052,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
             }
           } else {
             DateWiseTransactionModel? found =
-            dateWiseTransaction.firstWhereOrNull((element) =>
-            element.transactionDate!.split(' ')[0] == date);
+                dateWiseTransaction.firstWhereOrNull((element) =>
+                    element.transactionDate!.split(' ')[0] == date);
             if (found == null) {
               continue;
             } else {
@@ -1043,4 +1078,3 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
     });
   }
 }
-

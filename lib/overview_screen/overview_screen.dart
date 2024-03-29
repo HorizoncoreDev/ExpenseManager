@@ -650,7 +650,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                             fontWeight: FontWeight.bold),
                                       ),
                                       Text(
-                                        "${dateWiseSpendingTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseSpendingTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
+                                        dateWiseSpendingTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
                                         style:  TextStyle(
                                           color: Helper.getTextColor(context),
                                           fontSize: 14,
@@ -958,7 +958,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                             fontWeight: FontWeight.bold),
                                       ),
                                       Text(
-                                        "${dateWiseIncomeTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseIncomeTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
+                                        dateWiseIncomeTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
                                         style:  TextStyle(
                                           color: Helper.getTextColor(context),
                                           fontSize: 14,
