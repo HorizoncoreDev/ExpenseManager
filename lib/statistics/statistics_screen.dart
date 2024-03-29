@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:expense_manager/db_models/transaction_model.dart';
@@ -404,12 +405,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   top: 24,
                   bottom: 12,
                 ),
-                child: Chart(
-                  layers: layers(),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30.0).copyWith(
-                    bottom: 12.0,
-                  ),
+                child:LineChart(
+                  mainData(),
                 ),
               ),
             ),
@@ -994,7 +991,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     });
   }
 
-  /* Widget bottomTitleWidgets(double value, TitleMeta meta) {
+
+   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     final style = TextStyle(
       color: Helper.getTextColor(context),
       fontSize: 12,
@@ -1046,31 +1044,28 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       axisSide: meta.axisSide,
       child: text,
     );
-  }*/
-
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    final style = TextStyle(
-      color: Helper.getTextColor(context),
-      fontSize: 12,
-    );
-    Widget text;
-
-    int dayOfMonth = value.toInt();
-    if (dayOfMonth % 2 != 0 && dayOfMonth >= 1 && dayOfMonth <= 31) {
-      text = Text('$dayOfMonth', style: style);
-    } else {
-      text = Text('', style: style);
-    }
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: text,
-    );
   }
-
   Widget leftTitleWidgets(double value, TitleMeta meta) {
     String text;
     switch (value.toInt()) {
+      case 0:
+        text = '0';
+        break;
+      case 1:
+        text = '4k';
+        break;
+      case 2:
+        text = '8k';
+        break;
+      case 3:
+        text = '12k';
+        break;
+      case 4:
+        text = '16k';
+        break;
+      case 5:
+        text = '20k';
+        break;
       case 0:
         text = '0';
         break;
@@ -1151,7 +1146,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       minX: 0,
       maxX: 11,
       minY: 0,
-      maxY: 6,
+      maxY: 10,
       lineBarsData: [
         LineChartBarData(
           spots: chartData,
@@ -1292,8 +1287,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  /*List<ChartLayer> layers() {
-    final now = DateTime.now();
+ /* List<ChartLayer> layers() {
+*//*    final now = DateTime.now();
     final from = DateTime(now.year, now.month, 1); // Start of current month
     final to = DateTime(now.year, now.month + 1, 0); // End of current month
 
@@ -1302,13 +1297,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     final weeksInMonth = ((daysInMonth - 1) / 7).ceil();
 
     // Calculate frequency based on number of weeks
-    final frequency = daysInMonth / weeksInMonth;
+    final frequency = daysInMonth / weeksInMonth;*//*
 
-   *//* final from = DateTime(2021, 1);
+    final from = DateTime(2021, 1);
     final to = DateTime(2021, 12);
     final frequency =
-        (to.millisecondsSinceEpoch - from.millisecondsSinceEpoch) / 12.0;*//*
-
+        (to.millisecondsSinceEpoch - from.millisecondsSinceEpoch) / 12.0;
     return [
       ChartHighlightLayer(
         shape: () => ChartHighlightLineShape<ChartLineDataItem>(
@@ -1381,85 +1375,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       ),
     ];
   }*/
-
-  List<ChartLayer> layers() {
-    final from = DateTime(2021, 1, 1);
-    final to = DateTime(2021, 12, 31);
-    final frequency = (to.difference(from).inDays) / 12.0;
-
-    return [
-      ChartHighlightLayer(
-        shape: () => ChartHighlightLineShape<ChartLineDataItem>(
-          backgroundColor: const Color(0xFF331B6D),
-          currentPos: (item) => item.currentValuePos,
-          radius: const BorderRadius.all(Radius.circular(8.0)),
-          width: 60.0,
-        ),
-      ),
-      ChartAxisLayer(
-        settings: ChartAxisSettings(
-          x: ChartAxisSettingsAxis(
-            frequency: frequency.toDouble(),
-            max: to.millisecondsSinceEpoch.toDouble(),
-            min: from.millisecondsSinceEpoch.toDouble(),
-            textStyle: TextStyle(
-              color: Colors.white.withOpacity(0.6),
-              fontSize: 10.0,
-            ),
-          ),
-          y: ChartAxisSettingsAxis(
-            frequency: 100.0,
-            max: 400.0,
-            min: 0.0,
-            textStyle: TextStyle(
-              color: Colors.white.withOpacity(0.6),
-              fontSize: 10.0,
-            ),
-          ),
-        ),
-        labelX: (value) =>
-            DateFormat('MMM').format(DateTime.fromMillisecondsSinceEpoch(value.toInt())),
-        labelY: (value) => value.toInt().toString(),
-      ),
-      ChartLineLayer(
-        items: List.generate(
-          4,
-              (index) => ChartLineDataItem(
-            x: (index * frequency.toDouble()) + from.millisecondsSinceEpoch,
-            value: Random().nextInt(380) + 20,
-          ),
-        ),
-        settings: const ChartLineSettings(
-          color: Color(0xFF8043F9),
-          thickness: 4.0,
-        ),
-      ),
-      ChartTooltipLayer(
-        shape: () => ChartTooltipLineShape<ChartLineDataItem>(
-          backgroundColor: Colors.white,
-          circleBackgroundColor: Colors.white,
-          circleBorderColor: const Color(0xFF331B6D),
-          circleSize: 4.0,
-          circleBorderThickness: 2.0,
-          currentPos: (item) => item.currentValuePos,
-          onTextValue: (item) => '€${item.value.toString()}',
-          marginBottom: 6.0,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12.0,
-            vertical: 8.0,
-          ),
-          radius: 6.0,
-          textStyle: const TextStyle(
-            color: Color(0xFF8043F9),
-            letterSpacing: 0.2,
-            fontSize: 14.0,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-    ];
-  }
-
 
 
 
