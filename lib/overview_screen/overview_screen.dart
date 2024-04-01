@@ -1,3 +1,4 @@
+
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
@@ -39,6 +41,7 @@ class OverviewScreenState extends State<OverviewScreen> {
   bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
   ProfileModel profileModel = ProfileModel();
+  List<TransactionModel> spendingTransaction = [];
 
   @override
   void initState() {
@@ -96,8 +99,7 @@ class OverviewScreenState extends State<OverviewScreen> {
       }
     });
 
-
-    List<TransactionModel> spendingTransaction = [];
+    spendingTransaction = [];
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,userEmail)
@@ -555,13 +557,16 @@ class OverviewScreenState extends State<OverviewScreen> {
               ],
             ),
             if (dateWiseSpendingTransaction.isNotEmpty) 20.heightBox,
-            if (dateWiseSpendingTransaction.isNotEmpty)
+            if (dateWiseSpendingTransaction.isNotEmpty )
               ListView.separated(
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
                 itemCount: dateWiseSpendingTransaction.length,
                 itemBuilder: (context, index) {
-                  return Column(
+                  if (dateWiseSpendingTransaction[index]
+                      .transactions!
+                      .isNotEmpty ) {
+                    return Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -581,93 +586,133 @@ class OverviewScreenState extends State<OverviewScreen> {
                       15.heightBox,
                       if (dateWiseSpendingTransaction[index]
                           .transactions!
-                          .isNotEmpty)
+                          .isNotEmpty )
                         ListView.separated(
                           shrinkWrap: true,
                           physics: const ScrollPhysics(),
-                          itemCount: dateWiseSpendingTransaction[index]
-                              .transactions!
-                              .length,
+                          itemCount: dateWiseSpendingTransaction[index].transactions!.length,
                           itemBuilder: (context, index1) {
-                            return Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
+                            final transaction = dateWiseSpendingTransaction[index].transactions![index1];
+                            return Dismissible(
+                              key: Key(transaction.id.toString()), // Unique key for each item
+                              direction: DismissDirection.endToStart, // Allow swiping from right to left
+                              background: Container(),
+                              secondaryBackground: Container(
+                                color: Colors.red,
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                alignment: Alignment.centerRight,
+                                child: const Icon(Icons.delete, color: Colors.white),
+                              ),
+                              confirmDismiss: (direction) async {
+                                return await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text("Confirm"),
+                                      content: const Text("Are you sure you want to delete this transaction?"),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () => Navigator.of(context).pop(false),
+                                          child: const Text("Cancel"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop(true);
+                                          },
+                                          child: const Text("Delete"),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              onDismissed: (direction) async {
+                                // Implement your delete logic here
+                                setState(() {
+                                  // Remove the item from your list
+                                  dateWiseSpendingTransaction[index].transactions!.removeAt(index1);
+                                });
+                                await databaseHelper.deleteTransactionFromDB(transaction.id!);
+                                getTransactions();
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
                                   color: Helper.getCardColor(context),
-                                  borderRadius:
-                                  const BorderRadius.all(Radius.circular(10))),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: const BoxDecoration(
+                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: const BoxDecoration(
                                         color: Colors.black,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10))),
-                                    child: SvgPicture.asset(
-                                      'asset/images/${dateWiseSpendingTransaction[index].transactions![index1].cat_icon}.svg',
-                                      color: dateWiseSpendingTransaction[index]
-                                          .transactions![index1]
-                                          .cat_color,
-                                      width: 24,
-                                      height: 24,
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      child: SvgPicture.asset(
+                                        'asset/images/${transaction.cat_icon}.svg',
+                                        color: transaction.cat_color,
+                                        width: 24,
+                                        height: 24,
+                                      ),
                                     ),
-                                  ),
-                                  15.widthBox,
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          dateWiseSpendingTransaction[index]
-                                              .transactions![index1]
-                                              .cat_name!,
-                                          style: TextStyle(
+                                    const SizedBox(width: 15),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            transaction.cat_name!,
+                                            style: TextStyle(
                                               color: Helper.getTextColor(context),
                                               fontSize: 16,
-                                              fontWeight: FontWeight.bold),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            transaction.description!,
+                                            style: TextStyle(
+                                              color: Helper.getTextColor(context),
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "-\u20B9${transaction.amount!}",
+                                          style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                         Text(
-                                          dateWiseSpendingTransaction[index]
-                                              .transactions![index1]
-                                              .description!,
+                                          transaction.payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
                                           style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 14,
                                           ),
-                                        )
+                                        ),
                                       ],
                                     ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        "-\u20B9${dateWiseSpendingTransaction[index].transactions![index1].amount!}",
-                                        style: TextStyle(
-                                            color: Helper.getTextColor(context),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        "${dateWiseSpendingTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseSpendingTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
-                                        style:  TextStyle(
-                                          color: Helper.getTextColor(context),
-                                          fontSize: 14,
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },
                           separatorBuilder: (BuildContext context, int index) {
-                            return 10.heightBox;
+                            return const SizedBox(height: 10);
                           },
+
                         ),
+
                     ],
                   );
+                  }
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return 10.heightBox;
@@ -869,7 +914,10 @@ class OverviewScreenState extends State<OverviewScreen> {
                 physics: const ScrollPhysics(),
                 itemCount: dateWiseIncomeTransaction.length,
                 itemBuilder: (context, index) {
-                  return Column(
+                  if (dateWiseIncomeTransaction[index]
+                      .transactions!
+                      .isNotEmpty ) {
+                    return Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -893,89 +941,125 @@ class OverviewScreenState extends State<OverviewScreen> {
                         ListView.separated(
                           shrinkWrap: true,
                           physics: const ScrollPhysics(),
-                          itemCount: dateWiseIncomeTransaction[index]
-                              .transactions!
-                              .length,
+                          itemCount: dateWiseIncomeTransaction[index].transactions!.length,
                           itemBuilder: (context, index1) {
-                            return Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration:  BoxDecoration(
+                            final transaction = dateWiseIncomeTransaction[index].transactions![index1];
+                            return Dismissible(
+                              key: Key(transaction.id.toString()), // Unique key for each item
+                              direction: DismissDirection.endToStart, // Allow swiping from right to left
+                              background: Container(),
+                              secondaryBackground: Container(
+                                color: Colors.red,
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                alignment: Alignment.centerRight,
+                                child: const Icon(Icons.delete, color: Colors.white),
+                              ),
+                              confirmDismiss: (direction) async {
+                                return await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text("Confirm"),
+                                      content: const Text("Are you sure you want to delete this transaction?"),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () => Navigator.of(context).pop(false),
+                                          child: const Text("Cancel"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.of(context).pop(true),
+                                          child: const Text("Delete"),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              onDismissed: (direction) async {
+                                setState(() {
+                                  // Remove the item from your list
+                                  dateWiseIncomeTransaction[index].transactions!.removeAt(index1);
+                                });
+                                await databaseHelper.deleteTransactionFromDB(transaction.id!);
+                                getIncomeTransactions();
+
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
                                   color: Helper.getCardColor(context),
-                                  borderRadius:
-                                  const BorderRadius.all(Radius.circular(10))),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration:  const BoxDecoration(
+                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: const BoxDecoration(
                                         color: Colors.black,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10))),
-                                    child: SvgPicture.asset(
-                                      'asset/images/${dateWiseIncomeTransaction[index].transactions![index1].cat_icon}.svg',
-                                      color: dateWiseIncomeTransaction[index]
-                                          .transactions![index1]
-                                          .cat_color,
-                                      width: 24,
-                                      height: 24,
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      child: SvgPicture.asset(
+                                        'asset/images/${transaction.cat_icon}.svg',
+                                        color: transaction.cat_color,
+                                        width: 24,
+                                        height: 24,
+                                      ),
                                     ),
-                                  ),
-                                  15.widthBox,
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          dateWiseIncomeTransaction[index]
-                                              .transactions![index1]
-                                              .cat_name!,
-                                          style:  TextStyle(
+                                    const SizedBox(width: 15),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            transaction.cat_name!,
+                                            style: TextStyle(
                                               color: Helper.getTextColor(context),
                                               fontSize: 16,
-                                              fontWeight: FontWeight.bold),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            transaction.description!,
+                                            style: TextStyle(
+                                              color: Helper.getTextColor(context),
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "+\u20B9${transaction.amount!}",
+                                          style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                         Text(
-                                          dateWiseIncomeTransaction[index]
-                                              .transactions![index1]
-                                              .description!,
-                                          style:  TextStyle(
+                                          transaction.payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
+                                          style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 14,
                                           ),
-                                        )
+                                        ),
                                       ],
                                     ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        "+\u20B9${dateWiseIncomeTransaction[index].transactions![index1].amount!}",
-                                        style:  TextStyle(
-                                            color: Helper.getTextColor(context),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        "${dateWiseIncomeTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseIncomeTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
-                                        style:  TextStyle(
-                                          color: Helper.getTextColor(context),
-                                          fontSize: 14,
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },
                           separatorBuilder: (BuildContext context, int index) {
-                            return 10.heightBox;
+                            return const SizedBox(height: 10);
                           },
                         ),
                     ],
                   );
+                  }
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return 10.heightBox;

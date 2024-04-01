@@ -42,7 +42,7 @@ class DatabaseHelper {
 
     // Open/create the database at a given path
     var notesDatabase =
-        await openDatabase(path, version: 1, onCreate: _createDb);
+    await openDatabase(path, version: 1, onCreate: _createDb);
     return notesDatabase;
   }
 
@@ -79,7 +79,6 @@ class DatabaseHelper {
       ${TransactionFields.cat_icon} $textType,
       ${TransactionFields.cat_color} $integerType,
       ${TransactionFields.payment_method_id} $integerType,
-      ${TransactionFields.payment_method_name} $textType,
       ${TransactionFields.status} $integerType,
       ${TransactionFields.transaction_date} $integerType,
       ${TransactionFields.transaction_type} $integerType,
@@ -97,7 +96,6 @@ class DatabaseHelper {
       CREATE TABLE $payment_method_table (
       ${PaymentMethodFields.id} $idType,
       ${PaymentMethodFields.name} $textType,
-      ${PaymentMethodFields.icon} $textType,
       ${PaymentMethodFields.status} $integerType
       )
    ''');
@@ -204,6 +202,11 @@ class DatabaseHelper {
     }
   }
 
+  Future<void> deleteTransactionFromDB(int id) async {
+    Database db = await instance.database;
+    await db.delete(transaction_table, where: 'id = ?', whereArgs: [id],);
+  }
+
   // Insert UserData
   Future<int> insertUserData(UserModel userModel) async {
     Database db = await database;
@@ -271,7 +274,7 @@ class DatabaseHelper {
   Future<List<PaymentMethod>> paymentMethods() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
-        await db.query(payment_method_table);
+    await db.query(payment_method_table);
     return List.generate(
         maps.length, (index) => PaymentMethod.fromMap(maps[index]));
   }
@@ -307,7 +310,7 @@ class DatabaseHelper {
   Future<List<IncomeCategory>> getIncomeCategory() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
-        await db.query(income_category_table);
+    await db.query(income_category_table);
     return List.generate(
         maps.length, (index) => IncomeCategory.fromMap(maps[index]));
   }
@@ -329,7 +332,7 @@ class DatabaseHelper {
   Future<List<ExpenseCategory>> getExpenseCategory() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
-        await db.query(expence_category_table);
+    await db.query(expence_category_table);
     return List.generate(
         maps.length, (index) => ExpenseCategory.fromMap(maps[index]));
   }
@@ -439,9 +442,9 @@ class DatabaseHelper {
     }
 
     query +=
-        '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
+    '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
     query +=
-        ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ?';
+    ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ?';
     List<dynamic> whereArgs = [
       ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
       year,
@@ -450,14 +453,14 @@ class DatabaseHelper {
 
     if (expenseCatId != -1 || incomeCatId != -1) {
       query +=
-          ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+      ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
       whereArgs.add(expenseCatId);
       whereArgs.add(incomeCatId);
     }
 
     if (category.isNotEmpty) {
       query +=
-          ' AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE';
+      ' AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE';
       whereArgs.add('%$category%');
       whereArgs.add('%$category%');
     }
@@ -504,9 +507,9 @@ class DatabaseHelper {
     }
 
     query +=
-        '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
+    '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
     query +=
-        ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
+    ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
 
     whereArgs = [
       ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
@@ -523,14 +526,14 @@ class DatabaseHelper {
       whereArgs.add(expenseCatId);
     } else if (expenseCatId != -1 && incomeCatId != -1) {
       query +=
-          ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+      ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
       whereArgs.add(expenseCatId);
       whereArgs.add(incomeCatId);
     }
 
     if (category.isNotEmpty) {
       query +=
-          ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
+      ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
       whereArgs.add('%$category%');
       whereArgs.add('%$category%');
     }

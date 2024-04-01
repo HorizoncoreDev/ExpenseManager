@@ -1,5 +1,3 @@
-
-import 'package:contacts_service/contacts_service.dart';
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/other_screen/invite_friends_screen.dart';
@@ -10,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../utils/global.dart';
 import '../utils/my_shared_preferences.dart';
 import 'account_detail/account_detail_screen.dart';

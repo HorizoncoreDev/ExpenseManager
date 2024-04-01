@@ -134,7 +134,14 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
             }
           });
         } else {
-          getProfileData();
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.userEmail)
+              .then((value) {
+            if (value != null) {
+              userEmail = value;
+              getProfileData();
+            }
+          });
         }
       }
     });
@@ -299,7 +306,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                               lineWidth: 5.0,
                               percent: spendingPercentage / 100,
                               center: Text(
-                                "$spendingPercentage%",
+                                "${spendingPercentage.toPrecision(2)}%",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -544,7 +551,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                                             FontWeight.bold),
                                                   ),
                                                   Text(
-                                                    "${dateWiseTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : ''}/${dateWiseTransaction[index].transactions![index1].transaction_date!.split(' ')[1]}",
+                                                    dateWiseTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
                                                     style: TextStyle(
                                                       color:
                                                           Helper.getTextColor(
@@ -1002,7 +1009,6 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
             }
           }
         }
-
         dateWiseTransaction.add(DateWiseTransactionModel(
             transactionDate: date,
             transactionTotal: totalAmount,

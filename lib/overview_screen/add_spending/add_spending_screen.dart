@@ -59,7 +59,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
     "5000",
   ];
 
-  late DateTime currentDate;
+  DateTime selectedDate = DateTime.now();
 
   List<Category> selectedItemList = [];
   List<IncomeCategory> selectedIncomeItemList = [];
@@ -127,7 +127,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   @override
   void initState() {
     super.initState();
-    currentDate = DateTime.now();
     MySharedPreferences.instance
         .getStringValuesSF(SharedPreferencesKeys.userEmail)
         .then((value) {
@@ -165,22 +164,22 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
 
   void _incrementDate() {
     setState(() {
-      currentDate = currentDate.add(const Duration(days: 1));
+      selectedDate = selectedDate.add(Duration(days: 1));
     });
   }
 
   void _decrementDate() {
     setState(() {
-      currentDate = currentDate.subtract(const Duration(days: 1));
+      selectedDate = selectedDate.subtract(Duration(days: 1));
     });
   }
 
   String formattedDate() {
-    return DateFormat('dd/MM/yyyy').format(currentDate);
+    return DateFormat('dd/MM/yyyy').format(selectedDate);
   }
 
   String formattedTime() {
-    return DateFormat('HH:mm').format(currentDate);
+    return DateFormat('HH:mm').format(selectedDate);
   }
 
   int selectedSpendingSubIndex = -1;
@@ -997,36 +996,69 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(5))),
                           child: const Icon(
-                            Icons.calendar_month_sharp,
+                            Icons.arrow_back_ios_new_outlined,
                             color: Colors.grey,
                           ),
                         ),
                       ),
                       5.widthBox,
                       Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 7, horizontal: 5),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: Helper.getCardColor(context),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                formattedDate(),
-                                style: TextStyle(
-                                    color: Helper.getTextColor(context)),
-                              ),
-                              5.widthBox,
-                              Text(
-                                formattedTime(),
-                                style: TextStyle(
-                                    color: Helper.getTextColor(context)),
-                              ),
-                            ],
+
+                        child: InkWell(
+                          onTap: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      colorScheme: const ColorScheme.light(
+                                        primary: Colors.blue,
+                                        onPrimary: Colors.white,
+                                        onSurface: Colors.blue,
+                                      ),
+                                      textButtonTheme: TextButtonThemeData(
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors
+                                              .blue, // button text color
+                                        ),
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime.now());
+                            if (pickedDate != null && pickedDate != selectedDate) {
+                              setState(() {
+                                selectedDate = pickedDate;
+                              });
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 7, horizontal: 5),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: Helper.getCardColor(context),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  formattedDate(),
+                                  style: TextStyle(
+                                      color: Helper.getTextColor(context)),
+                                ),
+                                // 5.widthBox,
+                                // Text(
+                                //   formattedTime(),
+                                //   style: TextStyle(
+                                //       color: Helper.getTextColor(context)),
+                                // ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -1052,7 +1084,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(5))),
                           child: const Icon(
-                            Icons.calendar_month_sharp,
+                            Icons.arrow_forward_ios_outlined,
                             color: Colors.grey,
                           ),
                         ),

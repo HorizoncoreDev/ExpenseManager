@@ -16,25 +16,17 @@ class IntroScreen extends StatefulWidget {
 class _IntroScreenState extends State<IntroScreen> {
   IntroBloc introBloc = IntroBloc();
   final List<String> texts1 = [
-    'Automatic\nbackup',
-    'Hidden\nassets,\nhidden\nspending',
-    'Monitor\nyour wife\nspending',
-    'Make a plan\nfor revenue',
-    'Tips for\nsaving',
-    'Manage\ndebt,\nprinciple &\ninterest',
-    'Monitor\nyour\nhusband\nspending',
-    'Splitting',
+    'Make a\nplan for\nrevenue',
+    'Monitor\nyour\nlibrary',
+    'Manage\nprinciple',
+    'Add\nspending\nand\nincome',
   ];
 
   final List<String> texts2 = [
-    'Tips for\nsaving',
-    'Manage\ndebt,\nprinciple &\ninterest',
-    'Monitor\nyour\nhusband\nspending',
-    'Splitting',
-    'Automatic\nbackup',
-    'Hidden\nassets,\nhidden\nspending',
-    'Monitor\nyour wife\nspending',
-    'Make a plan\nfor revenue',
+    'Reports\nand charts',
+    'Manage\nyour\ncategories',
+    'Themes\nand\noffline\nmode',
+    'Invite\nyour\nfriends',
   ];
 
   var colors = [
@@ -42,25 +34,13 @@ class _IntroScreenState extends State<IntroScreen> {
     Colors.blue,
     Colors.cyan,
     Colors.green,
-    Colors.yellow,
-    Colors.red,
-    Colors.blue,
-    Colors.cyan,
-    Colors.green,
-    Colors.yellow,
   ];
 
   var colorsList = [
-    Colors.cyan,
-    Colors.green,
-    Colors.cyan,
-    Colors.green,
-    Colors.yellow,
-    Colors.red,
-    Colors.blue,
-    Colors.cyan,
-    Colors.blue,
-    Colors.yellow,
+    Colors.grey,
+    Colors.orangeAccent,
+    Colors.purpleAccent,
+    Colors.amber,
   ];
 
   @override
