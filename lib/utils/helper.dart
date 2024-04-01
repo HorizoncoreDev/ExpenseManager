@@ -1,3 +1,4 @@
+import 'package:expense_manager/db_models/payment_method_model.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
@@ -42,21 +43,21 @@ class Helper {
 
     List<Category> spendingCategories = [];
     spendingCategories.add(
-        Category(name: 'Dine out', color: Colors.blue, icons: 'ic_google'));
+        Category(name: 'Dine out', color: Colors.blue, icons: 'ic_dine_out'));
     spendingCategories
-        .add(Category(name: 'Commute', color: Colors.blue, icons: 'ic_google'));
+        .add(Category(name: 'Commute', color: Colors.blue, icons: 'ic_commute'));
     spendingCategories.add(
-        Category(name: 'Enjoyment', color: Colors.blue, icons: 'ic_google'));
+        Category(name: 'Enjoyment', color: Colors.blue, icons: 'ic_enjoyment'));
     spendingCategories.add(
-        Category(name: 'Child care', color: Colors.blue, icons: 'ic_google'));
+        Category(name: 'Child care', color: Colors.blue, icons: 'ic_child_care'));
     spendingCategories.add(
-        Category(name: 'Shopping', color: Colors.blue, icons: 'ic_google'));
+        Category(name: 'Shopping', color: Colors.blue, icons: 'ic_shopping'));
     spendingCategories.add(
-        Category(name: 'Insurance', color: Colors.blue, icons: 'ic_google'));
+        Category(name: 'Insurance', color: Colors.blue, icons: 'ic_insurance'));
     spendingCategories
-        .add(Category(name: 'Health', color: Colors.blue, icons: 'ic_google'));
+        .add(Category(name: 'Health', color: Colors.blue, icons: 'ic_health'));
     spendingCategories.add(
-        Category(name: 'Personal', color: Colors.blue, icons: 'ic_google'));
+        Category(name: 'Personal', color: Colors.blue, icons: 'ic_personal'));
     await databaseHelper.insertAllCategory(spendingCategories);
 
     List<SpendingSubCategory> spendingSubCategories = [];
@@ -122,40 +123,46 @@ class Helper {
     incomeCategories.add(IncomeCategory(
         name: 'Salary',
         color: Colors.blue,
-        path: 'ic_google',
+        path: 'ic_salary',
         parentId: 1,
         status: 1));
     incomeCategories.add(IncomeCategory(
         name: 'Bonus',
         color: Colors.blue,
-        path: 'ic_google',
+        path: 'ic_bonus',
         parentId: 1,
         status: 1));
     incomeCategories.add(IncomeCategory(
         name: 'Part-Time Work',
         color: Colors.blue,
-        path: 'ic_google',
+        path: 'ic_part_time_work',
         parentId: 1,
         status: 1));
     incomeCategories.add(IncomeCategory(
         name: 'Pensions',
         color: Colors.blue,
-        path: 'ic_google',
+        path: 'ic_pension',
         parentId: 1,
         status: 1));
     incomeCategories.add(IncomeCategory(
         name: 'Equities',
         color: Colors.blue,
-        path: 'ic_google',
+        path: 'ic_equity',
         parentId: 1,
         status: 1));
     incomeCategories.add(IncomeCategory(
         name: 'Coupons',
         color: Colors.blue,
-        path: 'ic_google',
+        path: 'ic_coupon',
         parentId: 1,
         status: 1));
     await databaseHelper.insertIncomeAllCategory(incomeCategories);
+
+    List<PaymentMethod> paymentMethods = [];
+    paymentMethods.add( PaymentMethod(name: 'Cash',status: 1,icon: 'ic_cash'));
+    paymentMethods.add( PaymentMethod(name: 'Online',status: 1,icon: 'ic_online_payment'));
+    paymentMethods.add( PaymentMethod(name: 'Card',status: 1,icon: 'ic_card'));
+    await databaseHelper.insertAllPaymentMethods(paymentMethods);
   }
 
   static Color getCardColor(BuildContext context) {

@@ -22,11 +22,14 @@ class _DashBoardState extends State<DashBoard> {
   PersistentTabController controller = PersistentTabController(initialIndex: 0);
   bool hideNavBar = false;
   GlobalKey<OverviewScreenState> overviewKey = GlobalKey<OverviewScreenState>();
-  GlobalKey<StatisticsScreenState> overviewKey1 = GlobalKey<StatisticsScreenState>();
+  GlobalKey<StatisticsScreenState> overviewKey1 =
+      GlobalKey<StatisticsScreenState>();
 
   List<Widget> buildScreens() {
     return [
-       OverviewScreen(key: overviewKey,),
+      OverviewScreen(
+        key: overviewKey,
+      ),
       Container(),
       StatisticsScreen(key: overviewKey1),
     ];
@@ -83,7 +86,6 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
-
     return [
       PersistentBottomNavBarItem(
         icon: Icon(Icons.home),
@@ -101,12 +103,21 @@ class _DashBoardState extends State<DashBoard> {
           activeColorSecondary: Helper.getTextColor(context),
           inactiveColorPrimary: Helper.getTextColor(context),
           inactiveColorSecondary: Helper.getTextColor(context),
-          onPressed: (contet){
-            Navigator.of(context, rootNavigator: true).
-            push(MaterialPageRoute(builder: (context) =>  AddSpendingScreen(transactionName: AppConstanst.selectedTabIndex==0?AppConstanst.spendingTransactionName:AppConstanst.incomeTransactionName,)),).then((value) {
-              if(value!=null){
-                if(value){
+          onPressed: (contet) {
+            Navigator.of(context, rootNavigator: true)
+                .push(
+              MaterialPageRoute(
+                  builder: (context) => AddSpendingScreen(
+                        transactionName: AppConstanst.selectedTabIndex == 0
+                            ? AppConstanst.spendingTransactionName
+                            : AppConstanst.incomeTransactionName,
+                      )),
+            )
+                .then((value) {
+              if (value != null) {
+                if (value) {
                   overviewKey.currentState?.getTransactions();
+                  overviewKey.currentState?.getIncomeTransactions();
                   overviewKey1.currentState?.getTransactions();
                   overviewKey1.currentState?.getIncomeData();
                   //getTransactions();

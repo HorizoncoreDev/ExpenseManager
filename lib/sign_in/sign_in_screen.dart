@@ -183,11 +183,11 @@ class _SignInScreenState extends State<SignInScreen> {
                             onTap: () {
                               MySharedPreferences.instance.addBoolToSF(
                                   SharedPreferencesKeys.isSkippedUser, true);
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const BudgetScreen()),
-                                  (Route<dynamic> route) => false);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const BudgetScreen()));
                             },
                             child: Text(
                               "Skip",
@@ -245,16 +245,21 @@ class _SignInScreenState extends State<SignInScreen> {
           var currentActualBudget = "0";
 
           if (AppConstanst.signInClicked == 1) {
-
             AppConstanst.signInClicked = 0;
-            MySharedPreferences.instance.getStringValuesSF(
-                SharedPreferencesKeys.skippedUserCurrentBalance).then((value) {
+            MySharedPreferences.instance
+                .getStringValuesSF(
+                    SharedPreferencesKeys.skippedUserCurrentBalance)
+                .then((value) {
               currentBalance = value!;
-              MySharedPreferences.instance.getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentIncome).then((value) {
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                      SharedPreferencesKeys.skippedUserCurrentIncome)
+                  .then((value) {
                 currentIncome = value!;
-                MySharedPreferences.instance.getStringValuesSF(
-                    SharedPreferencesKeys.skippedUserActualBudget).then((value) async {
+                MySharedPreferences.instance
+                    .getStringValuesSF(
+                        SharedPreferencesKeys.skippedUserActualBudget)
+                    .then((value) async {
                   currentActualBudget = value!;
 
                   await databaseHelper.insertProfileData(
@@ -276,64 +281,78 @@ class _SignInScreenState extends State<SignInScreen> {
               });
             });
 
-
-
-
             await DatabaseHelper.instance
-                .getTransactionList("", "",-1)
+                .getTransactionList("", "", -1)
                 .then((value) async {
-
               for (var t in value) {
-                    t.member_id = -1;
-                    t.member_email = user.email;
-                    await databaseHelper.updateTransaction(t);
+                t.member_id = 1;
+                t.member_email = user.email;
+                await databaseHelper.updateTransaction(t);
               }
             });
 
             MySharedPreferences.instance
                 .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
+            MySharedPreferences.instance
+                .addBoolToSF(SharedPreferencesKeys.isLogin, true);
             MySharedPreferences.instance.addStringToSF(
-                SharedPreferencesKeys.skippedUserCurrentBalance,
-                "0");
+                SharedPreferencesKeys.skippedUserCurrentBalance, "0");
             MySharedPreferences.instance.addStringToSF(
-                SharedPreferencesKeys.skippedUserCurrentIncome,
-                "0");
+                SharedPreferencesKeys.skippedUserCurrentIncome, "0");
             MySharedPreferences.instance.addStringToSF(
-                SharedPreferencesKeys.skippedUserActualBudget,
-                "0");
+                SharedPreferencesKeys.skippedUserActualBudget, "0");
 
             Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => const DashBoard()), (
-                Route<dynamic> route) => false);
-          } else {
-            // Insert Profile Data
-            await databaseHelper.insertProfileData(
-              ProfileModel(
-                  first_name: firstName,
-                  last_name: lastName,
-                  email: user.email ?? "",
-                  full_name: user.displayName ?? "",
-                  dob: "",
-                  profile_image: "",
-                  mobile_number: "",
-                  current_balance: "0",
-                  current_income: "0",
-                  actual_budget: "0",
-                  gender: ""),
-            );
-            MySharedPreferences.instance
-                .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const BudgetScreen()), (
-                Route<dynamic> route) => false);
+                MaterialPageRoute(builder: (context) => const DashBoard()),
+                (Route<dynamic> route) => false);
           }
+          else {
+            await DatabaseHelper.instance
+                .getProfileData(user.email!)
+                .then((profileData) async {
+              if (profileData == null) {
+                await databaseHelper.insertProfileData(
+                  ProfileModel(
+                      first_name: firstName,
+                      last_name: lastName,
+                      email: user.email ?? "",
+                      full_name: user.displayName ?? "",
+                      dob: "",
+                      profile_image: "",
+                      mobile_number: "",
+                      current_balance: "0",
+                      current_income: "0",
+                      actual_budget: "0",
+                      gender: ""),
+                );
+                MySharedPreferences.instance
+                    .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
+                MySharedPreferences.instance
+                    .addBoolToSF(SharedPreferencesKeys.isLogin,true);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const BudgetScreen()),
+                );
+              }else{
+                MySharedPreferences.instance
+                    .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
+                MySharedPreferences.instance
+                    .addBoolToSF(SharedPreferencesKeys.isLogin,true);
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DashBoard()),
+                        (Route<dynamic> route) => false);
+              }
+            });
+          }
+
         }
       }
     } catch (e) {
       Helper.showToast("some error occured $e");
     }
   }
-
 }

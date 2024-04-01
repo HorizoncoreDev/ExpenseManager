@@ -140,60 +140,18 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
               ),
 
               body: imageList.isEmpty ?
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  height: 250,
-                    decoration: BoxDecoration(
-                        color: Helper.getCardColor(context),
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(10))),
-                    child: Column(
-                      children: [
-                        20.heightBox,
-                        Icon(
-                          Icons.account_balance_wallet,
-                          color: Helper.getTextColor(context),
-                          size: 80,
-                        ),
-                        10.heightBox,
-                        Text(
-                          "You don't have any library yet",
-                          style: TextStyle(
-                              color: Helper.getTextColor(context)),
-                        ),
-                        20.heightBox,
-                        Padding(
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 35),
-                          child: InkWell(
-                            onTap: () {
-                              /*Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => const AddSpendingScreen()),
-                                      );*/
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 15),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(10))),
-                              child: const Text(
-                                "Add library",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 14),
-                              ),
-                            ),
-                          ),
-                        ),
-                        15.heightBox,
-                      ],
-                    )),
-              ) :
+              Expanded(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "You don't have any library yet",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Helper.getTextColor(context),
+                        fontSize: 18),
+                  ),
+                ),
+              ):
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: GridView.builder(

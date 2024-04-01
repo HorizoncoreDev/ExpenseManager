@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:expense_manager/db_models/payment_method_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/overview_screen/add_spending/bloc/add_spending_event.dart';
 import 'package:expense_manager/utils/extensions.dart';
@@ -68,6 +69,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
 
   List<IncomeCategory> incomeCategories = [];
   List<IncomeSubCategory> incomeSubCategories = [];
+  List<PaymentMethod> paymentMethods = [];
 
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
@@ -88,7 +90,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   Future<void> getSpendingSubCategory() async {
     try {
       List<SpendingSubCategory> fetchedSpendingSubCategories =
-          await databaseHelper.getSpendingSubCategory(selectedItemList[0].id!.toInt());
+          await databaseHelper
+              .getSpendingSubCategory(selectedItemList[0].id!.toInt());
       setState(() {
         spendingSubCategories = fetchedSpendingSubCategories;
       });
@@ -145,17 +148,30 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
     } else {
       getIncomeCategory();
     }
+    getPaymentMethods();
+  }
+
+  Future<void> getPaymentMethods() async {
+    try {
+      List<PaymentMethod> paymentMethodList =
+          await databaseHelper.paymentMethods();
+      setState(() {
+        paymentMethods = paymentMethodList;
+      });
+    } catch (error) {
+      setState(() {});
+    }
   }
 
   void _incrementDate() {
     setState(() {
-      currentDate = currentDate.add(Duration(days: 1));
+      currentDate = currentDate.add(const Duration(days: 1));
     });
   }
 
   void _decrementDate() {
     setState(() {
-      currentDate = currentDate.subtract(Duration(days: 1));
+      currentDate = currentDate.subtract(const Duration(days: 1));
     });
   }
 
@@ -171,6 +187,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   int selectedSpendingIndex = -1;
   int selectedIncomeSubIndex = -1;
   int selectedIncomeIndex = -1;
+  int selectedPaymentMethodIndex = 0;
 
   createSpendingIncome(BuildContext context, int id, String email) async {
     await databaseHelper
@@ -179,10 +196,20 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
           member_id: id,
           member_email: email,
           amount: int.parse(amountController.text),
-          expense_cat_id: selectedSpendingIndex!=-1?categories[selectedSpendingIndex].id:-1,
-          sub_expense_cat_id: selectedSpendingSubIndex!=-1?spendingSubCategories[selectedSpendingSubIndex].id:-1,
-          income_cat_id:selectedValue == AppConstanst.incomeTransactionName? incomeCategories[selectedIncomeIndex].id:-1,
-          sub_income_cat_id:selectedValue == AppConstanst.incomeTransactionName? selectedIncomeSubIndex!=-1?incomeSubCategories[selectedIncomeSubIndex].id:-1:-1,
+          expense_cat_id: selectedSpendingIndex != -1
+              ? categories[selectedSpendingIndex].id
+              : -1,
+          sub_expense_cat_id: selectedSpendingSubIndex != -1
+              ? spendingSubCategories[selectedSpendingSubIndex].id
+              : -1,
+          income_cat_id: selectedValue == AppConstanst.incomeTransactionName
+              ? incomeCategories[selectedIncomeIndex].id
+              : -1,
+          sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
+              ? selectedIncomeSubIndex != -1
+                  ? incomeSubCategories[selectedIncomeSubIndex].id
+                  : -1
+              : -1,
           cat_name: selectedValue == AppConstanst.spendingTransactionName
               ? selectedSpendingSubIndex != -1
                   ? spendingSubCategories[selectedSpendingSubIndex].name
@@ -196,7 +223,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
           cat_icon: selectedValue == AppConstanst.spendingTransactionName
               ? categories[selectedSpendingIndex].icons
               : incomeCategories[selectedIncomeIndex].path,
-          payment_method_id: AppConstanst.cashPaymentType,
+          payment_method_id:paymentMethods[selectedPaymentMethodIndex].id,
           status: 1,
           transaction_date: '${formattedDate()} ${formattedTime()}',
           transaction_type:
@@ -255,12 +282,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                 .getProfileData(userEmail)
                 .then((profileData) async {
               if (selectedValue == AppConstanst.spendingTransactionName) {
-                profileData.current_balance =
+                profileData!.current_balance =
                     (int.parse(profileData.current_balance!) -
                             int.parse(amountController.text))
                         .toString();
               } else {
-                profileData.current_income =
+                profileData!.current_income =
                     (int.parse(profileData.current_income!) +
                             int.parse(amountController.text))
                         .toString();
@@ -384,7 +411,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               .getProfileData(userEmail)
                               .then((value) async {
                             createSpendingIncome(
-                                context, value.id!, value.email!);
+                                context, value!.id!, value.email!);
                           });
                         } else {
                           print("USER SKIPPED $isSkippedUser");
@@ -452,7 +479,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 color: Helper.getCardColor(context),
                               ),
                             ),
-                            borderRadius: BorderRadius.only(
+                            borderRadius: const BorderRadius.only(
                                 topRight: Radius.circular(5),
                                 bottomRight: Radius.circular(5))),
                         child: Row(
@@ -498,8 +525,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                   color: Helper.getCardColor(context),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5))),
                               child: Text(
                                 amount[index],
                                 style: TextStyle(
@@ -968,7 +995,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           decoration: BoxDecoration(
                               color: Helper.getCardColor(context),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
+                                  const BorderRadius.all(Radius.circular(5))),
                           child: const Icon(
                             Icons.calendar_month_sharp,
                             color: Colors.grey,
@@ -984,7 +1011,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           decoration: BoxDecoration(
                               color: Helper.getCardColor(context),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
+                                  const BorderRadius.all(Radius.circular(5))),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -1023,7 +1050,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           decoration: BoxDecoration(
                               color: Helper.getCardColor(context),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
+                                  const BorderRadius.all(Radius.circular(5))),
                           child: const Icon(
                             Icons.calendar_month_sharp,
                             color: Colors.grey,
@@ -1094,7 +1121,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
             children: [
               Row(children: [
                 Container(
-                  padding: EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Helper.getCardColor(context)),
@@ -1136,28 +1163,58 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                   ),
                 ),
                 15.widthBox,
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
-                  child: Column(
-                    children: [
-                      const Icon(
-                        Icons.wallet,
-                        color: Colors.white,
-                      ),
-                      5.heightBox,
-                      const Text(
-                        "Cash",
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ],
+                SizedBox(
+                  height: 60,
+                  child: ListView.separated(
+                    physics: const ScrollPhysics(),
+                    itemCount: paymentMethods.length,
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          setState(() {
+                            selectedPaymentMethodIndex = index;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 15),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              color: selectedPaymentMethodIndex == index
+                                  ?Colors.blue
+                                  : Helper.getCategoriesItemColors(context),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5))),
+                          child: Column(
+                            children: [
+                              SvgPicture.asset(
+                                'asset/images/${paymentMethods[index].icon}.svg',
+                                color: selectedPaymentMethodIndex == index
+                                    ? Colors.white
+                                    : Colors.blue,
+                                width: 28,
+                                height: 28,
+                              ),
+                              5.heightBox,
+                              Text(
+                                paymentMethods[index].name!,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return 10.widthBox;
+                    },
                   ),
-                )
+                ),
               ]),
               10.heightBox,
               Row(children: [

@@ -56,7 +56,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   Future<void> getProfileData() async {
     try {
-      ProfileModel fetchedProfileData =
+      ProfileModel? fetchedProfileData =
           await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
@@ -220,11 +220,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(6),
-                                  decoration: const BoxDecoration(
+                                  decoration:  BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.blueGrey),
+                                      color: Colors.grey.shade800),
                                   child: const Icon(
-                                    Icons.settings,
+                                    Icons.person_outline,
                                     color: Colors.blue,
                                   ),
                                 ),
@@ -257,7 +257,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   padding: const EdgeInsets.all(6),
                                   decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.blueGrey),
+                                      color: Colors.grey.shade800),
                                   child: const Icon(
                                     Icons.settings,
                                     color: Colors.blue,
@@ -302,11 +302,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(6),
-                                    decoration: const BoxDecoration(
+                                    decoration:  BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Colors.blueGrey),
+                                        color: Colors.grey.shade800),
                                     child: const Icon(
-                                      Icons.settings,
+                                      Icons.logout,
                                       color: Colors.blue,
                                     ),
                                   ),
@@ -352,11 +352,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(6),
-                                    decoration: const BoxDecoration(
+                                    decoration:  BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Colors.blueGrey),
+                                        color: Colors.grey.shade800),
                                     child: const Icon(
-                                      Icons.settings,
+                                      Icons.refresh,
                                       color: Colors.blue,
                                     ),
                                   ),
@@ -386,11 +386,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(6),
-                                    decoration: const BoxDecoration(
+                                    decoration:  BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Colors.blueGrey),
+                                        color: Colors.grey.shade800),
                                     child: const Icon(
-                                      Icons.settings,
+                                      Icons.person_remove_alt_1_outlined,
                                       color: Colors.redAccent,
                                     ),
                                   ),
@@ -690,7 +690,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
       MySharedPreferences.instance
           .addStringToSF(SharedPreferencesKeys.userEmail, "");
       MySharedPreferences.instance
-          .addBoolToSF(SharedPreferencesKeys.isBudgetAdded, false);
+          .addBoolToSF(SharedPreferencesKeys.isLogin, false);
 
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => const SignInScreen()));
@@ -705,8 +705,8 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
         .addStringToSF(SharedPreferencesKeys.userEmail, "");
     MySharedPreferences.instance
         .addBoolToSF(SharedPreferencesKeys.isBudgetAdded, false);
-
-
+    MySharedPreferences.instance
+        .addBoolToSF(SharedPreferencesKeys.isLogin, false);
     Navigator.of(context, rootNavigator: true)
         .push(MaterialPageRoute(builder: (context) => const BudgetScreen()));
   }

@@ -44,9 +44,22 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
     'ic_google',
     'ic_facebook',
     'ic_apple',
-    'ic_google',
-    'ic_facebook',
-    'ic_apple'
+    'ic_bonus',
+    'ic_card',
+    'ic_child_care',
+    'ic_commute',
+    'ic_coupon',
+    'ic_dine_out',
+    'ic_enjoyment',
+    'ic_equity',
+    'ic_health',
+    'ic_insurance',
+    'ic_online_payment',
+    'ic_part_time_work',
+    'ic_pension',
+    'ic_personal',
+    'ic_salary',
+    'ic_shopping',
   ];
   String iconSelected = '';
   Color? isSelectedColor;
@@ -144,16 +157,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                               color: Helper.getTextColor(context),
                               fontSize: 14),
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
-                              shape: BoxShape.circle, color: Colors.red),
-                          child: const Icon(
-                            Icons.question_mark,
-                            color: Colors.white,
-                            size: 10,
-                          ),
-                        ),
+
                       ],
                     ),
                     10.heightBox,
@@ -192,14 +196,26 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                             onTap: () {
                               setState(() {
                                 isSelectedColor = colors[index];
-                                print("Selected color is $isSelectedColor");
                               });
                             },
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle, color: colors[index]),
+                            child: SizedBox(
+                              width: 34,
+                              height: 34,
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle, color: colors[index]),
+                                  ),
+                                  if(isSelectedColor == colors[index])
+                                    const Positioned(
+                                      left: 0,
+                                        right: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        child:  Icon(Icons.check,color: Colors.black,))
+                                ],
+                              ),
                             ),
                           );
                         },
@@ -220,13 +236,13 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         decoration: BoxDecoration(
                             color: Helper.getCardColor(context),
                             borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
+                                const BorderRadius.all(Radius.circular(10))),
                         child: GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 4,
-                                  childAspectRatio: 2 / 1,
-                                  mainAxisSpacing: 4),
+                                  childAspectRatio: 1.7,
+                                  mainAxisSpacing: 5),
                           shrinkWrap: true,
                           physics: const ScrollPhysics(),
                           itemCount: myCategoriesIcons.length,
@@ -239,9 +255,19 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                                       iconSelected = myCategoriesIcons[index];
                                     });
                                   },
-                                  child: SvgPicture.asset(
-                                      'asset/images/${myCategoriesIcons[index]}.svg',
-                                      color: Color(0xff86859a))),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                        color: iconSelected == myCategoriesIcons[index]?Colors.blue:Colors.transparent
+                                    ),
+                                    child: SvgPicture.asset(
+                                        'asset/images/${myCategoriesIcons[index]}.svg',
+                                        color: iconSelected == myCategoriesIcons[index]?Colors.white:const Color(0xff86859a),
+                                      height: 1,
+                                      width: 1,
+                                    ),
+                                  )),
                             );
                           },
                         ),

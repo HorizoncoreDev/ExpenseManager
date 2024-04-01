@@ -189,7 +189,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                         ),
                       ),
                       20.heightBox,
-                      Text(
+                      /*Text(
                         "REMINDER",
                         style: TextStyle(
                             fontSize: 14,
@@ -310,7 +310,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                           ],
                         ),
                       ),
-                      10.heightBox
+                      10.heightBox*/
                     ],
                   ),
                 ),

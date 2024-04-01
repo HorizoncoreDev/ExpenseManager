@@ -58,7 +58,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   Future<void> getProfileData() async {
     try {
       await Future.delayed(const Duration(seconds: 2));
-      ProfileModel fetchedProfileData =
+      ProfileModel? fetchedProfileData =
           await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;

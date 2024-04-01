@@ -92,11 +92,11 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
 
   getProfileData() async {
     try {
-      ProfileModel fetchedProfileData =
+      ProfileModel? fetchedProfileData =
           await databaseHelper.getProfileData(userEmail);
       setState(() {
-        currentBalance = int.parse(fetchedProfileData.current_balance!);
-        actualBudget = int.parse(fetchedProfileData.actual_budget!);
+        currentBalance = int.parse(fetchedProfileData!.current_balance!);
+        actualBudget = int.parse(fetchedProfileData!.actual_budget!);
         double percentage =
             currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
         spendingPercentage = currentBalance > 0 ? 100 - percentage : 0;

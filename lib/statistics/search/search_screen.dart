@@ -321,7 +321,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         child: Align(
                           alignment: Alignment.center,
                           child: Text(
-                            "No data matching.",
+                            "Record Not Found",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: Helper.getTextColor(context),

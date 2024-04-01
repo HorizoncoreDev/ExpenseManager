@@ -8,6 +8,7 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/global.dart';
@@ -70,7 +71,7 @@ class _OtherScreenState extends State<OtherScreen> {
 
   Future<void> getProfileData() async {
     try {
-      ProfileModel fetchedProfileData =
+      ProfileModel? fetchedProfileData =
       await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
@@ -209,7 +210,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 8, horizontal: 8),
                                         decoration: const BoxDecoration(
-                                            color: Colors.blueGrey,
+                                            color: Colors.grey.shade800,
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10))),
                                         // alignment: Alignment.center,
@@ -245,14 +246,16 @@ class _OtherScreenState extends State<OtherScreen> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 8, horizontal: 8),
-                                        decoration: const BoxDecoration(
-                                            color: Colors.blueGrey,
+                                        decoration:  BoxDecoration(
+                                            color: Colors.grey.shade800,
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10))),
                                         // alignment: Alignment.center,
-                                        child: const Icon(
-                                          Icons.settings,
+                                        child:SvgPicture.asset(
+                                          'asset/images/ic_categories.svg',
                                           color: Colors.blue,
+                                          height: 24,
+                                          width: 24,
                                         ),
                                       ),
                                       5.heightBox,
@@ -282,14 +285,16 @@ class _OtherScreenState extends State<OtherScreen> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 8, horizontal: 8),
-                                        decoration: const BoxDecoration(
-                                            color: Colors.blueGrey,
+                                        decoration:  BoxDecoration(
+                                            color: Colors.grey.shade800,
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10))),
                                         // alignment: Alignment.center,
-                                        child: const Icon(
-                                          Icons.settings,
+                                        child: SvgPicture.asset(
+                                          'asset/images/ic_library.svg',
                                           color: Colors.blue,
+                                          height: 24,
+                                          width: 24,
                                         ),
                                       ),
                                       5.heightBox,
@@ -341,9 +346,9 @@ class _OtherScreenState extends State<OtherScreen> {
                                         15.widthBox,
                                         Container(
                                           padding: const EdgeInsets.all(6),
-                                          decoration: const BoxDecoration(
+                                          decoration:  BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: Colors.blueGrey),
+                                              color: Colors.grey.shade800),
                                           child: const Icon(
                                             Icons.settings,
                                             color: Colors.blue,
@@ -384,13 +389,15 @@ class _OtherScreenState extends State<OtherScreen> {
                                       children: [
                                         15.widthBox,
                                         Container(
-                                          padding: const EdgeInsets.all(6),
-                                          decoration: const BoxDecoration(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration:  BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: Colors.blueGrey),
-                                          child: const Icon(
-                                            Icons.settings,
+                                              color: Colors.grey.shade800),
+                                          child: SvgPicture.asset(
+                                            'asset/images/ic_invite.svg',
                                             color: Colors.blue,
+                                            height: 20,
+                                            width: 20,
                                           ),
                                         ),
                                         15.widthBox,
@@ -427,13 +434,15 @@ class _OtherScreenState extends State<OtherScreen> {
                                       children: [
                                         15.widthBox,
                                         Container(
-                                          padding: const EdgeInsets.all(6),
-                                          decoration: const BoxDecoration(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration:  BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: Colors.blueGrey),
-                                          child: const Icon(
-                                            Icons.settings,
+                                              color: Colors.grey.shade800),
+                                          child: SvgPicture.asset(
+                                            'asset/images/ic_rate.svg',
                                             color: Colors.blue,
+                                            height: 20,
+                                            width: 20,
                                           ),
                                         ),
                                         15.widthBox,
@@ -466,13 +475,15 @@ class _OtherScreenState extends State<OtherScreen> {
                                     children: [
                                       15.widthBox,
                                       Container(
-                                        padding: const EdgeInsets.all(6),
-                                        decoration: const BoxDecoration(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration:  BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color: Colors.blueGrey),
-                                        child: const Icon(
-                                          Icons.settings,
+                                            color: Colors.grey.shade800),
+                                        child: SvgPicture.asset(
+                                          'asset/images/ic_version.svg',
                                           color: Colors.blue,
+                                          height: 22,
+                                          width: 22,
                                         ),
                                       ),
                                       15.widthBox,
@@ -486,7 +497,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         ),
                                       ),
                                       Text(
-                                        "2.0.1",
+                                        "1.0.0",
                                         style: TextStyle(
                                             fontSize: 16,
                                             color:

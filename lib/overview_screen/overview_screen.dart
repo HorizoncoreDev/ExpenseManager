@@ -55,10 +55,10 @@ class OverviewScreenState extends State<OverviewScreen> {
 
   getProfileData() async {
     try {
-      ProfileModel fetchedProfileData =
+      ProfileModel? fetchedProfileData =
       await databaseHelper.getProfileData(userEmail);
       setState(() {
-        profileModel = fetchedProfileData;
+        profileModel = fetchedProfileData!;
         currentBalance = int.parse(profileModel.current_balance!);
         currentIncome = int.parse(profileModel.current_income!);
         actualBudget = int.parse(profileModel.actual_budget!);
@@ -138,7 +138,7 @@ class OverviewScreenState extends State<OverviewScreen> {
           await DatabaseHelper.instance
               .getProfileData(userEmail)
               .then((profileData) async {
-            profileData.current_balance = profileData.actual_budget;
+            profileData!.current_balance = profileData.actual_budget;
             await DatabaseHelper.instance.updateProfileData(profileData);
           });
         }
@@ -240,7 +240,7 @@ class OverviewScreenState extends State<OverviewScreen> {
           await DatabaseHelper.instance
               .getProfileData(userEmail)
               .then((profileData) async {
-            profileData.current_income = "0";
+            profileData!.current_income = "0";
             await DatabaseHelper.instance.updateProfileData(profileData);
           });
         }

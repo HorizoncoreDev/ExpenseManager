@@ -79,6 +79,7 @@ class DatabaseHelper {
       ${TransactionFields.cat_icon} $textType,
       ${TransactionFields.cat_color} $integerType,
       ${TransactionFields.payment_method_id} $integerType,
+      ${TransactionFields.payment_method_name} $textType,
       ${TransactionFields.status} $integerType,
       ${TransactionFields.transaction_date} $integerType,
       ${TransactionFields.transaction_type} $integerType,
@@ -96,6 +97,7 @@ class DatabaseHelper {
       CREATE TABLE $payment_method_table (
       ${PaymentMethodFields.id} $idType,
       ${PaymentMethodFields.name} $textType,
+      ${PaymentMethodFields.icon} $textType,
       ${PaymentMethodFields.status} $integerType
       )
    ''');
@@ -189,7 +191,7 @@ class DatabaseHelper {
         maps.length, (index) => ProfileModel.fromMap(maps[index]));
   }
 
-  Future<ProfileModel> getProfileData(String email) async {
+  Future<ProfileModel?> getProfileData(String email) async {
     Database db = await database;
     final map = await db.rawQuery(
         "SELECT * FROM $profile_table WHERE ${ProfileTableFields.email} = ?",
@@ -198,7 +200,7 @@ class DatabaseHelper {
     if (map.isNotEmpty) {
       return ProfileModel.fromJson(map.first);
     } else {
-      throw Exception("User: $email not found");
+      return null;
     }
   }
 
@@ -249,6 +251,21 @@ class DatabaseHelper {
     Database db = await database;
     await db.insert(payment_method_table, paymentMethod.toMap());
   }
+
+  Future<int> insertAllPaymentMethods(List<PaymentMethod> paymentMethods) async {
+    final db = await database;
+
+    final Batch batch = db.batch();
+
+    for (PaymentMethod paymentMethod in paymentMethods) {
+      batch.insert(payment_method_table, paymentMethod.toMap());
+    }
+
+    final List<dynamic> result = await batch.commit();
+    final int affectedRows = result.reduce((sum, element) => sum + element);
+    return affectedRows;
+  }
+
 
   // A method that retrieves all the paymentMethods from the paymentMethods table.
   Future<List<PaymentMethod>> paymentMethods() async {
@@ -513,7 +530,7 @@ class DatabaseHelper {
 
     if (category.isNotEmpty) {
       query +=
-          ' AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE';
+          ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
       whereArgs.add('%$category%');
       whereArgs.add('%$category%');
     }
@@ -558,16 +575,16 @@ class DatabaseHelper {
 
     if (transactionType == -1) {
       if (category.isNotEmpty) {
-        query += 'AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE '
-            'OR ${TransactionFields.description} LIKE ? COLLATE NOCASE ';
+        query += 'AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE '
+            'OR ${TransactionFields.description} LIKE ? COLLATE NOCASE) ';
         whereArgs.add('%$category%');
         whereArgs.add('%$category%');
       }
     } else {
       if (category.isNotEmpty) {
-        query += 'AND ${TransactionFields.transaction_type} = ?'
-            'AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE '
-            'OR ${TransactionFields.description} LIKE ? COLLATE NOCASE ';
+        query += 'AND ${TransactionFields.transaction_type} = ? '
+            'AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE '
+            'OR ${TransactionFields.description} LIKE ? COLLATE NOCASE) ';
         whereArgs.add(transactionType);
         whereArgs.add('%$category%');
         whereArgs.add('%$category%');

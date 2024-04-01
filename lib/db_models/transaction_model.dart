@@ -17,6 +17,7 @@ class TransactionFields {
     cat_color,
     cat_icon,
     payment_method_id,
+    payment_method_name,
     status,
     transaction_date,
     transaction_type,
@@ -41,6 +42,7 @@ class TransactionFields {
   static const String cat_color = 'cat_color';
   static const String cat_icon = 'cat_icon';
   static const String payment_method_id = 'payment_method_id';
+  static const String payment_method_name = 'payment_method_name';
   static const String status = 'status';
   static const String transaction_date = 'transaction_date';
   static const String transaction_type = 'transaction_type';
@@ -65,6 +67,7 @@ class TransactionModel {
   String? cat_name;
   Color? cat_color;
   String? cat_icon;
+  String? payment_method_name;
   int? payment_method_id;
   int? status;
   String? description;
@@ -90,6 +93,7 @@ class TransactionModel {
     this.cat_color,
     this.cat_icon,
     this.payment_method_id,
+    this.payment_method_name,
     this.status,
     this.transaction_date,
     this.transaction_type,
@@ -116,6 +120,7 @@ class TransactionModel {
       cat_color: Color(map['cat_color']),
       cat_icon: map['cat_icon'],
       payment_method_id: map['payment_method_id'],
+      payment_method_name: map['payment_method_name'],
       status: map['status'],
       transaction_date: map['transaction_date'],
       description: map['description'],
@@ -143,6 +148,7 @@ class TransactionModel {
       'cat_icon': cat_icon,
       'cat_color': cat_color!.value,
       'payment_method_id': payment_method_id,
+      'payment_method_name': payment_method_name,
       'status': status,
       'transaction_date': transaction_date,
       'transaction_type': transaction_type,
@@ -171,6 +177,7 @@ class TransactionModel {
       cat_icon: json['cat_icon'],
       cat_color: json['cat_color'],
       payment_method_id: json['payment_method_id'],
+      payment_method_name: json['payment_method_name'],
       status: json['status'],
       transaction_date: json['transaction_date'],
       transaction_type: json['transaction_type'],
@@ -198,6 +205,7 @@ class TransactionModel {
       'cat_icon': cat_icon,
       'cat_color': cat_color,
       'payment_method_id': payment_method_id,
+      'payment_method_name': payment_method_name,
       'status': status,
       'transaction_date': transaction_date,
       'transaction_type': transaction_type,

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:expense_manager/dashboard/dashboard.dart';
+import 'package:expense_manager/sign_in/sign_in_screen.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
@@ -16,7 +17,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   bool isBudgetAdded = false;
   bool isSkippedUser = false;
+  bool isLogin = false;
 
+  MySharedPreferences.instance
+      .getBoolValuesSF(SharedPreferencesKeys.isLogin)
+      .then((value) {
+    if (value != null) {
+      isLogin = value;
+    }
+  });
   MySharedPreferences.instance
       .getBoolValuesSF(SharedPreferencesKeys.isBudgetAdded)
       .then((value) {
@@ -28,7 +37,7 @@ void main() async {
       .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
       .then((value) {
     if (value != null) {
-      isBudgetAdded = value;
+      isSkippedUser = value;
     }
   });
   Platform.isAndroid
@@ -45,6 +54,7 @@ void main() async {
     child: MyApp(
       isBudgetAdded: isBudgetAdded,
       isSkippedUser: isSkippedUser,
+      isLogin: isLogin,
     ),
   ));
 }
@@ -52,8 +62,13 @@ void main() async {
 class MyApp extends StatelessWidget {
   bool isBudgetAdded;
   bool isSkippedUser;
+  bool isLogin;
 
-  MyApp({super.key, required this.isBudgetAdded, required this.isSkippedUser});
+  MyApp(
+      {super.key,
+      required this.isBudgetAdded,
+      required this.isSkippedUser,
+      required this.isLogin});
 
   // This widget is the root of your application.
   @override
@@ -67,7 +82,11 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: themeNotifier.getTheme(),
         home: isBudgetAdded
-            ? const DashBoard()
+            ? isLogin
+                ? const DashBoard()
+                : isSkippedUser?
+                const DashBoard()
+        :const SignInScreen()
             : isSkippedUser
                 ? const BudgetScreen()
                 : user == null
