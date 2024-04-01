@@ -1000,7 +1000,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 context: context,
                                 initialDate: DateTime.now(),
                                 firstDate: DateTime(2000),
-                                lastDate: DateTime(2101));
+                                lastDate: DateTime.now());
                             if (pickedDate != null && pickedDate != selectedDate) {
                               setState(() {
                                 selectedDate = pickedDate;

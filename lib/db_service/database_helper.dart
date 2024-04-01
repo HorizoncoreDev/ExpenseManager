@@ -669,18 +669,11 @@ class DatabaseHelper {
         maps.length, (index) => SpendingSubCategory.fromMap(maps[index]));
   }
 
-  /*Future<void> deleteDB() async {
-    Directory directory = await getApplicationDocumentsDirectory();
-    String path = '${directory.path}em.db';
 
-    if(await databaseExists(path)){
-      await deleteDatabase(path);
-      Helper.showToast("Your data is cleared");
-    }
-    else{
-      Helper.showToast("Data does not exist.");
-    }
-  }*/
+  Future<void> deleteTransactionFromDB(int id) async {
+    Database db = await instance.database;
+    await db.delete(transaction_table, where: 'id = ?', whereArgs: [id],);
+  }
 
   Future<void> clearTransactionTable() async {
     Database db = await instance.database;
