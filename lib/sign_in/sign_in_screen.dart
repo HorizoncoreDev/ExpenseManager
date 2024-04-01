@@ -280,7 +280,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
 
             await DatabaseHelper.instance
-                .getTransactionList("", "")
+                .getTransactionList("", "",-1)
                 .then((value) async {
 
               for (var t in value) {

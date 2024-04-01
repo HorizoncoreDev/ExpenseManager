@@ -16,8 +16,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mrx_charts/mrx_charts.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../other_screen/other_screen.dart';
+import '../overview_screen/add_spending/DateWiseTransactionModel.dart';
 import '../utils/my_shared_preferences.dart';
 import 'bloc/statistics_bloc.dart';
 import 'bloc/statistics_state.dart';
@@ -31,14 +32,11 @@ class StatisticsScreen extends StatefulWidget {
 
 class StatisticsScreenState extends State<StatisticsScreen> {
   StatisticsBloc statisticsBloc = StatisticsBloc();
-  String showYear = 'Select Year';
-  String showMonth = 'Select month';
-  DateTime _selectedYear = DateTime.now();
-
-  List<TransactionModel> spendingTransaction = [];
-  List<TransactionModel> incomeTransaction = [];
-  List<CommonCategoryModel> categoryList = [];
-  List<MonthData> monthList = [
+  String spendingShowYear = 'Select Year';
+  String spendingShowMonth = 'Select month';
+  DateTime _spendingSelectedYear = DateTime.now();
+  List<MonthData> spendingSelectedMonths = [];
+  List<MonthData> spendingMonthList = [
     MonthData(text: 'January'),
     MonthData(text: 'February'),
     MonthData(text: 'March'),
@@ -52,11 +50,42 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     MonthData(text: 'November'),
     MonthData(text: 'December'),
   ];
-  List<MonthData> selectedMonths = [];
-  late int selectedCategory;
-  String selectedCategoryName = "";
-  int selectedCategoryIndex = -1;
+
+  String incomeShowYear = 'Select Year';
+  String incomeShowMonth = 'Select month';
+  DateTime _incomeSelectedYear = DateTime.now();
+  List<MonthData> incomeSelectedMonths = [];
+  List<MonthData> incomeMonthList = [
+    MonthData(text: 'January'),
+    MonthData(text: 'February'),
+    MonthData(text: 'March'),
+    MonthData(text: 'April'),
+    MonthData(text: 'May'),
+    MonthData(text: 'June'),
+    MonthData(text: 'July'),
+    MonthData(text: 'August'),
+    MonthData(text: 'September'),
+    MonthData(text: 'October'),
+    MonthData(text: 'November'),
+    MonthData(text: 'December'),
+  ];
+
+  List<DateWiseTransactionModel> dateWiseSpendingTransaction = [];
+  List<DateWiseTransactionModel> dateWiseIncomeTransaction = [];
+  List<TransactionModel> spendingChartData = [];
+  List<TransactionModel> incomeChartData = [];
+
+  List<CommonCategoryModel> incomeCategoryList = [];
+  List<CommonCategoryModel> spendingCategoryList = [];
+  late int spendingSelectedCategory;
+  String spendingSelectedCategoryName = "";
+  int spendingSelectedCategoryIndex = -1;
+  late int incomeSelectedCategory;
+  String incomeSelectedCategoryName = "";
+  int incomeSelectedCategoryIndex = -1;
   String userEmail = "";
+  bool isSpendingFilterCleared = false;
+  bool isIncomeFilterCleared = false;
 
   @override
   void initState() {
@@ -67,7 +96,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         userEmail = value;
       }
       getTransactions();
-      getIncomeData();
     });
 
     getCategories();
@@ -87,33 +115,119 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   int totalIncomeAmount = 0;
 
   getTransactions() async {
+    dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForCurrentMonth(AppConstanst.spendingTransaction, userEmail)
         .then((value) {
-      setState(() {
-        totalAmount = 0;
-        spendingTransaction = value;
-        for (var item in spendingTransaction) {
-          totalAmount += item.amount ?? 0;
-          mDate = getMonth(item.transaction_date!)!;
-        }
-      });
+      parseSpendingList(value);
     });
   }
 
+  parseSpendingList(List<TransactionModel> value) {
+    List<TransactionModel> spendingTransaction = [];
+    spendingTransaction = value;
+    spendingChartData = value;
+    List<String> dates = [];
+
+    for (var t in spendingTransaction) {
+      DateFormat format = DateFormat("dd/MM/yyyy");
+      DateTime parsedDate = format.parse(t.transaction_date!);
+      String transactionMonthYear = DateFormat('MMMM/yyyy').format(parsedDate);
+      if (!dates.contains(transactionMonthYear)) {
+        dates.add(transactionMonthYear);
+      }
+    }
+
+    dates.sort((a, b) => b.compareTo(a));
+    for (var date in dates) {
+      int totalAmount = 0;
+      List<TransactionModel> newTransaction = [];
+      for (var t in spendingTransaction) {
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(t.transaction_date!);
+        String transactionMonthYear =
+            DateFormat('MMMM/yyyy').format(parsedDate);
+
+        if (date == transactionMonthYear) {
+          newTransaction.add(t);
+          totalAmount = totalAmount + t.amount!;
+        } else {
+          DateWiseTransactionModel? found =
+              dateWiseSpendingTransaction.firstWhereOrNull((element) {
+            return element.transactionDate! == date;
+          });
+          if (found == null) {
+            continue;
+          } else {
+            break;
+          }
+        }
+      }
+      dateWiseSpendingTransaction.add(DateWiseTransactionModel(
+          transactionDate: date,
+          transactionTotal: totalAmount,
+          transactionDay: "",
+          transactions: newTransaction));
+    }
+    setState(() {});
+  }
+
   getIncomeData() async {
+    dateWiseIncomeTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForCurrentMonth(AppConstanst.incomeTransaction, userEmail)
         .then((value) {
-      setState(() {
-        totalIncomeAmount = 0;
-        incomeTransaction = value;
-        for (var item in incomeTransaction) {
-          totalIncomeAmount += item.amount ?? 0;
-          mDate = getMonth(item.transaction_date!)!;
-        }
-      });
+      parseIncomeList(value);
     });
+  }
+
+  parseIncomeList(List<TransactionModel> value) {
+    List<TransactionModel> incomeTransaction = [];
+    incomeTransaction = value;
+    incomeChartData = value;
+    List<String> dates = [];
+
+    for (var t in incomeTransaction) {
+      DateFormat format = DateFormat("dd/MM/yyyy");
+      DateTime parsedDate = format.parse(t.transaction_date!);
+      String transactionMonthYear = DateFormat('MMMM/yyyy').format(parsedDate);
+      if (!dates.contains(transactionMonthYear)) {
+        dates.add(transactionMonthYear);
+      }
+    }
+
+    dates.sort((a, b) => b.compareTo(a));
+    for (var date in dates) {
+      int totalAmount = 0;
+      List<TransactionModel> newTransaction = [];
+      for (var t in incomeTransaction) {
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(t.transaction_date!);
+        String transactionMonthYear =
+            DateFormat('MMMM/yyyy').format(parsedDate);
+
+        if (date == transactionMonthYear) {
+          newTransaction.add(t);
+          totalAmount = totalAmount + t.amount!;
+        } else {
+          DateWiseTransactionModel? found =
+              dateWiseIncomeTransaction.firstWhereOrNull((element) {
+            return element.transactionDate! == date;
+          });
+          if (found == null) {
+            continue;
+          } else {
+            break;
+          }
+        }
+      }
+      dateWiseIncomeTransaction.add(DateWiseTransactionModel(
+          transactionDate: date,
+          transactionTotal: totalAmount,
+          transactionDay: "",
+          transactions: newTransaction));
+    }
+    setState(() {});
   }
 
   String? getMonth(String date) {
@@ -136,33 +250,39 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     await DatabaseHelper.instance.categorys().then((value) {
       if (value.isNotEmpty) {
         for (var s in value) {
-          categoryList.add(CommonCategoryModel(catId: s.id, catName: s.name));
+          spendingCategoryList
+              .add(CommonCategoryModel(catId: s.id, catName: s.name));
         }
       }
     });
     await DatabaseHelper.instance.getIncomeCategory().then((value) {
       if (value.isNotEmpty) {
         for (var s in value) {
-          categoryList.add(CommonCategoryModel(catId: s.id, catName: s.name));
+          incomeCategoryList
+              .add(CommonCategoryModel(catId: s.id, catName: s.name));
         }
       }
     });
   }
 
-  getFilteredData(int year, List<MonthData> months, String category) async {
+  getFilteredData() async {
     if (currPage == 2) {
+      dateWiseIncomeTransaction = [];
       await DatabaseHelper.instance
           .fetchDataForYearMonthsAndCategory(
-              year, months, category, AppConstanst.incomeTransaction)
+              incomeShowYear,
+              incomeSelectedMonths,
+              -1,
+              incomeSelectedCategoryIndex != -1
+                  ? incomeCategoryList[incomeSelectedCategoryIndex].catId!
+                  : -1,
+              userEmail,
+              AppConstanst.incomeTransaction,
+              "")
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
-            totalIncomeAmount = 0;
-            incomeTransaction = value;
-            for (var item in incomeTransaction) {
-              totalIncomeAmount += item.amount ?? 0;
-              mDate = getMonth(item.transaction_date!)!;
-            }
+            parseIncomeList(value);
           } else {
             getIncomeData();
             Helper.showToast("Data not found");
@@ -170,18 +290,23 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         });
       });
     } else {
+      dateWiseSpendingTransaction = [];
+
       await DatabaseHelper.instance
           .fetchDataForYearMonthsAndCategory(
-              year, months, category, AppConstanst.spendingTransaction)
+              spendingShowYear,
+              spendingSelectedMonths,
+              spendingSelectedCategoryIndex != -1
+                  ? spendingCategoryList[spendingSelectedCategoryIndex].catId!
+                  : -1,
+              -1,
+              userEmail,
+              AppConstanst.spendingTransaction,
+              "")
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
-            totalAmount = 0;
-            spendingTransaction = value;
-            for (var item in spendingTransaction) {
-              totalAmount += item.amount ?? 0;
-              mDate = getMonth(item.transaction_date!)!;
-            }
+            parseSpendingList(value);
           } else {
             getTransactions();
             Helper.showToast("Data not found");
@@ -213,7 +338,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SearchScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const SearchScreen()),
                       );
                     },
                     child: Container(
@@ -268,7 +394,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     ),
                   ),
                   10.widthBox,
-                  Padding(
+                  /*  Padding(
                     padding: const EdgeInsets.only(right: 15),
                     child: InkWell(
                       onTap: () {
@@ -288,7 +414,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         ),
                       ),
                     ),
-                  )
+                  )*/
                 ],
               ),
               body: Container(
@@ -314,6 +440,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     setState(() {
                                       currPage = 1;
                                     });
+                                    if (spendingShowYear != "Select Year" &&
+                                        spendingSelectedMonths.isNotEmpty) {
+                                      getFilteredData();
+                                    } else {
+                                      getTransactions();
+                                    }
                                   },
                                   child: Container(
                                       padding: const EdgeInsets.symmetric(
@@ -345,6 +477,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     setState(() {
                                       currPage = 2;
                                     });
+                                    if (incomeShowYear != "Select Year" &&
+                                        incomeSelectedMonths.isNotEmpty) {
+                                      getFilteredData();
+                                    } else {
+                                      getIncomeData();
+                                    }
                                   },
                                   child: Container(
                                       padding: const EdgeInsets.symmetric(
@@ -405,117 +543,145 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   top: 24,
                   bottom: 12,
                 ),
-                child:LineChart(
-                  mainData(),
-                ),
+                child: chartDataWidget(spendingChartData,1),
               ),
             ),
           ),
           15.heightBox,
-          if (spendingTransaction.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.arrow_back_ios,
-                    color: Helper.getTextColor(context),
-                    size: 14,
-                  ),
-                  Expanded(
-                    child: Text(
-                      mDate,
-                      style: TextStyle(
-                          color: Helper.getTextColor(context), fontSize: 15),
-                    ),
-                  ),
-                  Text(
-                    "\u20B9$totalAmount",
-                    style: TextStyle(color: Colors.blue, fontSize: 15),
-                  )
-                ],
-              ),
-            ),
-          10.heightBox,
-          if (spendingTransaction.isNotEmpty)
+          if (dateWiseSpendingTransaction.isNotEmpty)
             ListView.separated(
-                shrinkWrap: true,
-                physics: const ScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      decoration: BoxDecoration(
-                          color: Helper.getCardColor(context),
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
+              shrinkWrap: true,
+              physics: const ScrollPhysics(),
+              itemCount: dateWiseSpendingTransaction.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle, color: Colors.yellow),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                  shape: BoxShape.circle, color: Colors.black),
-                              child: SvgPicture.asset(
-                                'asset/images/${spendingTransaction[index].cat_icon}.svg',
-                                color: spendingTransaction[index].cat_color,
-                                width: 24,
-                                height: 24,
-                              ),
-                            ),
+                          Text(
+                            dateWiseSpendingTransaction[index].transactionDate!,
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 14),
                           ),
-                          15.widthBox,
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  spendingTransaction[index].cat_name!,
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context),
-                                      fontSize: 16),
-                                ),
-                                Text(
-                                  spendingTransaction[index].description!,
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context),
-                                      fontSize: 14),
-                                )
-                              ],
-                            ),
+                          Text(
+                            "-\u20B9${dateWiseSpendingTransaction[index].transactionTotal}",
+                            style: const TextStyle(
+                                color: Colors.pink, fontSize: 14),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                "-\u20B9${spendingTransaction[index].amount}",
-                                style: TextStyle(
-                                    color: Helper.getTextColor(context),
-                                    fontSize: 16),
-                              ),
-                              Text(
-                                formatDate(spendingTransaction[index]
-                                    .transaction_date!),
-                                style: TextStyle(
-                                    color: Helper.getTextColor(context),
-                                    fontSize: 14),
-                              )
-                            ],
-                          )
                         ],
                       ),
                     ),
-                  );
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return 10.heightBox;
-                },
-                itemCount: spendingTransaction.length),
-          if (spendingTransaction.isEmpty)
+                    15.heightBox,
+                    if (dateWiseSpendingTransaction[index]
+                        .transactions!
+                        .isNotEmpty)
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const ScrollPhysics(),
+                        itemCount: dateWiseSpendingTransaction[index]
+                            .transactions!
+                            .length,
+                        itemBuilder: (context, index1) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10))),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.yellow),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.black),
+                                      child: SvgPicture.asset(
+                                        'asset/images/${dateWiseSpendingTransaction[index].transactions![index1].cat_icon}.svg',
+                                        color:
+                                            dateWiseSpendingTransaction[index]
+                                                .transactions![index1]
+                                                .cat_color,
+                                        width: 24,
+                                        height: 24,
+                                      ),
+                                    ),
+                                  ),
+                                  15.widthBox,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          dateWiseSpendingTransaction[index]
+                                              .transactions![index1]
+                                              .cat_name!,
+                                          style: TextStyle(
+                                              color:
+                                                  Helper.getTextColor(context),
+                                              fontSize: 16),
+                                        ),
+                                        Text(
+                                          dateWiseSpendingTransaction[index]
+                                              .transactions![index1]
+                                              .description!,
+                                          style: TextStyle(
+                                              color:
+                                                  Helper.getTextColor(context),
+                                              fontSize: 14),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        "-\u20B9${dateWiseSpendingTransaction[index].transactions![index1].amount}",
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 16),
+                                      ),
+                                      Text(
+                                        formatDate(
+                                            dateWiseSpendingTransaction[index]
+                                                .transactions![index1]
+                                                .transaction_date!),
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 14),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return 10.heightBox;
+                        },
+                      ),
+                  ],
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return 15.heightBox;
+              },
+            ),
+          10.heightBox,
+          if (dateWiseSpendingTransaction.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
@@ -593,123 +759,149 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             child: AspectRatio(
               aspectRatio: 1.70,
               child: Padding(
-                padding: const EdgeInsets.only(
-                  right: 18,
-                  left: 12,
-                  top: 24,
-                  bottom: 12,
-                ),
-                child: LineChart(
-                  mainData(),
-                ),
-              ),
+                  padding: const EdgeInsets.only(
+                    right: 18,
+                    left: 12,
+                    top: 24,
+                    bottom: 12,
+                  ),
+                  child: chartDataWidget(incomeChartData,2)),
             ),
           ),
           15.heightBox,
-          if (incomeTransaction.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.arrow_back_ios,
-                    color: Helper.getTextColor(context),
-                    size: 14,
-                  ),
-                  Expanded(
-                    child: Text(
-                      mDate,
-                      style: TextStyle(
-                          color: Helper.getTextColor(context), fontSize: 15),
-                    ),
-                  ),
-                  Text(
-                    "\u20B9$totalIncomeAmount",
-                    style: TextStyle(color: Colors.blue, fontSize: 15),
-                  )
-                ],
-              ),
-            ),
-          10.heightBox,
-          if (incomeTransaction.isNotEmpty)
+          if (dateWiseIncomeTransaction.isNotEmpty)
             ListView.separated(
-                shrinkWrap: true,
-                physics: const ScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      decoration: BoxDecoration(
-                          color: Helper.getCardColor(context),
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
+              shrinkWrap: true,
+              physics: const ScrollPhysics(),
+              itemCount: dateWiseIncomeTransaction.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle, color: Colors.yellow),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                  shape: BoxShape.circle, color: Colors.black),
-                              child: SvgPicture.asset(
-                                'asset/images/${spendingTransaction[index].cat_icon}.svg',
-                                color: spendingTransaction[index].cat_color,
-                                width: 24,
-                                height: 24,
-                              ),
-                            ),
+                          Text(
+                            dateWiseIncomeTransaction[index].transactionDate!,
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 14),
                           ),
-                          15.widthBox,
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  incomeTransaction[index].cat_name!,
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context),
-                                      fontSize: 16),
-                                ),
-                                Text(
-                                  incomeTransaction[index].description!,
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context),
-                                      fontSize: 14),
-                                )
-                              ],
-                            ),
+                          Text(
+                            "+\u20B9${dateWiseIncomeTransaction[index].transactionTotal}",
+                            style: const TextStyle(
+                                color: Colors.green, fontSize: 14),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                "+\u20B9${incomeTransaction[index].amount}",
-                                style: TextStyle(
-                                    color: Helper.getTextColor(context),
-                                    fontSize: 16),
-                              ),
-                              Text(
-                                formatDate(
-                                    incomeTransaction[index].transaction_date!),
-                                style: TextStyle(
-                                    color: Helper.getTextColor(context),
-                                    fontSize: 14),
-                              )
-                            ],
-                          )
                         ],
                       ),
                     ),
-                  );
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return 10.heightBox;
-                },
-                itemCount: incomeTransaction.length),
-          if (incomeTransaction.isEmpty)
+                    15.heightBox,
+                    if (dateWiseIncomeTransaction[index]
+                        .transactions!
+                        .isNotEmpty)
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const ScrollPhysics(),
+                        itemCount: dateWiseIncomeTransaction[index]
+                            .transactions!
+                            .length,
+                        itemBuilder: (context, index1) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10))),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.yellow),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.black),
+                                      child: SvgPicture.asset(
+                                        'asset/images/${dateWiseIncomeTransaction[index].transactions![index1].cat_icon}.svg',
+                                        color: dateWiseIncomeTransaction[index]
+                                            .transactions![index1]
+                                            .cat_color,
+                                        width: 24,
+                                        height: 24,
+                                      ),
+                                    ),
+                                  ),
+                                  15.widthBox,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          dateWiseIncomeTransaction[index]
+                                              .transactions![index1]
+                                              .cat_name!,
+                                          style: TextStyle(
+                                              color:
+                                                  Helper.getTextColor(context),
+                                              fontSize: 16),
+                                        ),
+                                        Text(
+                                          dateWiseIncomeTransaction[index]
+                                              .transactions![index1]
+                                              .description!,
+                                          style: TextStyle(
+                                              color:
+                                                  Helper.getTextColor(context),
+                                              fontSize: 14),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        "+\u20B9${dateWiseIncomeTransaction[index].transactions![index1].amount}",
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 16),
+                                      ),
+                                      Text(
+                                        formatDate(
+                                            dateWiseIncomeTransaction[index]
+                                                .transactions![index1]
+                                                .transaction_date!),
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 14),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return 10.heightBox;
+                        },
+                      ),
+                  ],
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return 10.heightBox;
+              },
+            ),
+          10.heightBox,
+          if (dateWiseIncomeTransaction.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
@@ -727,7 +919,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                       10.heightBox,
                       Text(
-                        "You don't have any expenses yet",
+                        "You don't have any income yet",
                         style: TextStyle(color: Helper.getTextColor(context)),
                       ),
                       20.heightBox,
@@ -739,8 +931,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 .push(
                               MaterialPageRoute(
                                   builder: (context) => AddSpendingScreen(
-                                        transactionName: AppConstanst
-                                            .spendingTransactionName,
+                                        transactionName:
+                                            AppConstanst.incomeTransactionName,
                                       )),
                             )
                                 .then((value) {
@@ -761,7 +953,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10))),
                             child: const Text(
-                              "Add spending",
+                              "Add income",
                               style:
                                   TextStyle(color: Colors.white, fontSize: 14),
                             ),
@@ -813,16 +1005,44 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        if (showYear != "Select Year" &&
-                            selectedMonths.isNotEmpty &&
-                            selectedCategoryName.isNotEmpty) {
-                          print("categoryId....$selectedCategory");
-                          getFilteredData(int.parse(showYear), selectedMonths,
-                              selectedCategory.toString());
-                          Navigator.pop(context);
+                        if (currPage == 1) {
+                          if (isSpendingFilterCleared) {
+                            Navigator.pop(context);
+                            getTransactions();
+                          } else {
+                            isSpendingFilterCleared = false;
+                            if (spendingShowYear != "Select Year" &&
+                                spendingSelectedMonths.isNotEmpty) {
+                              Navigator.pop(context);
+                              getFilteredData();
+                            } else if (spendingShowYear == "Select Year" ||
+                                spendingSelectedMonths.isEmpty) {
+                              Helper.showToast(
+                                  "Please ensure you select a year and month to retrieve data");
+                            } else {
+                              Navigator.pop(context);
+                              getTransactions();
+                            }
+                          }
                         } else {
-                          Helper.showToast(
-                              "Please ensure you select a year, month, and category to retrieve data");
+                          if (isSpendingFilterCleared) {
+                            Navigator.pop(context);
+                            getTransactions();
+                          } else {
+                            isIncomeFilterCleared = false;
+                            if (incomeShowYear != "Select Year" &&
+                                incomeSelectedMonths.isNotEmpty) {
+                              Navigator.pop(context);
+                              getFilteredData();
+                            } else if (incomeShowYear == "Select Year" ||
+                                incomeSelectedMonths.isEmpty) {
+                              Helper.showToast(
+                                  "Please ensure you select a year and month to retrieve data");
+                            } else {
+                              Navigator.pop(context);
+                              getTransactions();
+                            }
+                          }
                         }
                       },
                       child: const Text(
@@ -879,7 +1099,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               borderRadius:
                                   BorderRadius.all(Radius.circular(5))),
                           child: Text(
-                            showYear,
+                            currPage == 1 ? spendingShowYear : incomeShowYear,
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 16),
                           ),
@@ -901,7 +1121,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             child: Text(
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              showMonth,
+                              currPage == 1
+                                  ? spendingShowMonth
+                                  : incomeShowMonth,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                   color: Colors.white, fontSize: 16),
@@ -920,58 +1142,117 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       color: Helper.getTextColor(context), fontSize: 14),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
-                    childAspectRatio: 2,
-                  ),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: categoryList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          if (selectedCategoryIndex != -1) {
-                            categoryList[selectedCategoryIndex].isSelected =
-                                false;
-                          }
-                          categoryList[index].isSelected = true;
-                          selectedCategoryIndex = index;
-                          selectedCategory = categoryList[index].catId!;
-                          selectedCategoryName = categoryList[index].catName!;
-                          print(
-                              "selected cat name $selectedCategoryName and Id $selectedCategory");
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: categoryList[index].isSelected
-                                ? Colors.blue
-                                : Helper.getCardColor(context),
-                            borderRadius: BorderRadius.all(Radius.circular(5))),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: Text(
-                            categoryList[index].catName ?? "",
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 14),
+              if (currPage == 1)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 10.0,
+                      mainAxisSpacing: 10.0,
+                      childAspectRatio: 2,
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: spendingCategoryList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          setState(() {
+                            if (spendingSelectedCategoryIndex != -1) {
+                              spendingCategoryList[
+                                      spendingSelectedCategoryIndex]
+                                  .isSelected = false;
+                            }
+                            spendingCategoryList[index].isSelected = true;
+                            spendingSelectedCategoryIndex = index;
+                            spendingSelectedCategory =
+                                spendingCategoryList[index].catId!;
+                            spendingSelectedCategoryName =
+                                spendingCategoryList[index].catName!;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              color: spendingCategoryList[index].isSelected
+                                  ? Colors.blue
+                                  : Helper.getCardColor(context),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5))),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: Text(
+                              spendingCategoryList[index].catName ?? "",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 14),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
+              if (currPage == 2)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 10.0,
+                      mainAxisSpacing: 10.0,
+                      childAspectRatio: 2,
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: incomeCategoryList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          setState(() {
+                            if (incomeSelectedCategoryIndex != -1) {
+                              incomeCategoryList[incomeSelectedCategoryIndex]
+                                  .isSelected = false;
+                            }
+                            incomeCategoryList[index].isSelected = true;
+                            incomeSelectedCategoryIndex = index;
+                            incomeSelectedCategory =
+                                incomeCategoryList[index].catId!;
+                            incomeSelectedCategoryName =
+                                incomeCategoryList[index].catName!;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              color: incomeCategoryList[index].isSelected
+                                  ? Colors.blue
+                                  : Helper.getCardColor(context),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5))),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: Text(
+                              incomeCategoryList[index].catName ?? "",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 14),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
             ],
           ),
         ));
@@ -979,197 +1260,30 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   void clearSelection(StateSetter setState) {
     setState(() {
-      for (var month in monthList) {
-        month.isSelected = false;
+      if (currPage == 1) {
+        isSpendingFilterCleared = true;
+        for (var item in spendingCategoryList) {
+          item.isSelected = false;
+        }
+        for (var month in spendingMonthList) {
+          month.isSelected = false;
+        }
+        spendingSelectedMonths.clear();
+        spendingShowYear = 'Select Year';
+        spendingShowMonth = 'Select Month';
+      } else {
+        isIncomeFilterCleared = true;
+        for (var item in incomeCategoryList) {
+          item.isSelected = false;
+        }
+        for (var month in incomeMonthList) {
+          month.isSelected = false;
+        }
+        incomeSelectedMonths.clear();
+        incomeShowYear = 'Select Year';
+        incomeShowMonth = 'Select Month';
       }
-      for (var item in categoryList) {
-        item.isSelected = false;
-      }
-      selectedMonths.clear();
-      showYear = 'Select Year';
-      showMonth = 'Select Month';
     });
-  }
-
-
-   Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    final style = TextStyle(
-      color: Helper.getTextColor(context),
-      fontSize: 12,
-    );
-    Widget text;
-    switch (value.toInt()) {
-      case 0:
-        text = Text('1', style: style);
-        break;
-      case 1:
-        text = Text('3', style: style);
-        break;
-      case 2:
-        text = Text('5', style: style);
-        break;
-      case 3:
-        text = Text('7', style: style);
-        break;
-      case 4:
-        text = Text('9', style: style);
-        break;
-      case 5:
-        text = Text('11', style: style);
-        break;
-      case 6:
-        text = Text('13', style: style);
-        break;
-      case 7:
-        text = Text('15', style: style);
-        break;
-      case 8:
-        text = Text('17', style: style);
-        break;
-      case 9:
-        text = Text('19', style: style);
-        break;
-      case 10:
-        text = Text('21', style: style);
-        break;
-      case 11:
-        text = Text('23', style: style);
-        break;
-      default:
-        text = Text('', style: style);
-        break;
-    }
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: text,
-    );
-  }
-  Widget leftTitleWidgets(double value, TitleMeta meta) {
-    String text;
-    switch (value.toInt()) {
-      case 0:
-        text = '0';
-        break;
-      case 1:
-        text = '4k';
-        break;
-      case 2:
-        text = '8k';
-        break;
-      case 3:
-        text = '12k';
-        break;
-      case 4:
-        text = '16k';
-        break;
-      case 5:
-        text = '20k';
-        break;
-      case 0:
-        text = '0';
-        break;
-      case 1:
-        text = '4k';
-        break;
-      case 2:
-        text = '8k';
-        break;
-      case 3:
-        text = '12k';
-        break;
-      case 4:
-        text = '16k';
-        break;
-      case 5:
-        text = '20k';
-        break;
-      default:
-        return Container();
-    }
-
-    return Text(text,
-        style: TextStyle(color: Helper.getTextColor(context)),
-        textAlign: TextAlign.left);
-  }
-
-  List<FlSpot> chartData = [
-    FlSpot(0, 1),
-    FlSpot(1, 3),
-    FlSpot(2, 1),
-    FlSpot(3, 7),
-    FlSpot(4, 1),
-    FlSpot(5, 1),
-    FlSpot(6, 1),
-    FlSpot(7, 1),
-    FlSpot(8, 0),
-  ];
-
-  LineChartData mainData() {
-    return LineChartData(
-      gridData: FlGridData(
-        show: true,
-        drawVerticalLine: false,
-        drawHorizontalLine: false,
-        horizontalInterval: 1,
-        verticalInterval: 1,
-      ),
-      titlesData: FlTitlesData(
-        show: true,
-        rightTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 30,
-            interval: 1,
-            getTitlesWidget: bottomTitleWidgets,
-          ),
-        ),
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            interval: 1,
-            getTitlesWidget: leftTitleWidgets,
-            reservedSize: 42,
-          ),
-        ),
-      ),
-      borderData: FlBorderData(
-        show: true,
-        border: Border.all(color: const Color(0xff37434d)),
-      ),
-      minX: 0,
-      maxX: 11,
-      minY: 0,
-      maxY: 10,
-      lineBarsData: [
-        LineChartBarData(
-          spots: chartData,
-          isCurved: true,
-          gradient: LinearGradient(
-            colors: gradientColors,
-          ),
-          barWidth: 5,
-          isStrokeCapRound: true,
-          dotData: const FlDotData(
-            show: false,
-          ),
-          belowBarData: BarAreaData(
-            show: true,
-            gradient: LinearGradient(
-              colors: gradientColors
-                  .map((color) => color.withOpacity(0.3))
-                  .toList(),
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   String formatDate(String dateStr) {
@@ -1205,12 +1319,18 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               lastDate: DateTime.now(),
               //lastDate: DateTime(2025),
               initialDate: DateTime.now(),
-              selectedDate: _selectedYear,
+              selectedDate:
+                  currPage == 1 ? _spendingSelectedYear : _incomeSelectedYear,
               onChanged: (DateTime dateTime) {
                 print(dateTime.year);
                 setState(() {
-                  _selectedYear = dateTime;
-                  showYear = "${dateTime.year}";
+                  if (currPage == 1) {
+                    _spendingSelectedYear = dateTime;
+                    spendingShowYear = "${dateTime.year}";
+                  } else {
+                    _incomeSelectedYear = dateTime;
+                    incomeShowYear = "${dateTime.year}";
+                  }
                 });
                 Navigator.pop(context);
               },
@@ -1225,162 +1345,274 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setState) {
+        return StatefulBuilder(builder: (context, setState1) {
           return AlertDialog(
             title: const Text("Select Month"),
+            contentPadding:
+                const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
             content: SizedBox(
-                width: 200,
-                height: 200,
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
-                    childAspectRatio: 2.2 / 1,
-                  ),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: monthList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          monthList[index].isSelected =
-                              !monthList[index].isSelected;
-                          selectedMonths = monthList
-                              .where((month) => month.isSelected)
-                              .toList();
-                          String selectedMonthsString = selectedMonths
-                              .take(
-                                  2) // Take only the first two selected months
-                              .map((month) => month.text)
-                              .join(", "); // Join the names with commas
-                          if (selectedMonthsString.length > 2) {
-                            selectedMonthsString += ", ..";
-                          }
-                          showMonth = selectedMonthsString;
-                          Navigator.pop(context);
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: monthList[index].isSelected
-                                ? Colors.blue
-                                : Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
-                        child: Text(
-                          monthList[index].text,
-                          style: TextStyle(
-                              color: Helper.getTextColor(context),
-                              fontSize: 14),
+              width: double.maxFinite,
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 10.0,
+                      mainAxisSpacing: 10.0,
+                      childAspectRatio: 2.2 / 1,
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: currPage == 1
+                        ? spendingMonthList.length
+                        : incomeMonthList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          setState1(() {
+                            if (currPage == 1) {
+                              spendingMonthList[index].isSelected =
+                                  !spendingMonthList[index].isSelected;
+                            } else {
+                              incomeMonthList[index].isSelected =
+                                  !incomeMonthList[index].isSelected;
+                            }
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              color: currPage == 1
+                                  ? spendingMonthList[index].isSelected
+                                      ? Colors.blue
+                                      : Colors.transparent
+                                  : incomeMonthList[index].isSelected
+                                      ? Colors.blue
+                                      : Colors.transparent,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5))),
+                          child: Text(
+                            currPage == 1
+                                ? spendingMonthList[index].text
+                                : incomeMonthList[index].text,
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                )),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    if (currPage == 1) {
+                      List<String> showMonthList = [];
+                      spendingSelectedMonths = spendingMonthList
+                          .where((month) => month.isSelected)
+                          .toList();
+                      for (var i in spendingSelectedMonths) {
+                        showMonthList.add(i.text);
+                      }
+                      spendingShowMonth = showMonthList.join(", ");
+                      Navigator.pop(context);
+                    } else {
+                      List<String> showMonthList = [];
+                      incomeSelectedMonths = incomeMonthList
+                          .where((month) => month.isSelected)
+                          .toList();
+                      for (var i in incomeSelectedMonths) {
+                        showMonthList.add(i.text);
+                      }
+                      incomeShowMonth = showMonthList.join(", ");
+                      Navigator.pop(context);
+                    }
+                  });
+                },
+                child: const Text(
+                  "Done",
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                ),
+              )
+            ],
           );
         });
       },
     );
   }
 
- /* List<ChartLayer> layers() {
-*//*    final now = DateTime.now();
-    final from = DateTime(now.year, now.month, 1); // Start of current month
-    final to = DateTime(now.year, now.month + 1, 0); // End of current month
+  Widget chartDataWidget(List<TransactionModel> spendingChartData, int type) {
+    DateTime now = DateTime.now();
 
-    // Calculate number of weeks in the current month
-    final daysInMonth = to.day;
-    final weeksInMonth = ((daysInMonth - 1) / 7).ceil();
 
-    // Calculate frequency based on number of weeks
-    final frequency = daysInMonth / weeksInMonth;*//*
+    List<ChartData> chartData;
+    List<double> amounts = [];
+    double highestAmount = 0;
 
-    final from = DateTime(2021, 1);
-    final to = DateTime(2021, 12);
-    final frequency =
-        (to.millisecondsSinceEpoch - from.millisecondsSinceEpoch) / 12.0;
-    return [
-      ChartHighlightLayer(
-        shape: () => ChartHighlightLineShape<ChartLineDataItem>(
-          backgroundColor: const Color(0xFF331B6D),
-          currentPos: (item) => item.currentValuePos,
-          radius: const BorderRadius.all(Radius.circular(8.0)),
-          width: 60.0,
-        ),
-      ),
-      ChartAxisLayer(
-        settings: ChartAxisSettings(
-          x: ChartAxisSettingsAxis(
-            frequency: frequency.toDouble(),
-            max: to.millisecondsSinceEpoch.toDouble(),
-            min: from.millisecondsSinceEpoch.toDouble(),
-            textStyle: TextStyle(
-              color: Colors.white.withOpacity(0.6),
-              fontSize: 10.0,
-            ),
+    for (var item in spendingChartData) {
+      if (item.transaction_date != null) {
+        now = _parseDate(item.transaction_date!);
+      }
+      if (item.amount != null) {
+        amounts.add(item.amount!.toDouble());
+      } else {
+        print("..........amount${item.amount}");
+      }
+    }
+
+    chartData = generateChartDataForMonth(spendingChartData, now);
+
+    if (amounts.isNotEmpty) {
+      highestAmount =
+          amounts.reduce((value, element) => value > element ? value : element);
+    } else {
+      highestAmount = 10000;
+    }
+
+    return SizedBox(
+      height: 300,
+      child: SfCartesianChart(
+          plotAreaBorderColor: Colors.blue,
+          plotAreaBackgroundColor: Colors.black,
+          backgroundColor: Colors.black,
+          tooltipBehavior: TooltipBehavior(enable: true, header: type == 1 ? "Spending" : "Income"),
+          primaryYAxis: NumericAxis(
+            borderColor: Colors.white,
+            maximum: calculateRoundFigure(highestAmount ?? 10000),
+            interval: calculateInterval(highestAmount ?? 1000),
+            axisLabelFormatter: (AxisLabelRenderDetails details) {
+              final num value = details.value;
+              String text = value.toInt().toString();
+              if (value.toInt() == 0) text = '0';
+              if (value >= 1000) text = '${value ~/ 1000}K';
+              if (value >= 1000000) text = '${value.toInt() / 1000000}M';
+              return ChartAxisLabel(
+                text,
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 11.0,
+                ),
+              );
+            },
           ),
-          y: ChartAxisSettingsAxis(
-            frequency: 100.0,
-            max: 400.0,
-            min: 0.0,
-            textStyle: TextStyle(
-              color: Colors.white.withOpacity(0.6),
-              fontSize: 10.0,
-            ),
+          primaryXAxis: DateTimeAxis(
+            labelStyle: const TextStyle(color: Colors.white),
+            plotBands: const <PlotBand>[
+              PlotBand(
+                isVisible: true,
+                color: Colors.white,
+              ),
+            ],
+            maximum: DateTime(now.year, now.month + 1, 0),
+            intervalType: DateTimeIntervalType.days,
+            interval: 1, // To display every alternate day
           ),
-        ),
-        labelX: (value) => DateFormat('MMM')
-            .format(DateTime.fromMillisecondsSinceEpoch(value.toInt())),
-        labelY: (value) => value.toInt().toString(),
-      ),
-      ChartLineLayer(
-        items: List.generate(
-          4,
-          (index) => ChartLineDataItem(
-            x: (index * frequency.toDouble()) + from.millisecondsSinceEpoch,
-            value: Random().nextInt(380) + 20,
-          ),
-        ),
-        settings: const ChartLineSettings(
-          color: Color(0xFF8043F9),
-          thickness: 4.0,
-        ),
-      ),
-      ChartTooltipLayer(
-        shape: () => ChartTooltipLineShape<ChartLineDataItem>(
-          backgroundColor: Colors.white,
-          circleBackgroundColor: Colors.white,
-          circleBorderColor: const Color(0xFF331B6D),
-          circleSize: 4.0,
-          circleBorderThickness: 2.0,
-          currentPos: (item) => item.currentValuePos,
-          onTextValue: (item) => '€${item.value.toString()}',
-          marginBottom: 6.0,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12.0,
-            vertical: 8.0,
-          ),
-          radius: 6.0,
-          textStyle: const TextStyle(
-            color: Color(0xFF8043F9),
-            letterSpacing: 0.2,
-            fontSize: 14.0,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-    ];
-  }*/
+          series: <CartesianSeries>[
+            // Renders line chart
+            SplineSeries<ChartData, DateTime>(
+                color: type == 1 ? Colors.red : Colors.green,
+                width: 3,
+                splineType: SplineType.monotonic,
+                dataSource: chartData,
+                xValueMapper: (ChartData data, _) => data.x,
+                yValueMapper: (ChartData data, _) => data.y)
+          ]),
+    );
+  }
 
+  List<ChartData> generateChartDataForMonth(
+      List<TransactionModel> spendingChartData, DateTime month) {
+    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
 
+    List<ChartData> chartDataList = List.generate(daysInMonth,
+        (i) => ChartData(DateTime(month.year, month.month, i + 1), 0));
 
+    for (int i = 0; i < spendingChartData.length; i++) {
+      TransactionModel transaction = spendingChartData[i];
+      DateTime transactionDate = _parseDate(transaction.transaction_date!);
+      if (transactionDate.month == month.month &&
+          transactionDate.year == month.year) {
+        int day = transactionDate.day;
+        chartDataList[day - 1].y += transaction.amount!;
+      }
+    }
 
+    return chartDataList;
+  }
+
+  double calculateRoundFigure(double amount) {
+    final List<double> roundFigures = [
+      100,
+      1000,
+      10000,
+      100000,
+      1000000,
+      10000000
+    ]; // Base values for round figures
+
+    // Find the first round figure greater than or equal to the amount
+    for (final figure in roundFigures) {
+      if (amount <= figure) {
+        return figure;
+      }
+    }
+
+    // If no round figure is found (amount is very large), return the amount itself
+    return amount;
+  }
+
+  DateTime _parseDate(String dateString) {
+    // Assuming date format: dd/MM/yyyy HH:mm
+    List<String> parts = dateString.split(' ');
+    List<String> dateParts = parts[0].split('/');
+    List<String> timeParts = parts[1].split(':');
+
+    int day = int.parse(dateParts[0]);
+    int month = int.parse(dateParts[1]);
+    int year = int.parse(dateParts[2]);
+    int hour = int.parse(timeParts[0]);
+    int minute = int.parse(timeParts[1]);
+
+    return DateTime(year, month, day, hour, minute);
+  }
+
+  double calculateInterval(double amount) {
+    if (amount >= 100 && amount < 1000) {
+      print("................................1");
+      return 10;
+    } else if (amount >= 1000 && amount < 10000) {
+      print("................................2");
+      return 100;
+    } else if (amount >= 10000 && amount < 100000) {
+      print("................................3");
+      return 1000;
+    } else if (amount >= 100000 && amount < 1000000) {
+      print("................................4");
+      return 10000;
+    } else {
+      // You can add more conditions for larger amounts if needed
+      return 0; // or any default value
+    }
+  }
 }
 
+class ChartData {
+  ChartData(this.x, this.y);
+
+  final DateTime x;
+  int y;
+}
 
 class MonthData {
   final String text;

@@ -25,6 +25,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+
   SearchBloc searchBloc = SearchBloc();
   String userEmail = "";
   TextEditingController searchController = TextEditingController();
@@ -55,6 +56,8 @@ class _SearchScreenState extends State<SearchScreen> {
   List<MonthData> selectedMonths = [];
   String selectedCategory = "";
   int selectedCategoryIndex = -1;
+
+  bool isFilterCleared = false;
 
   @override
   void initState() {
@@ -93,21 +96,23 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  getFilteredData() async {
+  getFilteredData(String value) async {
     int expenseCatId = -1;
     int incomeCatId = -1;
-    if (categoryList[selectedCategoryIndex].catType ==
-        AppConstanst.incomeTransaction) {
-      incomeCatId = categoryList[selectedCategoryIndex].catId!;
-    } else {
-      expenseCatId = categoryList[selectedCategoryIndex].catId!;
+    if(selectedCategoryIndex!=-1) {
+      if (categoryList[selectedCategoryIndex].catType ==
+          AppConstanst.incomeTransaction) {
+        incomeCatId = categoryList[selectedCategoryIndex].catId!;
+      } else {
+        expenseCatId = categoryList[selectedCategoryIndex].catId!;
+      }
     }
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
 
     await DatabaseHelper.instance
         .fetchAllDataForYearMonthsAndCategory(
-            showYear, selectedMonths, expenseCatId, incomeCatId, userEmail)
+        showYear, selectedMonths, expenseCatId, incomeCatId, userEmail,value)
         .then((value) {
       spendingTransaction = value;
       List<String> dates = [];
@@ -132,8 +137,8 @@ class _SearchScreenState extends State<SearchScreen> {
             }
           } else {
             DateWiseTransactionModel? found =
-                dateWiseTransaction.firstWhereOrNull((element) =>
-                    element.transactionDate!.split(' ')[0] == date);
+            dateWiseTransaction.firstWhereOrNull((element) =>
+            element.transactionDate!.split(' ')[0] == date);
             if (found == null) {
               continue;
             } else {
@@ -148,6 +153,7 @@ class _SearchScreenState extends State<SearchScreen> {
             transactionDay: Helper.getTransactionDay(date),
             transactions: newTransaction));
       }
+      print('object....${dates}');
       setState(() {});
     });
   }
@@ -203,9 +209,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                     },
                                     child: Padding(
                                         padding:
-                                            MediaQuery.of(context).viewInsets,
+                                        MediaQuery.of(context).viewInsets,
                                         child: _bottomSheetView(
-                                            searchBloc, setState)));
+                                            setState)));
                               },
                             );
                           });
@@ -223,7 +229,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                   10.widthBox,
-                  Padding(
+                  /*  Padding(
                     padding: const EdgeInsets.only(right: 15),
                     child: Container(
                       padding: const EdgeInsets.all(8),
@@ -235,7 +241,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         color: Colors.blue,
                       ),
                     ),
-                  )
+                  )*/
                 ],
               ),
               body: Container(
@@ -250,44 +256,59 @@ class _SearchScreenState extends State<SearchScreen> {
                     CustomBoxTextFormField(
                         controller: searchController,
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
+                        const BorderRadius.all(Radius.circular(10)),
                         keyboardType: TextInputType.text,
                         hintText: "Search by category, note",
                         fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 10,
                         textStyle:
-                            TextStyle(color: Helper.getTextColor(context)),
+                        TextStyle(color: Helper.getTextColor(context)),
                         horizontalPadding: 5,
                         suffixIcon: searchController.text.isNotEmpty
                             ? InkWell(
-                                onTap: () {
-                                  searchController.clear();
-                                  getTransactions("");
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: Icon(
-                                    Icons.close,
-                                    size: 22,
-                                    color: Helper.getTextColor(context),
-                                  ),
-                                ),
-                              )
+                          onTap: () {
+                            searchController.clear();
+                            if (showYear != "Select Year" &&
+                                selectedMonths.isNotEmpty) {
+                              getFilteredData("");
+                            }else {
+                              getTransactions("");
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.close,
+                              size: 22,
+                              color: Helper.getTextColor(context),
+                            ),
+                          ),
+                        )
                             : const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(
-                                  Icons.search,
-                                  size: 22,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                          padding: EdgeInsets.only(right: 10),
+                          child: Icon(
+                            Icons.search,
+                            size: 22,
+                            color: Colors.grey,
+                          ),
+                        ),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
-                            getTransactions(value);
+                            if (showYear != "Select Year" &&
+                                selectedMonths.isNotEmpty) {
+                              getFilteredData(value);
+                            } else {
+                              getTransactions(value);
+                            }
                           } else {
                             dateWiseTransaction = originalDateWiseTransaction;
-                            getTransactions("");
+                            if (showYear != "Select Year" &&
+                                selectedMonths.isNotEmpty) {
+                              getFilteredData("");
+                            }else {
+                              getTransactions("");
+                            }
                           }
                         },
                         validator: (value) {
@@ -321,7 +342,7 @@ class _SearchScreenState extends State<SearchScreen> {
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(category.toLowerCase(), userEmail)
+        .getTransactionList(category.toLowerCase(), userEmail,-1)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -355,8 +376,8 @@ class _SearchScreenState extends State<SearchScreen> {
             }
           } else {
             DateWiseTransactionModel? found =
-                dateWiseTransaction.firstWhereOrNull((element) =>
-                    element.transactionDate!.split(' ')[0] == date);
+            dateWiseTransaction.firstWhereOrNull((element) =>
+            element.transactionDate!.split(' ')[0] == date);
             if (found == null) {
               continue;
             } else {
@@ -430,7 +451,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       decoration: BoxDecoration(
                           color: Helper.getCardColor(context),
                           borderRadius:
-                              const BorderRadius.all(Radius.circular(10))),
+                          const BorderRadius.all(Radius.circular(10))),
                       child: Row(
                         children: [
                           Container(
@@ -438,7 +459,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             decoration: const BoxDecoration(
                                 color: Colors.black,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
+                                BorderRadius.all(Radius.circular(10))),
                             child: SvgPicture.asset(
                               'asset/images/${dateWiseTransaction[index].transactions![index1].cat_icon}.svg',
                               color: dateWiseTransaction[index]
@@ -464,17 +485,17 @@ class _SearchScreenState extends State<SearchScreen> {
                                 ),
                                 Text(
                                   (dateWiseTransaction[index]
-                                                  .transactions![index1]
-                                                  .description ==
-                                              null ||
-                                          dateWiseTransaction[index]
-                                              .transactions![index1]
-                                              .description!
-                                              .isEmpty)
+                                      .transactions![index1]
+                                      .description ==
+                                      null ||
+                                      dateWiseTransaction[index]
+                                          .transactions![index1]
+                                          .description!
+                                          .isEmpty)
                                       ? 'No note'
                                       : dateWiseTransaction[index]
-                                          .transactions![index1]
-                                          .description!,
+                                      .transactions![index1]
+                                      .description!,
                                   style: TextStyle(
                                     color: Helper.getTextColor(context),
                                     fontSize: 14,
@@ -488,9 +509,9 @@ class _SearchScreenState extends State<SearchScreen> {
                             children: [
                               Text(
                                 dateWiseTransaction[index]
-                                            .transactions![index1]
-                                            .transaction_type ==
-                                        AppConstanst.spendingTransaction
+                                    .transactions![index1]
+                                    .transaction_type ==
+                                    AppConstanst.spendingTransaction
                                     ? "-\u20B9${dateWiseTransaction[index].transactions![index1].amount!}"
                                     : "+\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
                                 style: TextStyle(
@@ -525,7 +546,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  _bottomSheetView(SearchBloc searchBloc, StateSetter setState) {
+  _bottomSheetView( StateSetter setState) {
     return Container(
         padding: const EdgeInsets.only(bottom: 10),
         color: Helper.getBackgroundColor(context),
@@ -561,13 +582,23 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.pop(context);
-                        if (showYear != "Select Year" &&
-                            selectedMonths.isNotEmpty &&
-                            selectedCategory.isNotEmpty) {
-                          getFilteredData();
-                        } else {
+                        if(isFilterCleared){
+                          Navigator.pop(context);
                           getTransactions("");
+                        }else {
+                          isFilterCleared = false;
+                          if (showYear != "Select Year" &&
+                              selectedMonths.isNotEmpty) {
+                            Navigator.pop(context);
+                            getFilteredData("");
+                          } else if (showYear == "Select Year" ||
+                              selectedMonths.isEmpty) {
+                            Helper.showToast(
+                                "Please ensure you select a year and month to retrieve data");
+                          } else {
+                            Navigator.pop(context);
+                            getTransactions("");
+                          }
                         }
                       },
                       child: const Text(
@@ -588,7 +619,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -622,7 +653,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           decoration: const BoxDecoration(
                               color: Colors.blue,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
+                              BorderRadius.all(Radius.circular(5))),
                           child: Text(
                             showYear,
                             style: const TextStyle(
@@ -642,7 +673,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             decoration: const BoxDecoration(
                                 color: Colors.blue,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
+                                BorderRadius.all(Radius.circular(5))),
                             child: Text(
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
@@ -658,7 +689,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   )),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Text(
                   "CATEGORY",
                   style: TextStyle(
@@ -683,7 +714,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         setState(() {
                           if (selectedCategoryIndex != -1) {
                             categoryList[selectedCategoryIndex].isSelected =
-                                false;
+                            false;
                           }
                           categoryList[index].isSelected = true;
                           selectedCategoryIndex = index;
@@ -698,7 +729,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 ? Colors.blue
                                 : Helper.getCardColor(context),
                             borderRadius:
-                                const BorderRadius.all(Radius.circular(5))),
+                            const BorderRadius.all(Radius.circular(5))),
                         child: Text(
                           categoryList[index].catName!,
                           textAlign: TextAlign.center,
@@ -711,6 +742,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   },
                 ),
               ),
+              15.heightBox
             ],
           ),
         ));
@@ -718,6 +750,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void clearSelection(StateSetter setState) {
     setState(() {
+      isFilterCleared = true;
       for (var month in monthList) {
         month.isSelected = false;
       }
@@ -770,7 +803,7 @@ class _SearchScreenState extends State<SearchScreen> {
           return AlertDialog(
             title: const Text("Select Month"),
             contentPadding:
-                const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+            const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
             content: SizedBox(
               width: double.maxFinite,
               child: ListView(
@@ -778,7 +811,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 children: [
                   GridView.builder(
                     gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 10.0,
                       mainAxisSpacing: 10.0,
@@ -792,7 +825,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         onTap: () {
                           setState1(() {
                             monthList[index].isSelected =
-                                !monthList[index].isSelected;
+                            !monthList[index].isSelected;
                           });
                         },
                         child: Container(
@@ -803,7 +836,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   ? Colors.blue
                                   : Colors.transparent,
                               borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
+                              const BorderRadius.all(Radius.circular(5))),
                           child: Text(
                             monthList[index].text,
                             style: TextStyle(
@@ -845,4 +878,5 @@ class _SearchScreenState extends State<SearchScreen> {
       },
     );
   }
+
 }

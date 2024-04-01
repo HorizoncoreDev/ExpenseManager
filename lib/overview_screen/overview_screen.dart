@@ -50,8 +50,6 @@ class OverviewScreenState extends State<OverviewScreen> {
       }
       getTransactions();
     });
-
-
     super.initState();
   }
 
@@ -71,8 +69,6 @@ class OverviewScreenState extends State<OverviewScreen> {
   }
 
   getTransactions() async {
-
-
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
         .then((value) {
