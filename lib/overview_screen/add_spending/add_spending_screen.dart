@@ -223,6 +223,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
               ? categories[selectedSpendingIndex].icons
               : incomeCategories[selectedIncomeIndex].path,
           payment_method_id:paymentMethods[selectedPaymentMethodIndex].id,
+          payment_method_name:paymentMethods[selectedPaymentMethodIndex].name,
           status: 1,
           transaction_date: '${formattedDate()} ${formattedTime()}',
           transaction_type:
