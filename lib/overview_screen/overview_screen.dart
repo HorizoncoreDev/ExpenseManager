@@ -691,7 +691,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           ),
                                         ),
                                         Text(
-                                          transaction.payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
+                                          transaction.payment_method_name!,
                                           style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 14,
@@ -1040,7 +1040,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           ),
                                         ),
                                         Text(
-                                          transaction.payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
+                                          transaction.payment_method_name!,
                                           style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 14,

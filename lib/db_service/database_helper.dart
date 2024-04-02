@@ -79,6 +79,7 @@ class DatabaseHelper {
       ${TransactionFields.cat_icon} $textType,
       ${TransactionFields.cat_color} $integerType,
       ${TransactionFields.payment_method_id} $integerType,
+      ${TransactionFields.payment_method_name} $textType,
       ${TransactionFields.status} $integerType,
       ${TransactionFields.transaction_date} $integerType,
       ${TransactionFields.transaction_type} $integerType,
@@ -96,7 +97,8 @@ class DatabaseHelper {
       CREATE TABLE $payment_method_table (
       ${PaymentMethodFields.id} $idType,
       ${PaymentMethodFields.name} $textType,
-      ${PaymentMethodFields.status} $integerType
+      ${PaymentMethodFields.status} $integerType,
+      ${PaymentMethodFields.icon} $textType
       )
    ''');
 

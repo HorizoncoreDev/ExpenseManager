@@ -223,6 +223,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
               ? categories[selectedSpendingIndex].icons
               : incomeCategories[selectedIncomeIndex].path,
           payment_method_id:paymentMethods[selectedPaymentMethodIndex].id,
+          payment_method_name:paymentMethods[selectedPaymentMethodIndex].name,
           status: 1,
           transaction_date: '${formattedDate()} ${formattedTime()}',
           transaction_type:
@@ -551,10 +552,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                     fontSize: 14),
                               ),
                               10.widthBox,
-                              const Icon(
-                                Icons.settings,
+                              SvgPicture.asset(
+                                'asset/images/ic_categories.svg',
                                 color: Colors.blue,
-                                size: 18,
+                                height: 18,
+                                width: 18,
                               ),
                               if (selectedItemList.isNotEmpty)
                                 Expanded(
@@ -617,10 +619,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                     fontSize: 14),
                               ),
                               10.widthBox,
-                              const Icon(
-                                Icons.settings,
+                              SvgPicture.asset(
+                                'asset/images/ic_categories.svg',
                                 color: Colors.blue,
-                                size: 18,
+                                height: 18,
+                                width: 18,
                               ),
                               if (selectedIncomeItemList.isNotEmpty)
                                 Expanded(
@@ -701,6 +704,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                               Radius.circular(5))),
                                       child: Column(
                                         children: [
+                                          5.heightBox,
                                           SvgPicture.asset(
                                             'asset/images/${item.icons}.svg',
                                             color:
@@ -710,9 +714,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                         ? item.color
                                                         : Colors.white
                                                     : item.color,
-                                            width: 28,
-                                            height: 28,
+                                            width: 24,
+                                            height: 24,
                                           ),
+                                          5.heightBox,
                                           Expanded(
                                             child: Text(
                                               item.name.toString(),
@@ -859,6 +864,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                               Radius.circular(5))),
                                       child: Column(
                                         children: [
+                                          5.heightBox,
                                           SvgPicture.asset(
                                             'asset/images/${item.path}.svg',
                                             color: selectedIncomeIndex == index
@@ -866,9 +872,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                                     ? item.color
                                                     : Colors.white
                                                 : item.color,
-                                            width: 28,
-                                            height: 28,
+                                            width: 24,
+                                            height: 24,
                                           ),
+                                          5.heightBox,
                                           Expanded(
                                             child: Text(
                                               item.name.toString(),

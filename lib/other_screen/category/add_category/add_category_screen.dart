@@ -41,12 +41,12 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   TextEditingController nameController = TextEditingController();
 
   List<String> myCategoriesIcons = [
-    'ic_google',
-    'ic_facebook',
-    'ic_apple',
-    'ic_bonus',
+    'ic_bicycle',
+    'ic_car',
+    'ic_flight',
+    'ic_movie',
     'ic_card',
-    'ic_child_care',
+    'ic_train',
     'ic_commute',
     'ic_coupon',
     'ic_dine_out',
@@ -54,12 +54,13 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
     'ic_equity',
     'ic_health',
     'ic_insurance',
-    'ic_online_payment',
+    'ic_gym',
     'ic_part_time_work',
     'ic_pension',
-    'ic_personal',
+    'ic_skate',
     'ic_salary',
     'ic_shopping',
+    'ic_sunglasses',
   ];
   String iconSelected = '';
   Color? isSelectedColor;
@@ -78,7 +79,6 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   Future<void> _onIncomeSave() async {
     final name = nameController.text;
 
-    // Add save code here
     await databaseHelper.insertIncomeCategory(
       IncomeCategory(
           name: name,
