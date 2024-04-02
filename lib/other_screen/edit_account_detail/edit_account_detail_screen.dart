@@ -33,7 +33,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   TextEditingController emailController = TextEditingController();
 
   String? dateOfBirth;
-  String dob = "";
 
   String selectedValue = 'Female';
   List<String> dropdownItems = ['Male', 'Female'];
@@ -43,7 +42,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   bool isLoading = true;
 
   ProfileModel? profileData;
-
+  String actualBudget = "";
   String userEmail = '';
   String currentBalance = '';
   String currentIncome = '';
@@ -69,6 +68,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         dateOfBirth = profileData!.dob!;
         currentBalance = profileData!.current_balance!;
         currentIncome = profileData!.current_income!;
+        actualBudget = profileData!.actual_budget!;
         selectedValue =
             profileData!.gender == "" ? 'Female' : profileData!.gender!;
         isLoading = false;
@@ -94,9 +94,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   }
 
   Future<void> updateProfileData() async {
-    setState(() {
-      isLoading = true;
-    });
     await databaseHelper.updateProfileData(
       ProfileModel(
           id: id,
@@ -107,13 +104,11 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
           gender: selectedValue,
           current_balance: currentBalance,
           current_income: currentIncome,
+          actual_budget: actualBudget,
           full_name: "",
           profile_image: "",
           mobile_number: ""),
     );
-    setState(() {
-      isLoading = false;
-    });
     Helper.showToast("Profile update successful!");
     getProfileData();
   }
@@ -348,8 +343,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                   String formattedDate =
                                       DateFormat("yMMMd").format(pickedDate);
                                   dateOfBirth = formattedDate;
-                                  dob = DateFormat("yyyy-MM-dd")
-                                      .format(pickedDate);
                                   setState(() {});
                                 }
                               },
@@ -371,7 +364,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                     ),
                                     10.widthBox,
                                     Text(
-                                      dateOfBirth == null
+                                      dateOfBirth == ""
                                           ? "Select DOB"
                                           : dateOfBirth!,
                                       style: TextStyle(
@@ -473,9 +466,8 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                             (MediaQuery.of(context).size.height / 5).heightBox,
                             InkWell(
                               onTap: () {
-                                setState(() {
-                                  updateProfileData();
-                                });
+                                updateProfileData();
+
                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> AccountDetailScreen()));
                               },
                               child: Container(

@@ -627,13 +627,20 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 );
                               },
                               onDismissed: (direction) async {
-                                // Implement your delete logic here
                                 setState(() {
-                                  // Remove the item from your list
                                   dateWiseSpendingTransaction[index].transactions!.removeAt(index1);
                                 });
                                 await databaseHelper.deleteTransactionFromDB(transaction.id!);
-                                getTransactions();
+                                setState(() {
+                                  currentBalance = currentBalance + transaction.amount!;
+                                });
+                                await DatabaseHelper.instance
+                                    .getProfileData(userEmail)
+                                    .then((profileData) async {
+                                      profileData!.current_balance = currentBalance.toString();
+                                  await DatabaseHelper.instance.updateProfileData(profileData!);
+                                  getTransactions();
+                                });
                               },
                               child: Container(
                                 padding: const EdgeInsets.all(10),
@@ -977,13 +984,21 @@ class OverviewScreenState extends State<OverviewScreen> {
                               },
                               onDismissed: (direction) async {
                                 setState(() {
-                                  // Remove the item from your list
                                   dateWiseIncomeTransaction[index].transactions!.removeAt(index1);
                                 });
                                 await databaseHelper.deleteTransactionFromDB(transaction.id!);
-                                getIncomeTransactions();
-
+                                setState(() {
+                                  currentIncome = currentIncome - transaction.amount!;
+                                });
+                                await DatabaseHelper.instance
+                                    .getProfileData(userEmail)
+                                    .then((profileData) async {
+                                  profileData!.current_income = currentIncome.toString();
+                                  await DatabaseHelper.instance.updateProfileData(profileData!);
+                                  getIncomeTransactions();
+                                });
                               },
+
                               child: Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(

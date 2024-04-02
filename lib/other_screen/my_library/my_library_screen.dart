@@ -7,7 +7,6 @@ import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'bloc/my_library_bloc.dart';
 import 'bloc/my_library_state.dart';
 
@@ -155,7 +154,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2, // 2 columns in the grid
                     crossAxisSpacing: 8.0, // Spacing between columns
                     mainAxisSpacing: 8.0, // Spacing between rows
@@ -163,9 +162,14 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
                   ),
                   itemCount: imageList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return Image.file(
-                      File(imageList[index]),
-                      fit: BoxFit.cover,
+                    return GestureDetector(
+                      onTap: (){
+                        showImage(index, context);
+                      },
+                      child: Image.file(
+                        File(imageList[index]),
+                        fit: BoxFit.cover,
+                      ),
                     );
                   },
                 ),
@@ -175,6 +179,25 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
         }
         return Container();
       },
+    );
+  }
+
+  void showImage(int index, BuildContext context) {
+    AlertDialog(
+      content: Image.file(
+        File(imageList[index]),
+        fit: BoxFit.cover,
+        height: 150,
+        width: 150,
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Close'),
+        ),
+      ],
     );
   }
 }
