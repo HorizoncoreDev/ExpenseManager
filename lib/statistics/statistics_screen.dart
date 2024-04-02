@@ -33,7 +33,7 @@ class StatisticsScreen extends StatefulWidget {
 class StatisticsScreenState extends State<StatisticsScreen> {
   StatisticsBloc statisticsBloc = StatisticsBloc();
   String spendingShowYear = 'Select Year';
-  String spendingShowMonth = 'Select month';
+  String spendingShowMonth = 'Select Month';
   DateTime _spendingSelectedYear = DateTime.now();
   List<MonthData> spendingSelectedMonths = [];
   List<MonthData> spendingMonthList = [
@@ -52,7 +52,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   ];
 
   String incomeShowYear = 'Select Year';
-  String incomeShowMonth = 'Select month';
+  String incomeShowMonth = 'Select Month';
   DateTime _incomeSelectedYear = DateTime.now();
   List<MonthData> incomeSelectedMonths = [];
   List<MonthData> incomeMonthList = [
@@ -80,6 +80,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   late int spendingSelectedCategory;
   String spendingSelectedCategoryName = "";
   int spendingSelectedCategoryIndex = -1;
+  int spendingSelectedMonthIndex = -1;
+  int incomeSelectedMonthIndex = -1;
   late int incomeSelectedCategory;
   String incomeSelectedCategoryName = "";
   int incomeSelectedCategoryIndex = -1;
@@ -269,9 +271,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     if (currPage == 2) {
       dateWiseIncomeTransaction = [];
       await DatabaseHelper.instance
-          .fetchDataForYearMonthsAndCategory(
+          .fetchDataForYearMonthAndCategory(
               incomeShowYear,
-              incomeSelectedMonths,
+              incomeShowMonth,
               -1,
               incomeSelectedCategoryIndex != -1
                   ? incomeCategoryList[incomeSelectedCategoryIndex].catId!
@@ -293,9 +295,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       dateWiseSpendingTransaction = [];
 
       await DatabaseHelper.instance
-          .fetchDataForYearMonthsAndCategory(
+          .fetchDataForYearMonthAndCategory(
               spendingShowYear,
-              spendingSelectedMonths,
+              spendingShowMonth,
               spendingSelectedCategoryIndex != -1
                   ? spendingCategoryList[spendingSelectedCategoryIndex].catId!
                   : -1,
@@ -441,7 +443,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                       currPage = 1;
                                     });
                                     if (spendingShowYear != "Select Year" &&
-                                        spendingSelectedMonths.isNotEmpty) {
+                                        spendingShowMonth != "Select Month") {
                                       getFilteredData();
                                     } else {
                                       getTransactions();
@@ -477,8 +479,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     setState(() {
                                       currPage = 2;
                                     });
-                                    if (incomeShowYear != "Select Year" &&
-                                        incomeSelectedMonths.isNotEmpty) {
+                                    if (incomeShowYear != "Select Year" && incomeShowMonth != "Select Month") {
                                       getFilteredData();
                                     } else {
                                       getIncomeData();
@@ -543,7 +544,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   top: 24,
                   bottom: 12,
                 ),
-                child: chartDataWidget(spendingChartData,1),
+                child: chartDataWidget(spendingChartData, 1),
               ),
             ),
           ),
@@ -765,7 +766,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     top: 24,
                     bottom: 12,
                   ),
-                  child: chartDataWidget(incomeChartData,2)),
+                  child: chartDataWidget(incomeChartData, 2)),
             ),
           ),
           15.heightBox,
@@ -1011,12 +1012,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             getTransactions();
                           } else {
                             isSpendingFilterCleared = false;
-                            if (spendingShowYear != "Select Year" &&
-                                spendingSelectedMonths.isNotEmpty) {
+                            if (spendingShowYear != "Select Year" && spendingShowMonth != "Select Month") {
                               Navigator.pop(context);
                               getFilteredData();
-                            } else if (spendingShowYear == "Select Year" ||
-                                spendingSelectedMonths.isEmpty) {
+                            } else if (spendingShowYear == "Select Year" || spendingShowMonth == "Select Month") {
                               Helper.showToast(
                                   "Please ensure you select a year and month to retrieve data");
                             } else {
@@ -1030,12 +1029,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             getTransactions();
                           } else {
                             isIncomeFilterCleared = false;
-                            if (incomeShowYear != "Select Year" &&
-                                incomeSelectedMonths.isNotEmpty) {
+                            if (incomeShowYear != "Select Year" && incomeShowMonth != "Select Month") {
                               Navigator.pop(context);
                               getFilteredData();
-                            } else if (incomeShowYear == "Select Year" ||
-                                incomeSelectedMonths.isEmpty) {
+                            } else if (incomeShowYear == "Select Year" || incomeShowMonth == "Select Month") {
                               Helper.showToast(
                                   "Please ensure you select a year and month to retrieve data");
                             } else {
@@ -1373,11 +1370,23 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         onTap: () {
                           setState1(() {
                             if (currPage == 1) {
-                              spendingMonthList[index].isSelected =
-                                  !spendingMonthList[index].isSelected;
+                              if (spendingSelectedMonthIndex != -1) {
+                                spendingMonthList[spendingSelectedMonthIndex].isSelected = false;
+                              }
+                              spendingMonthList[index].isSelected = true;
+                              spendingSelectedMonthIndex = index;
+                              spendingShowMonth = spendingMonthList[index].text;
+                              Navigator.pop(context);
+                              //spendingMonthList[index].isSelected = !spendingMonthList[index].isSelected;
                             } else {
-                              incomeMonthList[index].isSelected =
-                                  !incomeMonthList[index].isSelected;
+                              if (incomeSelectedMonthIndex != -1) {
+                                incomeMonthList[incomeSelectedMonthIndex].isSelected = false;
+                              }
+                              incomeMonthList[index].isSelected = true;
+                              incomeSelectedMonthIndex = index;
+                              incomeShowMonth = incomeMonthList[index].text;
+                              Navigator.pop(context);
+                              //incomeMonthList[index].isSelected = !incomeMonthList[index].isSelected;
                             }
                           });
                         },
@@ -1409,7 +1418,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 ],
               ),
             ),
-            actions: [
+            /*actions: [
               InkWell(
                 onTap: () {
                   setState(() {
@@ -1444,7 +1453,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       fontSize: 16),
                 ),
               )
-            ],
+            ]*/
           );
         });
       },
@@ -1453,7 +1462,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget chartDataWidget(List<TransactionModel> spendingChartData, int type) {
     DateTime now = DateTime.now();
-
 
     List<ChartData> chartData;
     List<double> amounts = [];
@@ -1482,10 +1490,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     return SizedBox(
       height: 300,
       child: SfCartesianChart(
-          plotAreaBorderColor: Colors.blue,
           plotAreaBackgroundColor: Colors.black,
           backgroundColor: Colors.black,
-          tooltipBehavior: TooltipBehavior(enable: true, header: type == 1 ? "Spending" : "Income"),
+          tooltipBehavior: TooltipBehavior(
+              enable: true, header: type == 1 ? "Spending" : "Income"),
           primaryYAxis: NumericAxis(
             borderColor: Colors.white,
             maximum: calculateRoundFigure(highestAmount ?? 10000),

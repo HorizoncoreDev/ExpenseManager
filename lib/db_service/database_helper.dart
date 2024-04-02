@@ -527,6 +527,71 @@ class DatabaseHelper {
     }
   }
 
+
+  Future<List<TransactionModel>> fetchDataForYearMonthAndCategory(
+      String year,
+      String monthName,
+      int expenseCatId,
+      int incomeCatId,
+      String email,
+      int transactionType,
+      String category,
+      ) async {
+    Database db = await database;
+
+    String query = '''SELECT * FROM $transaction_table WHERE ''';
+
+    int? selectedMonthNumber = monthNameToNumber[monthName];
+    if (selectedMonthNumber != null) {
+      query += 'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?';
+    }
+
+    query += ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
+
+    List<dynamic> whereArgs = [
+      if (selectedMonthNumber != null)
+        selectedMonthNumber.toString().padLeft(2, '0'),
+      year,
+      email,
+      transactionType
+    ];
+
+    if (expenseCatId == -1 && incomeCatId != -1) {
+      query += ' AND ${TransactionFields.income_cat_id} = ?';
+      whereArgs.add(incomeCatId);
+    } else if (expenseCatId != -1 && incomeCatId == -1) {
+      query += ' AND ${TransactionFields.expense_cat_id} = ?';
+      whereArgs.add(expenseCatId);
+    } else if (expenseCatId != -1 && incomeCatId != -1) {
+      query += ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+      whereArgs.add(expenseCatId);
+      whereArgs.add(incomeCatId);
+    }
+
+    if (category.isNotEmpty) {
+      query += ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
+      whereArgs.add('%$category%');
+      whereArgs.add('%$category%');
+    }
+
+    query += ' ORDER BY ${TransactionFields.transaction_date} DESC';
+
+    print('object. Arguments...${whereArgs}');
+    try {
+      List<Map<String, dynamic>> result = await db.rawQuery(
+        query,
+        whereArgs,
+      );
+      print("Query result.....${result.toString()}");
+      return List.generate(
+          result.length, (index) => TransactionModel.fromMap(result[index]));
+    } catch (e) {
+      print('Error fetching data: $e');
+      return [];
+    }
+  }
+
+
   Future<List<TransactionModel>> getTransactionList(
       String category, String email, int transactionType) async {
 
