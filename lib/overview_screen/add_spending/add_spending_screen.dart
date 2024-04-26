@@ -17,10 +17,10 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../db_models/category_model.dart';
+import '../../db_models/expense_category_model.dart';
 import '../../db_models/income_category.dart';
 import '../../db_models/income_sub_category.dart';
-import '../../db_models/spending_sub_category.dart';
+import '../../db_models/expense_sub_category.dart';
 import '../../db_service/database_helper.dart';
 import '../../utils/my_shared_preferences.dart';
 import '../../utils/views/custom_text_form_field.dart';
@@ -61,11 +61,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
 
   DateTime selectedDate = DateTime.now();
 
-  List<Category> selectedItemList = [];
+  List<ExpenseCategory> selectedItemList = [];
   List<IncomeCategory> selectedIncomeItemList = [];
 
-  List<Category> categories = [];
-  List<SpendingSubCategory> spendingSubCategories = [];
+  List<ExpenseCategory> categories = [];
+  List<ExpenseSubCategory> spendingSubCategories = [];
 
   List<IncomeCategory> incomeCategories = [];
   List<IncomeSubCategory> incomeSubCategories = [];
@@ -78,7 +78,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
 
   Future<void> getSpendingCategory() async {
     try {
-      List<Category> fetchedCategories = await databaseHelper.categorys();
+      List<ExpenseCategory> fetchedCategories = await databaseHelper.categorys();
       setState(() {
         categories = fetchedCategories;
       });
@@ -89,7 +89,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
 
   Future<void> getSpendingSubCategory() async {
     try {
-      List<SpendingSubCategory> fetchedSpendingSubCategories =
+      List<ExpenseSubCategory> fetchedSpendingSubCategories =
           await databaseHelper
               .getSpendingSubCategory(selectedItemList[0].id!.toInt());
       setState(() {
@@ -216,6 +216,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
               : selectedIncomeSubIndex != -1
                   ? incomeSubCategories[selectedIncomeSubIndex].name
                   : incomeCategories[selectedIncomeIndex].name,
+          cat_type: selectedValue == AppConstanst.spendingTransactionName
+              ? selectedSpendingSubIndex != -1?AppConstanst.subCategory:AppConstanst.mainCategory
+              : selectedIncomeSubIndex != -1?AppConstanst.subCategory:AppConstanst.mainCategory,
           cat_color: selectedValue == AppConstanst.spendingTransactionName
               ? categories[selectedSpendingIndex].color
               : incomeCategories[selectedIncomeIndex].color,
@@ -674,7 +677,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                     ? categories.length
                                     : selectedItemList.length,
                                 itemBuilder: (BuildContext context, int index) {
-                                  Category item = spendingSubCategories.isEmpty
+                                  ExpenseCategory item = spendingSubCategories.isEmpty
                                       ? categories[index]
                                       : selectedItemList[index];
                                   return InkWell(
@@ -766,7 +769,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                         itemCount: spendingSubCategories.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
-                                          SpendingSubCategory item =
+                                              ExpenseSubCategory item =
                                               spendingSubCategories[index];
                                           return InkWell(
                                             onTap: () {

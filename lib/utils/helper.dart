@@ -6,9 +6,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../db_models/category_model.dart';
+import '../db_models/expense_category_model.dart';
 import '../db_models/income_category.dart';
-import '../db_models/spending_sub_category.dart';
+import '../db_models/expense_sub_category.dart';
 import '../db_service/database_helper.dart';
 
 class Helper {
@@ -41,81 +41,81 @@ class Helper {
   static Future<void> addDefaultCategories() async {
     final databaseHelper = DatabaseHelper.instance;
 
-    List<Category> spendingCategories = [];
+    List<ExpenseCategory> spendingCategories = [];
     spendingCategories.add(
-        Category(name: 'Dine out', color: Colors.blue, icons: 'ic_dine_out'));
+        ExpenseCategory(name: 'Dine out', color: Colors.blue, icons: 'ic_dine_out'));
     spendingCategories
-        .add(Category(name: 'Commute', color: Colors.blue, icons: 'ic_commute'));
+        .add(ExpenseCategory(name: 'Commute', color: Colors.blue, icons: 'ic_commute'));
     spendingCategories.add(
-        Category(name: 'Enjoyment', color: Colors.blue, icons: 'ic_enjoyment'));
+        ExpenseCategory(name: 'Enjoyment', color: Colors.blue, icons: 'ic_enjoyment'));
     spendingCategories.add(
-        Category(name: 'Child care', color: Colors.blue, icons: 'ic_child_care'));
+        ExpenseCategory(name: 'Child care', color: Colors.blue, icons: 'ic_child_care'));
     spendingCategories.add(
-        Category(name: 'Shopping', color: Colors.blue, icons: 'ic_shopping'));
+        ExpenseCategory(name: 'Shopping', color: Colors.blue, icons: 'ic_shopping'));
     spendingCategories.add(
-        Category(name: 'Insurance', color: Colors.blue, icons: 'ic_insurance'));
+        ExpenseCategory(name: 'Insurance', color: Colors.blue, icons: 'ic_insurance'));
     spendingCategories
-        .add(Category(name: 'Health', color: Colors.blue, icons: 'ic_health'));
+        .add(ExpenseCategory(name: 'Health', color: Colors.blue, icons: 'ic_health'));
     spendingCategories.add(
-        Category(name: 'Personal', color: Colors.blue, icons: 'ic_personal'));
+        ExpenseCategory(name: 'Personal', color: Colors.blue, icons: 'ic_personal'));
     await databaseHelper.insertAllCategory(spendingCategories);
 
-    List<SpendingSubCategory> spendingSubCategories = [];
-    spendingSubCategories.add(SpendingSubCategory(
+    List<ExpenseSubCategory> spendingSubCategories = [];
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'BreakFast', categoryId: 1, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Lunch', categoryId: 1, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Dinner', categoryId: 1, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Snacks', categoryId: 1, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Fuel', categoryId: 2, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Movies', categoryId: 3, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Concert', categoryId: 3, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Party', categoryId: 3, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Sports', categoryId: 3, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'School Fees',
         categoryId: 4,
         priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Tuition', categoryId: 4, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Vaccination',
         categoryId: 4,
         priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Clothing', categoryId: 5, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Grocery', categoryId: 5, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Electronics',
         categoryId: 5,
         priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Auto', categoryId: 6, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Health', categoryId: 6, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Home', categoryId: 6, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Life', categoryId: 6, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Dental', categoryId: 7, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Eye Care', categoryId: 7, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Nutrition', categoryId: 7, priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Personal Care',
         categoryId: 8,
         priority: AppConstanst.priorityHigh));
-    spendingSubCategories.add(SpendingSubCategory(
+    spendingSubCategories.add(ExpenseSubCategory(
         name: 'Gift', categoryId: 8, priority: AppConstanst.priorityHigh));
     await databaseHelper.insertAllSpendingSubCategory(spendingSubCategories);
 

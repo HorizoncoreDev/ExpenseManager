@@ -17,6 +17,9 @@ abstract class AppConstanst {
   static int signInClicked = 0;
   static int selectedTabIndex = 0;
 
+  static const int mainCategory = 0;
+  static const int subCategory = 1;
+
   static const String priorityHigh = "High";
   static const String priorityMedium = "Medium";
   static const String priorityLow = "Low";

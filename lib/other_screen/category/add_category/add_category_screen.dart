@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../../db_models/category_model.dart';
+import '../../../db_models/expense_category_model.dart';
 import '../../../db_models/income_category.dart';
 import '../../../db_service/database_helper.dart';
 import '../../../utils/helper.dart';
@@ -70,7 +70,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
 
     // Add save code here
     await databaseHelper.insertCategory(
-      Category(name: name, color: isSelectedColor!, icons: iconSelected),
+      ExpenseCategory(name: name, color: isSelectedColor!, icons: iconSelected),
     );
 
     Navigator.pop(context, true);

@@ -1,4 +1,5 @@
 import 'package:expense_manager/intro_screen/bloc/bloc.dart';
+import 'package:expense_manager/sign_in/sign_in_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,9 @@ class IntroScreen extends StatefulWidget {
 }
 
 class _IntroScreenState extends State<IntroScreen> {
+
   IntroBloc introBloc = IntroBloc();
+
   final List<String> texts1 = [
     'Make a\nplan for\nrevenue',
     'Monitor\nyour\nlibrary',
@@ -46,19 +49,7 @@ class _IntroScreenState extends State<IntroScreen> {
   @override
   Widget build(BuildContext context) {
     introBloc.context = context;
-    return BlocConsumer<IntroBloc, IntroState>(
-      bloc: introBloc,
-      listener: (context, state) {
-        /* if(state is IntroStartState){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SignInScreen()),
-          );
-        }*/
-      },
-      builder: (context, state) {
-        if (state is IntroInitial) {
-          return Scaffold(
+    return  Scaffold(
               body: Container(
             width: double.infinity,
             height: double.infinity,
@@ -84,7 +75,7 @@ class _IntroScreenState extends State<IntroScreen> {
                           color: colors[index],
                           child: Text(
                             texts1[index],
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: const TextStyle(color: Colors.white, fontSize: 16),
                           ),
                         );
                       },
@@ -111,7 +102,7 @@ class _IntroScreenState extends State<IntroScreen> {
                           color: colorsList[index],
                           child: Text(
                             texts2[index],
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: const TextStyle(color: Colors.white, fontSize: 16),
                           ),
                         );
                       },
@@ -144,7 +135,7 @@ class _IntroScreenState extends State<IntroScreen> {
                           vertical: 15, horizontal: 15),
                       decoration: BoxDecoration(
                           color: Helper.getCardColor(context),
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                          borderRadius: const BorderRadius.all(Radius.circular(10))),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -168,7 +159,9 @@ class _IntroScreenState extends State<IntroScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 50),
                     child: InkWell(
                       onTap: () {
-                        introBloc.add(IntroStartEvent());
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SignInScreen()),(Route<dynamic> route) => false);
                       },
                       child: Container(
                         width: double.infinity,
@@ -191,9 +184,6 @@ class _IntroScreenState extends State<IntroScreen> {
               ),
             ),
           ));
-        }
-        return Container();
-      },
-    );
+
   }
 }

@@ -1489,9 +1489,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
     return SizedBox(
       height: 300,
+
       child: SfCartesianChart(
           plotAreaBackgroundColor: Colors.black,
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.transparent,
+          plotAreaBackgroundImage:  const AssetImage('asset/images/ic_phone.png'),
           tooltipBehavior: TooltipBehavior(
               enable: true, header: type == 1 ? "Spending" : "Income"),
           primaryYAxis: NumericAxis(

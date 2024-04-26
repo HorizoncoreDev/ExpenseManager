@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../db_models/income_sub_category.dart';
-import '../../../db_models/spending_sub_category.dart';
+import '../../../db_models/expense_sub_category.dart';
 import '../../../db_service/database_helper.dart';
 import '../../../utils/helper.dart';
 import '../../../utils/views/custom_text_form_field.dart';
@@ -33,13 +33,13 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
 
-  List<SpendingSubCategory> spendingSubCategories = [];
+  List<ExpenseSubCategory> spendingSubCategories = [];
   bool isLoading = true;
 
   Future<void> getSpendingSubCategory() async {
     isLoading = true;
     try {
-      List<SpendingSubCategory> fetchedSpendingSubCategories =
+      List<ExpenseSubCategory> fetchedSpendingSubCategories =
           await databaseHelper.getSpendingSubCategory(widget.categoryId);
       setState(() {
         spendingSubCategories = fetchedSpendingSubCategories;
@@ -58,7 +58,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
 
     await databaseHelper.insertSpendingSubCategory(
       widget.categoryId,
-      SpendingSubCategory(
+      ExpenseSubCategory(
           name: name, categoryId: widget.categoryId, priority: ""),
     );
     getSpendingSubCategory();

@@ -39,6 +39,7 @@ class TransactionFields {
   static const String sub_expense_cat_id = 'sub_expense_cat_id';
   static const String sub_income_cat_id = 'sub_income_cat_id';
   static const String cat_name = 'cat_name';
+  static const String cat_type = 'cat_type';
   static const String cat_color = 'cat_color';
   static const String cat_icon = 'cat_icon';
   static const String payment_method_id = 'payment_method_id';
@@ -65,6 +66,7 @@ class TransactionModel {
   int? sub_expense_cat_id;
   int? sub_income_cat_id;
   String? cat_name;
+  int? cat_type;
   Color? cat_color;
   String? cat_icon;
   String? payment_method_name;
@@ -90,6 +92,7 @@ class TransactionModel {
     this.sub_expense_cat_id,
     this.sub_income_cat_id,
     this.cat_name,
+    this.cat_type,
     this.cat_color,
     this.cat_icon,
     this.payment_method_id,
@@ -117,6 +120,7 @@ class TransactionModel {
       sub_expense_cat_id: map['sub_expense_cat_id'],
       sub_income_cat_id: map['sub_income_cat_id'],
       cat_name: map['cat_name'],
+      cat_type: map['cat_type'],
       cat_color: Color(map['cat_color']),
       cat_icon: map['cat_icon'],
       payment_method_id: map['payment_method_id'],
@@ -145,6 +149,7 @@ class TransactionModel {
       'sub_expense_cat_id': sub_expense_cat_id,
       'sub_income_cat_id': sub_income_cat_id,
       'cat_name': cat_name,
+      'cat_type': cat_type,
       'cat_icon': cat_icon,
       'cat_color': cat_color!.value,
       'payment_method_id': payment_method_id,
@@ -174,6 +179,7 @@ class TransactionModel {
       sub_expense_cat_id: json['sub_expense_cat_id'],
       sub_income_cat_id: json['sub_income_cat_id'],
       cat_name: json['cat_name'],
+      cat_type: json['cat_type'],
       cat_icon: json['cat_icon'],
       cat_color: json['cat_color'],
       payment_method_id: json['payment_method_id'],
@@ -202,6 +208,7 @@ class TransactionModel {
       'sub_expense_cat_id': sub_expense_cat_id,
       'sub_income_cat_id': sub_income_cat_id,
       'cat_name': cat_name,
+      'cat_typ': cat_type,
       'cat_icon': cat_icon,
       'cat_color': cat_color,
       'payment_method_id': payment_method_id,
