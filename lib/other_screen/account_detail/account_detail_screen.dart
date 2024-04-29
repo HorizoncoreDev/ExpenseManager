@@ -1,5 +1,7 @@
 import 'package:expense_manager/budget/budget_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,8 +12,7 @@ import '../../db_models/profile_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../sign_in/sign_in_screen.dart';
 import '../../utils/global.dart';
-import '../../utils/helper.dart';
-import '../../utils/my_shared_preferences.dart';
+
 import '../edit_account_detail/edit_account_detail_screen.dart';
 import 'bloc/account_detail_bloc.dart';
 import 'bloc/account_detail_state.dart';
