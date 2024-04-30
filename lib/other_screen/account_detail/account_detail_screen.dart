@@ -1,6 +1,7 @@
 import 'package:expense_manager/budget/budget_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -38,6 +39,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
   String shortName = "";
   String fullName = "";
   String email = "";
+  String userCode = "";
   bool isLoading = true;
 
   ProfileModel? profileData;
@@ -62,6 +64,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
         profileData = fetchedProfileData;
         fullName = "${profileData!.first_name!} ${profileData!.last_name!}";
         email = profileData!.email!;
+        userCode = profileData!.user_code!;
 
         dob = profileData!.dob!;
         selectedValue =
@@ -152,7 +155,8 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           vertical: 10, horizontal: 15),
                       decoration: BoxDecoration(
                           color: Helper.getCardColor(context),
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10))),
                       child: Row(
                         children: [
                           10.widthBox,
@@ -211,7 +215,8 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
                           color: Helper.getCardColor(context),
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10))),
                       child: Column(
                         children: [
                           Padding(
@@ -220,7 +225,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(6),
-                                  decoration:  BoxDecoration(
+                                  decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: Colors.grey.shade800),
                                   child: const Icon(
@@ -242,6 +247,64 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   width: 24,
                                   height: 24,
                                 ),
+                              ],
+                            ),
+                          ),
+                          const Divider(
+                            thickness: 0.2,
+                            color: Colors.grey,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 25),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.grey.shade800),
+                                  child:  SvgPicture.asset(
+                                    'asset/images/ic_user_code.svg',
+                                    color: Colors.blue,
+                                    width: 25,
+                                  ),
+                                ),
+                                15.widthBox,
+                                Expanded(
+                                  child: Wrap(
+                                    children: [
+                                      Text(
+                                        "User Code ",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color:
+                                                Helper.getTextColor(context)),
+                                      ),
+
+                                    ],
+                                  ),
+                                ),
+                                Wrap(
+                                  spacing: 5,
+                                  children: [
+                                    Text(
+                                      userCode,
+                                      textAlign: TextAlign.end,
+                                      style: const TextStyle(
+                                          fontSize: 16, color: Colors.blue),
+                                    ),
+                                    IconButton(
+                                        onPressed: () {
+                                          Helper.copyText(context, userCode);
+                                        },
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        style: const ButtonStyle(
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap, // the '2023' part
+                                        ),
+                                        icon: const Icon(Icons.copy_outlined,color: Colors.blue,)),
+                                  ],
+                                )
                               ],
                             ),
                           ),
@@ -302,7 +365,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(6),
-                                    decoration:  BoxDecoration(
+                                    decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: Colors.grey.shade800),
                                     child: const Icon(
@@ -339,7 +402,8 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
                           color: Helper.getCardColor(context),
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10))),
                       child: Column(
                         children: [
                           Padding(
@@ -352,7 +416,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(6),
-                                    decoration:  BoxDecoration(
+                                    decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: Colors.grey.shade800),
                                     child: const Icon(
@@ -386,7 +450,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(6),
-                                    decoration:  BoxDecoration(
+                                    decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: Colors.grey.shade800),
                                     child: const Icon(

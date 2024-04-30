@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/statistics/statistics_screen.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -128,6 +129,17 @@ class DatabaseHelper {
       )
    ''');
 
+ await db.execute('''
+      CREATE TABLE $request_table(
+      ${RequestTableFields.id} $idType,
+      ${RequestTableFields.requester_email} $textType,
+      ${RequestTableFields.requester_name} $textType,
+      ${RequestTableFields.receiver_email} $textType,
+      ${RequestTableFields.status} $integerType,
+      ${RequestTableFields.created_at} $textType
+      )
+   ''');
+
     await db.execute('''
       CREATE TABLE $profile_table(
       ${ProfileTableFields.id} $idType,
@@ -135,6 +147,7 @@ class DatabaseHelper {
       ${ProfileTableFields.last_name} $textType,
       ${ProfileTableFields.email} $textType,
       ${ProfileTableFields.full_name} $textType,
+      ${ProfileTableFields.user_code} $textType,
       ${ProfileTableFields.dob} $textType,
       ${ProfileTableFields.profile_image} $textType,
       ${ProfileTableFields.mobile_number} $textType,
@@ -144,6 +157,36 @@ class DatabaseHelper {
       ${ProfileTableFields.gender} $textType
       )
    ''');
+  }
+
+  Future<void> insertRequestData(RequestModel requestModel) async {
+    Database db = await database;
+
+    await db.insert(request_table, requestModel.toMap());
+  }
+
+  Future<void> updateRequestData(RequestModel requestModel) async {
+    final db = await database;
+    await db.update(request_table, requestModel.toMap(),
+        where: '${RequestTableFields.receiver_email} = ?',
+        whereArgs: [requestModel.receiver_email]);
+  }
+
+  Future<void> deleteRequest(RequestModel requestModel) async {
+    Database db = await instance.database;
+    await db.delete(request_table,  where: '${RequestTableFields.receiver_email} = ?',
+        whereArgs: [requestModel.receiver_email]);
+  }
+
+  Future<List<RequestModel?>> getRequestData(String receiverEmail) async {
+    Database db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query(request_table,
+        where: '${RequestTableFields.receiver_email} = ?',
+        whereArgs: [receiverEmail],
+        orderBy: '${RequestTableFields.created_at} DESC');
+    return List.generate(
+        maps.length, (index) => RequestModel.fromMap(maps[index]));
   }
 
   // Insert ProfileData
@@ -174,6 +217,19 @@ class DatabaseHelper {
     final map = await db.rawQuery(
         "SELECT * FROM $profile_table WHERE ${ProfileTableFields.email} = ?",
         [email]);
+
+    if (map.isNotEmpty) {
+      return ProfileModel.fromJson(map.first);
+    } else {
+      return null;
+    }
+  }
+
+Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
+    Database db = await database;
+    final map = await db.rawQuery(
+        "SELECT * FROM $profile_table WHERE ${ProfileTableFields.user_code} = ?",
+        [userCode]);
 
     if (map.isNotEmpty) {
       return ProfileModel.fromJson(map.first);

@@ -20,6 +20,11 @@ abstract class AppConstanst {
   static const int mainCategory = 0;
   static const int subCategory = 1;
 
+  static const int pendingRequest = 1;
+  static const int acceptedRequest = 2;
+  static const int rejectedRequest = 3;
+  static const int deletedRequest = 4;
+
   static const String priorityHigh = "High";
   static const String priorityMedium = "Medium";
   static const String priorityLow = "Low";

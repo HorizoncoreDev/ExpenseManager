@@ -262,6 +262,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     .then((value) async {
                   currentActualBudget = value!;
 
+                  String userCode = await Helper.generateUniqueCode();
                   await databaseHelper.insertProfileData(
                     ProfileModel(
                         first_name: firstName,
@@ -269,6 +270,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         email: user.email ?? "",
                         full_name: user.displayName ?? "",
                         dob: "",
+                        user_code: userCode,
                         profile_image: "",
                         mobile_number: "",
                         current_balance: currentBalance,
@@ -276,7 +278,6 @@ class _SignInScreenState extends State<SignInScreen> {
                         actual_budget: currentActualBudget,
                         gender: ""),
                   );
-
                 });
               });
             });
@@ -306,12 +307,12 @@ class _SignInScreenState extends State<SignInScreen> {
                 context,
                 MaterialPageRoute(builder: (context) => const DashBoard()),
                 (Route<dynamic> route) => false);
-          }
-          else {
+          } else {
             await DatabaseHelper.instance
                 .getProfileData(user.email!)
                 .then((profileData) async {
               if (profileData == null) {
+                String userCode = await Helper.generateUniqueCode();
                 await databaseHelper.insertProfileData(
                   ProfileModel(
                       first_name: firstName,
@@ -319,6 +320,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       email: user.email ?? "",
                       full_name: user.displayName ?? "",
                       dob: "",
+                      user_code: userCode,
                       profile_image: "",
                       mobile_number: "",
                       current_balance: "0",
@@ -329,26 +331,23 @@ class _SignInScreenState extends State<SignInScreen> {
                 MySharedPreferences.instance
                     .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
                 MySharedPreferences.instance
-                    .addBoolToSF(SharedPreferencesKeys.isLogin,true);
+                    .addBoolToSF(SharedPreferencesKeys.isLogin, true);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const BudgetScreen()),
+                  MaterialPageRoute(builder: (context) => const BudgetScreen()),
                 );
-              }else{
+              } else {
                 MySharedPreferences.instance
                     .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
                 MySharedPreferences.instance
-                    .addBoolToSF(SharedPreferencesKeys.isLogin,true);
+                    .addBoolToSF(SharedPreferencesKeys.isLogin, true);
                 Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const DashBoard()),
-                        (Route<dynamic> route) => false);
+                    MaterialPageRoute(builder: (context) => const DashBoard()),
+                    (Route<dynamic> route) => false);
               }
             });
           }
-
         }
       }
     } catch (e) {

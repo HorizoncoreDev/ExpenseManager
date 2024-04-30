@@ -1,7 +1,13 @@
+import 'package:expense_manager/db_models/profile_model.dart';
+import 'package:expense_manager/db_models/request_model.dart';
+import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'bloc/family_account_bloc.dart';
 import 'bloc/family_account_state.dart';
@@ -15,6 +21,53 @@ class FamilyAccountScreen extends StatefulWidget {
 
 class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
   FamilyAccountBloc familyAccountBloc = FamilyAccountBloc();
+  final databaseHelper = DatabaseHelper.instance;
+  String userEmail = '';
+  bool isLoading = true;
+  ProfileModel? profileData;
+  List<RequestModel?> requestList = [];
+
+  Future<void> getProfileData() async {
+    try {
+      ProfileModel? fetchedProfileData =
+          await databaseHelper.getProfileData(userEmail);
+      setState(() {
+        profileData = fetchedProfileData;
+        isLoading = false;
+        getRequestList();
+      });
+    } catch (error) {
+      Helper.hideLoading(context);
+      print('Error fetching Profile Data: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> getRequestList() async {
+    requestList=[];
+    await databaseHelper.getRequestData(profileData!.email!).then((value) {
+      if (value != null) {
+        setState(() {
+          requestList.addAll(value.where((item) => item!.status != AppConstanst.rejectedRequest));
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        getProfileData();
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,30 +92,16 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                           Icons.arrow_back_ios,
                           color: Helper.getTextColor(context),
                         )),
-                    Text("Family Karan",
+                    Text("My Family",
                         style: TextStyle(
                           fontSize: 22,
                           color: Helper.getTextColor(context),
                         )),
                   ],
                 ),
-                actions: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Helper.getCardColor(context)),
-                    child: Icon(
-                      Icons.edit,
-                      color: Helper.getTextColor(context),
-                      size: 18,
-                    ),
-                  ),
-                ],
               ),
               body: Container(
-                padding: EdgeInsets.symmetric(horizontal: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 15),
                 width: double.infinity,
                 color: Helper.getBackgroundColor(context),
                 child: Column(
@@ -72,7 +111,9 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            "Currently 2 members",
+                            requestList.isNotEmpty
+                                ? "Currently ${1 + requestList.length} members"
+                                : "Currently 1 member",
                             style:
                                 TextStyle(color: Helper.getTextColor(context)),
                           ),
@@ -80,25 +121,21 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                         RichText(
                             text: TextSpan(
                                 text: "CODE: ",
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16,
                                   color: Colors.blue,
                                 ),
                                 children: [
                               TextSpan(
-                                text: "615739",
-                                style: TextStyle(
+                                text: profileData != null
+                                    ? profileData!.user_code
+                                    : '',
+                                style: const TextStyle(
                                   fontSize: 16,
                                   color: Colors.blue,
                                 ),
                               ),
                             ])),
-                        5.widthBox,
-                        Icon(
-                          Icons.qr_code_scanner,
-                          color: Colors.blue,
-                          size: 22,
-                        )
                       ],
                     ),
                     10.heightBox,
@@ -106,7 +143,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
                           color: Helper.getCardColor(context),
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10))),
                       child: Column(
                         children: [
                           Padding(
@@ -116,13 +154,17 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 7, horizontal: 7),
-                                  decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.all(
+                                  decoration: BoxDecoration(
+                                      color: Helper.getBackgroundColor(context),
+                                      borderRadius: const BorderRadius.all(
                                           Radius.circular(10))),
                                   child: Text(
-                                    "MB",
-                                    style: TextStyle(
+                                    profileData != null
+                                        ? Helper.getShortName(
+                                            profileData!.first_name!,
+                                            profileData!.last_name!)
+                                        : 'AB',
+                                    style: const TextStyle(
                                         color: Colors.blue,
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold),
@@ -130,7 +172,9 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                 ),
                                 20.widthBox,
                                 Text(
-                                  "Muskaan Bhatt",
+                                  profileData != null
+                                      ? profileData!.full_name!
+                                      : '',
                                   style: TextStyle(
                                       color: Helper.getTextColor(context),
                                       fontSize: 16,
@@ -139,50 +183,107 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                               ],
                             ),
                           ),
-                          const Divider(
-                            thickness: 1,
-                            color: Colors.black12,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10, right: 10),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 7, horizontal: 7),
-                                  decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(10))),
-                                  child: Text(
-                                    "TP",
-                                    style: TextStyle(
-                                        color: Colors.blue,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                20.widthBox,
-                                Expanded(
-                                  child: Text(
-                                    "Thirali Patel",
-                                    style: TextStyle(
-                                        color: Helper.getTextColor(context),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.arrow_circle_right_outlined,
-                                  color: Colors.red,
-                                )
-                              ],
+                          if (requestList.isNotEmpty)
+                            const Divider(
+                              thickness: 1,
+                              color: Colors.black12,
                             ),
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const ScrollPhysics(),
+                            itemCount: requestList.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 7, horizontal: 7),
+                                      decoration: BoxDecoration(
+                                          color: Helper.getBackgroundColor(
+                                              context),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(10))),
+                                      child: Text(
+                                        Helper.getShortName(
+                                            requestList[index]!
+                                                .requester_name!
+                                                .split(' ')[0],
+                                            requestList[index]!
+                                                .requester_name!
+                                                .split(' ')[1]),
+                                        style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    20.widthBox,
+                                    Expanded(
+                                      child: Text(
+                                        requestList[index]!.requester_name!,
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    if (requestList[index]!.status ==
+                                        AppConstanst.pendingRequest)
+                                      InkWell(
+                                        onTap: (){
+                                          _acceptRequest(requestList[index]!);
+                                        },
+                                        child: SvgPicture.asset(
+                                          'asset/images/ic_accept.svg',
+                                          color: Colors.green,
+                                          height: 24,
+                                          width: 24,
+                                        ),
+                                      ),
+                                    if (requestList[index]!.status ==
+                                        AppConstanst.pendingRequest)
+                                      8.widthBox,
+                                    if (requestList[index]!.status ==
+                                        AppConstanst.pendingRequest)
+                                      InkWell(
+                                          onTap: (){
+                                            _rejectRequest(requestList[index]!);
+                                          },
+                                          child: SvgPicture.asset(
+                                        'asset/images/ic_reject.svg',
+                                        height: 24,
+                                        width: 24,
+                                      )),
+                                    if (requestList[index]!.status ==
+                                        AppConstanst.acceptedRequest)
+                              InkWell(
+                              onTap: (){
+                                _removeRequest(requestList[index]!);
+                              },
+                              child: const Icon(
+                                        Icons.remove_circle_rounded,
+                                        color: Colors.red,
+                                        size: 30,
+                              ))
+                                  ],
+                                ),
+                              );
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return const Divider(
+                                thickness: 1,
+                                color: Colors.black12,
+                              );
+                            },
                           ),
                         ],
                       ),
                     ),
-                    Expanded(child: Container()),
+                    /* Expanded(child: Container()),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
@@ -195,8 +296,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                         "Leave",
                         style: TextStyle(color: Colors.white, fontSize: 14),
                       ),
-                    ),
-                    30.heightBox
+                    ),*/
+                    15.heightBox
                   ],
                 ),
               ));
@@ -205,4 +306,19 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
       },
     );
   }
+
+  _acceptRequest(RequestModel requestModel){
+    requestModel.status = AppConstanst.acceptedRequest;
+    DatabaseHelper.instance.updateRequestData(requestModel).then((value) => getRequestList());
+  }
+
+  _rejectRequest(RequestModel requestModel){
+    requestModel.status = AppConstanst.rejectedRequest;
+    DatabaseHelper.instance.updateRequestData(requestModel).then((value) => getRequestList());
+  }
+  
+  _removeRequest(RequestModel requestModel){
+    DatabaseHelper.instance.deleteRequest(requestModel).then((value) => getRequestList());
+  }
+
 }

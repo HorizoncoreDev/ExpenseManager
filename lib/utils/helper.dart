@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:expense_manager/db_models/payment_method_model.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -258,5 +261,42 @@ static Color getChartColor(BuildContext context) {
     DateFormat format = DateFormat("dd/MM/yyyy");
     DateTime parsedDate = format.parse(date);
     return parsedDate.isAfter(parsedDate);
+  }
+
+  static Future<String> generateUniqueCode() async {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+    String code = '';
+
+    for (int i = 0; i < 6; i++) {
+      code += chars[random.nextInt(chars.length)];
+    }
+
+    await DatabaseHelper.instance
+        .getProfileData(code).then((value){
+          if(value!=null){
+           generateUniqueCode();
+          }
+    });
+
+    return code;
+  }
+
+  static copyText(BuildContext context, String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    showToast('Text copied to clipboard');
+  }
+
+ static String getShortName(String name, String name1) {
+    String firstStr = name
+        .split(" ")
+        .first;
+    String secondStr = name1
+        .split(" ")
+        .first;
+
+    String firstChar = firstStr.substring(0, 1);
+    String secondChar = secondStr.substring(0, 1);
+    return firstChar + secondChar;
   }
 }

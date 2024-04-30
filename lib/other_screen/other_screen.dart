@@ -1,5 +1,6 @@
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
+import 'package:expense_manager/other_screen/family_account/family_account_screen.dart';
 import 'package:expense_manager/other_screen/invite_friends_screen.dart';
 import 'package:expense_manager/sign_in/sign_in_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
@@ -77,7 +78,7 @@ class _OtherScreenState extends State<OtherScreen> {
         lastNameController.text = profileData!.last_name!;
       }
       );
-      getShortName(profileData!.first_name!, profileData!.last_name!);
+     shortName= Helper.getShortName(profileData!.first_name!, profileData!.last_name!);
     } catch (error) {
       print('Error fetching Profile Data: $error');
       /* setState(() {
@@ -86,18 +87,7 @@ class _OtherScreenState extends State<OtherScreen> {
     }
   }
 
-  String getShortName(String name, String name1) {
-    String firstStr = name
-        .split(" ")
-        .first;
-    String secondStr = name1
-        .split(" ")
-        .first;
 
-    String firstChar = firstStr.substring(0, 1);
-    String secondChar = secondStr.substring(0, 1);
-    return shortName = firstChar + secondChar;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +182,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                     Radius.circular(10))),
                             child: Row(
                               children: [
-                                /* InkWell(
+                                 InkWell(
                                   onTap: () {
                                     Navigator.push(
                                       context,
@@ -206,9 +196,9 @@ class _OtherScreenState extends State<OtherScreen> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 8, horizontal: 8),
-                                        decoration: const BoxDecoration(
+                                        decoration:  BoxDecoration(
                                             color: Colors.grey.shade800,
-                                            borderRadius: BorderRadius.all(
+                                            borderRadius: const BorderRadius.all(
                                                 Radius.circular(10))),
                                         // alignment: Alignment.center,
                                         child: const Icon(
@@ -228,7 +218,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                     ],
                                   ),
                                 ),
-                                20.widthBox,*/
+                                20.widthBox,
                                 InkWell(
                                   onTap: () {
                                     Navigator.push(
@@ -245,7 +235,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                             vertical: 8, horizontal: 8),
                                         decoration:  BoxDecoration(
                                             color: Colors.grey.shade800,
-                                            borderRadius: BorderRadius.all(
+                                            borderRadius: const BorderRadius.all(
                                                 Radius.circular(10))),
                                         // alignment: Alignment.center,
                                         child:SvgPicture.asset(
@@ -284,7 +274,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                             vertical: 8, horizontal: 8),
                                         decoration:  BoxDecoration(
                                             color: Colors.grey.shade800,
-                                            borderRadius: BorderRadius.all(
+                                            borderRadius: const BorderRadius.all(
                                                 Radius.circular(10))),
                                         // alignment: Alignment.center,
                                         child: SvgPicture.asset(
@@ -687,7 +677,7 @@ class _OtherScreenState extends State<OtherScreen> {
       }
       if (status.isGranted) {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context)=> InviteFriendsScreen()));
+            MaterialPageRoute(builder: (context)=> const InviteFriendsScreen()));
       }
       else if(status.isPermanentlyDenied){
         openAppSettings();

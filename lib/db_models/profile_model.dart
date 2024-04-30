@@ -9,6 +9,7 @@ class ProfileTableFields {
     email,
     full_name,
     dob,
+    user_code,
     profile_image,
     mobile_number,
     current_balance,
@@ -21,6 +22,7 @@ class ProfileTableFields {
   static const String first_name = 'first_name';
   static const String last_name = 'last_name';
   static const String email = 'email';
+  static const String user_code = 'user_code';
   static const String full_name = 'full_name';
   static const String dob = 'dob';
   static const String profile_image = 'profile_image';
@@ -37,6 +39,7 @@ class ProfileModel {
   String? last_name;
   String? email;
   String? full_name;
+  String? user_code;
   String? dob;
   String? profile_image;
   String? mobile_number;
@@ -51,6 +54,7 @@ class ProfileModel {
     this.last_name,
     this.email,
     this.full_name,
+    this.user_code,
     this.dob,
     this.profile_image,
     this.mobile_number,
@@ -66,6 +70,7 @@ class ProfileModel {
       first_name: map['first_name'],
       last_name: map['last_name'],
       email: map['email'],
+      user_code: map['user_code'],
       full_name: map['full_name'],
       dob: map['dob'],
       profile_image: map['profile_image'],
@@ -82,6 +87,7 @@ class ProfileModel {
         first_name: json[ProfileTableFields.first_name] as String,
         last_name: json[ProfileTableFields.last_name] as String,
         email: json[ProfileTableFields.email] as String,
+    user_code: json[ProfileTableFields.user_code] as String,
         full_name: json[ProfileTableFields.full_name] as String,
         dob: json[ProfileTableFields.dob] as String,
         profile_image: json[ProfileTableFields.profile_image] as String,
@@ -99,6 +105,7 @@ class ProfileModel {
       'last_name': last_name,
       'email': email,
       'full_name': full_name,
+      'user_code': user_code,
       'dob': dob,
       'profile_image': profile_image,
       'mobile_number': mobile_number,
