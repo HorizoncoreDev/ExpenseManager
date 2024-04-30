@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:csv/csv.dart';
 import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/statistics/statistics_screen.dart';
@@ -777,5 +778,62 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     await db.delete(transaction_table);
     await db.delete(profile_table);
     Helper.showToast("All transaction are deleted.");
+  }
+
+  static Future<List<TransactionModel>> getTasks() async {
+    final List<Map<String, dynamic>> tasks = await _database!.query(transaction_table);
+    return List.generate(tasks.length, (i) {
+      return TransactionModel(
+          id: tasks[i]['id']
+
+      );
+    });
+  }
+
+  // static Future<List<TitleModel>> getOtherTasks() async {
+  //   final List<Map<String, dynamic>> tasks = await database.query('otherTasks');
+  //   return List.generate(tasks.length, (i) {
+  //     return TitleModel(
+  //       id: tasks[i]['id'].toString(),
+  //       title: tasks[i]['title'],
+  //     );
+  //   });
+  // }
+
+  static Future<String> exportAllToCSV() async {
+    final tasks = await getTasks();
+    // final titles = await getOtherTasks();
+    List<List<dynamic>> rows = [
+      ['ID'/*, 'Task', 'Done', 'Time', 'Date', 'Priority', 'Title'*/]
+    ];
+
+    // Add task data
+    for (var task in tasks) {
+      rows.add([
+        task.id,
+        /*task.todoText,
+        task.isDone ? 'Yes' : 'No',
+        task.time,
+        task.date,
+        task.priority.toString().split('.')[1],
+        ""*/
+      ]);
+    }
+
+    // // Add title data
+    // for (var title in titles) {
+    //   rows.add([
+    //     title.id, // Add an empty string for the ID field
+    //     '', // Add an empty string for the Task field
+    //     '', // Add an empty string for the Done field
+    //     '', // Add an empty string for the Time field
+    //     '', // Add an empty string for the Date field
+    //     '', // Add an empty string for the Priority field
+    //     title.title,
+    //   ]);
+    // }
+
+    String csv = const ListToCsvConverter().convert(rows);
+    return csv;
   }
 }
