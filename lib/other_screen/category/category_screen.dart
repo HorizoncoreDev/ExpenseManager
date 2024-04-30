@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../db_models/category_model.dart';
+import '../../db_models/expense_category_model.dart';
 import '../../db_models/income_category.dart';
-import '../../db_models/spending_sub_category.dart';
+import '../../db_models/expense_sub_category.dart';
 import '../../db_service/database_helper.dart';
 import 'add_category/add_category_screen.dart';
 import 'bloc/category_bloc.dart';
@@ -26,14 +26,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
   int currPage = 1;
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
-  List<Category> categories = [];
+  List<ExpenseCategory> categories = [];
   bool isLoading = true;
   bool isIncomeLoading = true;
 
   Future<void> getSpendingCategorys() async {
     try {
       // Simulating asynchronous database fetching
-      List<Category> fetchedCategories = await databaseHelper.categorys();
+      List<ExpenseCategory> fetchedCategories = await databaseHelper.categorys();
 
       setState(() {
         // Update the state with the fetched categories.

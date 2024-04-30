@@ -520,6 +520,7 @@ class _OtherScreenState extends State<OtherScreen> {
   }
 
   Future _rateAppDialogue(OtherBloc otherBloc) async {
+
     await showDialog(
       context: otherBloc.context,
       builder: (cont) {

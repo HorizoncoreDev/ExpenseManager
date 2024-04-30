@@ -1,4 +1,4 @@
-import 'package:expense_manager/db_models/category_model.dart';
+import 'package:expense_manager/db_models/expense_category_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/statistics/search/CommonCategoryModel.dart';
 import 'package:expense_manager/utils/extensions.dart';
