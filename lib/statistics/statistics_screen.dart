@@ -9,6 +9,7 @@ import 'package:expense_manager/statistics/search/search_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +20,6 @@ import 'package:mrx_charts/mrx_charts.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../overview_screen/add_spending/DateWiseTransactionModel.dart';
-import '../utils/my_shared_preferences.dart';
 import 'bloc/statistics_bloc.dart';
 import 'bloc/statistics_state.dart';
 

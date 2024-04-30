@@ -1,5 +1,4 @@
 import 'package:contacts_service/contacts_service.dart';
-import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';

@@ -5,12 +5,12 @@ import 'package:expense_manager/other_screen/invite_friends_screen.dart';
 import 'package:expense_manager/sign_in/sign_in_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../utils/global.dart';
-import '../utils/my_shared_preferences.dart';
 import 'account_detail/account_detail_screen.dart';
 import 'bloc/other_bloc.dart';
 import 'bloc/other_state.dart';
@@ -510,6 +510,7 @@ class _OtherScreenState extends State<OtherScreen> {
   }
 
   Future _rateAppDialogue(OtherBloc otherBloc) async {
+
     await showDialog(
       context: otherBloc.context,
       builder: (cont) {

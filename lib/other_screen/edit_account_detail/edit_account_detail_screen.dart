@@ -2,6 +2,8 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:expense_manager/other_screen/account_detail/account_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/my_shared_preferences.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +11,6 @@ import 'package:intl/intl.dart';
 import '../../db_models/profile_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../utils/global.dart';
-import '../../utils/my_shared_preferences.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import 'bloc/edit_account_detail_bloc.dart';
 import 'bloc/edit_account_detail_state.dart';
@@ -245,6 +246,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                 return null;
                               },
                             ),
+
                             20.heightBox,
                             CustomBoxTextFormField(
                               controller: lastNameController,

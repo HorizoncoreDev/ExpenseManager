@@ -172,7 +172,7 @@ class Helper {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
     return themeNotifier.getTheme().cardColor;
   }
-static Color getChartColor(BuildContext context) {
+  static Color getChartColor(BuildContext context) {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
     return themeNotifier.getTheme().disabledColor;
   }
@@ -274,9 +274,9 @@ static Color getChartColor(BuildContext context) {
 
     await DatabaseHelper.instance
         .getProfileData(code).then((value){
-          if(value!=null){
-           generateUniqueCode();
-          }
+      if(value!=null){
+        generateUniqueCode();
+      }
     });
 
     return code;
@@ -287,16 +287,14 @@ static Color getChartColor(BuildContext context) {
     showToast('Text copied to clipboard');
   }
 
- static String getShortName(String name, String name1) {
-    String firstStr = name
-        .split(" ")
-        .first;
-    String secondStr = name1
-        .split(" ")
-        .first;
+  static String getShortName(String name, String name1) {
+    String firstStr = name.split(" ").first;
+    String secondStr = name1.split(" ").first;
 
     String firstChar = firstStr.substring(0, 1);
     String secondChar = secondStr.substring(0, 1);
-    return firstChar + secondChar;
+
+    return  firstChar + secondChar;
   }
+
 }

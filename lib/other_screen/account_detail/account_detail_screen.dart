@@ -1,5 +1,7 @@
 import 'package:expense_manager/budget/budget_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +13,7 @@ import '../../db_models/profile_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../sign_in/sign_in_screen.dart';
 import '../../utils/global.dart';
-import '../../utils/helper.dart';
-import '../../utils/my_shared_preferences.dart';
+
 import '../edit_account_detail/edit_account_detail_screen.dart';
 import 'bloc/account_detail_bloc.dart';
 import 'bloc/account_detail_state.dart';
@@ -46,15 +47,6 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   String userEmail = '';
 
-  String getShortName(String name, String name1) {
-    String firstStr = name.split(" ").first;
-    String secondStr = name1.split(" ").first;
-
-    String firstChar = firstStr.substring(0, 1);
-    String secondChar = secondStr.substring(0, 1);
-
-    return shortName = firstChar + secondChar;
-  }
 
   Future<void> getProfileData() async {
     try {

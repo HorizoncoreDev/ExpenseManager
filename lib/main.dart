@@ -9,7 +9,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'budget/budget_screen.dart';
 import 'intro_screen/intro_screen.dart';
 
@@ -46,6 +45,7 @@ void main() async {
               apiKey: 'AIzaSyCjDfTo2L6aTfWJbVPXigIFyvtzChQLcRs',
               appId: '1:233058085418:android:bc906b3cbcd1b16a893153',
               messagingSenderId: '233058085418',
+              storageBucket: 'expense-management-27995.appspot.com',
               projectId: 'expense-management-27995'))
       : await Firebase.initializeApp();
 
