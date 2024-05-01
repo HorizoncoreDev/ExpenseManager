@@ -51,8 +51,6 @@ class DatabaseHelper {
     const textType = 'TEXT NOT NULL';
     const integerType = 'INTEGER NOT NULL';
 
-
-
     await db.execute('''
       CREATE TABLE $transaction_table (
       ${TransactionFields.id} $idType,
@@ -784,55 +782,47 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     final List<Map<String, dynamic>> tasks = await _database!.query(transaction_table);
     return List.generate(tasks.length, (i) {
       return TransactionModel(
-          id: tasks[i]['id']
-
+          id: tasks[i]['id'],
+          member_email: tasks[i]['member_email'],
+          amount: tasks[i]['amount'],
+          cat_name: tasks[i]['cat_name'],
+          cat_type: tasks[i]['cat_type'],
+          payment_method_name: tasks[i]['payment_method_name'],
+          transaction_date: tasks[i]['transaction_date'],
+          transaction_type: tasks[i]['transaction_type'],
+          description: tasks[i]['description'],
+          receipt_image1: tasks[i]['receipt_image1'],
+          receipt_image2: tasks[i]['receipt_image2'],
+          receipt_image3: tasks[i]['receipt_image3']
       );
     });
   }
 
-  // static Future<List<TitleModel>> getOtherTasks() async {
-  //   final List<Map<String, dynamic>> tasks = await database.query('otherTasks');
-  //   return List.generate(tasks.length, (i) {
-  //     return TitleModel(
-  //       id: tasks[i]['id'].toString(),
-  //       title: tasks[i]['title'],
-  //     );
-  //   });
-  // }
-
   static Future<String> exportAllToCSV() async {
     final tasks = await getTasks();
-    // final titles = await getOtherTasks();
     List<List<dynamic>> rows = [
-      ['ID'/*, 'Task', 'Done', 'Time', 'Date', 'Priority', 'Title'*/]
+      ['ID', 'member_email', 'amount', 'cat_name', 'cat_type', 'payment_method_name',
+        'transaction_date', 'transaction_type', 'description', 'receipt_image1',
+        'receipt_image2', 'receipt_image3']
     ];
 
-    // Add task data
+    /// Add transaction data
     for (var task in tasks) {
       rows.add([
         task.id,
-        /*task.todoText,
-        task.isDone ? 'Yes' : 'No',
-        task.time,
-        task.date,
-        task.priority.toString().split('.')[1],
-        ""*/
+        task.member_email,
+        task.amount,
+        task.cat_name,
+        task.cat_type,
+        task.payment_method_name,
+        task.transaction_date,
+        task.transaction_type,
+        task.description ?? "",
+        task.receipt_image1 ?? "",
+        task.receipt_image2 ?? "",
+        task.receipt_image2 ?? ""
       ]);
     }
-
-    // // Add title data
-    // for (var title in titles) {
-    //   rows.add([
-    //     title.id, // Add an empty string for the ID field
-    //     '', // Add an empty string for the Task field
-    //     '', // Add an empty string for the Done field
-    //     '', // Add an empty string for the Time field
-    //     '', // Add an empty string for the Date field
-    //     '', // Add an empty string for the Priority field
-    //     title.title,
-    //   ]);
-    // }
-
     String csv = const ListToCsvConverter().convert(rows);
     return csv;
   }
