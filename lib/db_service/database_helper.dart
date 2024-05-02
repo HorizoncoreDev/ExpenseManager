@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:csv/csv.dart';
 import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/statistics/statistics_screen.dart';
+import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -99,6 +102,7 @@ class DatabaseHelper {
       ${CategoryFields.color} $integerType
       )
    ''');
+
 
 
     await db.execute('''
@@ -826,4 +830,94 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     String csv = const ListToCsvConverter().convert(rows);
     return csv;
   }
+
+  Future<int> getCategoryID(String categoryName, int categoryType, int transactionType) async {
+    String tableName = "";
+    String fetchingId = "";
+    String fetchingName = "";
+    if(transactionType == AppConstanst.spendingTransaction){
+      if(categoryType == 0){
+        tableName = expense_category_table;
+        fetchingId = ExpenseCategoryField.id;
+        fetchingName = ExpenseCategoryField.name;
+      }
+      else{
+        tableName = spending_sub_category_table;
+        fetchingId = ExpenseSubCategoryFields.id;
+        fetchingName = ExpenseSubCategoryFields.name;
+      }
+    }
+    else{
+      if(categoryType == 0){
+        tableName = income_category_table;
+        fetchingId = CategoryFields.id;
+        fetchingName = CategoryFields.name;
+      }
+      else{
+        tableName = income_sub_category_table;
+        fetchingId = IncomeSubCategoryFields.id;
+        fetchingName = IncomeSubCategoryFields.name;
+      }
+    }
+    List<Map<String, dynamic>> result = await _database!.query(
+      tableName,
+      columns: [fetchingId],
+      where: '$fetchingName = ?',
+      whereArgs: [categoryName],
+    );
+
+    if (result.isNotEmpty) {
+      print(result);
+      return result.first[fetchingId];
+    } else {
+      return -1; // or any other default value you prefer
+    }
+  }
+
+/*
+  Future<Color> getCategoryColor(String categoryName, int categoryType, int transactionType) async {
+    String tableName = "";
+    String fetchingColor = "";
+    String fetchingName = "";
+    if(transactionType == AppConstanst.spendingTransaction){
+      if(categoryType == 0){
+        tableName = expense_category_table;
+        fetchingColor = ExpenseCategoryField.color;
+        fetchingName = ExpenseCategoryField.name;
+      }
+      else{
+        tableName = spending_sub_category_table;
+        fetchingColor = ExpenseCategoryField.color;
+        fetchingName = ExpenseSubCategoryFields.name;
+      }
+    }
+    else{
+      if(categoryType == 0){
+        tableName = income_category_table;
+        fetchingColor = CategoryFields.color;
+        fetchingName = CategoryFields.name;
+      }
+      else{
+        tableName = income_sub_category_table;
+        fetchingColor = CategoryFields.color;
+        fetchingName = IncomeSubCategoryFields.name;
+      }
+    }
+    List<Map<String, dynamic>> result = await _database!.query(
+      tableName,
+      columns: [fetchingColor],
+      where: '$fetchingName = ?',
+      whereArgs: [categoryName],
+    );
+
+    if (result.isNotEmpty) {
+      print(result);
+      return result.first[fetchingColor];
+    } else {
+      return Colors.yellow; // or any other default value you prefer
+    }
+  }
+*/
+
+
 }
