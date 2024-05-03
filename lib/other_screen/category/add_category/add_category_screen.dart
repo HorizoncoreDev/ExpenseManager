@@ -157,7 +157,6 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                               color: Helper.getTextColor(context),
                               fontSize: 14),
                         ),
-
                       ],
                     ),
                     10.heightBox,

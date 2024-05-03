@@ -195,7 +195,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                       20.heightBox,
                       InkWell(
                         onTap: (){
-                          MyDialog().showMasterPasswordDialog( context: context);
+                          MyDialog().showMasterPasswordDialog( context: context, export: true);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -228,7 +228,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                       20.heightBox,
                       InkWell(
                         onTap: (){
-
+                          MyDialog().showMasterPasswordDialog(context: context, export: false);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),

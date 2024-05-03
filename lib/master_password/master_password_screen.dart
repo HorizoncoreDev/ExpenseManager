@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:csv/csv.dart';
-import 'package:expense_manager/db_models/expense_category_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
@@ -14,9 +13,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sqflite/sqflite.dart';
 
 class MyDialog {
   TextEditingController generateMasterPasswordController = TextEditingController();
@@ -44,7 +41,7 @@ class MyDialog {
 
   Color? isSelectedColor;
 
-  Future<void> showMasterPasswordDialog({required BuildContext context}) async {
+  Future<void> showMasterPasswordDialog({required BuildContext context, required bool export}) async {
     MySharedPreferences.instance.getBoolValuesSF(
         SharedPreferencesKeys.isMasterPasswordGenerated).then((value) {
       if (value != null) isMPGenerate = value;
@@ -97,7 +94,12 @@ class MyDialog {
                     if (isMPGenerate)...[
                       10.heightBox,
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          setState((){
+                            isMPGenerate = false;
+                          });
+                          createMP(context, setState);
+                        },
                         child: Text('Forgot Password?'),
                       ),
                     ]
@@ -124,8 +126,7 @@ class MyDialog {
                               .onValue
                               .listen((event) async {
                             DataSnapshot dataSnapshot = event.snapshot;
-                            Map<dynamic, dynamic> values = dataSnapshot
-                                .value as Map<dynamic, dynamic>;
+                            Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
                             print("value is ${values['masterPassword']}");
                             getMasterPassword =
                             await decryptData(values['masterPassword']);
@@ -147,17 +148,21 @@ class MyDialog {
                               Helper.showToast(
                                   "Password submitted successfully");
                               Navigator.pop(context);
-                              // exportCSVFile();
-                              final rawData = await rootBundle.loadString(
-                                  ImageConstanst.tasksCSV);
-                              List<List<
-                                  dynamic>> listData = const CsvToListConverter()
-                                  .convert(rawData);
-                              setState(() {
-                                data = listData;
-                              });
-                              print("Data is $data");
-                              addDataIntoTransactionTable(context);
+                              if(export){
+                                exportCSVFile();
+                              }
+                              else {
+                                final rawData = await rootBundle.loadString(
+                                    ImageConstanst.tasksCSV);
+                                List<List<
+                                    dynamic>> listData = const CsvToListConverter()
+                                    .convert(rawData);
+                                setState(() {
+                                  data = listData;
+                                });
+                                print("Data is $data");
+                                addDataIntoTransactionTable(context);
+                              }
                             }
                           });
                         },
@@ -166,95 +171,7 @@ class MyDialog {
                     if(!isMPGenerate)
                       TextButton(
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text('Generate Password'),
-                                content: SingleChildScrollView(
-                                  child: ListBody(
-                                    children: <Widget>[
-                                      Expanded(
-                                        child: CustomBoxTextFormField(
-                                          controller: generateMasterPasswordController,
-                                          onChanged: (val) async {},
-                                          maxLength: 8,
-                                          minLines: 1,
-                                          borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(5),
-                                            bottomLeft: Radius.circular(5),
-                                          ),
-                                          obscureText: true,
-                                          keyboardType: TextInputType.text,
-                                          hintText: "Create master password",
-                                          fillColor: Helper.getCardColor(
-                                              context),
-                                          borderColor: Colors.transparent,
-                                          textStyle: TextStyle(
-                                            color: Helper.getTextColor(context),
-                                          ),
-                                          padding: 15,
-                                          horizontalPadding: 5,
-                                          validator: (value) {
-                                            return null;
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                actions: <Widget>[
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Close'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          if (generateMasterPasswordController
-                                              .text.isEmpty) {
-                                            Helper.showToast(
-                                                "Please enter password");
-                                          } else
-                                          if (generateMasterPasswordController
-                                              .text.length < 8) {
-                                            Helper.showToast(
-                                                "Please enter 8 characters password");
-                                          } else {
-                                            await generatingPassword();
-                                            Helper.showToast(
-                                                "Password is generated successfully");
-                                            MySharedPreferences.instance
-                                                .addBoolToSF(
-                                                SharedPreferencesKeys
-                                                    .isMasterPasswordGenerated,
-                                                true);
-                                            Navigator.pop(context);
-                                            MySharedPreferences.instance
-                                                .getBoolValuesSF(
-                                                SharedPreferencesKeys
-                                                    .isMasterPasswordGenerated)
-                                                .then((value) {
-                                              if (value != null) {
-                                                setState(() {
-                                                  isMPGenerate = value;
-                                                });
-                                              }
-                                            });
-                                          }
-                                        },
-                                        child: const Text('Submit'),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                          createMP(context, setState);
                         },
                         child: const Text('Generate'),
                       ),
@@ -311,24 +228,28 @@ class MyDialog {
       String categoryName = data[i][3].toString();
       int categoryType = data[i][4];
       int transactionType = data[i][7];
-      int catId = await DatabaseHelper().getCategoryID(categoryName, categoryType, transactionType);
-      // Color catColor = await DatabaseHelper().getCategoryColor(categoryName, categoryType, transactionType);
+      int amount = data[i][2];
+      String email = data[i][1].toString();
 
-      print("Id is $catId");
-      // print("Id is $catColor");
+      int? catIds = await DatabaseHelper().getCategoryID(categoryName, categoryType, transactionType);
+      String? catIcon = await DatabaseHelper().getCategoryIcon(catIds, /*categoryName*/ categoryType, transactionType);
+      // int? catColorHex = await DatabaseHelper().getCategoryColor(/*catIds,*/ categoryName, categoryType, transactionType);
+      // Color catColor = catColorHex != null ? Color(catColorHex) : Colors.blueAccent;
+      print("Id is $catIds");
+
 
       TransactionModel transactionModel = TransactionModel(
         member_id: data[i][0],
-        member_email: data[i][1].toString(),
-        amount: data[i][2],
-        expense_cat_id: catId,
-        sub_expense_cat_id: catId,
-        income_cat_id: catId,
-        sub_income_cat_id: catId,
-        cat_name: data[i][3].toString(),
-        cat_type: data[i][4],
+        member_email: email,
+        amount: amount,
+        expense_cat_id: categoryType == 0 && transactionType == 1 ? catIds : -1,
+        sub_expense_cat_id: categoryType == 1 && transactionType == 1 ? catIds : -1,
+        income_cat_id: categoryType == 0 && transactionType == 2 ? catIds : -1,
+        sub_income_cat_id: categoryType == 1 && transactionType == 2 ? catIds : -1,
+        cat_name: categoryName,
+        cat_type: categoryType,
         cat_color: Colors.red,
-        cat_icon: "ic_salary",
+        cat_icon: catIcon ?? "ic_salary",
         payment_method_id: data[i][5] == "Cash" ? 1
             : data[i][5] == "Online" ? 2
             : data[i][5] == "Card" ? 3
@@ -336,7 +257,7 @@ class MyDialog {
         payment_method_name: data[i][5],
         status: 1,
         transaction_date: data[i][6].toString(),
-        transaction_type: data[i][7],
+        transaction_type: transactionType,
         description: data[i][8].toString(),
         currency_id: AppConstanst.rupeesCurrency,
         receipt_image1: data[i][9].toString() ?? "",
@@ -346,63 +267,154 @@ class MyDialog {
         last_updated: DateTime.now().toString(),
       );
 
-      await DatabaseHelper().insertTransactionData(transactionModel);
-      /*.then((value) async {
-      if (value != null) {
-          if (isSkippedUser) {
-            if (catType == 1) {
-              MySharedPreferences.instance
-                  .getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentBalance)
-                  .then((value) {
-                if (value != null) {
-                  String updateBalance =
-                  (int.parse(value) - int.parse(data[i][2].text))
-                      .toString();
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.skippedUserCurrentBalance,
-                      updateBalance);
-                }
-              });
+      await DatabaseHelper().insertTransactionData(transactionModel).then((value) async {
+        if (value != null) {
+            if (isSkippedUser) {
+              if (transactionType == AppConstanst.spendingTransaction) {
+                MySharedPreferences.instance
+                    .getStringValuesSF(
+                    SharedPreferencesKeys.skippedUserCurrentBalance)
+                    .then((value) {
+                  if (value != null) {
+                    String updateBalance =
+                    (int.parse(value) - amount)
+                        .toString();
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.skippedUserCurrentBalance,
+                        updateBalance);
+                  }
+                });
+              } else {
+                MySharedPreferences.instance
+                    .getStringValuesSF(
+                    SharedPreferencesKeys.skippedUserCurrentIncome)
+                    .then((value) {
+                  if (value != null) {
+                    String updateBalance =
+                    (int.parse(value) + amount)
+                        .toString();
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.skippedUserCurrentIncome,
+                        updateBalance);
+                  }
+                });
+              }
             } else {
-              MySharedPreferences.instance
-                  .getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentIncome)
-                  .then((value) {
-                if (value != null) {
-                  String updateBalance =
-                  (int.parse(value) + int.parse(data[i][2].text))
-                      .toString();
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.skippedUserCurrentIncome,
-                      updateBalance);
+              await DatabaseHelper.instance
+                  .getProfileData(email)
+                  .then((profileData) async {
+                if (transactionType == AppConstanst.spendingTransaction) {
+                  profileData!.current_balance =
+                      (int.parse(profileData.current_balance!) -
+                          amount)
+                          .toString();
+                } else {
+                  profileData!.current_income =
+                      (int.parse(profileData.current_income!) +
+                          amount)
+                          .toString();
                 }
+                await DatabaseHelper.instance.updateProfileData(profileData);
               });
             }
-          } else {
-            await DatabaseHelper.instance
-                .getProfileData(data[i][1])
-                .then((profileData) async {
-              if (catType == 1) {
-                profileData!.current_balance =
-                    (int.parse(profileData.current_balance!) -
-                        int.parse(data[i][2].text))
-                        .toString();
-              } else {
-                profileData!.current_income =
-                    (int.parse(profileData.current_income!) +
-                        int.parse(data[i][2].text))
-                        .toString();
-              }
-              await DatabaseHelper.instance.updateProfileData(profileData);
-            });
-          }
+          // }
+        }
+      });
 
-
-      }
-    })*/
       print("Data is inserted");
     }
+  }
+
+  void createMP(BuildContext context, void Function(void Function() p1) setState) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Generate Password'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Expanded(
+                  child: CustomBoxTextFormField(
+                    controller: generateMasterPasswordController,
+                    onChanged: (val) async {},
+                    maxLength: 8,
+                    minLines: 1,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      bottomLeft: Radius.circular(5),
+                    ),
+                    obscureText: true,
+                    keyboardType: TextInputType.text,
+                    hintText: "Create master password",
+                    fillColor: Helper.getCardColor(
+                        context),
+                    borderColor: Colors.transparent,
+                    textStyle: TextStyle(
+                      color: Helper.getTextColor(context),
+                    ),
+                    padding: 15,
+                    horizontalPadding: 5,
+                    validator: (value) {
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Close'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    if (generateMasterPasswordController
+                        .text.isEmpty) {
+                      Helper.showToast(
+                          "Please enter password");
+                    } else
+                    if (generateMasterPasswordController
+                        .text.length < 8) {
+                      Helper.showToast(
+                          "Please enter 8 characters password");
+                    } else {
+                      await generatingPassword();
+                      Helper.showToast(
+                          "Password is generated successfully");
+                      MySharedPreferences.instance
+                          .addBoolToSF(
+                          SharedPreferencesKeys
+                              .isMasterPasswordGenerated,
+                          true);
+                      Navigator.pop(context);
+                      MySharedPreferences.instance
+                          .getBoolValuesSF(
+                          SharedPreferencesKeys
+                              .isMasterPasswordGenerated)
+                          .then((value) {
+                        if (value != null) {
+                          setState(() {
+                            isMPGenerate = value;
+                          });
+                        }
+                      });
+                    }
+                  },
+                  child: const Text('Submit'),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 
 
