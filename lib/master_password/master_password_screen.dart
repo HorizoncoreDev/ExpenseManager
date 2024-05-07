@@ -6,13 +6,13 @@ import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/views/custom_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MyDialog {
@@ -95,12 +95,9 @@ class MyDialog {
                       10.heightBox,
                       InkWell(
                         onTap: () {
-                          setState((){
-                            isMPGenerate = false;
-                          });
                           createMP(context, setState);
                         },
-                        child: Text('Forgot Password?'),
+                        child: const Text('Forgot Password?'),
                       ),
                     ]
                   ],
@@ -147,21 +144,28 @@ class MyDialog {
                                 getMasterPassword) {
                               Helper.showToast(
                                   "Password submitted successfully");
-                              Navigator.pop(context);
                               if(export){
+                                Navigator.pop(context);
                                 exportCSVFile();
                               }
                               else {
-                                final rawData = await rootBundle.loadString(
-                                    ImageConstanst.tasksCSV);
-                                List<List<
-                                    dynamic>> listData = const CsvToListConverter()
-                                    .convert(rawData);
-                                setState(() {
-                                  data = listData;
-                                });
-                                print("Data is $data");
-                                addDataIntoTransactionTable(context);
+                                FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                  type: FileType.custom,
+                                  allowedExtensions: ['csv'],
+                                );
+                                if (result != null) {
+                                  PlatformFile file = result.files.first;
+                                  String? rawData = await File(file.path!).readAsString();
+                                  List<List<dynamic>> listData = const CsvToListConverter().convert(rawData!);
+                                  setState(() {
+                                    data = listData;
+                                  });
+                                  print("Data is $data");
+                                  Navigator.pop(context);
+                                  addDataIntoTransactionTable(context);
+                                } else {
+                                  print("File selection canceled");
+                                }
                               }
                             }
                           });
@@ -180,12 +184,10 @@ class MyDialog {
               ],
             );
           },
-
         );
       },
     );
   }
-
 
   String _encrypt(String masterPassword) {
     encodedPassword = base64Encode(utf8.encode(masterPassword));
@@ -210,11 +212,22 @@ class MyDialog {
 
   void exportCSVFile() async {
     String csvData = await DatabaseHelper.exportAllToCSV();
+    String name = "";
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userName)
+        .then((value) {
+      if (value != null) {
+        List<String> names = value.split(" ") ?? [];
+        name = names.isNotEmpty ? names[0].toLowerCase() : "";
+      }
+    });
 
-    final String dir = (await getExternalStorageDirectory())!.path;
-    final String path = '$dir/tasks.csv';
+    String date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    final Directory? directory = await getExternalStorageDirectory();
+    final String path = directory!.path;
+    String filePath = '/storage/emulated/0/Download/${name}_$date.csv';
 
-    final File file = File(path);
+    final File file = File(filePath);
     await file.writeAsString(csvData);
 
     Helper.showToast('CSV file has been exported to $path');
@@ -248,8 +261,8 @@ class MyDialog {
         sub_income_cat_id: categoryType == 1 && transactionType == 2 ? catIds : -1,
         cat_name: categoryName,
         cat_type: categoryType,
-        cat_color: Colors.red,
-        cat_icon: catIcon ?? "ic_salary",
+        cat_color: Colors.blueAccent,
+        cat_icon: catIcon ?? "ic_card",
         payment_method_id: data[i][5] == "Cash" ? 1
             : data[i][5] == "Online" ? 2
             : data[i][5] == "Card" ? 3

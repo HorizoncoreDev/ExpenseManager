@@ -229,7 +229,6 @@ class _SignInScreenState extends State<SignInScreen> {
             idToken: googleSignInAuthentication.idToken,
             accessToken: googleSignInAuthentication.accessToken);
 
-        // Getting users credential
         UserCredential? result =
             await auth.signInWithCredential(authCredential);
         User? user = result.user;
@@ -292,8 +291,8 @@ class _SignInScreenState extends State<SignInScreen> {
               }
             });
 
-            MySharedPreferences.instance
-                .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
+            MySharedPreferences.instance.addStringToSF(SharedPreferencesKeys.userEmail, user.email);
+            MySharedPreferences.instance.addStringToSF(SharedPreferencesKeys.userName, user.displayName);
             MySharedPreferences.instance
                 .addBoolToSF(SharedPreferencesKeys.isLogin, true);
             MySharedPreferences.instance.addStringToSF(
@@ -332,6 +331,8 @@ class _SignInScreenState extends State<SignInScreen> {
                     .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
                 MySharedPreferences.instance
                     .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+                MySharedPreferences.instance.addStringToSF(SharedPreferencesKeys.userName, user.displayName);
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const BudgetScreen()),
@@ -341,6 +342,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
                 MySharedPreferences.instance
                     .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+                MySharedPreferences.instance.addStringToSF(SharedPreferencesKeys.userName, user.displayName);
                 Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => const DashBoard()),
