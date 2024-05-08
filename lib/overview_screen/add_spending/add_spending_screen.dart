@@ -10,6 +10,7 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -191,13 +192,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   int selectedPaymentMethodIndex = 0;
 
   createSpendingIncome(BuildContext context, int id, String email) async {
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(transaction_table);
-    var newPostRef = reference.push();
 
     TransactionModel transactionModel = TransactionModel(
-      key: newPostRef.key,
+      key: FirebaseAuth.instance.currentUser!.uid,
         member_id: id,
         member_email: email,
         amount: int.parse(amountController.text),
@@ -306,9 +303,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
               }
               await DatabaseHelper.instance.updateProfileData(profileData);
 
-              final Map<String, Map> updates = {};
-              updates['/$profile_table/${profileData.key}'] = profileData.toMap();
-              FirebaseDatabase.instance.ref().update(updates);
             });
           }
         }
@@ -320,7 +314,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
     });
 
 
-    newPostRef.set(transactionModel.toMap());
+
   }
 
   @override

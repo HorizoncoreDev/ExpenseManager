@@ -49,6 +49,8 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   String currentBalance = '';
   String currentIncome = '';
   String key = '';
+  String userCode = '';
+  String fcmToken = '';
   int id = 0;
 
   bool validateEmail(String email) {
@@ -66,6 +68,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         profileData = fetchedProfileData;
         id = profileData!.id!;
         key = profileData!.key!;
+        userCode = profileData!.user_code!;
         firstNameController.text = profileData!.first_name!;
         lastNameController.text = profileData!.last_name!;
         emailController.text = profileData!.email!;
@@ -73,6 +76,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         currentBalance = profileData!.current_balance!;
         currentIncome = profileData!.current_income!;
         actualBudget = profileData!.actual_budget!;
+        fcmToken = profileData!.fcm_token!;
         selectedValue =
             profileData!.gender == "" ? 'Female' : profileData!.gender!;
         isLoading = false;
@@ -109,16 +113,15 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         current_balance: currentBalance,
         current_income: currentIncome,
         actual_budget: actualBudget,
-        full_name: "",
+        user_code:userCode ,
+        full_name: "${firstNameController.text} ${lastNameController.text}",
         profile_image: "",
-        mobile_number: "");
+        mobile_number: "",
+    fcm_token: fcmToken);
     await databaseHelper.updateProfileData(
       profileModel
     );
 
-    final Map<String, Map> updates = {};
-    updates['/$profile_table/${profileModel.key}'] = profileModel.toMap();
-    FirebaseDatabase.instance.ref().update(updates);
     Helper.showToast("Profile update successful!");
     getProfileData();
   }

@@ -181,9 +181,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
               .then((profileData) async {
             profileData!.current_income = "0";
             await DatabaseHelper.instance.updateProfileData(profileData);
-            final Map<String, Map> updates = {};
-            updates['/$profile_table/${profileData.key}'] = profileData.toMap();
-            FirebaseDatabase.instance.ref().update(updates);
+
           });
         }
       } else {

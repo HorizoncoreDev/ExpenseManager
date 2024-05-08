@@ -269,13 +269,9 @@ class _SignInScreenState extends State<SignInScreen> {
                     fcmToken = value!;
 
                     String userCode = await Helper.generateUniqueCode();
-                    final reference = FirebaseDatabase.instance
-                        .reference()
-                        .child(profile_table);
-                    var newPostRef = reference.push();
 
                     ProfileModel profileModel = ProfileModel(
-                        key: newPostRef.key,
+                        key: FirebaseAuth.instance.currentUser!.uid,
                         first_name: firstName,
                         last_name: lastName,
                         email: user.email ?? "",
@@ -289,10 +285,8 @@ class _SignInScreenState extends State<SignInScreen> {
                         actual_budget: currentActualBudget,
                         gender: "",
                         fcm_token: fcmToken);
-                    await databaseHelper.insertProfileData(profileModel);
-                    newPostRef.set(
-                      profileModel.toMap(),
-                    );
+                    await databaseHelper.insertProfileData(profileModel,false);
+
                   });
                 });
               });
@@ -376,7 +370,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     }else{
                       if(!calledOnce) {
                         calledOnce = true;
-                        await databaseHelper.insertProfileData(profileModel!);
+                        await databaseHelper.insertProfileData(profileModel!,true);
                       }
                     }
                   });
@@ -400,13 +394,9 @@ class _SignInScreenState extends State<SignInScreen> {
                     profileCheckCalledOnce = true;
                     String userCode = await Helper.generateUniqueCode();
 
-                    final reference = FirebaseDatabase.instance
-                        .reference()
-                        .child(profile_table);
-                    var newPostRef = reference.push();
 
                     ProfileModel profileModel = ProfileModel(
-                        key: newPostRef.key,
+                        key: FirebaseAuth.instance.currentUser!.uid,
                         first_name: firstName,
                         last_name: lastName,
                         email: user.email ?? "",
@@ -420,9 +410,8 @@ class _SignInScreenState extends State<SignInScreen> {
                         actual_budget: "0",
                         gender: "",
                         fcm_token: fcmToken);
-                    await databaseHelper.insertProfileData(profileModel);
+                    await databaseHelper.insertProfileData(profileModel,false);
 
-                    newPostRef.set(profileModel.toMap());
 
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.userEmail, user.email);

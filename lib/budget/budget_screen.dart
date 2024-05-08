@@ -121,10 +121,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               await DatabaseHelper.instance
                                   .updateProfileData(profileData);
 
-                              final Map<String, Map> updates = {};
-                              updates['/$profile_table/${profileData.key}'] =
-                                  profileData.toMap();
-                              FirebaseDatabase.instance.ref().update(updates);
 
                               MySharedPreferences.instance.addBoolToSF(
                                   SharedPreferencesKeys.isBudgetAdded, true);
