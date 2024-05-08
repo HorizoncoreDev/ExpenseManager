@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:expense_manager/db_models/payment_method_model.dart';
+import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/overview_screen/add_spending/bloc/add_spending_event.dart';
 import 'package:expense_manager/utils/extensions.dart';
@@ -304,6 +305,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         .toString();
               }
               await DatabaseHelper.instance.updateProfileData(profileData);
+
+              final Map<String, Map> updates = {};
+              updates['/$profile_table/${profileData.key}'] = profileData.toMap();
+              FirebaseDatabase.instance.ref().update(updates);
             });
           }
         }

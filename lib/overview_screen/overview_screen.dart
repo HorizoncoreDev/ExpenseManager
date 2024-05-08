@@ -215,6 +215,9 @@ class OverviewScreenState extends State<OverviewScreen> {
               .then((profileData) async {
             profileData!.current_balance = profileData.actual_budget;
             await DatabaseHelper.instance.updateProfileData(profileData);
+            final Map<String, Map> updates = {};
+            updates['/$profile_table/${profileData.key}'] = profileData.toMap();
+            FirebaseDatabase.instance.ref().update(updates);
           });
         }
       } else {
@@ -317,6 +320,9 @@ class OverviewScreenState extends State<OverviewScreen> {
               .then((profileData) async {
             profileData!.current_income = "0";
             await DatabaseHelper.instance.updateProfileData(profileData);
+            final Map<String, Map> updates = {};
+            updates['/$profile_table/${profileData.key}'] = profileData.toMap();
+            FirebaseDatabase.instance.ref().update(updates);
           });
         }
       } else {
@@ -704,6 +710,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   dateWiseSpendingTransaction[index].transactions!.removeAt(index1);
                                 });
                                 await databaseHelper.deleteTransactionFromDB(transaction.id!);
+                                final reference = FirebaseDatabase.instance.reference().child(transaction_table);
+                                reference.child(transaction.key!).remove();
+
                                 setState(() {
                                   currentBalance = currentBalance + transaction.amount!;
                                 });
@@ -711,7 +720,10 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     .getProfileData(userEmail)
                                     .then((profileData) async {
                                       profileData!.current_balance = currentBalance.toString();
-                                  await DatabaseHelper.instance.updateProfileData(profileData!);
+                                  await DatabaseHelper.instance.updateProfileData(profileData);
+                                      final Map<String, Map> updates = {};
+                                      updates['/$profile_table/${profileData.key}'] = profileData.toMap();
+                                      FirebaseDatabase.instance.ref().update(updates);
                                   getTransactions();
                                 });
                               },
@@ -1060,6 +1072,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   dateWiseIncomeTransaction[index].transactions!.removeAt(index1);
                                 });
                                 await databaseHelper.deleteTransactionFromDB(transaction.id!);
+                                final reference = FirebaseDatabase.instance.reference().child(transaction_table);
+                                reference.child(transaction.key!).remove();
+
                                 setState(() {
                                   currentIncome = currentIncome - transaction.amount!;
                                 });
@@ -1067,7 +1082,10 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     .getProfileData(userEmail)
                                     .then((profileData) async {
                                   profileData!.current_income = currentIncome.toString();
-                                  await DatabaseHelper.instance.updateProfileData(profileData!);
+                                  await DatabaseHelper.instance.updateProfileData(profileData);
+                                  final Map<String, Map> updates = {};
+                                  updates['/$profile_table/${profileData.key}'] = profileData.toMap();
+                                  FirebaseDatabase.instance.ref().update(updates);
                                   getIncomeTransactions();
                                 });
                               },

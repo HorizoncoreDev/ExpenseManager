@@ -207,8 +207,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 child: CustomBoxTextFormField(
                                     controller: budgetController,
                                     onChanged: (val) {
-                                      budgetBloc.add(BudgetTextChangedEvent(
-                                          budgetController.text));
+
                                     },
                                     borderRadius: const BorderRadius.only(
                                         topLeft: Radius.circular(5),
