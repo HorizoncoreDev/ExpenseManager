@@ -1544,9 +1544,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
       XFile? imageFile = await picker.pickImage(source: imageSource);
       if (imageFile == null) return;
       File tmpFile = File(imageFile.path);
-      final appDir = await getApplicationDocumentsDirectory();
+      final appDir = await getExternalStorageDirectory();
       final fileName = basename(imageFile.path);
-      tmpFile = await tmpFile.copy('${appDir.path}/$fileName');
+      tmpFile = await tmpFile.copy('${appDir!.path}/$fileName');
       if (position == 1) {
         image1 = tmpFile;
       } else if (position == 2) {

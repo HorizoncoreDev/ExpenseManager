@@ -1,4 +1,5 @@
 
+import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/master_password/master_password_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -25,6 +26,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
   bool isNotificationStatus = false;
   bool isSecurityCode = false;
   bool themeMode = false;
+  List<List<dynamic>> data = [];
 
   @override
   void initState() {
@@ -191,131 +193,9 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                         ),
                       ),
                       20.heightBox,
-                      /*Text(
-                        "REMINDER",
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Helper.getTextColor(context),
-                            fontWeight: FontWeight.bold),
-                      ),
-                      5.heightBox,
-                      Container(
-                        padding: const EdgeInsets.only(
-                            left: 20, right: 10, top: 10, bottom: 10),
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.blueGrey),
-                              child: const Icon(
-                                Icons.notifications,
-                                color: Colors.blue,
-                                size: 20,
-                              ),
-                            ),
-                            20.widthBox,
-                            Expanded(
-                              child: Text(
-                                "Notification",
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: Helper.getTextColor(context)),
-                              ),
-                            ),
-                            FlutterSwitch(
-                              width: 40,
-                              height: 20,
-                              padding: 1,
-                              value: isNotificationStatus,
-                              borderRadius: 30.0,
-                              toggleColor: Colors.black,
-                              toggleSize: 15,
-                              switchBorder: Border.all(
-                                color: Colors.black,
-                                width: 2.0,
-                              ),
-                              activeColor: Colors.green,
-                              inactiveColor: Colors.grey,
-                              onToggle: (val) {
-                                setState(() {
-                                  isNotificationStatus = val;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      20.heightBox,
-                      Text(
-                        "SECURE",
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Helper.getTextColor(context),
-                            fontWeight: FontWeight.bold),
-                      ),
-                      5.heightBox,
-                      Container(
-                        padding: const EdgeInsets.only(
-                            left: 20, right: 10, top: 10, bottom: 10),
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.blueGrey),
-                              child: const Icon(
-                                Icons.key_rounded,
-                                color: Colors.blue,
-                                size: 20,
-                              ),
-                            ),
-                            20.widthBox,
-                            Expanded(
-                              child: Text(
-                                "Security code",
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: Helper.getTextColor(context)),
-                              ),
-                            ),
-                            FlutterSwitch(
-                              width: 40,
-                              height: 20,
-                              padding: 1,
-                              value: isSecurityCode,
-                              borderRadius: 30.0,
-                              toggleColor: Colors.black,
-                              toggleSize: 15,
-                              switchBorder: Border.all(
-                                color: Colors.black,
-                                width: 2.0,
-                              ),
-                              activeColor: Colors.green,
-                              inactiveColor: Colors.grey,
-                              onToggle: (val) {
-                                setState(() {
-                                  isSecurityCode = val;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      10.heightBox*/
                       InkWell(
                         onTap: (){
-                          MyDialog().showMasterPasswordDialog( context: context);
+                          MyDialog().showMasterPasswordDialog( context: context, export: true);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -345,6 +225,88 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                           ),
                         ),
                       ),
+                      20.heightBox,
+                      InkWell(
+                        onTap: (){
+                          MyDialog().showMasterPasswordDialog(context: context, export: false);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
+                              borderRadius:
+                              const BorderRadius.all(Radius.circular(10))),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 15, right: 5, top: 3, bottom: 3),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    "Restore",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Helper.getTextColor(context)),
+                                  ),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 5.0),
+                                  child: Icon(Icons.arrow_forward_ios_outlined, size: 16,),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    /*  ListView.builder(
+                        itemCount: data.length > 1 ? data.length - 1 : 0,
+                        // Adjusted for skipping the header row
+                        itemBuilder: (context, index) {
+                          if (index >= data.length - 1) {
+                            return const SizedBox(); // Return an empty SizedBox if the index is out of range
+                          }
+                          // Create a ToDoModel object from CSV data
+                          TransactionModel todoModel = TransactionModel(
+                            id: data[index + 1][0],
+                            member_email: data[index + 1][1].toString(),
+                            amount: data[index + 1][3].toString(),
+                            cat_name: data[index + 1][4].toString(),
+                            cat_type: data[index + 1][5], // Adjusted index and added 1 to skip the header row
+                          );
+
+                          return Dismissible(
+                            key: Key(todoModel.id!),
+                            // Use the ID as the key for Dismissible
+                            direction: DismissDirection.startToEnd,
+                            onDismissed: (direction) {
+                              // Remove the item from the database and reload the tasks
+                              deleteToDoItem(todoModel.id!);
+                            },
+                            background: Container(
+                              color: Colors.red,
+                              // Background color when swiping
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                              ),
+                            ),
+                            child: Card(
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              child: ToDoItem(
+                                toDoModel: todoModel,
+                                onToDoChanged: handleToDoChange,
+                                onDeleteItem: deleteToDoItem,
+                                onPriorityChanged: handlePriorityChange,
+                                isDarkMode: isDarkMode,
+                                onMultipleDelete: onMultipleDelete,
+                                isTaskSelected: isTaskSelected,
+                              ),
+                            ),
+                          );
+                        },
+                      ),*/
                     ],
                   ),
                 ),

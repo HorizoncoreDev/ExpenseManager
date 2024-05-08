@@ -41,84 +41,84 @@ class _SignInScreenState extends State<SignInScreen> {
           return SafeArea(
             child: Scaffold(
                 body: Container(
-              width: double.infinity,
-              height: double.infinity,
-              color: Helper.getBackgroundColor(context),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(15),
-                              bottomRight: Radius.circular(15))),
-                      child: Column(
-                        children: [
-                          20.heightBox,
-                          const Text(
-                            "Smart Expensee",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 26,
-                                fontWeight: FontWeight.w500),
-                          ),
-                          15.heightBox,
-                          const Text(
-                            "Login to sync data across multiple devices and\nexperience our many exciting features",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                          ),
-                          15.heightBox,
-                          Image.asset(
-                            ImageConstanst.icPhone,
-                            height: 350,
-                            width: 350,
-                          )
-                        ],
-                      ),
-                    ),
-                    20.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: InkWell(
-                        onTap: () {
-                          googleSignup();
-                        },
-                        child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Helper.getBackgroundColor(context),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 15),
-                          decoration: BoxDecoration(
-                              color: Helper.getCardColor(context),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          decoration: const BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(15),
+                                  bottomRight: Radius.circular(15))),
+                          child: Column(
                             children: [
-                              SvgPicture.asset(
-                                ImageConstanst.icGoogle,
-                                width: 18,
-                                height: 18,
-                              ),
-                              15.widthBox,
-                              Text(
-                                "Sign in with Google",
+                              20.heightBox,
+                              const Text(
+                                "Smart Expensee",
                                 style: TextStyle(
-                                    color: Helper.getTextColor(context),
-                                    fontSize: 14),
+                                    color: Colors.white,
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w500),
                               ),
+                              15.heightBox,
+                              const Text(
+                                "Login to sync data across multiple devices and\nexperience our many exciting features",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              15.heightBox,
+                              Image.asset(
+                                ImageConstanst.icPhone,
+                                height: 350,
+                                width: 350,
+                              )
                             ],
                           ),
                         ),
-                      ),
-                    ),
+                        20.heightBox,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 25),
+                          child: InkWell(
+                            onTap: () {
+                              googleSignup();
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 15),
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
+                                  borderRadius:
+                                  const BorderRadius.all(Radius.circular(10))),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    ImageConstanst.icGoogle,
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                  15.widthBox,
+                                  Text(
+                                    "Sign in with Google",
+                                    style: TextStyle(
+                                        color: Helper.getTextColor(context),
+                                        fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
 
-                    /*15.heightBox,
+                        /*15.heightBox,
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 25),
                           child: InkWell(
@@ -173,43 +173,43 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                         ),*/
 
-                    30.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              MySharedPreferences.instance.addBoolToSF(
-                                  SharedPreferencesKeys.isSkippedUser, true);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
+                        30.heightBox,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 25),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  MySharedPreferences.instance.addBoolToSF(
+                                      SharedPreferencesKeys.isSkippedUser, true);
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
                                           const BudgetScreen()));
-                            },
-                            child: Text(
-                              "Skip",
-                              style: TextStyle(
-                                  color: Helper.getTextColor(context),
-                                  fontSize: 16),
-                            ),
+                                },
+                                child: Text(
+                                  "Skip",
+                                  style: TextStyle(
+                                      color: Helper.getTextColor(context),
+                                      fontSize: 16),
+                                ),
+                              ),
+                              3.widthBox,
+                              Icon(
+                                Icons.arrow_forward_ios_outlined,
+                                color: Helper.getTextColor(context),
+                                size: 10,
+                              )
+                            ],
                           ),
-                          3.widthBox,
-                          Icon(
-                            Icons.arrow_forward_ios_outlined,
-                            color: Helper.getTextColor(context),
-                            size: 10,
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            )),
+                        )
+                      ],
+                    ),
+                  ),
+                )),
           );
         }
         return Container();
@@ -222,17 +222,17 @@ class _SignInScreenState extends State<SignInScreen> {
 
     try {
       final GoogleSignInAccount? googleSignInAccount =
-          await googleSignIn.signIn();
+      await googleSignIn.signIn();
       if (googleSignInAccount != null) {
         final GoogleSignInAuthentication googleSignInAuthentication =
-            await googleSignInAccount.authentication;
+        await googleSignInAccount.authentication;
         final AuthCredential authCredential = GoogleAuthProvider.credential(
             idToken: googleSignInAuthentication.idToken,
             accessToken: googleSignInAuthentication.accessToken);
 
         // Getting users credential
         UserCredential? result =
-            await auth.signInWithCredential(authCredential);
+        await auth.signInWithCredential(authCredential);
         User? user = result.user;
 
         if (user != null) {
@@ -250,17 +250,17 @@ class _SignInScreenState extends State<SignInScreen> {
             AppConstanst.signInClicked = 0;
             MySharedPreferences.instance
                 .getStringValuesSF(
-                    SharedPreferencesKeys.skippedUserCurrentBalance)
+                SharedPreferencesKeys.skippedUserCurrentBalance)
                 .then((value) {
               currentBalance = value!;
               MySharedPreferences.instance
                   .getStringValuesSF(
-                      SharedPreferencesKeys.skippedUserCurrentIncome)
+                  SharedPreferencesKeys.skippedUserCurrentIncome)
                   .then((value) {
                 currentIncome = value!;
                 MySharedPreferences.instance
                     .getStringValuesSF(
-                        SharedPreferencesKeys.skippedUserActualBudget)
+                    SharedPreferencesKeys.skippedUserActualBudget)
                     .then((value) async {
                   currentActualBudget = value!;
                   MySharedPreferences.instance
@@ -269,12 +269,13 @@ class _SignInScreenState extends State<SignInScreen> {
                     fcmToken = value!;
 
                     String userCode = await Helper.generateUniqueCode();
+
                     final reference = FirebaseDatabase.instance
                         .reference()
                         .child(profile_table);
                     var newPostRef = reference.push();
 
-                    ProfileModel profileModel = ProfileModel(
+                    ProfileModel profileModel =  ProfileModel(
                         key: newPostRef.key,
                         first_name: firstName,
                         last_name: lastName,
@@ -289,7 +290,11 @@ class _SignInScreenState extends State<SignInScreen> {
                         actual_budget: currentActualBudget,
                         gender: "",
                         fcm_token: fcmToken);
-                    await databaseHelper.insertProfileData(profileModel);
+                    await databaseHelper.insertProfileData(
+                        profileModel
+                    );
+
+
                     newPostRef.set(
                       profileModel.toMap(),
                     );
@@ -311,6 +316,8 @@ class _SignInScreenState extends State<SignInScreen> {
             MySharedPreferences.instance
                 .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
             MySharedPreferences.instance
+                .addStringToSF(SharedPreferencesKeys.userName, user.displayName);
+            MySharedPreferences.instance
                 .addBoolToSF(SharedPreferencesKeys.isLogin, true);
             MySharedPreferences.instance.addStringToSF(
                 SharedPreferencesKeys.skippedUserCurrentBalance, "0");
@@ -322,76 +329,18 @@ class _SignInScreenState extends State<SignInScreen> {
             Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const DashBoard()),
-                (Route<dynamic> route) => false);
+                    (Route<dynamic> route) => false);
           } else {
-            MySharedPreferences.instance
-                .getStringValuesSF(SharedPreferencesKeys.userFcmToken)
-                .then((value) async {
-              fcmToken = value!;
+            await DatabaseHelper.instance
+                .getProfileData(user.email!)
+                .then((profileData) async {
+              if (profileData == null) {
+                String userCode = await Helper.generateUniqueCode();
 
-              final reference = FirebaseDatabase.instance
-                  .reference()
-                  .child(profile_table)
-                  .orderByChild('email')
-                  .equalTo(user.email!);
-
-              reference.onValue.listen((event) async {
-                DataSnapshot dataSnapshot = event.snapshot;
-                if (event.snapshot.exists) {
-
-                  bool budgetAdded = false;
-
-                  Map<dynamic, dynamic> values =
-                  dataSnapshot.value as Map<dynamic, dynamic>;
-                  values.forEach((key, value) async {
-                   if( value['current_balance']!="0") {
-                     budgetAdded = true;
-                   }
-                     ProfileModel profileModel = ProfileModel(
-                         key: value['key'],
-                         first_name: value['first_name'],
-                         last_name: value['last_name'],
-                         email: value['email'],
-                         full_name: value['full_name'],
-                         dob: value['dob'],
-                         user_code: value['user_code'],
-                         profile_image: value['profile_image'],
-                         mobile_number: value['mobile_number'],
-                         current_balance: value['current_balance'],
-                         current_income: value['current_income'],
-                         actual_budget: value['actual_budget'],
-                         gender: value['gender'],
-                         fcm_token: fcmToken);
-
-                     final Map<String, Map> updates = {};
-                     updates['/$profile_table/${profileModel.key}'] =
-                         profileModel.toMap();
-                     FirebaseDatabase.instance.ref().update(updates);
-
-                  });
-if(budgetAdded) {
-  MySharedPreferences.instance.addStringToSF(
-      SharedPreferencesKeys.userEmail, user.email);
-  MySharedPreferences.instance
-      .addBoolToSF(SharedPreferencesKeys.isLogin, true);
-  Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-          builder: (context) => const DashBoard()),
-          (Route<dynamic> route) => false);
-}else{
-  MySharedPreferences.instance.addStringToSF(
-      SharedPreferencesKeys.userEmail, user.email);
-  MySharedPreferences.instance
-      .addBoolToSF(SharedPreferencesKeys.isLogin, true);
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-        builder: (context) => const BudgetScreen()),
-  );
-}
-                } else {
-                  String userCode = await Helper.generateUniqueCode();
+                MySharedPreferences.instance
+                    .getStringValuesSF(SharedPreferencesKeys.userFcmToken)
+                    .then((value) async {
+                  fcmToken = value!;
 
                   final reference = FirebaseDatabase.instance
                       .reference()
@@ -413,12 +362,16 @@ if(budgetAdded) {
                       actual_budget: "0",
                       gender: "",
                       fcm_token: fcmToken);
-                  await databaseHelper.insertProfileData(profileModel);
+                  await databaseHelper.insertProfileData(
+                      profileModel
+                  );
 
                   newPostRef.set(profileModel.toMap());
 
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.userEmail, user.email);
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.userName, user.displayName);
                   MySharedPreferences.instance
                       .addBoolToSF(SharedPreferencesKeys.isLogin, true);
                   Navigator.push(
@@ -426,20 +379,20 @@ if(budgetAdded) {
                     MaterialPageRoute(
                         builder: (context) => const BudgetScreen()),
                   );
-                }
-              });
+                });
+              } else {
+                MySharedPreferences.instance
+                    .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
+                MySharedPreferences.instance
+                    .addStringToSF(SharedPreferencesKeys.userName, user.displayName);
+                MySharedPreferences.instance
+                    .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const DashBoard()),
+                        (Route<dynamic> route) => false);
+              }
             });
-
-            /* await DatabaseHelper.instance
-                .getProfileData(user.email!)
-                .then((profileData) async {
-              if (profileData == null) {
-
-              }
-              else {
-
-              }
-            });*/
           }
         }
       }

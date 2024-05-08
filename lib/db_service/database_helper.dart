@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
+import 'package:csv/csv.dart';
 import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/statistics/statistics_screen.dart';
+import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -49,8 +53,6 @@ class DatabaseHelper {
     const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
     const textType = 'TEXT NOT NULL';
     const integerType = 'INTEGER NOT NULL';
-
-
 
     await db.execute('''
       CREATE TABLE $transaction_table (
@@ -101,6 +103,7 @@ class DatabaseHelper {
       ${CategoryFields.color} $integerType
       )
    ''');
+
 
 
     await db.execute('''
@@ -782,4 +785,208 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     await db.delete(profile_table);
     Helper.showToast("All transaction are deleted.");
   }
-}
+
+  static Future<List<TransactionModel>> getTasks() async {
+    final List<Map<String, dynamic>> tasks = await _database!.query(transaction_table);
+    return List.generate(tasks.length, (i) {
+      return TransactionModel(
+          id: tasks[i]['id'],
+          member_email: tasks[i]['member_email'],
+          amount: tasks[i]['amount'],
+          cat_name: tasks[i]['cat_name'],
+          cat_type: tasks[i]['cat_type'],
+          payment_method_name: tasks[i]['payment_method_name'],
+          transaction_date: tasks[i]['transaction_date'],
+          transaction_type: tasks[i]['transaction_type'],
+          description: tasks[i]['description'],
+          receipt_image1: tasks[i]['receipt_image1'],
+          receipt_image2: tasks[i]['receipt_image2'],
+          receipt_image3: tasks[i]['receipt_image3']
+      );
+    });
+  }
+
+  static Future<String> exportAllToCSV() async {
+    final tasks = await getTasks();
+    List<List<dynamic>> rows = [
+      ['ID', 'member_email', 'amount', 'cat_name', 'cat_type', 'payment_method_name',
+        'transaction_date', 'transaction_type', 'description', 'receipt_image1',
+        'receipt_image2', 'receipt_image3']
+    ];
+
+    /// Add transaction data
+    for (var task in tasks) {
+      rows.add([
+        task.id,
+        task.member_email,
+        task.amount,
+        task.cat_name,
+        task.cat_type,
+        task.payment_method_name,
+        task.transaction_date,
+        task.transaction_type,
+        task.description ?? "",
+        task.receipt_image1 ?? "",
+        task.receipt_image2 ?? "",
+        task.receipt_image2 ?? ""
+      ]);
+    }
+    String csv = const ListToCsvConverter().convert(rows);
+    return csv;
+  }
+
+  Future<int> getCategoryID(String categoryName, int categoryType, int transactionType) async {
+    String tableName = "";
+    String fetchingId = "";
+    String fetchingName = "";
+
+    if(transactionType == AppConstanst.spendingTransaction){
+      if(categoryType == 0){
+        tableName = expense_category_table;
+        fetchingId = ExpenseCategoryField.id;
+        fetchingName = ExpenseCategoryField.name;
+      }
+      else{
+        tableName = spending_sub_category_table;
+        fetchingId = ExpenseSubCategoryFields.id;
+        fetchingName = ExpenseSubCategoryFields.name;
+      }
+    }
+    else{
+      if(categoryType == 0){
+        tableName = income_category_table;
+        fetchingId = CategoryFields.id;
+        fetchingName = CategoryFields.name;
+      }
+      else{
+        tableName = income_sub_category_table;
+        fetchingId = IncomeSubCategoryFields.id;
+        fetchingName = IncomeSubCategoryFields.name;
+      }
+    }
+    List<Map<String, dynamic>> result = await _database!.query(
+      tableName,
+      columns: [fetchingId],
+      where: '$fetchingName = ?',
+      whereArgs: [categoryName],
+    );
+
+    if (result.isNotEmpty) {
+      print(result);
+      return result.first[fetchingId];
+
+    } else {
+      return -1; // or any other default value you prefer
+    }
+  }
+
+  Future<String?> getCategoryIcon(/*dynamic categoryId, */int categoryName, int categoryType, int transactionType) async {
+    String tableName = "";
+    String fetchingIcon = "";
+    String fetchingName = "";
+
+    if (transactionType == AppConstanst.incomeTransaction) {
+      //   if (categoryType == AppConstanst.mainCategory) {
+      tableName = income_category_table;
+      fetchingIcon = CategoryFields.path;
+      fetchingName = CategoryFields.id;
+    }
+    else{
+      tableName = expense_category_table;
+      fetchingIcon = ExpenseCategoryField.icons;
+      fetchingName = ExpenseCategoryField.id;
+    }
+      // }
+      /*else{
+        tableName = spending_sub_category_table;
+        fetchingIcon = ExpenseCategoryField.icons;
+        fetchingName = ExpenseSubCategoryFields.name;
+      }
+    }*/ /*else {
+      if (categoryType == 0) {
+        tableName = income_category_table;
+        fetchingIcon = CategoryFields.path;
+        fetchingName = CategoryFields.name;
+      }
+    }*/
+
+      List<Map<String, dynamic>> result;
+
+      /* if (categoryId != null) {
+      result = await _database!.query(
+        tableName,
+        columns: [fetchingIcon],
+        where: '${ExpenseCategoryField.id} = ?',
+        whereArgs: [categoryId],
+      );
+    } else {*/
+      result = await _database!.query(
+        tableName,
+        columns: [fetchingIcon],
+        where: '$fetchingName = ?',
+        whereArgs: [categoryName],
+      );
+      // }
+
+      if (result.isNotEmpty) {
+        return result.first[fetchingIcon];
+      } else {
+        return null; // Return null if category icon is not found
+      }
+    }
+
+
+
+  }
+
+  // Future<int?> getCategoryColor(/*dynamic categoryId, */String categoryName, int categoryType, int transactionType) async {
+  //   String tableName = "";
+  //   String fetchingColor = "";
+  //   String fetchingName = "";
+  //
+  //   if (transactionType == AppConstanst.incomeTransaction) {
+  //     if (categoryType == 0) {
+  //       tableName = income_category_table;
+  //       fetchingColor = CategoryFields.color;
+  //       fetchingName = CategoryFields.name;
+  //     }
+  //     /*else{
+  //       tableName = spending_sub_category_table;
+  //       fetchingIcon = ExpenseCategoryField.icons;
+  //       fetchingName = ExpenseSubCategoryFields.name;
+  //     }
+  //   }*/ /*else {
+  //     if (categoryType == 0) {
+  //       tableName = income_category_table;
+  //       fetchingIcon = CategoryFields.path;
+  //       fetchingName = CategoryFields.name;
+  //     }
+  //   }*/
+  //
+  //     List<Map<String, dynamic>> result;
+  //
+  //     /* if (categoryId != null) {
+  //     result = await _database!.query(
+  //       tableName,
+  //       columns: [fetchingIcon],
+  //       where: '${ExpenseCategoryField.id} = ?',
+  //       whereArgs: [categoryId],
+  //     );
+  //   } else {*/
+  //     result = await _database!.query(
+  //       tableName,
+  //       columns: [fetchingColor],
+  //       where: '$fetchingName = ?',
+  //       whereArgs: [categoryName],
+  //     );
+  //     // }
+  //
+  //     if (result.isNotEmpty) {
+  //       return result.first[fetchingColor];
+  //     } else {
+  //       return null; // Return null if category icon is not found
+  //     }
+  //   }
+  // }
+
+
