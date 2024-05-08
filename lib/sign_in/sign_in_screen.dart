@@ -269,13 +269,12 @@ class _SignInScreenState extends State<SignInScreen> {
                     fcmToken = value!;
 
                     String userCode = await Helper.generateUniqueCode();
-
                     final reference = FirebaseDatabase.instance
                         .reference()
                         .child(profile_table);
                     var newPostRef = reference.push();
 
-                    ProfileModel profileModel =  ProfileModel(
+                    ProfileModel profileModel = ProfileModel(
                         key: newPostRef.key,
                         first_name: firstName,
                         last_name: lastName,
@@ -290,11 +289,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         actual_budget: currentActualBudget,
                         gender: "",
                         fcm_token: fcmToken);
-                    await databaseHelper.insertProfileData(
-                        profileModel
-                    );
-
-
+                    await databaseHelper.insertProfileData(profileModel);
                     newPostRef.set(
                       profileModel.toMap(),
                     );
@@ -331,16 +326,77 @@ class _SignInScreenState extends State<SignInScreen> {
                 MaterialPageRoute(builder: (context) => const DashBoard()),
                     (Route<dynamic> route) => false);
           } else {
-            await DatabaseHelper.instance
-                .getProfileData(user.email!)
-                .then((profileData) async {
-              if (profileData == null) {
-                String userCode = await Helper.generateUniqueCode();
+            MySharedPreferences.instance
+                .getStringValuesSF(SharedPreferencesKeys.userFcmToken)
+                .then((value) async {
+              fcmToken = value!;
 
-                MySharedPreferences.instance
-                    .getStringValuesSF(SharedPreferencesKeys.userFcmToken)
-                    .then((value) async {
-                  fcmToken = value!;
+              final reference = FirebaseDatabase.instance
+                  .reference()
+                  .child(profile_table)
+                  .orderByChild('email')
+                  .equalTo(user.email!);
+              bool calledOnce=false;
+              reference.onValue.listen((event) async {
+                DataSnapshot dataSnapshot = event.snapshot;
+                if (event.snapshot.exists) {
+                  ProfileModel? profileModel;
+                  Map<dynamic, dynamic> values =
+                  dataSnapshot.value as Map<dynamic, dynamic>;
+                  values.forEach((key, value) async {
+
+                         profileModel = ProfileModel(
+                        key: value['key'],
+                        first_name:  value['first_name'],
+                        last_name:  value['last_name'],
+                        email:  value['email'],
+                        full_name:  value['full_name'],
+                        dob:  value['dob'],
+                        user_code:  value['user_code'],
+                        profile_image:  value['profile_image'],
+                        mobile_number:  value['mobile_number'],
+                        current_balance:  value['current_balance'],
+                        current_income:  value['current_income'],
+                        actual_budget:  value['actual_budget'],
+                        gender:  value['gender'],
+                        fcm_token: fcmToken);
+
+                    final Map<String, Map> updates = {};
+                    updates['/$profile_table/${profileModel!.key}'] =
+                        profileModel!.toMap();
+                    FirebaseDatabase.instance.ref().update(updates);
+                  });
+
+
+                  await databaseHelper
+                      .getProfileData(user.email!)
+                      .then((profileData) async {
+                    if(profileData!=null){
+                      await databaseHelper.updateProfileData(profileModel!);
+                    }else{
+                      if(!calledOnce) {
+                        calledOnce = true;
+                        await databaseHelper.insertProfileData(profileModel!);
+                      }
+                    }
+                  });
+
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.userEmail, user.email);
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.userName, user.displayName);
+                  MySharedPreferences.instance
+                      .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+                  MySharedPreferences.instance.addBoolToSF(
+                      SharedPreferencesKeys.isBudgetAdded, true);
+
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const DashBoard()),
+                          (Route<dynamic> route) => false);
+                } else {
+                  String userCode = await Helper.generateUniqueCode();
 
                   final reference = FirebaseDatabase.instance
                       .reference()
@@ -362,9 +418,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       actual_budget: "0",
                       gender: "",
                       fcm_token: fcmToken);
-                  await databaseHelper.insertProfileData(
-                      profileModel
-                  );
+                  await databaseHelper.insertProfileData(profileModel);
 
                   newPostRef.set(profileModel.toMap());
 
@@ -379,20 +433,11 @@ class _SignInScreenState extends State<SignInScreen> {
                     MaterialPageRoute(
                         builder: (context) => const BudgetScreen()),
                   );
-                });
-              } else {
-                MySharedPreferences.instance
-                    .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
-                MySharedPreferences.instance
-                    .addStringToSF(SharedPreferencesKeys.userName, user.displayName);
-                MySharedPreferences.instance
-                    .addBoolToSF(SharedPreferencesKeys.isLogin, true);
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const DashBoard()),
-                        (Route<dynamic> route) => false);
-              }
+                }
+              });
             });
+
+
           }
         }
       }
