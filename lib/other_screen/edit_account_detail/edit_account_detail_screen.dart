@@ -3,6 +3,7 @@ import 'package:expense_manager/other_screen/account_detail/account_detail_scree
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,6 +48,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   String userEmail = '';
   String currentBalance = '';
   String currentIncome = '';
+  String key = '';
   int id = 0;
 
   bool validateEmail(String email) {
@@ -63,6 +65,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
       setState(() {
         profileData = fetchedProfileData;
         id = profileData!.id!;
+        key = profileData!.key!;
         firstNameController.text = profileData!.first_name!;
         lastNameController.text = profileData!.last_name!;
         emailController.text = profileData!.email!;
@@ -95,21 +98,27 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   }
 
   Future<void> updateProfileData() async {
+    ProfileModel profileModel = ProfileModel(
+        id: id,
+        key:key ,
+        first_name: firstNameController.text,
+        last_name: lastNameController.text,
+        email: emailController.text,
+        dob: dateOfBirth == null ? "Select DOB" : dateOfBirth!,
+        gender: selectedValue,
+        current_balance: currentBalance,
+        current_income: currentIncome,
+        actual_budget: actualBudget,
+        full_name: "",
+        profile_image: "",
+        mobile_number: "");
     await databaseHelper.updateProfileData(
-      ProfileModel(
-          id: id,
-          first_name: firstNameController.text,
-          last_name: lastNameController.text,
-          email: emailController.text,
-          dob: dateOfBirth == null ? "Select DOB" : dateOfBirth!,
-          gender: selectedValue,
-          current_balance: currentBalance,
-          current_income: currentIncome,
-          actual_budget: actualBudget,
-          full_name: "",
-          profile_image: "",
-          mobile_number: ""),
+      profileModel
     );
+
+    final Map<String, Map> updates = {};
+    updates['/$profile_table/${profileModel.key}'] = profileModel.toMap();
+    FirebaseDatabase.instance.ref().update(updates);
     Helper.showToast("Profile update successful!");
     getProfileData();
   }

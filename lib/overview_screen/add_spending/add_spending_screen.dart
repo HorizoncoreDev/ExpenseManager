@@ -9,6 +9,7 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -189,57 +190,64 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   int selectedPaymentMethodIndex = 0;
 
   createSpendingIncome(BuildContext context, int id, String email) async {
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(transaction_table);
+    var newPostRef = reference.push();
+
+    TransactionModel transactionModel = TransactionModel(
+      key: newPostRef.key,
+        member_id: id,
+        member_email: email,
+        amount: int.parse(amountController.text),
+        expense_cat_id: selectedSpendingIndex != -1
+            ? categories[selectedSpendingIndex].id
+            : -1,
+        sub_expense_cat_id: selectedSpendingSubIndex != -1
+            ? spendingSubCategories[selectedSpendingSubIndex].id
+            : -1,
+        income_cat_id: selectedValue == AppConstanst.incomeTransactionName
+            ? incomeCategories[selectedIncomeIndex].id
+            : -1,
+        sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
+            ? selectedIncomeSubIndex != -1
+            ? incomeSubCategories[selectedIncomeSubIndex].id
+            : -1
+            : -1,
+        cat_name: selectedValue == AppConstanst.spendingTransactionName
+            ? selectedSpendingSubIndex != -1
+            ? spendingSubCategories[selectedSpendingSubIndex].name
+            : categories[selectedSpendingIndex].name
+            : selectedIncomeSubIndex != -1
+            ? incomeSubCategories[selectedIncomeSubIndex].name
+            : incomeCategories[selectedIncomeIndex].name,
+        cat_type: selectedValue == AppConstanst.spendingTransactionName
+            ? selectedSpendingSubIndex != -1?AppConstanst.subCategory:AppConstanst.mainCategory
+            : selectedIncomeSubIndex != -1?AppConstanst.subCategory:AppConstanst.mainCategory,
+        cat_color: selectedValue == AppConstanst.spendingTransactionName
+            ? categories[selectedSpendingIndex].color
+            : incomeCategories[selectedIncomeIndex].color,
+        cat_icon: selectedValue == AppConstanst.spendingTransactionName
+            ? categories[selectedSpendingIndex].icons
+            : incomeCategories[selectedIncomeIndex].path,
+        payment_method_id:paymentMethods[selectedPaymentMethodIndex].id,
+        payment_method_name:paymentMethods[selectedPaymentMethodIndex].name,
+        status: 1,
+        transaction_date: '${formattedDate()} ${formattedTime()}',
+        transaction_type:
+        selectedValue == AppConstanst.spendingTransactionName
+            ? AppConstanst.spendingTransaction
+            : AppConstanst.incomeTransaction,
+        description: descriptionController.text,
+        currency_id: AppConstanst.rupeesCurrency,
+        receipt_image1: image1?.path ?? "",
+        receipt_image2: image2?.path ?? "",
+        receipt_image3: image3?.path ?? "",
+        created_at: DateTime.now().toString(),
+        last_updated: DateTime.now().toString());
     await databaseHelper
         .insertTransactionData(
-      TransactionModel(
-          member_id: id,
-          member_email: email,
-          amount: int.parse(amountController.text),
-          expense_cat_id: selectedSpendingIndex != -1
-              ? categories[selectedSpendingIndex].id
-              : -1,
-          sub_expense_cat_id: selectedSpendingSubIndex != -1
-              ? spendingSubCategories[selectedSpendingSubIndex].id
-              : -1,
-          income_cat_id: selectedValue == AppConstanst.incomeTransactionName
-              ? incomeCategories[selectedIncomeIndex].id
-              : -1,
-          sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
-              ? selectedIncomeSubIndex != -1
-                  ? incomeSubCategories[selectedIncomeSubIndex].id
-                  : -1
-              : -1,
-          cat_name: selectedValue == AppConstanst.spendingTransactionName
-              ? selectedSpendingSubIndex != -1
-                  ? spendingSubCategories[selectedSpendingSubIndex].name
-                  : categories[selectedSpendingIndex].name
-              : selectedIncomeSubIndex != -1
-                  ? incomeSubCategories[selectedIncomeSubIndex].name
-                  : incomeCategories[selectedIncomeIndex].name,
-          cat_type: selectedValue == AppConstanst.spendingTransactionName
-              ? selectedSpendingSubIndex != -1?AppConstanst.subCategory:AppConstanst.mainCategory
-              : selectedIncomeSubIndex != -1?AppConstanst.subCategory:AppConstanst.mainCategory,
-          cat_color: selectedValue == AppConstanst.spendingTransactionName
-              ? categories[selectedSpendingIndex].color
-              : incomeCategories[selectedIncomeIndex].color,
-          cat_icon: selectedValue == AppConstanst.spendingTransactionName
-              ? categories[selectedSpendingIndex].icons
-              : incomeCategories[selectedIncomeIndex].path,
-          payment_method_id:paymentMethods[selectedPaymentMethodIndex].id,
-          payment_method_name:paymentMethods[selectedPaymentMethodIndex].name,
-          status: 1,
-          transaction_date: '${formattedDate()} ${formattedTime()}',
-          transaction_type:
-              selectedValue == AppConstanst.spendingTransactionName
-                  ? AppConstanst.spendingTransaction
-                  : AppConstanst.incomeTransaction,
-          description: descriptionController.text,
-          currency_id: AppConstanst.rupeesCurrency,
-          receipt_image1: image1?.path ?? "",
-          receipt_image2: image2?.path ?? "",
-          receipt_image3: image3?.path ?? "",
-          created_at: DateTime.now().toString(),
-          last_updated: DateTime.now().toString()),
+      transactionModel,
     )
         .then((value) async {
       if (value != null) {
@@ -305,6 +313,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         Navigator.of(context).pop(true);
       }
     });
+
+
+    newPostRef.set(transactionModel.toMap());
   }
 
   @override

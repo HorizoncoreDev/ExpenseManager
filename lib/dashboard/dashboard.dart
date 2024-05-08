@@ -1,9 +1,12 @@
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 
+import '../db_models/profile_model.dart';
+import '../db_models/request_model.dart';
 import '../overview_screen/add_spending/add_spending_screen.dart';
 import '../overview_screen/overview_screen.dart';
 import '../statistics/statistics_screen.dart';
@@ -53,7 +56,11 @@ class _DashBoardState extends State<DashBoard> {
             .addBoolToSF(SharedPreferencesKeys.isCategoriesAdded, true));
       }
     });
+
+
   }
+
+
 
   @override
   Widget build(BuildContext context) {

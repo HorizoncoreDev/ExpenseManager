@@ -56,6 +56,7 @@ class DatabaseHelper {
       CREATE TABLE $transaction_table (
       ${TransactionFields.id} $idType,
       ${TransactionFields.member_id} $integerType,
+      ${TransactionFields.key} $textType,
       ${TransactionFields.member_email} $textType,
       ${TransactionFields.amount} $integerType,
       ${TransactionFields.expense_cat_id} $integerType,
@@ -135,6 +136,7 @@ class DatabaseHelper {
       ${RequestTableFields.requester_email} $textType,
       ${RequestTableFields.requester_name} $textType,
       ${RequestTableFields.receiver_email} $textType,
+      ${RequestTableFields.receiver_name} $textType,
       ${RequestTableFields.status} $integerType,
       ${RequestTableFields.created_at} $textType
       )
@@ -143,6 +145,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE $profile_table(
       ${ProfileTableFields.id} $idType,
+      ${ProfileTableFields.key} $textType,
       ${ProfileTableFields.first_name} $textType,
       ${ProfileTableFields.last_name} $textType,
       ${ProfileTableFields.email} $textType,
@@ -154,7 +157,8 @@ class DatabaseHelper {
       ${ProfileTableFields.current_balance} $textType,
       ${ProfileTableFields.current_income} $textType,
       ${ProfileTableFields.actual_budget} $textType,
-      ${ProfileTableFields.gender} $textType
+      ${ProfileTableFields.gender} $textType,
+      ${ProfileTableFields.fcm_token} $textType
       )
    ''');
   }

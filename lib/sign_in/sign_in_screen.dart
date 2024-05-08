@@ -4,6 +4,7 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -243,6 +244,7 @@ class _SignInScreenState extends State<SignInScreen> {
           var currentBalance = "0";
           var currentIncome = "0";
           var currentActualBudget = "0";
+          var fcmToken = "";
 
           if (AppConstanst.signInClicked == 1) {
             AppConstanst.signInClicked = 0;
@@ -261,10 +263,19 @@ class _SignInScreenState extends State<SignInScreen> {
                         SharedPreferencesKeys.skippedUserActualBudget)
                     .then((value) async {
                   currentActualBudget = value!;
+                  MySharedPreferences.instance
+                      .getStringValuesSF(SharedPreferencesKeys.userFcmToken)
+                      .then((value) async {
+                    fcmToken = value!;
 
-                  String userCode = await Helper.generateUniqueCode();
-                  await databaseHelper.insertProfileData(
-                    ProfileModel(
+                    String userCode = await Helper.generateUniqueCode();
+                    final reference = FirebaseDatabase.instance
+                        .reference()
+                        .child(profile_table);
+                    var newPostRef = reference.push();
+
+                    ProfileModel profileModel = ProfileModel(
+                        key: newPostRef.key,
                         first_name: firstName,
                         last_name: lastName,
                         email: user.email ?? "",
@@ -276,8 +287,13 @@ class _SignInScreenState extends State<SignInScreen> {
                         current_balance: currentBalance,
                         current_income: currentIncome,
                         actual_budget: currentActualBudget,
-                        gender: ""),
-                  );
+                        gender: "",
+                        fcm_token: fcmToken);
+                    await databaseHelper.insertProfileData(profileModel);
+                    newPostRef.set(
+                      profileModel.toMap(),
+                    );
+                  });
                 });
               });
             });
@@ -308,13 +324,82 @@ class _SignInScreenState extends State<SignInScreen> {
                 MaterialPageRoute(builder: (context) => const DashBoard()),
                 (Route<dynamic> route) => false);
           } else {
-            await DatabaseHelper.instance
-                .getProfileData(user.email!)
-                .then((profileData) async {
-              if (profileData == null) {
-                String userCode = await Helper.generateUniqueCode();
-                await databaseHelper.insertProfileData(
-                  ProfileModel(
+            MySharedPreferences.instance
+                .getStringValuesSF(SharedPreferencesKeys.userFcmToken)
+                .then((value) async {
+              fcmToken = value!;
+
+              final reference = FirebaseDatabase.instance
+                  .reference()
+                  .child(profile_table)
+                  .orderByChild('email')
+                  .equalTo(user.email!);
+
+              reference.onValue.listen((event) async {
+                DataSnapshot dataSnapshot = event.snapshot;
+                if (event.snapshot.exists) {
+
+                  bool budgetAdded = false;
+
+                  Map<dynamic, dynamic> values =
+                  dataSnapshot.value as Map<dynamic, dynamic>;
+                  values.forEach((key, value) async {
+                   if( value['current_balance']!="0") {
+                     budgetAdded = true;
+                   }
+                     ProfileModel profileModel = ProfileModel(
+                         key: value['key'],
+                         first_name: value['first_name'],
+                         last_name: value['last_name'],
+                         email: value['email'],
+                         full_name: value['full_name'],
+                         dob: value['dob'],
+                         user_code: value['user_code'],
+                         profile_image: value['profile_image'],
+                         mobile_number: value['mobile_number'],
+                         current_balance: value['current_balance'],
+                         current_income: value['current_income'],
+                         actual_budget: value['actual_budget'],
+                         gender: value['gender'],
+                         fcm_token: fcmToken);
+
+                     final Map<String, Map> updates = {};
+                     updates['/$profile_table/${profileModel.key}'] =
+                         profileModel.toMap();
+                     FirebaseDatabase.instance.ref().update(updates);
+
+                  });
+if(budgetAdded) {
+  MySharedPreferences.instance.addStringToSF(
+      SharedPreferencesKeys.userEmail, user.email);
+  MySharedPreferences.instance
+      .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+  Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+          builder: (context) => const DashBoard()),
+          (Route<dynamic> route) => false);
+}else{
+  MySharedPreferences.instance.addStringToSF(
+      SharedPreferencesKeys.userEmail, user.email);
+  MySharedPreferences.instance
+      .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+        builder: (context) => const BudgetScreen()),
+  );
+}
+                } else {
+                  String userCode = await Helper.generateUniqueCode();
+
+                  final reference = FirebaseDatabase.instance
+                      .reference()
+                      .child(profile_table);
+                  var newPostRef = reference.push();
+
+                  ProfileModel profileModel = ProfileModel(
+                      key: newPostRef.key,
                       first_name: firstName,
                       last_name: lastName,
                       email: user.email ?? "",
@@ -326,27 +411,35 @@ class _SignInScreenState extends State<SignInScreen> {
                       current_balance: "0",
                       current_income: "0",
                       actual_budget: "0",
-                      gender: ""),
-                );
-                MySharedPreferences.instance
-                    .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
-                MySharedPreferences.instance
-                    .addBoolToSF(SharedPreferencesKeys.isLogin, true);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const BudgetScreen()),
-                );
-              } else {
-                MySharedPreferences.instance
-                    .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
-                MySharedPreferences.instance
-                    .addBoolToSF(SharedPreferencesKeys.isLogin, true);
-                Navigator.pushAndRemoveUntil(
+                      gender: "",
+                      fcm_token: fcmToken);
+                  await databaseHelper.insertProfileData(profileModel);
+
+                  newPostRef.set(profileModel.toMap());
+
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.userEmail, user.email);
+                  MySharedPreferences.instance
+                      .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+                  Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const DashBoard()),
-                    (Route<dynamic> route) => false);
-              }
+                    MaterialPageRoute(
+                        builder: (context) => const BudgetScreen()),
+                  );
+                }
+              });
             });
+
+            /* await DatabaseHelper.instance
+                .getProfileData(user.email!)
+                .then((profileData) async {
+              if (profileData == null) {
+
+              }
+              else {
+
+              }
+            });*/
           }
         }
       }

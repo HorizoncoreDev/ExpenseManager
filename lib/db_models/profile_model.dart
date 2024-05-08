@@ -4,6 +4,7 @@ class ProfileTableFields {
   static final List<String> values = [
     /// Add all fields
     id,
+    key,
     first_name,
     last_name,
     email,
@@ -15,10 +16,12 @@ class ProfileTableFields {
     current_balance,
     current_income,
     actual_budget,
-    gender
+    gender,
+    fcm_token
   ];
 
   static const String id = 'id';
+  static const String key = 'key';
   static const String first_name = 'first_name';
   static const String last_name = 'last_name';
   static const String email = 'email';
@@ -31,10 +34,12 @@ class ProfileTableFields {
   static const String current_balance = 'current_balance';
   static const String current_income = 'current_income';
   static const String actual_budget = 'actual_budget';
+  static const String fcm_token = 'fcm_token';
 }
 
 class ProfileModel {
   int? id;
+  String? key;
   String? first_name;
   String? last_name;
   String? email;
@@ -47,9 +52,11 @@ class ProfileModel {
   String? current_income;
   String? actual_budget;
   String? gender;
+  String? fcm_token;
 
   ProfileModel({
     this.id,
+    this.key,
     this.first_name,
     this.last_name,
     this.email,
@@ -62,11 +69,13 @@ class ProfileModel {
     this.current_income,
     this.actual_budget,
     this.gender,
+    this.fcm_token,
   });
 
   factory ProfileModel.fromMap(Map<String, dynamic> map) {
     return ProfileModel(
       id: map['id'],
+      key: map['key'],
       first_name: map['first_name'],
       last_name: map['last_name'],
       email: map['email'],
@@ -79,11 +88,13 @@ class ProfileModel {
       current_balance: map['current_balance'],
       current_income: map['current_income'],
       actual_budget: map['actual_budget'],
+      fcm_token: map['fcm_token']
     );
   }
 
   static ProfileModel fromJson(Map<String, Object?> json) => ProfileModel(
         id: json[ProfileTableFields.id] as int,
+        key: json[ProfileTableFields.key] as String,
         first_name: json[ProfileTableFields.first_name] as String,
         last_name: json[ProfileTableFields.last_name] as String,
         email: json[ProfileTableFields.email] as String,
@@ -96,11 +107,13 @@ class ProfileModel {
         current_balance: json[ProfileTableFields.current_balance] as String,
     current_income: json[ProfileTableFields.current_income] as String,
     actual_budget: json[ProfileTableFields.actual_budget] as String,
+    fcm_token: json[ProfileTableFields.fcm_token] as String
       );
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'key': key,
       'first_name': first_name,
       'last_name': last_name,
       'email': email,
@@ -113,6 +126,7 @@ class ProfileModel {
       'current_balance': current_balance,
       'current_income': current_income,
       'actual_budget': actual_budget,
+      'fcm_token': fcm_token
     };
   }
 }

@@ -2,11 +2,13 @@ import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../dashboard/dashboard.dart';
+import '../db_models/profile_model.dart';
 import '../utils/global.dart';
 import '../utils/views/custom_text_form_field.dart';
 import 'bloc/budget_bloc.dart';
@@ -118,6 +120,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   budgetController.text.toString();
                               await DatabaseHelper.instance
                                   .updateProfileData(profileData);
+
+                              final Map<String, Map> updates = {};
+                              updates['/$profile_table/${profileData.key}'] =
+                                  profileData.toMap();
+                              FirebaseDatabase.instance.ref().update(updates);
+
                               MySharedPreferences.instance.addBoolToSF(
                                   SharedPreferencesKeys.isBudgetAdded, true);
                               Navigator.pushAndRemoveUntil(

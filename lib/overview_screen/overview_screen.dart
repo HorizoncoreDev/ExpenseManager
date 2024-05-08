@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
@@ -7,14 +9,16 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:http/http.dart' as http;
 
+import '../db_models/request_model.dart';
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
 import '../statistics/search/search_screen.dart';
@@ -53,7 +57,75 @@ class OverviewScreenState extends State<OverviewScreen> {
       }
       getTransactions();
     });
+
     super.initState();
+  }
+
+  void checkRequests(){
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(request_table)
+        .orderByChild('receiver_email')
+        .equalTo(profileModel.email);
+
+    reference.onValue.listen((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+        dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) {
+          if (value['status'] == AppConstanst.pendingRequest) {
+            RequestModel requestModel = RequestModel(
+                key: key,
+                requester_email: value['requester_email'],
+                requester_name: value['requester_name'],
+                receiver_email: value['receiver_email'],
+                receiver_name: value['receiver_name'],
+                status: value['status'],
+                created_at: value['created_at']);
+            sendRequestNotification(requestModel, profileModel);
+          }
+        });
+      }
+    });
+  }
+
+  void sendRequestNotification(RequestModel requesterModel, ProfileModel profileModel) async {
+
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(profile_table)
+        .orderByChild('email')
+        .equalTo(requesterModel.receiver_email);
+
+    reference.onValue.listen((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+        dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+
+          await http.post(
+            Uri.parse('https://fcm.googleapis.com/fcm/send'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization':'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
+            },
+            body: jsonEncode({
+              'to': value['fcm_token'],
+              'priority':'high',
+              'notification': {
+                'title': 'Hello ${requesterModel.receiver_name},',
+                'body': 'You have a new request from ${requesterModel.requester_name}',
+              },
+            }),
+          );
+        });
+      }
+
+    });
+
+
   }
 
   getProfileData() async {
@@ -65,6 +137,7 @@ class OverviewScreenState extends State<OverviewScreen> {
         currentBalance = int.parse(profileModel.current_balance!);
         currentIncome = int.parse(profileModel.current_income!);
         actualBudget = int.parse(profileModel.actual_budget!);
+        checkRequests();
       });
     } catch (error) {
       print('Error fetching Profile Data: $error');

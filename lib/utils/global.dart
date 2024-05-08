@@ -25,6 +25,8 @@ abstract class AppConstanst {
   static const int rejectedRequest = 3;
   static const int removedRequest = 4;
 
+  static  bool notificationClicked = false;
+
   static const String priorityHigh = "High";
   static const String priorityMedium = "Medium";
   static const String priorityLow = "Low";
@@ -48,6 +50,7 @@ abstract class SharedPreferencesKeys {
   static const isCategoriesAdded = "isCategoriesAdded";
   static const isBudgetAdded = "isBudgetAdded";
   static const userEmail = "userEmail";
+  static const userFcmToken = "userFcmToken";
   static const isSkippedUser = "skippedUser";
   static const skippedUserCurrentBalance = "skippedUserCurrentBalance";
   static const skippedUserCurrentIncome = "skippedUserCurrentIncome";
