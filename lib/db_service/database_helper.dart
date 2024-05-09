@@ -9,6 +9,7 @@ import 'package:expense_manager/statistics/statistics_screen.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -18,6 +19,9 @@ import '../db_models/income_sub_category.dart';
 import '../db_models/payment_method_model.dart';
 import '../db_models/profile_model.dart';
 import '../db_models/expense_sub_category.dart';
+
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper.init();
@@ -58,7 +62,6 @@ class DatabaseHelper {
       CREATE TABLE $transaction_table (
       ${TransactionFields.id} $idType,
       ${TransactionFields.member_id} $integerType,
-      ${TransactionFields.key} $textType,
       ${TransactionFields.member_email} $textType,
       ${TransactionFields.amount} $integerType,
       ${TransactionFields.expense_cat_id} $integerType,
@@ -139,7 +142,6 @@ class DatabaseHelper {
       ${RequestTableFields.requester_email} $textType,
       ${RequestTableFields.requester_name} $textType,
       ${RequestTableFields.receiver_email} $textType,
-      ${RequestTableFields.receiver_name} $textType,
       ${RequestTableFields.status} $integerType,
       ${RequestTableFields.created_at} $textType
       )
@@ -148,7 +150,6 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE $profile_table(
       ${ProfileTableFields.id} $idType,
-      ${ProfileTableFields.key} $textType,
       ${ProfileTableFields.first_name} $textType,
       ${ProfileTableFields.last_name} $textType,
       ${ProfileTableFields.email} $textType,
@@ -160,8 +161,7 @@ class DatabaseHelper {
       ${ProfileTableFields.current_balance} $textType,
       ${ProfileTableFields.current_income} $textType,
       ${ProfileTableFields.actual_budget} $textType,
-      ${ProfileTableFields.gender} $textType,
-      ${ProfileTableFields.fcm_token} $textType
+      ${ProfileTableFields.gender} $textType
       )
    ''');
   }
@@ -839,7 +839,6 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     String tableName = "";
     String fetchingId = "";
     String fetchingName = "";
-
     if(transactionType == AppConstanst.spendingTransaction){
       if(categoryType == 0){
         tableName = expense_category_table;
@@ -874,119 +873,85 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     if (result.isNotEmpty) {
       print(result);
       return result.first[fetchingId];
-
     } else {
       return -1; // or any other default value you prefer
     }
   }
 
-  Future<String?> getCategoryIcon(/*dynamic categoryId, */int categoryName, int categoryType, int transactionType) async {
-    String tableName = "";
-    String fetchingIcon = "";
-    String fetchingName = "";
 
-    if (transactionType == AppConstanst.incomeTransaction) {
-      //   if (categoryType == AppConstanst.mainCategory) {
-      tableName = income_category_table;
-      fetchingIcon = CategoryFields.path;
-      fetchingName = CategoryFields.id;
-    }
-    else{
-      tableName = expense_category_table;
-      fetchingIcon = ExpenseCategoryField.icons;
-      fetchingName = ExpenseCategoryField.id;
-    }
-      // }
-      /*else{
-        tableName = spending_sub_category_table;
-        fetchingIcon = ExpenseCategoryField.icons;
-        fetchingName = ExpenseSubCategoryFields.name;
-      }
-    }*/ /*else {
-      if (categoryType == 0) {
-        tableName = income_category_table;
-        fetchingIcon = CategoryFields.path;
-        fetchingName = CategoryFields.name;
-      }
-    }*/
-
-      List<Map<String, dynamic>> result;
-
-      /* if (categoryId != null) {
-      result = await _database!.query(
-        tableName,
-        columns: [fetchingIcon],
-        where: '${ExpenseCategoryField.id} = ?',
-        whereArgs: [categoryId],
-      );
-    } else {*/
-      result = await _database!.query(
-        tableName,
-        columns: [fetchingIcon],
-        where: '$fetchingName = ?',
-        whereArgs: [categoryName],
-      );
-      // }
-
-      if (result.isNotEmpty) {
-        return result.first[fetchingIcon];
-      } else {
-        return null; // Return null if category icon is not found
-      }
-    }
-
-
-
+  /// Get the database path
+  Future<String> getDatabasePath() async {
+    Directory directory = await getApplicationDocumentsDirectory();
+    return join(directory.path, 'em.db');
   }
 
-  // Future<int?> getCategoryColor(/*dynamic categoryId, */String categoryName, int categoryType, int transactionType) async {
-  //   String tableName = "";
-  //   String fetchingColor = "";
-  //   String fetchingName = "";
-  //
-  //   if (transactionType == AppConstanst.incomeTransaction) {
-  //     if (categoryType == 0) {
-  //       tableName = income_category_table;
-  //       fetchingColor = CategoryFields.color;
-  //       fetchingName = CategoryFields.name;
-  //     }
-  //     /*else{
-  //       tableName = spending_sub_category_table;
-  //       fetchingIcon = ExpenseCategoryField.icons;
-  //       fetchingName = ExpenseSubCategoryFields.name;
-  //     }
-  //   }*/ /*else {
-  //     if (categoryType == 0) {
-  //       tableName = income_category_table;
-  //       fetchingIcon = CategoryFields.path;
-  //       fetchingName = CategoryFields.name;
-  //     }
-  //   }*/
-  //
-  //     List<Map<String, dynamic>> result;
-  //
-  //     /* if (categoryId != null) {
-  //     result = await _database!.query(
-  //       tableName,
-  //       columns: [fetchingIcon],
-  //       where: '${ExpenseCategoryField.id} = ?',
-  //       whereArgs: [categoryId],
-  //     );
-  //   } else {*/
-  //     result = await _database!.query(
-  //       tableName,
-  //       columns: [fetchingColor],
-  //       where: '$fetchingName = ?',
-  //       whereArgs: [categoryName],
-  //     );
-  //     // }
-  //
-  //     if (result.isNotEmpty) {
-  //       return result.first[fetchingColor];
-  //     } else {
-  //       return null; // Return null if category icon is not found
-  //     }
-  //   }
-  // }
+  /// Get the export path
+  Future<String> getExportPath() async {
+    Directory? storageDir = await getExternalStorageDirectory();
+    return join(storageDir!.path, 'exported_database.db');
+  }
+
+  ///method for export db file
+  Future<void> exportDatabase() async {
+    String originalPath = await getDatabasePath();
+    String exportPath = await getExportPath();
+
+    // Copy the database file
+    try {
+      File originalFile = File(originalPath);
+      await originalFile.copy(exportPath);
+      print("Db file exported successfully to $exportPath");
+    } catch (e) {
+      print("Error exporting Db file : $e");
+    }
+  }
 
 
+
+/*
+  Future<Color> getCategoryColor(String categoryName, int categoryType, int transactionType) async {
+    String tableName = "";
+    String fetchingColor = "";
+    String fetchingName = "";
+    if(transactionType == AppConstanst.spendingTransaction){
+      if(categoryType == 0){
+        tableName = expense_category_table;
+        fetchingColor = ExpenseCategoryField.color;
+        fetchingName = ExpenseCategoryField.name;
+      }
+      else{
+        tableName = spending_sub_category_table;
+        fetchingColor = ExpenseCategoryField.color;
+        fetchingName = ExpenseSubCategoryFields.name;
+      }
+    }
+    else{
+      if(categoryType == 0){
+        tableName = income_category_table;
+        fetchingColor = CategoryFields.color;
+        fetchingName = CategoryFields.name;
+      }
+      else{
+        tableName = income_sub_category_table;
+        fetchingColor = CategoryFields.color;
+        fetchingName = IncomeSubCategoryFields.name;
+      }
+    }
+    List<Map<String, dynamic>> result = await _database!.query(
+      tableName,
+      columns: [fetchingColor],
+      where: '$fetchingName = ?',
+      whereArgs: [categoryName],
+    );
+
+    if (result.isNotEmpty) {
+      print(result);
+      return result.first[fetchingColor];
+    } else {
+      return Colors.yellow; // or any other default value you prefer
+    }
+  }
+*/
+
+
+}

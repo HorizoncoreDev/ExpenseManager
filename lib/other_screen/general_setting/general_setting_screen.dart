@@ -1,5 +1,5 @@
-
 import 'package:expense_manager/db_models/transaction_model.dart';
+import 'package:expense_manager/drive_upload_import/restore/restore_dialog.dart';
 import 'package:expense_manager/master_password/master_password_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -194,15 +194,15 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                       ),
                       20.heightBox,
                       InkWell(
-                        onTap: (){
-                          MyDialog().showMasterPasswordDialog( context: context, export: true);
+                        onTap: () {
+                          MyDialog().showMasterPasswordDialog(context: context);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
                               color: Helper.getCardColor(context),
                               borderRadius:
-                              const BorderRadius.all(Radius.circular(10))),
+                                  const BorderRadius.all(Radius.circular(10))),
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 left: 15, right: 5, top: 3, bottom: 3),
@@ -218,7 +218,10 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                 ),
                                 const Padding(
                                   padding: EdgeInsets.only(right: 5.0),
-                                  child: Icon(Icons.arrow_forward_ios_outlined, size: 16,),
+                                  child: Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    size: 16,
+                                  ),
                                 )
                               ],
                             ),
@@ -226,16 +229,18 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                         ),
                       ),
                       20.heightBox,
+
+                      ///restore dialog set
                       InkWell(
-                        onTap: (){
-                          MyDialog().showMasterPasswordDialog(context: context, export: false);
+                        onTap: () {
+                          RestoreDialog().showRestoreDialog(context: context);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
                               color: Helper.getCardColor(context),
                               borderRadius:
-                              const BorderRadius.all(Radius.circular(10))),
+                                  const BorderRadius.all(Radius.circular(10))),
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 left: 15, right: 5, top: 3, bottom: 3),
@@ -251,14 +256,18 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                 ),
                                 const Padding(
                                   padding: EdgeInsets.only(right: 5.0),
-                                  child: Icon(Icons.arrow_forward_ios_outlined, size: 16,),
+                                  child: Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    size: 16,
+                                  ),
                                 )
                               ],
                             ),
                           ),
                         ),
                       ),
-                    /*  ListView.builder(
+
+                      /*  ListView.builder(
                         itemCount: data.length > 1 ? data.length - 1 : 0,
                         // Adjusted for skipping the header row
                         itemBuilder: (context, index) {
@@ -311,10 +320,10 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                   ),
                 ),
               ));
-
         }
         return Container();
       },
     );
   }
+
 }

@@ -88,6 +88,7 @@ class _OtherScreenState extends State<OtherScreen> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
     otherBloc.context = context;
