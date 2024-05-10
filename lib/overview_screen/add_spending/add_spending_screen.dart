@@ -194,60 +194,61 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   int selectedPaymentMethodIndex = 0;
 
   createSpendingIncome(BuildContext context, int id, String email) async {
-
-    TransactionModel transactionModel = TransactionModel(
-      key: "",
-        member_id: id,
-        member_email: email,
-        amount: int.parse(amountController.text),
-        expense_cat_id: selectedSpendingIndex != -1
-            ? categories[selectedSpendingIndex].id
-            : -1,
-        sub_expense_cat_id: selectedSpendingSubIndex != -1
-            ? spendingSubCategories[selectedSpendingSubIndex].id
-            : -1,
-        income_cat_id: selectedValue == AppConstanst.incomeTransactionName
-            ? incomeCategories[selectedIncomeIndex].id
-            : -1,
-        sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
-            ? selectedIncomeSubIndex != -1
-            ? incomeSubCategories[selectedIncomeSubIndex].id
-            : -1
-            : -1,
-        cat_name: selectedValue == AppConstanst.spendingTransactionName
-            ? selectedSpendingSubIndex != -1
-            ? spendingSubCategories[selectedSpendingSubIndex].name
-            : categories[selectedSpendingIndex].name
-            : selectedIncomeSubIndex != -1
-            ? incomeSubCategories[selectedIncomeSubIndex].name
-            : incomeCategories[selectedIncomeIndex].name,
-        cat_type: selectedValue == AppConstanst.spendingTransactionName
-            ? selectedSpendingSubIndex != -1?AppConstanst.subCategory:AppConstanst.mainCategory
-            : selectedIncomeSubIndex != -1?AppConstanst.subCategory:AppConstanst.mainCategory,
-        cat_color: selectedValue == AppConstanst.spendingTransactionName
-            ? categories[selectedSpendingIndex].color
-            : incomeCategories[selectedIncomeIndex].color,
-        cat_icon: selectedValue == AppConstanst.spendingTransactionName
-            ? categories[selectedSpendingIndex].icons
-            : incomeCategories[selectedIncomeIndex].path,
-        payment_method_id:paymentMethods[selectedPaymentMethodIndex].id,
-        payment_method_name:paymentMethods[selectedPaymentMethodIndex].name,
-        status: 1,
-        transaction_date: '${formattedDate()} ${formattedTime()}',
-        transaction_type:
-        selectedValue == AppConstanst.spendingTransactionName
-            ? AppConstanst.spendingTransaction
-            : AppConstanst.incomeTransaction,
-        description: descriptionController.text,
-        currency_id: AppConstanst.rupeesCurrency,
-        receipt_image1: image1?.path ?? "",
-        receipt_image2: image2?.path ?? "",
-        receipt_image3: image3?.path ?? "",
-        created_at: DateTime.now().toString(),
-        last_updated: DateTime.now().toString());
     await databaseHelper
         .insertTransactionData(
-      transactionModel,isSkippedUser
+      TransactionModel(
+          member_id: id,
+          member_email: email,
+          amount: int.parse(amountController.text),
+          expense_cat_id: selectedSpendingIndex != -1
+              ? categories[selectedSpendingIndex].id
+              : -1,
+          sub_expense_cat_id: selectedSpendingSubIndex != -1
+              ? spendingSubCategories[selectedSpendingSubIndex].id
+              : -1,
+          income_cat_id: selectedValue == AppConstanst.incomeTransactionName
+              ? incomeCategories[selectedIncomeIndex].id
+              : -1,
+          sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
+              ? selectedIncomeSubIndex != -1
+                  ? incomeSubCategories[selectedIncomeSubIndex].id
+                  : -1
+              : -1,
+          cat_name: selectedValue == AppConstanst.spendingTransactionName
+              ? selectedSpendingSubIndex != -1
+                  ? spendingSubCategories[selectedSpendingSubIndex].name
+                  : categories[selectedSpendingIndex].name
+              : selectedIncomeSubIndex != -1
+                  ? incomeSubCategories[selectedIncomeSubIndex].name
+                  : incomeCategories[selectedIncomeIndex].name,
+          cat_type: selectedValue == AppConstanst.spendingTransactionName
+              ? selectedSpendingSubIndex != -1
+                  ? AppConstanst.subCategory
+                  : AppConstanst.mainCategory
+              : selectedIncomeSubIndex != -1
+                  ? AppConstanst.subCategory
+                  : AppConstanst.mainCategory,
+          cat_color: selectedValue == AppConstanst.spendingTransactionName
+              ? categories[selectedSpendingIndex].color
+              : incomeCategories[selectedIncomeIndex].color,
+          cat_icon: selectedValue == AppConstanst.spendingTransactionName
+              ? categories[selectedSpendingIndex].icons
+              : incomeCategories[selectedIncomeIndex].path,
+          payment_method_id: paymentMethods[selectedPaymentMethodIndex].id,
+          payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
+          status: 1,
+          transaction_date: '${formattedDate()} ${formattedTime()}',
+          transaction_type:
+              selectedValue == AppConstanst.spendingTransactionName
+                  ? AppConstanst.spendingTransaction
+                  : AppConstanst.incomeTransaction,
+          description: descriptionController.text,
+          currency_id: AppConstanst.rupeesCurrency,
+          receipt_image1: image1?.path ?? "",
+          receipt_image2: image2?.path ?? "",
+          receipt_image3: image3?.path ?? "",
+          created_at: DateTime.now().toString(),
+          last_updated: DateTime.now().toString()),
     )
         .then((value) async {
       if (value != null) {
@@ -304,7 +305,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         .toString();
               }
               await DatabaseHelper.instance.updateProfileData(profileData);
-
             });
           }
         }
@@ -502,7 +502,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 style: TextStyle(
                                     fontSize: 16, color: Colors.blue)),
                             5.widthBox,
-
                           ],
                         ),
                       ),
@@ -1019,7 +1018,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       ),
                       5.widthBox,
                       Expanded(
-
                         child: InkWell(
                           onTap: () async {
                             DateTime? pickedDate = await showDatePicker(
@@ -1602,9 +1600,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
       XFile? imageFile = await picker.pickImage(source: imageSource);
       if (imageFile == null) return;
       File tmpFile = File(imageFile.path);
-      final appDir = await getExternalStorageDirectory();
+      final appDir = await getApplicationDocumentsDirectory();
       final fileName = basename(imageFile.path);
-      tmpFile = await tmpFile.copy('/storage/emulated/0/Download/$fileName');
+      tmpFile = await tmpFile.copy('${appDir.path}/$fileName');
       if (position == 1) {
         image1 = tmpFile;
       } else if (position == 2) {

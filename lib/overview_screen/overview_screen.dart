@@ -222,7 +222,6 @@ class OverviewScreenState extends State<OverviewScreen> {
               .then((profileData) async {
             profileData!.current_balance = profileData.actual_budget;
             await DatabaseHelper.instance.updateProfileData(profileData);
-
           });
         }
       }
