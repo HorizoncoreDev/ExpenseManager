@@ -52,14 +52,13 @@ class DatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    const keyType = 'TEXT PRIMARY KEY';
     const textType = 'TEXT NOT NULL';
     const integerType = 'INTEGER NOT NULL';
 
     await db.execute('''
       CREATE TABLE $transaction_table (
-      ${TransactionFields.id} $idType,
-      ${TransactionFields.member_id} $integerType,
-      ${TransactionFields.key} $textType,
+      ${TransactionFields.key} $keyType,
       ${TransactionFields.member_email} $textType,
       ${TransactionFields.amount} $integerType,
       ${TransactionFields.expense_cat_id} $integerType,
@@ -146,8 +145,7 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE TABLE $profile_table(
-      ${ProfileTableFields.id} $idType,
-      ${ProfileTableFields.key} $textType,
+      ${ProfileTableFields.key} $keyType,
       ${ProfileTableFields.first_name} $textType,
       ${ProfileTableFields.last_name} $textType,
       ${ProfileTableFields.email} $textType,
@@ -235,7 +233,7 @@ class DatabaseHelper {
   }
 
   Future<ProfileModel?> getProfileData(String email) async {
-   /* Database db = await database;
+    Database db = await database;
     final map = await db.rawQuery(
         "SELECT * FROM $profile_table WHERE ${ProfileTableFields.email} = ?",
         [email]);
@@ -244,14 +242,14 @@ class DatabaseHelper {
       return ProfileModel.fromJson(map.first);
     } else {
       return null;
-    }*/
-    final reference = FirebaseDatabase.instance
+    }
+   /* final reference = FirebaseDatabase.instance
         .reference()
         .child(profile_table)
-        .orderByChild('email')
+        .orderByChild(ProfileTableFields.email)
         .equalTo(email);
 
-    Completer<ProfileModel> completer = Completer<ProfileModel>();
+    Completer<ProfileModel?> completer = Completer<ProfileModel?>();
 
     reference.once().then((event) async {
       DataSnapshot dataSnapshot = event.snapshot;
@@ -262,13 +260,15 @@ class DatabaseHelper {
           ProfileModel?  profileModel = ProfileModel.fromMap(value);
           completer.complete(profileModel);
         });
-        }
+      }else{
+        completer.complete(null);
+      }
       });
-return completer.future;
+return completer.future;*/
   }
 
   Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
-    Database db = await database;
+    /*Database db = await database;
     final map = await db.rawQuery(
         "SELECT * FROM $profile_table WHERE ${ProfileTableFields.user_code} = ?",
         [userCode]);
@@ -277,7 +277,31 @@ return completer.future;
       return ProfileModel.fromJson(map.first);
     } else {
       return null;
-    }
+    }*/
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(profile_table)
+        .orderByChild(ProfileTableFields.user_code)
+        .equalTo(userCode);
+
+    Completer<ProfileModel?> completer = Completer<ProfileModel?>();
+    ProfileModel?  profileModel;
+    reference.once().then((event) async {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+        dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+         profileModel = ProfileModel.fromMap(value);
+          completer.complete(profileModel);
+        });
+      }else{
+        completer.complete(null);
+      }
+    }).catchError((error){
+      completer.completeError(error);
+    });
+    return completer.future;
   }
 
   Future<void> deleteTransactionFromDB(
@@ -285,8 +309,8 @@ return completer.future;
     Database db = await instance.database;
     await db.delete(
       transaction_table,
-      where: 'id = ?',
-      whereArgs: [transactionModel.id],
+      where: 'key = ?',
+      whereArgs: [transactionModel.key],
     );
 
     final reference =
@@ -414,6 +438,19 @@ return completer.future;
     return await db.insert(transaction_table, transactionModel.toMap());
   }
 
+
+  Future<int> updateTransactionData(
+      TransactionModel transactionModel, bool isSkippedUser) async {
+    Database db = await database;
+    if (!isSkippedUser) {
+      final Map<String, Map> updates = {};
+      updates['/$profile_table/${transactionModel.key}'] = transactionModel.toMap();
+      FirebaseDatabase.instance.ref().update(updates);
+    }
+
+    return await db.update(transaction_table, transactionModel.toMap(),where: '${TransactionFields.key} = ?', whereArgs: [transactionModel.key]);
+  }
+
   // A method that retrieves all the TransactionData from the TransactionData table.
   Future<List<TransactionModel>> getTransactionData() async {
     Database db = await database;
@@ -425,7 +462,7 @@ return completer.future;
   Future<void> updateTransaction(TransactionModel transactionModel) async {
     final db = await database;
     await db.update(transaction_table, transactionModel.toMap(),
-        where: '${TransactionFields.id} = ?', whereArgs: [transactionModel.id]);
+        where: '${TransactionFields.key} = ?', whereArgs: [transactionModel.key]);
   }
 
   Future<List<TransactionModel>> getTransactions(int transactionType) async {
@@ -927,12 +964,6 @@ return completer.future;
     }
   }
 
-// Update Transaction Detail
-  Future<void> updateTransactionData(TransactionModel transactionModel) async {
-    var db = await database;
-    await db.update(transaction_table, transactionModel.toMap(),
-        where: '${TransactionFields.id} = ?', whereArgs: [transactionModel.id]);
-  }
 
 // Insert Income Sub Category
   Future<void> insertIncomeSubCategory(
@@ -1039,7 +1070,7 @@ return completer.future;
         await _database!.query(transaction_table);
     return List.generate(tasks.length, (i) {
       return TransactionModel(
-          id: tasks[i]['id'],
+          // id: tasks[i]['id'],
           member_email: tasks[i]['member_email'],
           amount: tasks[i]['amount'],
           cat_name: tasks[i]['cat_name'],
@@ -1076,7 +1107,7 @@ return completer.future;
     /// Add transaction data
     for (var task in tasks) {
       rows.add([
-        task.id,
+        // task.id,
         task.member_email,
         task.amount,
         task.cat_name,

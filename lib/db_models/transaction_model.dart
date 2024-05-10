@@ -5,9 +5,9 @@ const String transaction_table = 'transaction_table';
 class TransactionFields {
   static final List<String> values = [
     /// Add all fields
-    id,
+    // id,
     key,
-    member_id,
+    // member_id,
     member_email,
     amount,
     expense_cat_id,
@@ -31,9 +31,9 @@ class TransactionFields {
     last_updated
   ];
 
-  static const String id = 'id';
+  // static const String id = 'id';
   static const String key = 'key';
-  static const String member_id = 'member_id';
+  // static const String member_id = 'member_id';
   static const String member_email = 'member_email';
   static const String amount = 'amount';
   static const String expense_cat_id = 'expense_cat_id';
@@ -59,8 +59,8 @@ class TransactionFields {
 }
 
 class TransactionModel {
-  int? id;
-  int? member_id;
+  // int? id;
+  // int? member_id;
   String? member_email;
   String? key;
   int? amount;
@@ -86,8 +86,8 @@ class TransactionModel {
   String? last_updated;
 
   TransactionModel({
-    this.id,
-    this.member_id,
+    // this.id,
+    // this.member_id,
     this.key,
     this.member_email,
     this.amount,
@@ -115,9 +115,9 @@ class TransactionModel {
 
   factory TransactionModel.fromMap(Map<dynamic, dynamic> map) {
     return TransactionModel(
-      id: map['id'],
+      // id: map['id'],
       key: map['key'],
-      member_id: map['member_id'],
+      // member_id: map['member_id'],
       member_email: map['member_email'],
       amount: map['amount'],
       expense_cat_id: map['expense_cat_id'],
@@ -145,9 +145,9 @@ class TransactionModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      // 'id': id,
       'key': key,
-      'member_id': member_id,
+      // 'member_id': member_id,
       'member_email': member_email,
       'amount': amount,
       'expense_cat_id': expense_cat_id,
@@ -176,9 +176,9 @@ class TransactionModel {
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     return TransactionModel(
-      id: json['id'],
+      // id: json['id'],
       key: json['key'],
-      member_id: json['member_id'],
+      // member_id: json['member_id'],
       member_email: json['member_email'],
       amount: json['amount'],
       expense_cat_id: json['expense_cat_id'],
@@ -206,9 +206,9 @@ class TransactionModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      // 'id': id,
       'key': key,
-      'member_id': member_id,
+      // 'member_id': member_id,
       'member_email': member_email,
       'amount': amount,
       'expense_cat_id': expense_cat_id,

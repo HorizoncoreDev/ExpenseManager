@@ -308,7 +308,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 .getTransactionList("", "", -1,true)
                 .then((value) async {
               for (var t in value) {
-                t.member_id = 1;
+                // t.member_id = 1;
                 t.member_email = user.email;
                 await databaseHelper.updateTransaction(t);
 
@@ -361,13 +361,12 @@ class _SignInScreenState extends State<SignInScreen> {
               reference.once().then((event) async {
                 DataSnapshot dataSnapshot = event.snapshot;
                 if (event.snapshot.exists && !profileCheckCalledOnce) {
-                  ProfileModel? profileModel,profileInsertModel;
+                  ProfileModel? profileModel;
 
                   Map<dynamic, dynamic> values =
                   dataSnapshot.value as Map<dynamic, dynamic>;
                   values.forEach((key, value) async {
                          profileModel = ProfileModel.fromMap(value);
-                         profileInsertModel = ProfileModel.fromInsertMap(value);
                          profileModel!.fcm_token=fcmToken;
                     final Map<String, Map> updates = {};
                     updates['/$profile_table/${profileModel!.key}'] =
@@ -379,12 +378,12 @@ class _SignInScreenState extends State<SignInScreen> {
                       .getProfileData(user.email!)
                       .then((profileData) async {
                     if(profileData!=null){
-                      profileModel!.id = profileData.id;
+                      // profileModel!.id = profileData.id;
                       await databaseHelper.updateProfileData(profileModel!);
                     }else{
                       if(!calledOnce) {
                         calledOnce = true;
-                        await databaseHelper.insertProfileData(profileInsertModel!,true);
+                        await databaseHelper.insertProfileData(profileModel!,true);
                       }
                     }
                   });
@@ -408,7 +407,8 @@ class _SignInScreenState extends State<SignInScreen> {
                       MaterialPageRoute(
                           builder: (context) => const DashBoard()),
                           (Route<dynamic> route) => false);
-                } else {
+                }
+                else {
                   if(!profileCheckCalledOnce) {
                     profileCheckCalledOnce = true;
                     String userCode = await Helper.generateUniqueCode();

@@ -39,7 +39,6 @@ class _OtherScreenState extends State<OtherScreen> {
   bool isSkippedUser = false;
   String userEmail = '';
   ProfileModel? profileData;
-  int id = 0;
   String shortName = "";
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
@@ -73,7 +72,6 @@ class _OtherScreenState extends State<OtherScreen> {
       await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-        id = profileData!.id!;
         firstNameController.text = profileData!.first_name!;
         lastNameController.text = profileData!.last_name!;
       }

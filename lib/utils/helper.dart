@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:expense_manager/db_models/payment_method_model.dart';
@@ -271,15 +272,40 @@ class Helper {
     for (int i = 0; i < 6; i++) {
       code += chars[random.nextInt(chars.length)];
     }
+    Completer<String> completer = Completer<String>();
 
     await DatabaseHelper.instance
-        .getProfileData(code).then((value){
+        .getProfileDataUserCode(code).then((value){
       if(value!=null){
-        generateUniqueCode();
+        generateAnotherUniqueCode(completer);
+      }else{
+        completer.complete(code);
+      }
+    }).catchError((error){
+      completer.complete(code);
+    });
+
+    return completer.future;
+  }
+
+ static Future<String> generateAnotherUniqueCode(Completer<String> completer) async {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+    String code = '';
+
+    for (int i = 0; i < 6; i++) {
+      code += chars[random.nextInt(chars.length)];
+    }
+    await DatabaseHelper.instance
+        .getProfileDataUserCode(code).then((value){
+      if(value!=null){
+        generateAnotherUniqueCode(completer);
+      }else{
+        completer.complete(code);
       }
     });
 
-    return code;
+    return completer.future;
   }
 
   static copyText(BuildContext context, String text) {

@@ -191,11 +191,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   int selectedIncomeIndex = -1;
   int selectedPaymentMethodIndex = 0;
 
-  createSpendingIncome(BuildContext context, int id, String email) async {
+  createSpendingIncome(BuildContext context, String email) async {
 
     TransactionModel transactionModel = TransactionModel(
       key: "",
-        member_id: id,
+        // member_id: id,
         member_email: email,
         amount: int.parse(amountController.text),
         expense_cat_id: selectedSpendingIndex != -1
@@ -424,11 +424,11 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               .getProfileData(userEmail)
                               .then((value) async {
                             createSpendingIncome(
-                                context, value!.id!, value.email!);
+                                context,  value!.email!);
                           });
                         } else {
                           print("USER SKIPPED $isSkippedUser");
-                          createSpendingIncome(context, -1, "");
+                          createSpendingIncome(context, "");
                         }
                       }
                     },

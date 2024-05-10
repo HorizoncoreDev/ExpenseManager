@@ -25,6 +25,7 @@ import '../statistics/search/search_screen.dart';
 import 'add_spending/add_spending_screen.dart';
 import 'bloc/overview_bloc.dart';
 import 'bloc/overview_state.dart';
+import 'edit_spending/edit_spending_screen.dart';
 import 'income_detail_screen/income_detail_screen.dart';
 
 class OverviewScreen extends StatefulWidget {
@@ -39,7 +40,7 @@ class OverviewScreenState extends State<OverviewScreen> {
   List<DateWiseTransactionModel> dateWiseSpendingTransaction = [];
   List<DateWiseTransactionModel> dateWiseIncomeTransaction = [];
   String userEmail = "";
-  String? userName="";
+  String? userName;
   int currentBalance = 0;
   int currentIncome = 0;
   int actualBudget = 0;
@@ -52,20 +53,30 @@ class OverviewScreenState extends State<OverviewScreen> {
   @override
   void initState() {
     MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-        .then((value) {
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) async {
       if (value != null) {
-        userEmail = value;
-        MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.currentUserName)
-            .then((value) {
-          if (value != null) {
-            userName = value;
-            getTransactions();
-          }
-        });
+        isSkippedUser = value;
+if(isSkippedUser){
+  getTransactions();
+}else {
+  MySharedPreferences.instance
+      .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+      .then((value) {
+    if (value != null) {
+      userEmail = value;
+      MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.currentUserName)
+          .then((value) {
+        if (value != null) {
+          userName = value;
+          getTransactions();
+        }
+      });
+    }
+  });
+}
       }});
-
     super.initState();
   }
 
@@ -152,12 +163,9 @@ class OverviewScreenState extends State<OverviewScreen> {
     }
   }
 
-  getTransactions()  {
-    MySharedPreferences.instance
-        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-        .then((value) async {
-      if (value != null) {
-        isSkippedUser = value;
+  getTransactions()  async {
+
+
         if (isSkippedUser) {
           MySharedPreferences.instance
               .getStringValuesSF(
@@ -200,8 +208,8 @@ class OverviewScreenState extends State<OverviewScreen> {
           }
         }
         if(!isSkippedUser) {
-          if (t.member_email == "" && t.member_id == -1) {
-            t.member_id = profileModel.id;
+          if (t.member_email == "" ) {
+            // t.member_id = profileModel.id;
             t.member_email = profileModel.email;
             await databaseHelper.updateTransaction(t);
           }
@@ -258,8 +266,7 @@ class OverviewScreenState extends State<OverviewScreen> {
 
 
     });
-      }
-    });
+
   }
 
   getIncomeTransactions()  {
@@ -703,7 +710,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                         itemBuilder: (context, index1) {
                           final transaction = dateWiseSpendingTransaction[index].transactions![index1];
                           return Dismissible(
-                            key: Key(transaction.id.toString()), // Unique key for each item
+                            key: Key(transaction.key!), // Unique key for each item
                             direction: DismissDirection.endToStart, // Allow swiping from right to left
                             background: Container(),
                             secondaryBackground: Container(
@@ -753,34 +760,72 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 getTransactions();
                               });
                             },
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Helper.getCardColor(context),
-                                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.black,
-                                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                            child: InkWell(
+                                onTap: (){
+                                  Navigator.of(context, rootNavigator: true)
+                                      .push(
+                                    MaterialPageRoute(
+                                        builder: (context) => EditSpendingScreen(
+                                          transactionModel: transaction,
+                                        )),
+                                  )
+                                      .then((value) {
+                                    if (value != null) {
+                                      if (value) {
+                                        getTransactions();
+                                      }
+                                    }
+                                  });
+                                },
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
+                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      child: SvgPicture.asset(
+                                        'asset/images/${transaction.cat_icon}.svg',
+                                        color: transaction.cat_color,
+                                        width: 24,
+                                        height: 24,
+                                      ),
                                     ),
-                                    child: SvgPicture.asset(
-                                      'asset/images/${transaction.cat_icon}.svg',
-                                      color: transaction.cat_color,
-                                      width: 24,
-                                      height: 24,
+                                    const SizedBox(width: 15),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            transaction.cat_name!,
+                                            style: TextStyle(
+                                              color: Helper.getTextColor(context),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            transaction.description!,
+                                            style: TextStyle(
+                                              color: Helper.getTextColor(context),
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
                                         Text(
-                                          transaction.cat_name!,
+                                          "-\u20B9${transaction.amount!}",
                                           style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 16,
@@ -788,7 +833,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           ),
                                         ),
                                         Text(
-                                          transaction.description!,
+                                          transaction.payment_method_name!,
                                           style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 14,
@@ -796,28 +841,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        "-\u20B9${transaction.amount!}",
-                                        style: TextStyle(
-                                          color: Helper.getTextColor(context),
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        transaction.payment_method_name!,
-                                        style: TextStyle(
-                                          color: Helper.getTextColor(context),
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           );
@@ -831,6 +856,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                   ],
                 );
                  }
+                 return null;
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return 10.heightBox;
@@ -1063,7 +1089,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                           itemBuilder: (context, index1) {
                             final transaction = dateWiseIncomeTransaction[index].transactions![index1];
                             return Dismissible(
-                              key: Key(transaction.id.toString()), // Unique key for each item
+                              key: Key(transaction.key!), // Unique key for each item
                               direction: DismissDirection.endToStart, // Allow swiping from right to left
                               background: Container(),
                               secondaryBackground: Container(
@@ -1188,6 +1214,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                     ],
                   );
                   }
+                  return null;
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return 10.heightBox;

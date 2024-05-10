@@ -51,7 +51,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   String key = '';
   String userCode = '';
   String fcmToken = '';
-  int id = 0;
 
   bool validateEmail(String email) {
     RegExp emailRegex =
@@ -66,7 +65,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
           await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-        id = profileData!.id!;
         key = profileData!.key!;
         userCode = profileData!.user_code!;
         firstNameController.text = profileData!.first_name!;
@@ -103,7 +101,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
 
   Future<void> updateProfileData() async {
     ProfileModel profileModel = ProfileModel(
-        id: id,
         key:key ,
         first_name: firstNameController.text,
         last_name: lastNameController.text,

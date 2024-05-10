@@ -252,7 +252,7 @@ class MyDialog {
 
 
       TransactionModel transactionModel = TransactionModel(
-        member_id: data[i][0],
+        // member_id: data[i][0],
         member_email: email,
         amount: amount,
         expense_cat_id: categoryType == 0 && transactionType == 1 ? catIds : -1,

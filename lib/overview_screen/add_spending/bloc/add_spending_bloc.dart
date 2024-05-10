@@ -12,4 +12,6 @@ class AddSpendingBloc extends Bloc<AddSpendingEvent, AddSpendingState> {
       emit(SelectedImageState(event.image1, event.image2, event.image3));
     });
   }
+
+
 }

@@ -3,7 +3,7 @@ const String profile_table = 'profile_table';
 class ProfileTableFields {
   static final List<String> values = [
     /// Add all fields
-    id,
+    // id,
     key,
     first_name,
     last_name,
@@ -20,7 +20,7 @@ class ProfileTableFields {
     fcm_token
   ];
 
-  static const String id = 'id';
+  // static const String id = 'id';
   static const String key = 'key';
   static const String first_name = 'first_name';
   static const String last_name = 'last_name';
@@ -38,7 +38,7 @@ class ProfileTableFields {
 }
 
 class ProfileModel {
-  int? id;
+  // int? id;
   String? key;
   String? first_name;
   String? last_name;
@@ -55,7 +55,7 @@ class ProfileModel {
   String? fcm_token;
 
   ProfileModel({
-    this.id,
+    // this.id,
     this.key,
     this.first_name,
     this.last_name,
@@ -74,7 +74,7 @@ class ProfileModel {
 
   factory ProfileModel.fromMap(Map<dynamic, dynamic> map) {
     return ProfileModel(
-      id: map['id'],
+      // id: map['id'],
       key: map['key'],
       first_name: map['first_name'],
       last_name: map['last_name'],
@@ -92,28 +92,9 @@ class ProfileModel {
     );
   }
 
-  factory ProfileModel.fromInsertMap(Map<dynamic, dynamic> map) {
-    return ProfileModel(
-     // id: map['id'],
-      key: map['key'],
-      first_name: map['first_name'],
-      last_name: map['last_name'],
-      email: map['email'],
-      user_code: map['user_code'],
-      full_name: map['full_name'],
-      dob: map['dob'],
-      profile_image: map['profile_image'],
-      mobile_number: map['mobile_number'],
-      gender: map['gender'],
-      current_balance: map['current_balance'],
-      current_income: map['current_income'],
-      actual_budget: map['actual_budget'],
-      fcm_token: map['fcm_token']
-    );
-  }
 
   static ProfileModel fromJson(Map<String, Object?> json) => ProfileModel(
-        id: json[ProfileTableFields.id] as int,
+        // id: json[ProfileTableFields.id] as int,
         key: json[ProfileTableFields.key] as String,
         first_name: json[ProfileTableFields.first_name] as String,
         last_name: json[ProfileTableFields.last_name] as String,
@@ -132,7 +113,7 @@ class ProfileModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      // 'id': id,
       'key': key,
       'first_name': first_name,
       'last_name': last_name,
