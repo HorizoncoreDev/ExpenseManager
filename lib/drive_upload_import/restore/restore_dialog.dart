@@ -1,5 +1,4 @@
 import 'package:expense_manager/master_password/master_password_screen.dart';
-import 'package:expense_manager/master_password/master_password_screen_nikul.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/helper.dart';
@@ -44,7 +43,7 @@ class RestoreDialog {
                       // Handle selection
                       String? fileId = await MySharedPreferences.instance.getStringValuesSF("fileId");
                       if (fileId != null) {
-                        await MyDialogs().downloadCsvFileFromDrive(fileId);
+                        await MasterPasswordDialog().downloadCsvFileFromDrive(fileId);
                       } else {
                         Helper.showToast('File Id not found upload your file in drive');
                       }
