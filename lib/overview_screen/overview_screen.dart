@@ -640,8 +640,9 @@ if(isSkippedUser){
                     alignment: Alignment.bottomRight,
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
+
+                        Navigator.of(context, rootNavigator: true)
+                        .push(
                           MaterialPageRoute(
                               builder: (context) =>
                               const SpendingDetailScreen()),
@@ -745,7 +746,7 @@ if(isSkippedUser){
                               setState(() {
                                 dateWiseSpendingTransaction[index].transactions!.removeAt(index1);
                               });
-                              await databaseHelper.deleteTransactionFromDB(transaction);
+                              await databaseHelper.deleteTransactionFromDB(transaction,isSkippedUser);
 
                               setState(() {
                                 currentBalance = currentBalance + transaction.amount!;
@@ -1026,8 +1027,8 @@ if(isSkippedUser){
                     alignment: Alignment.bottomRight,
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
+                        Navigator.of(context, rootNavigator: true)
+                            .push(
                           MaterialPageRoute(
                               builder: (context) => const IncomeDetailScreen()),
                         );
@@ -1122,7 +1123,7 @@ if(isSkippedUser){
                                 setState(() {
                                   dateWiseIncomeTransaction[index].transactions!.removeAt(index1);
                                 });
-                                await databaseHelper.deleteTransactionFromDB(transaction);
+                                await databaseHelper.deleteTransactionFromDB(transaction,isSkippedUser);
 
                                 setState(() {
                                   currentIncome = currentIncome - transaction.amount!;
@@ -1137,34 +1138,72 @@ if(isSkippedUser){
                                 });
                               },
 
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Helper.getCardColor(context),
-                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(5),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                              child: InkWell(
+                                    onTap: (){
+                                      Navigator.of(context, rootNavigator: true)
+                                          .push(
+                                        MaterialPageRoute(
+                                            builder: (context) => EditSpendingScreen(
+                                              transactionModel: transaction,
+                                            )),
+                                      )
+                                          .then((value) {
+                                        if (value != null) {
+                                          if (value) {
+                                            getIncomeTransactions();
+                                          }
+                                        }
+                                      });
+                                    },
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Helper.getCardColor(context),
+                                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(5),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                                        ),
+                                        child: SvgPicture.asset(
+                                          'asset/images/${transaction.cat_icon}.svg',
+                                          color: transaction.cat_color,
+                                          width: 24,
+                                          height: 24,
+                                        ),
                                       ),
-                                      child: SvgPicture.asset(
-                                        'asset/images/${transaction.cat_icon}.svg',
-                                        color: transaction.cat_color,
-                                        width: 24,
-                                        height: 24,
+                                      const SizedBox(width: 15),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              transaction.cat_name!,
+                                              style: TextStyle(
+                                                color: Helper.getTextColor(context),
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              transaction.description!,
+                                              style: TextStyle(
+                                                color: Helper.getTextColor(context),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 15),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                            transaction.cat_name!,
+                                            "+\u20B9${transaction.amount!}",
                                             style: TextStyle(
                                               color: Helper.getTextColor(context),
                                               fontSize: 16,
@@ -1172,7 +1211,7 @@ if(isSkippedUser){
                                             ),
                                           ),
                                           Text(
-                                            transaction.description!,
+                                            transaction.payment_method_name!,
                                             style: TextStyle(
                                               color: Helper.getTextColor(context),
                                               fontSize: 14,
@@ -1180,28 +1219,8 @@ if(isSkippedUser){
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          "+\u20B9${transaction.amount!}",
-                                          style: TextStyle(
-                                            color: Helper.getTextColor(context),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          transaction.payment_method_name!,
-                                          style: TextStyle(
-                                            color: Helper.getTextColor(context),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             );

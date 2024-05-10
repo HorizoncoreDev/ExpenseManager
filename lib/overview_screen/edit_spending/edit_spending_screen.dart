@@ -10,6 +10,7 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -84,16 +85,14 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
       setState(() {
         categories = fetchedCategories;
 
-        for(int i=0;i<categories.length;i++){
-
-          if(categories[i].id==widget.transactionModel.expense_cat_id!){
+        for (int i = 0; i < categories.length; i++) {
+          if (categories[i].id == widget.transactionModel.expense_cat_id!) {
             selectedSpendingIndex = i;
             selectedItemList.add(categories[i]);
             getSpendingSubCategory(categories[i].id!);
           }
-          selectedIncomeIndex =-1;
+          selectedIncomeIndex = -1;
           selectedIncomeSubIndex = -1;
-
         }
       });
     } catch (error) {
@@ -104,12 +103,12 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
   Future<void> getSpendingSubCategory(int catId) async {
     try {
       List<ExpenseSubCategory> fetchedSpendingSubCategories =
-          await databaseHelper
-              .getSpendingSubCategory(catId);
+          await databaseHelper.getSpendingSubCategory(catId);
       setState(() {
         spendingSubCategories = fetchedSpendingSubCategories;
-        for(int i=0;i<spendingSubCategories.length;i++){
-          if(spendingSubCategories[i].id==widget.transactionModel.sub_expense_cat_id!){
+        for (int i = 0; i < spendingSubCategories.length; i++) {
+          if (spendingSubCategories[i].id ==
+              widget.transactionModel.sub_expense_cat_id!) {
             selectedSpendingSubIndex = i;
           }
         }
@@ -125,17 +124,15 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
           await databaseHelper.getIncomeCategory();
       setState(() {
         incomeCategories = fetchedIncomeCategories;
-        for(int i=0;i<incomeCategories.length;i++){
-
-          if(incomeCategories[i].id==widget.transactionModel.income_cat_id!){
+        for (int i = 0; i < incomeCategories.length; i++) {
+          if (incomeCategories[i].id ==
+              widget.transactionModel.income_cat_id!) {
             selectedIncomeIndex = i;
-            selectedIncomeItemList
-                .add(incomeCategories[i]);
+            selectedIncomeItemList.add(incomeCategories[i]);
             getIncomeSubCategory(incomeCategories[i].id!);
           }
-          selectedSpendingIndex =-1;
+          selectedSpendingIndex = -1;
           selectedSpendingSubIndex = -1;
-
         }
       });
     } catch (error) {
@@ -145,13 +142,13 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
 
   Future<void> getIncomeSubCategory(int catId) async {
     try {
-      List<IncomeSubCategory> fetchedIncomeSubCategories = await databaseHelper
-          .getIncomeSubCategory(catId);
+      List<IncomeSubCategory> fetchedIncomeSubCategories =
+          await databaseHelper.getIncomeSubCategory(catId);
       setState(() {
         incomeSubCategories = fetchedIncomeSubCategories;
-        for(int i=0;i<incomeSubCategories.length;i++){
-
-          if(incomeSubCategories[i].id==widget.transactionModel.sub_income_cat_id!){
+        for (int i = 0; i < incomeSubCategories.length; i++) {
+          if (incomeSubCategories[i].id ==
+              widget.transactionModel.sub_income_cat_id!) {
             selectedIncomeSubIndex = i;
           }
         }
@@ -194,27 +191,23 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
   void setTransactionValues() {
     try {
       amountController.text = widget.transactionModel.amount!.toString();
-      selectedDate = DateFormat('dd/MM/yyyy HH:mm').parse(
-          widget.transactionModel.transaction_date!);
+      selectedDate = DateFormat('dd/MM/yyyy HH:mm')
+          .parse(widget.transactionModel.transaction_date!);
       descriptionController.text =
           widget.transactionModel.description!.toString();
-      if(widget.transactionModel.receipt_image1!.isNotEmpty) {
+      if (widget.transactionModel.receipt_image1!.isNotEmpty) {
         image1 = File(widget.transactionModel.receipt_image1!);
       }
-      if(widget.transactionModel.receipt_image2!.isNotEmpty) {
+      if (widget.transactionModel.receipt_image2!.isNotEmpty) {
         image2 = File(widget.transactionModel.receipt_image2!);
       }
-      if(widget.transactionModel.receipt_image3!.isNotEmpty) {
+      if (widget.transactionModel.receipt_image3!.isNotEmpty) {
         image3 = File(widget.transactionModel.receipt_image3!);
       }
-      setState(() {
-
-      });
-    }catch(e){
+      setState(() {});
+    } catch (e) {
       print('object......$e');
     }
-
-
   }
 
   Future<void> getPaymentMethods() async {
@@ -224,15 +217,13 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
       setState(() {
         paymentMethods = paymentMethodList;
 
-        for(int i=0;i<paymentMethods.length;i++){
-
-          if(paymentMethods[i].id==widget.transactionModel.payment_method_id!){
+        for (int i = 0; i < paymentMethods.length; i++) {
+          if (paymentMethods[i].id ==
+              widget.transactionModel.payment_method_id!) {
             selectedPaymentMethodIndex = i;
           }
         }
       });
-
-
     } catch (error) {
       setState(() {});
     }
@@ -266,7 +257,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
 
   editSpendingIncome(BuildContext context, String email) async {
     TransactionModel transactionModel = TransactionModel(
-      // id: widget.transactionModel.id,
+        // id: widget.transactionModel.id,
         key: widget.transactionModel.key,
         // member_id: widget.transactionModel.member_id,
         member_email: widget.transactionModel.member_email,
@@ -367,12 +358,12 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                 .then((profileData) async {
               if (selectedValue == AppConstanst.spendingTransactionName) {
                 profileData!.current_balance =
-                    (int.parse(profileData.current_balance!) -
+                    ((int.parse(profileData.current_balance!) + widget.transactionModel.amount!) -
                             int.parse(amountController.text))
                         .toString();
               } else {
                 profileData!.current_income =
-                    (int.parse(profileData.current_income!) +
+                    ((int.parse(profileData.current_income!) - widget.transactionModel.amount!) +
                             int.parse(amountController.text))
                         .toString();
               }
@@ -381,17 +372,16 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
           }
         }
         Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
-            ? "Spending created successfully"
-            : "Income created successfully");
+            ? "Spending updated successfully"
+            : "Income updated successfully");
         Navigator.of(context).pop(true);
       }
     });
   }
 
-  createCopySpendingIncome(BuildContext context, int id, String email) async {
+  createCopySpendingIncome(BuildContext context,  String email) async {
     TransactionModel transactionModel = TransactionModel(
         key: "",
-        // member_id: id,
         member_email: email,
         amount: int.parse(amountController.text),
         expense_cat_id: selectedSpendingIndex != -1
@@ -540,11 +530,19 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
                           margin: const EdgeInsets.symmetric(vertical: 5),
                           decoration: BoxDecoration(
                               color: const Color(0xff22435b),
                               borderRadius: BorderRadius.circular(25)),
-                          child: DropdownButtonHideUnderline(
+                          child:Align(
+                            alignment: Alignment.center,
+                            child: Text(selectedValue,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white)),
+                          ) /*DropdownButtonHideUnderline(
                             child: DropdownButton2<String>(
                               dropdownElevation: 0,
                               buttonDecoration: const BoxDecoration(
@@ -588,11 +586,11 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                                 color: Colors.white,
                               ),
                             ),
-                          )),
+                          )*/),
                     ),
                   ),
                   10.widthBox,
-                  InkWell(
+                  /* InkWell(
                     onTap: () async {
                       if (amountController.text.isEmpty ||
                           amountController.text == "0") {
@@ -629,7 +627,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                       "Update",
                       style: TextStyle(color: Colors.blue, fontSize: 16),
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             ),
@@ -891,7 +889,9 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                                         spendingSubCategories = [];
                                         selectedSpendingIndex = index;
                                         selectedItemList.add(categories[index]);
-                                        getSpendingSubCategory(categories[selectedSpendingIndex].id!);
+                                        getSpendingSubCategory(
+                                            categories[selectedSpendingIndex]
+                                                .id!);
                                       });
                                     },
                                     child: Container(
@@ -1054,7 +1054,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                                         selectedIncomeIndex = index;
                                         selectedIncomeItemList
                                             .add(incomeCategories[index]);
-                                        getIncomeSubCategory(incomeCategories[index].id!);
+                                        getIncomeSubCategory(
+                                            incomeCategories[index].id!);
                                       });
                                     },
                                     child: Container(
@@ -1477,33 +1478,31 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                 ),
                 15.widthBox,
                 InkWell(
-                  onTap: () {
-                    FocusScope.of(addSpendingBloc.context)
-                        .requestFocus(FocusNode());
-                    _storagePermission(1);
-                  },
-                  child:image1 == null
-                          ? Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 15),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  color: Colors.blueGrey,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              child: const Icon(
-                                Icons.camera_alt_outlined,
-                                color: Colors.blue,
-                              ),
-                            )
-                          : Image.file(
-                              image1!,
-                              fit: BoxFit.cover,
-                              height: 50,
-                              width: 50,
-                            )
-
-                ),
+                    onTap: () {
+                      FocusScope.of(addSpendingBloc.context)
+                          .requestFocus(FocusNode());
+                      _storagePermission(1);
+                    },
+                    child: image1 == null
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 15),
+                            alignment: Alignment.center,
+                            decoration: const BoxDecoration(
+                                color: Colors.blueGrey,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            child: const Icon(
+                              Icons.camera_alt_outlined,
+                              color: Colors.blue,
+                            ),
+                          )
+                        : Image.file(
+                            image1!,
+                            fit: BoxFit.cover,
+                            height: 50,
+                            width: 50,
+                          )),
                 10.widthBox,
                 InkWell(
                     onTap: () {
@@ -1512,26 +1511,25 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                       _storagePermission(2);
                     },
                     child: image2 == null
-                            ? Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 15),
-                                alignment: Alignment.center,
-                                decoration: const BoxDecoration(
-                                    color: Colors.blueGrey,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5))),
-                                child: const Icon(
-                                  Icons.camera_alt_outlined,
-                                  color: Colors.blue,
-                                ),
-                              )
-                            : Image.file(
-                                image2!,
-                                fit: BoxFit.cover,
-                                height: 50,
-                                width: 50,
-                              )
-                        ),
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 15),
+                            alignment: Alignment.center,
+                            decoration: const BoxDecoration(
+                                color: Colors.blueGrey,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            child: const Icon(
+                              Icons.camera_alt_outlined,
+                              color: Colors.blue,
+                            ),
+                          )
+                        : Image.file(
+                            image2!,
+                            fit: BoxFit.cover,
+                            height: 50,
+                            width: 50,
+                          )),
                 10.widthBox,
                 InkWell(
                     onTap: () {
@@ -1540,27 +1538,128 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                       _storagePermission(3);
                     },
                     child: image3 == null
-                            ? Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 15),
-                                alignment: Alignment.center,
-                                decoration: const BoxDecoration(
-                                    color: Colors.blueGrey,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5))),
-                                child: const Icon(
-                                  Icons.camera_alt_outlined,
-                                  color: Colors.blue,
-                                ),
-                              )
-                            : Image.file(
-                                image3!,
-                                fit: BoxFit.cover,
-                                height: 50,
-                                width: 50,
-                              )
-                        ),
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 15),
+                            alignment: Alignment.center,
+                            decoration: const BoxDecoration(
+                                color: Colors.blueGrey,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            child: const Icon(
+                              Icons.camera_alt_outlined,
+                              color: Colors.blue,
+                            ),
+                          )
+                        : Image.file(
+                            image3!,
+                            fit: BoxFit.cover,
+                            height: 50,
+                            width: 50,
+                          )),
               ]),
+              30.heightBox,
+              Row(
+                children: [
+                  Flexible(
+                    child: InkWell(
+                        onTap: () async {
+                          if (amountController.text.isEmpty ||
+                              amountController.text == "0") {
+                            Helper.showToast("Please add amount");
+                          } else if (selectedValue ==
+                                  AppConstanst.spendingTransactionName
+                              ? selectedSpendingIndex == -1
+                              : selectedIncomeIndex == -1) {
+                            Helper.showToast("Please select category");
+                          } else if (selectedValue ==
+                                  AppConstanst.spendingTransactionName
+                              ? (spendingSubCategories.isNotEmpty &&
+                                  selectedSpendingSubIndex == -1)
+                              : (incomeSubCategories.isNotEmpty &&
+                                  selectedIncomeSubIndex == -1)) {
+                            Helper.showToast("Please select sub category");
+                          } else {
+                            //   Helper.showLoading(context);
+                            if (!isSkippedUser) {
+                              print("USER NOT SKIPPED $isSkippedUser");
+                              await databaseHelper
+                                  .getProfileData(userEmail)
+                                  .then((value) async {
+                                editSpendingIncome(context, value!.email!);
+                              });
+                            } else {
+                              print("USER SKIPPED $isSkippedUser");
+                              editSpendingIncome(context, "");
+                            }
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 15),
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          child: const Text(
+                            "Update",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        )),
+                  ),
+                  15.widthBox,
+                  Flexible(
+                    child: InkWell(
+                        onTap: () async {
+                          if (amountController.text.isEmpty ||
+                              amountController.text == "0") {
+                            Helper.showToast("Please add amount");
+                          } else if (selectedValue ==
+                                  AppConstanst.spendingTransactionName
+                              ? selectedSpendingIndex == -1
+                              : selectedIncomeIndex == -1) {
+                            Helper.showToast("Please select category");
+                          } else if (selectedValue ==
+                                  AppConstanst.spendingTransactionName
+                              ? (spendingSubCategories.isNotEmpty &&
+                                  selectedSpendingSubIndex == -1)
+                              : (incomeSubCategories.isNotEmpty &&
+                                  selectedIncomeSubIndex == -1)) {
+                            Helper.showToast("Please select sub category");
+                          } else {
+                            //   Helper.showLoading(context);
+                            if (!isSkippedUser) {
+                              print("USER NOT SKIPPED $isSkippedUser");
+                              await databaseHelper
+                                  .getProfileData(userEmail)
+                                  .then((value) async {
+                                createCopySpendingIncome(context, value!.email!);
+                              });
+                            } else {
+                              print("USER SKIPPED $isSkippedUser");
+                              createCopySpendingIncome(context, "");
+                            }
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 15),
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          child: const Text(
+                            "Copy",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        )),
+                  ),
+                ],
+              )
             ],
           );
         });
@@ -1708,7 +1807,6 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
       } else {
         image3 = tmpFile;
       }
-
     } catch (e) {
       debugPrint('image-picker-error ${e.toString()}');
     }
