@@ -24,8 +24,6 @@ import '../../db_models/income_category.dart';
 import '../../db_models/income_sub_category.dart';
 import '../../db_service/database_helper.dart';
 import '../../utils/views/custom_text_form_field.dart';
-import 'bloc/add_spending_bloc.dart';
-import 'bloc/add_spending_state.dart';
 
 class AddSpendingScreen extends StatefulWidget {
   String transactionName;
@@ -37,7 +35,6 @@ class AddSpendingScreen extends StatefulWidget {
 }
 
 class _AddSpendingScreenState extends State<AddSpendingScreen> {
-  AddSpendingBloc addSpendingBloc = AddSpendingBloc();
   final picker = ImagePicker();
   File? image1, image2, image3;
   TextEditingController amountController = TextEditingController();
@@ -318,11 +315,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AddSpendingBloc, AddSpendingState>(
-      bloc: addSpendingBloc,
-      listener: (context, state) {},
-      builder: (context, state) {
-        addSpendingBloc.context = context;
+   
         return Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
@@ -1163,21 +1156,17 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       ],
                     ),
                     10.heightBox,
-                    currPage == 1 ? _detailsView(addSpendingBloc) : 0.heightBox,
+                    currPage == 1 ? _detailsView(context) : 0.heightBox,
                   ],
                 ),
               ),
             ));
-      },
-    );
+     
   }
 
-  Widget _detailsView(AddSpendingBloc addSpendingBloc) {
-    return BlocConsumer<AddSpendingBloc, AddSpendingState>(
-        bloc: addSpendingBloc,
-        listener: (context, state) {},
-        builder: (context, state) {
-          return Column(
+  Widget _detailsView(BuildContext
+       context) {
+    return Column(
             children: [
               Row(children: [
                 Container(
@@ -1290,27 +1279,33 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                   ),
                 ),
                 15.widthBox,
-                InkWell(
-                  onTap: () {
-                    FocusScope.of(addSpendingBloc.context)
-                        .requestFocus(FocusNode());
-                    _storagePermission(1);
-                  },
-                  child: Stack(
+                Stack(
                     children: [
                       // Image or Camera Icon
-                      state is SelectedImageState && image1 != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              // Set the border radius here
-                              child: Image.file(
-                                image1!,
-                                fit: BoxFit.cover,
-                                height: 50,
-                                width: 50,
+                     image1 != null
+                          ? InkWell(
+                        onTap: (){
+                          _showImage(context, image1!);
+                        },
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                // Set the border radius here
+                                child: Image.file(
+                                  image1!,
+                                  fit: BoxFit.cover,
+                                  height: 50,
+                                  width: 50,
+                                ),
                               ),
-                            )
-                          : Container(
+                          )
+                          :InkWell(
+                          onTap: () {
+                            FocusScope.of(context)
+                                .requestFocus(FocusNode());
+                            _storagePermission(context,1);
+                          },
+                          child:  Container(
+
                               padding: const EdgeInsets.symmetric(
                                   vertical: 15, horizontal: 15),
                               alignment: Alignment.center,
@@ -1323,9 +1318,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 Icons.camera_alt_outlined,
                                 color: Colors.blue,
                               ),
-                            ),
+                          )),
+
                       // Close Icon
-                      if (state is SelectedImageState && image1 != null)
+                      if (image1 != null)
                         Positioned(
                           top: 0,
                           right: 0,
@@ -1352,19 +1348,18 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         ),
                     ],
                   ),
-                ),
+
                 10.widthBox,
-                InkWell(
-                  onTap: () {
-                    FocusScope.of(addSpendingBloc.context)
-                        .requestFocus(FocusNode());
-                    _storagePermission(2);
-                  },
-                  child: Stack(
+                Stack(
                     children: [
                       // Image or Camera Icon
-                      state is SelectedImageState && image2 != null
-                          ? ClipRRect(
+                       image2 != null
+                          ? InkWell(
+                          onTap: (){
+                            _showImage(context, image2!);
+                          },
+                          child:ClipRRect(
+
                               borderRadius: BorderRadius.circular(5),
                               // Set the border radius here
                               child: Image.file(
@@ -1373,8 +1368,15 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 height: 50,
                                 width: 50,
                               ),
-                            )
-                          : Container(
+                            ))
+                          : InkWell(
+                          onTap: () {
+                            FocusScope.of(context)
+                                .requestFocus(FocusNode());
+                            _storagePermission(context,2);
+                          },
+                          child:Container(
+
                               padding: const EdgeInsets.symmetric(
                                   vertical: 15, horizontal: 15),
                               alignment: Alignment.center,
@@ -1387,9 +1389,10 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 Icons.camera_alt_outlined,
                                 color: Colors.blue,
                               ),
-                            ),
+                            )),
+
                       // Close Icon
-                      if (state is SelectedImageState && image2 != null)
+                      if ( image2 != null)
                         Positioned(
                           top: 0,
                           right: 0,
@@ -1415,30 +1418,36 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           ),
                         ),
                     ],
-                  ),
+
                 ),
                 10.widthBox,
-                InkWell(
-                  onTap: () {
-                    FocusScope.of(addSpendingBloc.context)
-                        .requestFocus(FocusNode());
-                    _storagePermission(3);
-                  },
-                  child: Stack(
+                 Stack(
                     children: [
                       // Image or Camera Icon
-                      state is SelectedImageState && image3 != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              // Set the border radius here
-                              child: Image.file(
-                                image3!,
-                                fit: BoxFit.cover,
-                                height: 50,
-                                width: 50,
+                      image3 != null
+                          ? InkWell(
+                        onTap: (){
+                            _showImage(context, image3!);
+                        },
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                // Set the border radius here
+                                child: Image.file(
+                                  image3!,
+                                  fit: BoxFit.cover,
+                                  height: 50,
+                                  width: 50,
+                                ),
                               ),
-                            )
-                          : Container(
+                          )
+                          : InkWell(
+                          onTap: () {
+                            FocusScope.of(context)
+                                .requestFocus(FocusNode());
+                            _storagePermission(context,3);
+                          },
+                          child:Container(
+
                               padding: const EdgeInsets.symmetric(
                                   vertical: 15, horizontal: 15),
                               alignment: Alignment.center,
@@ -1451,9 +1460,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 Icons.camera_alt_outlined,
                                 color: Colors.blue,
                               ),
-                            ),
+                            )),
                       // Close Icon
-                      if (state is SelectedImageState && image3 != null)
+                      if ( image3 != null)
                         Positioned(
                           top: 0,
                           right: 0,
@@ -1480,21 +1489,21 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         ),
                     ],
                   ),
-                ),
+
               ]),
             ],
           );
-        });
+        
   }
 
-  _storagePermission(int position) async {
+  _storagePermission(BuildContext context,int position) async {
     final deviceInfo = await DeviceInfoPlugin().androidInfo;
     final androidVersion =
         int.parse(deviceInfo.version.release.split('.').first);
     if (androidVersion >= 13) {
-      _shopImagePickerDialog(position);
+      _shopImagePickerDialog(context,position);
     } else {
-      _requestPermission(position);
+      _requestPermission(context,position);
     }
 
     return Colors.grey;
@@ -1503,7 +1512,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   /// Function: request for camera access permission
   /// @return widget
   /// */
-  _requestPermission(int position) async {
+  _requestPermission(BuildContext context,int position) async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.storage,
     ].request();
@@ -1513,7 +1522,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
       case PermissionStatus.denied:
         break;
       case PermissionStatus.granted:
-        _shopImagePickerDialog(position);
+        _shopImagePickerDialog(context,position);
         break;
       default:
         return Colors.grey;
@@ -1523,9 +1532,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   /// Function: image pickee dialog view
   /// @return widget
   /// */
-  Future _shopImagePickerDialog(int position) async {
+  Future _shopImagePickerDialog(BuildContext context,int position) async {
     await showDialog(
-      context: addSpendingBloc.context,
+      context: context,
       builder: (cont) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -1552,7 +1561,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Helper.getTextColor(addSpendingBloc.context)),
+                          color: Helper.getTextColor(context)),
                     ),
                     IconButton(
                         style: const ButtonStyle(
@@ -1562,7 +1571,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                         onPressed: () {
-                          Navigator.pop(addSpendingBloc.context);
+                          Navigator.pop(context);
                         },
                         icon: const Icon(Icons.close, color: Colors.grey))
                   ],
@@ -1570,7 +1579,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                 15.heightBox,
                 InkWell(
                   onTap: () {
-                    Navigator.pop(addSpendingBloc.context);
+                    Navigator.pop(context);
                     _getImage(ImageSource.camera, position);
                   },
                   child: SizedBox(
@@ -1581,14 +1590,14 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       style: TextStyle(
                           fontWeight: FontWeight.w400,
                           fontSize: 12,
-                          color: Helper.getTextColor(addSpendingBloc.context)),
+                          color: Helper.getTextColor(context)),
                     ),
                   ),
                 ),
                 10.heightBox,
                 InkWell(
                   onTap: () {
-                    Navigator.pop(addSpendingBloc.context);
+                    Navigator.pop(context);
                     _getImage(ImageSource.gallery, position);
                   },
                   child: SizedBox(
@@ -1599,7 +1608,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       style: TextStyle(
                           fontWeight: FontWeight.w400,
                           fontSize: 12,
-                          color: Helper.getTextColor(addSpendingBloc.context)),
+                          color: Helper.getTextColor(context)),
                     ),
                   ),
                 ),
@@ -1629,13 +1638,62 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
       } else {
         image3 = tmpFile;
       }
-      addSpendingBloc.add(OnImageSelectedEvent(
-          context: addSpendingBloc.context,
-          image1: image1,
-          image2: image2,
-          image3: image3));
+setState(() {
+
+});
     } catch (e) {
       debugPrint('image-picker-error ${e.toString()}');
     }
+  }
+
+  void _showImage(BuildContext context, File image) async {
+    await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+            buttonPadding: EdgeInsets.zero,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                IconButton(
+                  style: const ButtonStyle(
+                    tapTargetSize:
+                        MaterialTapTargetSize.shrinkWrap, // the '2023' part
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.close),
+                  constraints: const BoxConstraints(),
+                ),
+                5.heightBox,
+                Center(
+                  child: InteractiveViewer(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(
+                        image,
+                        frameBuilder: (BuildContext context, Widget child,
+                            int? frame, bool wasSynchronouslyLoaded) {
+                          if (wasSynchronouslyLoaded) {
+                            return child;
+                          } else {
+                            return Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: Center(
+                                  child: CircularProgressIndicator(
+                                color: Colors.blue,
+                              )),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                10.heightBox,
+              ],
+            )));
   }
 }

@@ -1512,13 +1512,18 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                                   color: Colors.blue,
                                 ),
                               ) :
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              child: Image.file(
-                                image1!,
-                                fit: BoxFit.cover,
-                                height: 50,
-                                width: 50,
+                            InkWell(
+                              onTap: (){
+                                _showImage(context, image1!);
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                child: Image.file(
+                                  image1!,
+                                  fit: BoxFit.cover,
+                                  height: 50,
+                                  width: 50,
+                                ),
                               ),
                             ),
                             if (image1 != null)
@@ -1572,13 +1577,18 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                             color: Colors.blue,
                           ),
                         ) :
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(5),
-                          child: Image.file(
-                            image2!,
-                            fit: BoxFit.cover,
-                            height: 50,
-                            width: 50,
+                        InkWell(
+                          onTap: (){
+                            _showImage(context, image2!);
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: Image.file(
+                              image2!,
+                              fit: BoxFit.cover,
+                              height: 50,
+                              width: 50,
+                            ),
                           ),
                         ),
                         if (image2 != null)
@@ -1632,13 +1642,18 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                             color: Colors.blue,
                           ),
                         ) :
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(5),
-                          child: Image.file(
-                            image3!,
-                            fit: BoxFit.cover,
-                            height: 50,
-                            width: 50,
+                        InkWell(
+                          onTap: (){
+                            _showImage(context, image3!);
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: Image.file(
+                              image3!,
+                              fit: BoxFit.cover,
+                              height: 50,
+                              width: 50,
+                            ),
                           ),
                         ),
                         if (image3 != null)
@@ -1925,5 +1940,52 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
     } catch (e) {
       debugPrint('image-picker-error ${e.toString()}');
     }
+  }
+
+  void _showImage(BuildContext context,File image) async {
+    await showDialog(
+        context: context,
+        builder: (_) =>
+            AlertDialog(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                buttonPadding: EdgeInsets.zero,
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      style:
+                      const ButtonStyle(
+                        tapTargetSize:
+                        MaterialTapTargetSize
+                            .shrinkWrap, // the '2023' part
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.close),
+                      constraints: const BoxConstraints(),
+                    ),
+                    5.heightBox,
+                    Center(child:InteractiveViewer(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.file(image,
+                          frameBuilder: (BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded) {
+                            if (wasSynchronouslyLoaded) {
+                              return child;
+                            } else {
+                              return Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: Center(child: CircularProgressIndicator(color: Colors.blue,)),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),),
+                    10.heightBox,
+                  ],
+                )));
   }
 }
