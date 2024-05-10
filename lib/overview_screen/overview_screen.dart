@@ -375,140 +375,143 @@ if(isSkippedUser){
       listener: (context, state) {},
       builder: (context, state) {
         if (state is OverviewInitial) {
-          return SafeArea(
-            child: DefaultTabController(
-              length: 2,
-              child: Scaffold(
-                body: Container(
-                    color: Helper.getBackgroundColor(context),
-                    height: double.infinity,
-                    child: Stack(
-                      children: [
-                        Container(
-                          height: 250,
-                          decoration: const BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.only(
-                                  bottomRight: Radius.circular(50))),
-                        ),
-                        Column(
-                          children: [
-                            20.heightBox,
-                            Padding(
-                              padding:
-                              const EdgeInsets.symmetric(horizontal: 20),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "${userName ?? 'Guest'}: \u20B9${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20),
-                                        ),
-                                        Text(
-                                          "TODAY, ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 13),
-                                        )
-                                      ],
+          return PopScope(
+            canPop: true,
+            child: SafeArea(
+              child: DefaultTabController(
+                length: 2,
+                child: Scaffold(
+                  body: Container(
+                      color: Helper.getBackgroundColor(context),
+                      height: double.infinity,
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 250,
+                            decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.only(
+                                    bottomRight: Radius.circular(50))),
+                          ),
+                          Column(
+                            children: [
+                              20.heightBox,
+                              Padding(
+                                padding:
+                                const EdgeInsets.symmetric(horizontal: 20),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${userName ?? 'Guest'}: \u20B9${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20),
+                                          ),
+                                          Text(
+                                            "TODAY, ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 13),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  InkWell(
+                                    InkWell(
+                                        onTap: () {
+                                          Navigator.of(context, rootNavigator: true).push(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                const SearchScreen()),
+                                          );
+                                        },
+                                        child: const Icon(
+                                          Icons.search,
+                                          color: Colors.white,
+                                          size: 28,
+                                        )),
+                                    10.widthBox,
+                                    InkWell(
                                       onTap: () {
                                         Navigator.of(context, rootNavigator: true).push(
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                              const SearchScreen()),
-                                        );
+                                              const OtherScreen()),
+                                        ).then((value) {
+                                          MySharedPreferences.instance
+                                              .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+                                              .then((value) {
+                                            if (value != null) {
+                                              userEmail = value;
+                                              MySharedPreferences.instance
+                                                  .getStringValuesSF(SharedPreferencesKeys.currentUserName)
+                                                  .then((value) {
+                                                if (value != null) {
+                                                  userName = value;
+                                                  getTransactions();
+                                                }
+                                              });
+                                            }});
+                                        });
                                       },
-                                      child: const Icon(
-                                        Icons.search,
-                                        color: Colors.white,
-                                        size: 28,
-                                      )),
-                                  10.widthBox,
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.of(context, rootNavigator: true).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                            const OtherScreen()),
-                                      ).then((value) {
-                                        MySharedPreferences.instance
-                                            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-                                            .then((value) {
-                                          if (value != null) {
-                                            userEmail = value;
-                                            MySharedPreferences.instance
-                                                .getStringValuesSF(SharedPreferencesKeys.currentUserName)
-                                                .then((value) {
-                                              if (value != null) {
-                                                userName = value;
-                                                getTransactions();
-                                              }
-                                            });
-                                          }});
-                                      });
-                                    },
-                                    child: Container(
-                                        padding: const EdgeInsets.all(5),
-                                        decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.white),
-                                        child: const Icon(
-                                          Icons.family_restroom,
-                                          color: Colors.blue,
-                                          size: 28,
-                                        )),
-                                  ),
-                                ],
+                                      child: Container(
+                                          padding: const EdgeInsets.all(5),
+                                          decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.white),
+                                          child: const Icon(
+                                            Icons.family_restroom,
+                                            color: Colors.blue,
+                                            size: 28,
+                                          )),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            TabBar(
-                              labelColor: Colors.white,
-                              unselectedLabelColor: Colors.white60,
-                              indicatorColor: Colors.white,
-                              dividerColor: Colors.transparent,
-                              padding: EdgeInsets.zero,
-                              indicatorPadding: EdgeInsets.zero,
-                              labelPadding: EdgeInsets.zero,
-                              tabs: const [
-                                Tab(child: Text("Spending")),
-                                Tab(child: Text("Income")),
-                              ],
-                              onTap: (index) {
-                               setState(() {
-                                 loading = true;
-                               });
-                                AppConstanst.selectedTabIndex = index;
-                                if (index == 0) {
-                                  getTransactions();
-                                } else {
-                                  getIncomeTransactions();
-                                }
-                              },
-                            ),
+                              TabBar(
+                                labelColor: Colors.white,
+                                unselectedLabelColor: Colors.white60,
+                                indicatorColor: Colors.white,
+                                dividerColor: Colors.transparent,
+                                padding: EdgeInsets.zero,
+                                indicatorPadding: EdgeInsets.zero,
+                                labelPadding: EdgeInsets.zero,
+                                tabs: const [
+                                  Tab(child: Text("Spending")),
+                                  Tab(child: Text("Income")),
+                                ],
+                                onTap: (index) {
+                                 setState(() {
+                                   loading = true;
+                                 });
+                                  AppConstanst.selectedTabIndex = index;
+                                  if (index == 0) {
+                                    getTransactions();
+                                  } else {
+                                    getIncomeTransactions();
+                                  }
+                                },
+                              ),
 
-                            Expanded(
-                              child: TabBarView(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  children: [
-                                    _spendingView(overviewBloc),
-                                    _incomeView(overviewBloc)
-                                  ]),
-                            ),
-                            30.heightBox,
-                          ],
-                        ),
-                      ],
-                    )),
+                              Expanded(
+                                child: TabBarView(
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    children: [
+                                      _spendingView(overviewBloc),
+                                      _incomeView(overviewBloc)
+                                    ]),
+                              ),
+                              30.heightBox,
+                            ],
+                          ),
+                        ],
+                      )),
+                ),
               ),
             ),
           );

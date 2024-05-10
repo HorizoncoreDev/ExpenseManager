@@ -595,7 +595,7 @@ return completer.future;*/
           Completer<List<TransactionModel>>();
       List<TransactionModel> transactions = [];
       final reference = await FirebaseDatabase.instance
-          .reference()
+          .ref()
           .child(transaction_table)
           .child(FirebaseAuth.instance.currentUser!.uid)
           .orderByChild(TransactionFields.member_email)
@@ -1160,7 +1160,6 @@ return completer.future;*/
         await _database!.query(transaction_table);
     return List.generate(tasks.length, (i) {
       return TransactionModel(
-          // id: tasks[i]['id'],
           member_email: tasks[i]['member_email'],
           amount: tasks[i]['amount'],
           cat_name: tasks[i]['cat_name'],
@@ -1179,7 +1178,6 @@ return completer.future;*/
     final tasks = await getTasks();
     List<List<dynamic>> rows = [
       [
-        'ID',
         'member_email',
         'amount',
         'cat_name',
@@ -1197,7 +1195,6 @@ return completer.future;*/
     /// Add transaction data
     for (var task in tasks) {
       rows.add([
-        // task.id,
         task.member_email,
         task.amount,
         task.cat_name,
