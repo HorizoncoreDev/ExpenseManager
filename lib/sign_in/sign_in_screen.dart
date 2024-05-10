@@ -430,8 +430,6 @@ class _SignInScreenState extends State<SignInScreen> {
                         gender: "",
                         fcm_token: fcmToken);
                     await databaseHelper.insertProfileData(profileModel,false);
-
-
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.userEmail, user.email);
                     MySharedPreferences.instance.addStringToSF(
