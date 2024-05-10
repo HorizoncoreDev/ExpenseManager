@@ -226,7 +226,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                     InkWell(
                                       onTap: (){
 
-                                        MyDialog().showMasterPasswordDialog( context: context, export: true, backupType : "CSV");
+                                        MasterPasswordDialog().showMasterPasswordDialog( context: context, export: true, backupType : "CSV");
                                       },
                                       child: Row(
                                         children: [
@@ -251,7 +251,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                     14.heightBox,
                                     InkWell(
                                       onTap: (){
-                                        MyDialog().showMasterPasswordDialog( context: context, export: true, backupType : "DRIVE");
+                                        MasterPasswordDialog().showMasterPasswordDialog( context: context, export: true, backupType : "DRIVE");
                                       },
                                       child: Row(
                                         children: [
@@ -277,7 +277,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                     14.heightBox,
                                     InkWell(
                                       onTap: (){
-                                        MyDialog().showMasterPasswordDialog( context: context, export: true, backupType : "DB");
+                                        MasterPasswordDialog().showMasterPasswordDialog( context: context, export: true, backupType : "DB");
                                       },
                                       child: Row(
                                         children: [
@@ -341,7 +341,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                       20.heightBox,
                       InkWell(
                         onTap: (){
-                          MyDialog().showMasterPasswordDialog(context: context, export: false, backupType: "");
+                          MasterPasswordDialog().showMasterPasswordDialog(context: context, export: false, backupType: "");
                           print("backup");
                         },
                         child: Container(

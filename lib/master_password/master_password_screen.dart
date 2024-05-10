@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
+import 'package:expense_manager/drive_upload_import/drive_service.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
@@ -15,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
-class MyDialog {
+class MasterPasswordDialog {
   TextEditingController generateMasterPasswordController = TextEditingController();
   TextEditingController masterPasswordController = TextEditingController();
   String encodedPassword = "";
@@ -28,6 +29,9 @@ class MyDialog {
   bool isSkippedUser = false;
   // FirebaseAuth? _firebaseAuth;
   String email = "";
+  final _driveService = DriveService();
+  String? fileId;
+  String fileName = "";
 
   Future<void> showMasterPasswordDialog({required BuildContext context, required bool export, required String backupType}) async {
     MySharedPreferences.instance.getBoolValuesSF(
@@ -149,7 +153,7 @@ class MyDialog {
                                   exportCSVFile();
                                 }
                                 else if(backupType == "DRIVE"){
-
+                                  exportFileOnDrive(context);
                                 }
                                 else if(backupType == "DB"){
 
@@ -243,6 +247,73 @@ class MyDialog {
     Helper.showToast('CSV file has been exported to $path');
     print("file path $path");
   }
+
+  Future<Map<String, String?>> exportFileOnDrive(BuildContext context) async {
+    String csvData = await DatabaseHelper.exportAllToCSV();
+    String name = "";
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userName)
+        .then((value) {
+      if (value != null) {
+        List<String> names = value.split(" ") ?? [];
+        name = names.isNotEmpty ? names[0].toLowerCase() : "";
+      }
+    });
+
+    String date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    final Directory? directory = await getExternalStorageDirectory();
+    final String path = directory!.path;
+    String filePath = '/storage/emulated/0/Download/${name}_$date.csv';
+    fileName = "${name}_$date.csv";
+    final File file = File(filePath);
+    await file.writeAsString(csvData);
+
+    Helper.showToast('CSV file has been exported to $path');
+    print("file path $path");
+
+    String? fileId = await uploadDrive(context, filePath, fileName);
+    if (fileId != null) {
+      MySharedPreferences.instance.addStringToSF("fileId", fileId);
+    }
+    return {"path": path, "fileId": fileId};
+  }
+
+  ///upload file in drive
+  Future<String?> uploadDrive(BuildContext context, String filePath, String fileName) async {
+    final bool exists = await File(filePath).exists();
+    if (!exists) {
+      Helper.showToast('File does not exist: $filePath');
+      return null;
+    }
+    fileId = await _driveService.uploadFile(fileName, filePath);
+    print("upload file id:- $fileId");
+
+    if (fileId != null) {
+      Helper.showToast('File uploaded successfully with ID: $fileId');
+      print("'File uploaded successfully with ID: $fileId'");
+      return fileId;
+    } else {
+      Helper.showToast('Failed to upload file to Google Drive');
+      return null;
+    }
+  }
+
+  ///download file from drive
+  Future<void> downloadCsvFileFromDrive(String fileId) async  {
+    String dir = (await getExternalStorageDirectory())!.path;
+
+    String downloadedFilePath = '$dir/downloaded_file.csv';
+
+    String? filePath = await _driveService.downloadFile(fileId, downloadedFilePath);
+
+    if (filePath != null) {
+      Helper.showToast('File downloaded successfully at: $filePath');
+    } else {
+      Helper.showToast('Failed to download file from Google Drive');
+    }
+  }
+
+
 
   void addDataIntoTransactionTable(BuildContext context) async {
     final reference = FirebaseDatabase.instance
@@ -440,4 +511,6 @@ class MyDialog {
       },
     );
   }
+
+
 }

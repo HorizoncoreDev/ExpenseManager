@@ -44,7 +44,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
   File? image1, image2, image3;
   TextEditingController amountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-
+  Color forwardIconColor = Colors.grey;
   int currPage = 1;
   bool isSkippedUser = false;
   String selectedValue = AppConstanst.spendingTransactionName;
@@ -231,13 +231,15 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
 
   void _incrementDate() {
     setState(() {
-      selectedDate = selectedDate.add(Duration(days: 1));
+      selectedDate = selectedDate.add(const Duration(days: 1));
+      forwardIconColor = selectedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
     });
   }
 
   void _decrementDate() {
     setState(() {
-      selectedDate = selectedDate.subtract(Duration(days: 1));
+      selectedDate = selectedDate.subtract(const Duration(days: 1));
+      forwardIconColor = selectedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
     });
   }
 
@@ -1212,7 +1214,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                                   const BorderRadius.all(Radius.circular(5))),
                           child: const Icon(
                             Icons.arrow_back_ios_new_outlined,
-                            color: Colors.grey,
+                            color: Colors.blue,
                           ),
                         ),
                       ),
@@ -1243,10 +1245,15 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                                 initialDate: DateTime.now(),
                                 firstDate: DateTime(2000),
                                 lastDate: DateTime.now());
-                            if (pickedDate != null &&
-                                pickedDate != selectedDate) {
+                            if (pickedDate != null && pickedDate != selectedDate) {
                               setState(() {
                                 selectedDate = pickedDate;
+                                forwardIconColor = pickedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
+                              });
+                            } else if (pickedDate != null && pickedDate == DateTime.now()) {
+                              // If user selects the current date, set forward icon color to grey
+                              setState(() {
+                                forwardIconColor = Colors.grey;
                               });
                             }
                           },
@@ -1289,6 +1296,12 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                               .isAfter(format.parse(formattedDate()))) {
                             _incrementDate();
                           }
+                          else {
+                            // If the selected date is the current date, set forward icon color to grey
+                            setState(() {
+                              forwardIconColor = Colors.grey;
+                            });
+                          }
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -1298,9 +1311,9 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                               color: Helper.getCardColor(context),
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(5))),
-                          child: const Icon(
+                          child:  Icon(
                             Icons.arrow_forward_ios_outlined,
-                            color: Colors.grey,
+                            color: forwardIconColor,
                           ),
                         ),
                       ),
@@ -1483,26 +1496,64 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                           .requestFocus(FocusNode());
                       _storagePermission(1);
                     },
-                    child: image1 == null
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 15),
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.blueGrey,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
-                            child: const Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.blue,
+                    child: Stack(
+                          children: [
+                            image1 == null ?
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 15, horizontal: 15),
+                                alignment: Alignment.center,
+                                decoration: const BoxDecoration(
+                                    color: Colors.blueGrey,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5))),
+                                child: const Icon(
+                                  Icons.camera_alt_outlined,
+                                  color: Colors.blue,
+                                ),
+                              ) :
+                            InkWell(
+                              onTap: (){
+                                _showImage(context, image1!);
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                child: Image.file(
+                                  image1!,
+                                  fit: BoxFit.cover,
+                                  height: 50,
+                                  width: 50,
+                                ),
+                              ),
                             ),
-                          )
-                        : Image.file(
-                            image1!,
-                            fit: BoxFit.cover,
-                            height: 50,
-                            width: 50,
-                          )),
+                            if (image1 != null)
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      image1 = null; // Remove the image
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.blue,
+                                      // Change color to indicate wrong type
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                      size: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        )
+                      ),
                 10.widthBox,
                 InkWell(
                     onTap: () {
@@ -1510,26 +1561,64 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                           .requestFocus(FocusNode());
                       _storagePermission(2);
                     },
-                    child: image2 == null
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 15),
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.blueGrey,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
-                            child: const Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.blue,
+                    child: Stack(
+                      children: [
+                        image2 == null ?
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 15),
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                              color: Colors.blueGrey,
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(5))),
+                          child: const Icon(
+                            Icons.camera_alt_outlined,
+                            color: Colors.blue,
+                          ),
+                        ) :
+                        InkWell(
+                          onTap: (){
+                            _showImage(context, image2!);
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: Image.file(
+                              image2!,
+                              fit: BoxFit.cover,
+                              height: 50,
+                              width: 50,
                             ),
-                          )
-                        : Image.file(
-                            image2!,
-                            fit: BoxFit.cover,
-                            height: 50,
-                            width: 50,
-                          )),
+                          ),
+                        ),
+                        if (image2 != null)
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  image2 = null; // Remove the image
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  // Change color to indicate wrong type
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    )
+                ),
                 10.widthBox,
                 InkWell(
                     onTap: () {
@@ -1537,26 +1626,64 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                           .requestFocus(FocusNode());
                       _storagePermission(3);
                     },
-                    child: image3 == null
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 15),
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.blueGrey,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
-                            child: const Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.blue,
+                    child: Stack(
+                      children: [
+                        image3 == null ?
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 15),
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                              color: Colors.blueGrey,
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(5))),
+                          child: const Icon(
+                            Icons.camera_alt_outlined,
+                            color: Colors.blue,
+                          ),
+                        ) :
+                        InkWell(
+                          onTap: (){
+                            _showImage(context, image3!);
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: Image.file(
+                              image3!,
+                              fit: BoxFit.cover,
+                              height: 50,
+                              width: 50,
                             ),
-                          )
-                        : Image.file(
-                            image3!,
-                            fit: BoxFit.cover,
-                            height: 50,
-                            width: 50,
-                          )),
+                          ),
+                        ),
+                        if (image3 != null)
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  image3 = null; // Remove the image
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  // Change color to indicate wrong type
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    )
+                ),
               ]),
               30.heightBox,
               Row(
@@ -1808,6 +1935,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         image3 = tmpFile;
       }
       setState(() {
+
       });
     } catch (e) {
       debugPrint('image-picker-error ${e.toString()}');

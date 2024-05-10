@@ -39,7 +39,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   File? image1, image2, image3;
   TextEditingController amountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-
   int currPage = 1;
   bool isSkippedUser = false;
   String selectedValue = AppConstanst.spendingTransactionName;
@@ -1306,6 +1305,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             _storagePermission(context,1);
                           },
                           child:  Container(
+
                               padding: const EdgeInsets.symmetric(
                                   vertical: 15, horizontal: 15),
                               alignment: Alignment.center,
@@ -1319,6 +1319,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 color: Colors.blue,
                               ),
                           )),
+
                       // Close Icon
                       if (image1 != null)
                         Positioned(
@@ -1358,6 +1359,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             _showImage(context, image2!);
                           },
                           child:ClipRRect(
+
                               borderRadius: BorderRadius.circular(5),
                               // Set the border radius here
                               child: Image.file(
@@ -1374,6 +1376,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             _storagePermission(context,2);
                           },
                           child:Container(
+
                               padding: const EdgeInsets.symmetric(
                                   vertical: 15, horizontal: 15),
                               alignment: Alignment.center,
@@ -1387,6 +1390,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 color: Colors.blue,
                               ),
                             )),
+
                       // Close Icon
                       if ( image2 != null)
                         Positioned(
@@ -1443,6 +1447,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             _storagePermission(context,3);
                           },
                           child:Container(
+
                               padding: const EdgeInsets.symmetric(
                                   vertical: 15, horizontal: 15),
                               alignment: Alignment.center,
@@ -1623,9 +1628,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
       XFile? imageFile = await picker.pickImage(source: imageSource);
       if (imageFile == null) return;
       File tmpFile = File(imageFile.path);
-      final appDir = await getApplicationDocumentsDirectory();
+      final appDir = await getExternalStorageDirectory();
       final fileName = basename(imageFile.path);
-      tmpFile = await tmpFile.copy('${appDir.path}/$fileName');
+      tmpFile = await tmpFile.copy('/storage/emulated/0/Download/$fileName');
       if (position == 1) {
         image1 = tmpFile;
       } else if (position == 2) {
