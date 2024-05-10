@@ -1,5 +1,3 @@
-
-import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/master_password/master_password_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
