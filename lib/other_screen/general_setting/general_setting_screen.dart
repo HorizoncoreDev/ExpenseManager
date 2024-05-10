@@ -225,6 +225,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                   children: [
                                     InkWell(
                                       onTap: (){
+
                                         MyDialog().showMasterPasswordDialog( context: context, export: true, backupType : "CSV");
                                       },
                                       child: Row(
