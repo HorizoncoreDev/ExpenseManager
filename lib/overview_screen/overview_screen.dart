@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:expense_manager/db_models/profile_model.dart';
@@ -77,6 +76,7 @@ if(isSkippedUser){
   });
 }
       }});
+
     super.initState();
   }
 
@@ -231,7 +231,6 @@ if(isSkippedUser){
               .then((profileData) async {
             profileData!.current_balance = profileData.actual_budget;
             await DatabaseHelper.instance.updateProfileData(profileData);
-
           });
         }
       }

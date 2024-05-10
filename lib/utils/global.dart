@@ -7,7 +7,9 @@ abstract class ImageConstanst {
   static const String icPhone = 'asset/images/img_phone.png';
   static const String icBanner = 'asset/images/ic_banner.svg';
   static const String icFlag = 'asset/images/ic_flag.png';
-  static const String tasksCSV = 'assets/csv/tasks.csv';
+  static const String icCSV = 'asset/images/ic_csv.png';
+  static const String isDrive = 'asset/images/ic_drive.png';
+  static const String isDb = 'asset/images/ic_db.png';
 }
 
 abstract class AppConstanst {
@@ -49,6 +51,7 @@ abstract class AppColors {
 abstract class SharedPreferencesKeys {
   static const isLogin = "isLogin";
   static const isCategoriesAdded = "isCategoriesAdded";
+  static const isCurrencyAndLanguageAdded = "isCurrencyAndLanguageAdded";
   static const isBudgetAdded = "isBudgetAdded";
   static const userEmail = "userEmail";
   static const currentUserEmail = "currentUserEmail";

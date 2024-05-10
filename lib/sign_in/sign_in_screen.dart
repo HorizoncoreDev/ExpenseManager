@@ -186,19 +186,19 @@ class _SignInScreenState extends State<SignInScreen> {
 
                                   MySharedPreferences.instance.addBoolToSF(
                                       SharedPreferencesKeys.isSkippedUser, true);
-        if (AppConstanst.signInClicked == 1) {
-          AppConstanst.signInClicked=0;
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const DashBoard()),
-                  (Route<dynamic> route) => false);
-        }else{
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                  const BudgetScreen()));
-        }
+                                  if (AppConstanst.signInClicked == 1) {
+                                    AppConstanst.signInClicked=0;
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const DashBoard()),
+                                            (Route<dynamic> route) => false);
+                                  }else{
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                            const BudgetScreen()));
+                                  }
                                 },
                                 child: Text(
                                   "Skip",
@@ -366,8 +366,8 @@ class _SignInScreenState extends State<SignInScreen> {
                   Map<dynamic, dynamic> values =
                   dataSnapshot.value as Map<dynamic, dynamic>;
                   values.forEach((key, value) async {
-                         profileModel = ProfileModel.fromMap(value);
-                         profileModel!.fcm_token=fcmToken;
+                    profileModel = ProfileModel.fromMap(value);
+                    profileModel!.fcm_token=fcmToken;
                     final Map<String, Map> updates = {};
                     updates['/$profile_table/${profileModel!.key}'] =
                         profileModel!.toMap();
@@ -412,8 +412,6 @@ class _SignInScreenState extends State<SignInScreen> {
                   if(!profileCheckCalledOnce) {
                     profileCheckCalledOnce = true;
                     String userCode = await Helper.generateUniqueCode();
-
-
                     ProfileModel profileModel = ProfileModel(
                         key: FirebaseAuth.instance.currentUser!.uid,
                         first_name: firstName,
@@ -430,7 +428,6 @@ class _SignInScreenState extends State<SignInScreen> {
                         gender: "",
                         fcm_token: fcmToken);
                     await databaseHelper.insertProfileData(profileModel,false);
-
 
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.userEmail, user.email);
