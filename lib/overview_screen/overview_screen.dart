@@ -317,6 +317,7 @@ class OverviewScreenState extends State<OverviewScreen> {
               .then((profileData) async {
             profileData!.current_income = "0";
             await DatabaseHelper.instance.updateProfileData(profileData);
+
           });
         }
       } else {
@@ -703,7 +704,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 setState(() {
                                   dateWiseSpendingTransaction[index].transactions!.removeAt(index1);
                                 });
-                                await databaseHelper.deleteTransactionFromDB(transaction.id!);
+                                await databaseHelper.deleteTransactionFromDB(transaction);
+
                                 setState(() {
                                   currentBalance = currentBalance + transaction.amount!;
                                 });
@@ -711,7 +713,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     .getProfileData(userEmail)
                                     .then((profileData) async {
                                       profileData!.current_balance = currentBalance.toString();
-                                  await DatabaseHelper.instance.updateProfileData(profileData!);
+                                  await DatabaseHelper.instance.updateProfileData(profileData);
+
                                   getTransactions();
                                 });
                               },
@@ -1059,7 +1062,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 setState(() {
                                   dateWiseIncomeTransaction[index].transactions!.removeAt(index1);
                                 });
-                                await databaseHelper.deleteTransactionFromDB(transaction.id!);
+                                await databaseHelper.deleteTransactionFromDB(transaction);
+
                                 setState(() {
                                   currentIncome = currentIncome - transaction.amount!;
                                 });
@@ -1067,7 +1071,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     .getProfileData(userEmail)
                                     .then((profileData) async {
                                   profileData!.current_income = currentIncome.toString();
-                                  await DatabaseHelper.instance.updateProfileData(profileData!);
+                                  await DatabaseHelper.instance.updateProfileData(profileData);
+
                                   getIncomeTransactions();
                                 });
                               },

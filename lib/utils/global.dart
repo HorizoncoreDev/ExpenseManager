@@ -49,6 +49,7 @@ abstract class AppColors {
 abstract class SharedPreferencesKeys {
   static const isLogin = "isLogin";
   static const isCategoriesAdded = "isCategoriesAdded";
+  static const isCurrencyAndLanguageAdded = "isCurrencyAndLanguageAdded";
   static const isBudgetAdded = "isBudgetAdded";
   static const userEmail = "userEmail";
   static const userFcmToken = "userFcmToken";

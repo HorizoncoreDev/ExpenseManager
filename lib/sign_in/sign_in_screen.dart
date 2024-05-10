@@ -269,13 +269,9 @@ class _SignInScreenState extends State<SignInScreen> {
                     fcmToken = value!;
 
                     String userCode = await Helper.generateUniqueCode();
-                    final reference = FirebaseDatabase.instance
-                        .reference()
-                        .child(profile_table);
-                    var newPostRef = reference.push();
 
                     ProfileModel profileModel = ProfileModel(
-                        key: newPostRef.key,
+                        key: FirebaseAuth.instance.currentUser!.uid,
                         first_name: firstName,
                         last_name: lastName,
                         email: user.email ?? "",
@@ -289,10 +285,8 @@ class _SignInScreenState extends State<SignInScreen> {
                         actual_budget: currentActualBudget,
                         gender: "",
                         fcm_token: fcmToken);
-                    await databaseHelper.insertProfileData(profileModel);
-                    newPostRef.set(
-                      profileModel.toMap(),
-                    );
+                    await databaseHelper.insertProfileData(profileModel,false);
+
                   });
                 });
               });
@@ -336,10 +330,10 @@ class _SignInScreenState extends State<SignInScreen> {
                   .child(profile_table)
                   .orderByChild('email')
                   .equalTo(user.email!);
-              bool calledOnce=false;
+              bool calledOnce=false,profileCheckCalledOnce=false;;
               reference.onValue.listen((event) async {
                 DataSnapshot dataSnapshot = event.snapshot;
-                if (event.snapshot.exists) {
+                if (event.snapshot.exists && !profileCheckCalledOnce) {
                   ProfileModel? profileModel;
                   Map<dynamic, dynamic> values =
                   dataSnapshot.value as Map<dynamic, dynamic>;
@@ -376,7 +370,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     }else{
                       if(!calledOnce) {
                         calledOnce = true;
-                        await databaseHelper.insertProfileData(profileModel!);
+                        await databaseHelper.insertProfileData(profileModel!,true);
                       }
                     }
                   });
@@ -396,43 +390,41 @@ class _SignInScreenState extends State<SignInScreen> {
                           builder: (context) => const DashBoard()),
                           (Route<dynamic> route) => false);
                 } else {
-                  String userCode = await Helper.generateUniqueCode();
+                  if(!profileCheckCalledOnce) {
+                    profileCheckCalledOnce = true;
+                    String userCode = await Helper.generateUniqueCode();
 
-                  final reference = FirebaseDatabase.instance
-                      .reference()
-                      .child(profile_table);
-                  var newPostRef = reference.push();
 
-                  ProfileModel profileModel = ProfileModel(
-                      key: newPostRef.key,
-                      first_name: firstName,
-                      last_name: lastName,
-                      email: user.email ?? "",
-                      full_name: user.displayName ?? "",
-                      dob: "",
-                      user_code: userCode,
-                      profile_image: "",
-                      mobile_number: "",
-                      current_balance: "0",
-                      current_income: "0",
-                      actual_budget: "0",
-                      gender: "",
-                      fcm_token: fcmToken);
-                  await databaseHelper.insertProfileData(profileModel);
+                    ProfileModel profileModel = ProfileModel(
+                        key: FirebaseAuth.instance.currentUser!.uid,
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: user.email ?? "",
+                        full_name: user.displayName ?? "",
+                        dob: "",
+                        user_code: userCode,
+                        profile_image: "",
+                        mobile_number: "",
+                        current_balance: "0",
+                        current_income: "0",
+                        actual_budget: "0",
+                        gender: "",
+                        fcm_token: fcmToken);
+                    await databaseHelper.insertProfileData(profileModel,false);
 
-                  newPostRef.set(profileModel.toMap());
 
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.userEmail, user.email);
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.userName, user.displayName);
-                  MySharedPreferences.instance
-                      .addBoolToSF(SharedPreferencesKeys.isLogin, true);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const BudgetScreen()),
-                  );
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.userEmail, user.email);
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.userName, user.displayName);
+                    MySharedPreferences.instance
+                        .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const BudgetScreen()),
+                    );
+                  }
                 }
               });
             });

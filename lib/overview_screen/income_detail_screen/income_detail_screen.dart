@@ -8,6 +8,7 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -180,6 +181,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
               .then((profileData) async {
             profileData!.current_income = "0";
             await DatabaseHelper.instance.updateProfileData(profileData);
+
           });
         }
       } else {

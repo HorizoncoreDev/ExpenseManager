@@ -60,31 +60,29 @@ class MyDialog {
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    Expanded(
-                      child: CustomBoxTextFormField(
-                        controller: masterPasswordController,
-                        onChanged: (val) {},
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          bottomLeft: Radius.circular(5),
-                        ),
-                        keyboardType: TextInputType.text,
-                        hintText: "Password",
-                        maxLength: 8,
-                        minLines: 1,
-                        obscureText: true,
-                        fillColor: Helper.getCardColor(context),
-                        borderColor: Colors.transparent,
-                        textStyle: TextStyle(
-                          color: Helper.getTextColor(context),
-                        ),
-                        padding: 15,
-                        horizontalPadding: 5,
-                        //focusNode: _focus,
-                        validator: (value) {
-                          return null;
-                        },
+                    CustomBoxTextFormField(
+                      controller: masterPasswordController,
+                      onChanged: (val) {},
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        bottomLeft: Radius.circular(5),
                       ),
+                      keyboardType: TextInputType.text,
+                      hintText: "Password",
+                      maxLength: 8,
+                      minLines: 1,
+                      obscureText: true,
+                      fillColor: Helper.getCardColor(context),
+                      borderColor: Colors.transparent,
+                      textStyle: TextStyle(
+                        color: Helper.getTextColor(context),
+                      ),
+                      padding: 15,
+                      horizontalPadding: 5,
+                      //focusNode: _focus,
+                      validator: (value) {
+                        return null;
+                      },
                     ),
                     if (isMPGenerate)...[
                       10.heightBox,
@@ -119,7 +117,7 @@ class MyDialog {
                       TextButton(
                         onPressed: () async {
                           FirebaseDatabase.instance
-                              .reference()
+                              .ref()
                               .child('master_passwords_table')
                               .child(FirebaseAuth.instance.currentUser!.uid)
                               .onValue
@@ -224,15 +222,9 @@ class MyDialog {
     });
 
     String date = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    final Directory? directory = await getExternalStorageDirectory();
-    final String path = directory!.path;
     String filePath = '/storage/emulated/0/Download/${name}_$date.csv';
-
     final File file = File(filePath);
     await file.writeAsString(csvData);
-
-    Helper.showToast('CSV file has been exported to $path');
-    print("file path $path");
   }
 
   void addDataIntoTransactionTable(BuildContext context) async {
@@ -351,31 +343,29 @@ class MyDialog {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Expanded(
-                  child: CustomBoxTextFormField(
-                    controller: generateMasterPasswordController,
-                    onChanged: (val) async {},
-                    maxLength: 8,
-                    minLines: 1,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(5),
-                      bottomLeft: Radius.circular(5),
-                    ),
-                    obscureText: true,
-                    keyboardType: TextInputType.text,
-                    hintText: "Create master password",
-                    fillColor: Helper.getCardColor(
-                        context),
-                    borderColor: Colors.transparent,
-                    textStyle: TextStyle(
-                      color: Helper.getTextColor(context),
-                    ),
-                    padding: 15,
-                    horizontalPadding: 5,
-                    validator: (value) {
-                      return null;
-                    },
+                CustomBoxTextFormField(
+                  controller: generateMasterPasswordController,
+                  onChanged: (val) async {},
+                  maxLength: 8,
+                  minLines: 1,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(5),
                   ),
+                  obscureText: true,
+                  keyboardType: TextInputType.text,
+                  hintText: "Create master password",
+                  fillColor: Helper.getCardColor(
+                      context),
+                  borderColor: Colors.transparent,
+                  textStyle: TextStyle(
+                    color: Helper.getTextColor(context),
+                  ),
+                  padding: 15,
+                  horizontalPadding: 5,
+                  validator: (value) {
+                    return null;
+                  },
                 ),
               ],
             ),

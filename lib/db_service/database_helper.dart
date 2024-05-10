@@ -1,23 +1,25 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:csv/csv.dart';
+import 'package:expense_manager/db_models/currency_model.dart';
+import 'package:expense_manager/db_models/language_model.dart';
 import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/statistics/statistics_screen.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
-import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../db_models/expense_category_model.dart';
+import '../db_models/expense_sub_category.dart';
 import '../db_models/income_category.dart';
 import '../db_models/income_sub_category.dart';
 import '../db_models/payment_method_model.dart';
 import '../db_models/profile_model.dart';
-import '../db_models/expense_sub_category.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper.init();
@@ -104,8 +106,6 @@ class DatabaseHelper {
       )
    ''');
 
-
-
     await db.execute('''
       CREATE TABLE $expense_category_table(
       ${ExpenseCategoryField.id} $idType,
@@ -125,6 +125,23 @@ class DatabaseHelper {
    ''');
 
     await db.execute('''
+      CREATE TABLE $currency_table(
+      ${CurrencyFields.id} $idType,
+      ${CurrencyFields.countryName} $textType,
+      ${CurrencyFields.symbol} $textType,
+      ${CurrencyFields.currencyCode} $textType
+      )
+   ''');
+
+    await db.execute('''
+      CREATE TABLE $language_table(
+      ${LanguageFields.id} $idType,
+      ${LanguageFields.name} $textType,
+      ${LanguageFields.code} $textType
+      )
+   ''');
+
+    await db.execute('''
       CREATE TABLE $income_sub_category_table(
       ${IncomeSubCategoryFields.id} $idType,
       ${IncomeSubCategoryFields.name} $textType,
@@ -133,7 +150,7 @@ class DatabaseHelper {
       )
    ''');
 
- await db.execute('''
+    await db.execute('''
       CREATE TABLE $request_table(
       ${RequestTableFields.id} $idType,
       ${RequestTableFields.requester_email} $textType,
@@ -181,7 +198,8 @@ class DatabaseHelper {
 
   Future<void> deleteRequest(RequestModel requestModel) async {
     Database db = await instance.database;
-    await db.delete(request_table,  where: '${RequestTableFields.receiver_email} = ?',
+    await db.delete(request_table,
+        where: '${RequestTableFields.receiver_email} = ?',
         whereArgs: [requestModel.receiver_email]);
   }
 
@@ -197,8 +215,19 @@ class DatabaseHelper {
   }
 
   // Insert ProfileData
-  Future<void> insertProfileData(ProfileModel profileModel) async {
+  Future<void> insertProfileData(
+      ProfileModel profileModel, bool isProfileExistInFirebaseDb) async {
     Database db = await database;
+
+    if (!isProfileExistInFirebaseDb) {
+      FirebaseDatabase.instance
+          .reference()
+          .child(profile_table)
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .set(
+            profileModel.toMap(),
+          );
+    }
 
     await db.insert(profile_table, profileModel.toMap());
   }
@@ -209,6 +238,12 @@ class DatabaseHelper {
     await db.update(profile_table, profileModel.toMap(),
         where: '${ProfileTableFields.email} = ?',
         whereArgs: [profileModel.email]);
+
+    final Map<String, Map> updates = {};
+    updates['/$profile_table/${profileModel.key}'] =
+        profileModel.toMap();
+    FirebaseDatabase.instance.ref().update(updates);
+
   }
 
   // A method that retrieves Profile Data from the Profile table.
@@ -232,7 +267,7 @@ class DatabaseHelper {
     }
   }
 
-Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
+  Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     Database db = await database;
     final map = await db.rawQuery(
         "SELECT * FROM $profile_table WHERE ${ProfileTableFields.user_code} = ?",
@@ -245,9 +280,17 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     }
   }
 
-  Future<void> deleteTransactionFromDB(int id) async {
+  Future<void> deleteTransactionFromDB(TransactionModel transactionModel) async {
     Database db = await instance.database;
-    await db.delete(transaction_table, where: 'id = ?', whereArgs: [id],);
+    await db.delete(
+      transaction_table,
+      where: 'id = ?',
+      whereArgs: [transactionModel.id],
+    );
+
+    final reference = FirebaseDatabase.instance.reference().child(transaction_table);
+    reference.child(transactionModel.key!).remove();
+
   }
 
   Future<void> insertCategory(ExpenseCategory category) async {
@@ -273,8 +316,10 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
   // A method that retrieves all the category from the category table.
   Future<List<ExpenseCategory>> categorys() async {
     Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(expense_category_table);
-    return List.generate(maps.length, (index) => ExpenseCategory.fromMap(maps[index]));
+    final List<Map<String, dynamic>> maps =
+        await db.query(expense_category_table);
+    return List.generate(
+        maps.length, (index) => ExpenseCategory.fromMap(maps[index]));
   }
 
   // Insert Payment Method
@@ -283,7 +328,8 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     await db.insert(payment_method_table, paymentMethod.toMap());
   }
 
-  Future<int> insertAllPaymentMethods(List<PaymentMethod> paymentMethods) async {
+  Future<int> insertAllPaymentMethods(
+      List<PaymentMethod> paymentMethods) async {
     final db = await database;
 
     final Batch batch = db.batch();
@@ -297,7 +343,6 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     return affectedRows;
   }
 
-
   // A method that retrieves all the paymentMethods from the paymentMethods table.
   Future<List<PaymentMethod>> paymentMethods() async {
     Database db = await database;
@@ -307,11 +352,82 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
         maps.length, (index) => PaymentMethod.fromMap(maps[index]));
   }
 
+
+
   // Update Payment Method
   Future<void> updatePaymentMethod(PaymentMethod paymentMethod) async {
     final db = await database;
     await db.update(payment_method_table, paymentMethod.toMap(),
         where: '${PaymentMethodFields.id} = ?', whereArgs: [paymentMethod.id]);
+  }
+
+  Future<void> insertCurrencyMethod(CurrencyCategory currencyCategory) async {
+    Database db = await database;
+    await db.insert(currency_table, currencyCategory.toMap());
+  }
+
+  Future<int> insertAllCurrencyMethods(
+      List<CurrencyCategory> currencyCategory) async {
+    final db = await database;
+    final Batch batch = db.batch();
+    for (CurrencyCategory currencyCategory in currencyCategory) {
+      batch.insert(currency_table, currencyCategory.toMap());
+    }
+
+    final List<dynamic> result = await batch.commit();
+    final int affectedRows = result.reduce((sum, element) => sum + element);
+    return affectedRows;
+  }
+
+  // A method that retrieves all the currencyMethod from the currencyCategory table.
+  Future<List<CurrencyCategory>> currencyMethods() async {
+    Database db = await database;
+    final List<Map<String, dynamic>> maps =
+    await db.query(currency_table);
+    return List.generate(
+        maps.length, (index) => CurrencyCategory.fromMap(maps[index]));
+  }
+
+  Future<void> updateCurrencyMethod(CurrencyCategory currencyCategory) async {
+    final db = await database;
+    await db.update(currency_table, currencyCategory.toMap(),
+        where: '${CurrencyFields.id} = ?', whereArgs: [currencyCategory.id]);
+  }
+
+  Future<void> insertLanguageMethod(LanguageCategory languageCategory) async {
+    Database db = await database;
+    await db.insert(language_table, languageCategory.toMap());
+  }
+
+
+  Future<int> insertAllLanguageMethods(
+      List<LanguageCategory> languageCategory) async {
+    final db = await database;
+
+    final Batch batch = db.batch();
+
+    for (LanguageCategory languageCategory in languageCategory) {
+      batch.insert(language_table, languageCategory.toMap());
+    }
+
+    final List<dynamic> result = await batch.commit();
+    final int affectedRows = result.reduce((sum, element) => sum + element);
+    return affectedRows;
+  }
+
+  // A method that retrieves all the paymentMethods from the paymentMethods table.
+  Future<List<LanguageCategory>> languageMethods() async {
+    Database db = await database;
+    final List<Map<String, dynamic>> maps =
+    await db.query(language_table);
+    return List.generate(
+        maps.length, (index) => LanguageCategory.fromMap(maps[index]));
+  }
+
+  Future<void> updateLanguageMethod(LanguageCategory languageCategory) async {
+    final db = await database;
+    await db.update(language_table, languageCategory.toMap(),
+        where: '${LanguageFields.id} = ?', whereArgs: [languageCategory.id]);
   }
 
   // Insert Income Category
@@ -338,7 +454,7 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
   Future<List<IncomeCategory>> getIncomeCategory() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
-    await db.query(income_category_table);
+        await db.query(income_category_table);
     return List.generate(
         maps.length, (index) => IncomeCategory.fromMap(maps[index]));
   }
@@ -350,10 +466,18 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
         where: '${CategoryFields.id} = ?', whereArgs: [incomeCategory.id]);
   }
 
-
   // Insert Transaction Detail
   Future<int> insertTransactionData(TransactionModel transactionModel) async {
     Database db = await database;
+
+    FirebaseDatabase.instance
+        .reference()
+        .child(transaction_table)
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .set(
+      transactionModel.toMap(),
+    );
+
     return await db.insert(transaction_table, transactionModel.toMap());
   }
 
@@ -408,6 +532,31 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
 
     return List.generate(
         result.length, (index) => TransactionModel.fromMap(result[index]));
+  /*  DateTime now = DateTime.now();
+    int currentMonth = now.month;
+    int currentYear = now.year;
+
+    DatabaseReference transactionsRef = FirebaseDatabase.instance.reference().child(transaction_table).child(FirebaseAuth.instance.currentUser!.uid).child(currentYear.toString()).child(currentMonth.toString());
+
+    final reference = await transactionsRef
+        .orderByChild('member_email')
+        .equalTo(email);
+
+    List<TransactionModel> transactions = [];
+    reference.onValue.listen((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if(event.snapshot.exists){
+        Map<dynamic, dynamic> values =
+        dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+          if(value[TransactionFields.transaction_type]==transactionType) {
+            transactions.add(TransactionModel.fromMap(value));
+          }
+        });
+      }
+    });*/
+
+    //return transactions;
   }
 
   final Map<String, int> monthNameToNumber = {
@@ -448,9 +597,9 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     }
 
     query +=
-    '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
+        '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
     query +=
-    ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ?';
+        ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ?';
     List<dynamic> whereArgs = [
       ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
       year,
@@ -459,14 +608,14 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
 
     if (expenseCatId != -1 || incomeCatId != -1) {
       query +=
-      ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+          ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
       whereArgs.add(expenseCatId);
       whereArgs.add(incomeCatId);
     }
 
     if (category.isNotEmpty) {
       query +=
-      ' AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE';
+          ' AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE';
       whereArgs.add('%$category%');
       whereArgs.add('%$category%');
     }
@@ -513,9 +662,9 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     }
 
     query +=
-    '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
+        '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
     query +=
-    ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
+        ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
 
     whereArgs = [
       ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
@@ -532,14 +681,14 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
       whereArgs.add(expenseCatId);
     } else if (expenseCatId != -1 && incomeCatId != -1) {
       query +=
-      ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+          ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
       whereArgs.add(expenseCatId);
       whereArgs.add(incomeCatId);
     }
 
     if (category.isNotEmpty) {
       query +=
-      ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
+          ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
       whereArgs.add('%$category%');
       whereArgs.add('%$category%');
     }
@@ -561,16 +710,15 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     }
   }
 
-
   Future<List<TransactionModel>> fetchDataForYearMonthAndCategory(
-      String year,
-      String monthName,
-      int expenseCatId,
-      int incomeCatId,
-      String email,
-      int transactionType,
-      String category,
-      ) async {
+    String year,
+    String monthName,
+    int expenseCatId,
+    int incomeCatId,
+    String email,
+    int transactionType,
+    String category,
+  ) async {
     Database db = await database;
 
     String query = '''SELECT * FROM $transaction_table WHERE ''';
@@ -580,7 +728,8 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
       query += 'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?';
     }
 
-    query += ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
+    query +=
+        ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
 
     List<dynamic> whereArgs = [
       if (selectedMonthNumber != null)
@@ -597,13 +746,15 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
       query += ' AND ${TransactionFields.expense_cat_id} = ?';
       whereArgs.add(expenseCatId);
     } else if (expenseCatId != -1 && incomeCatId != -1) {
-      query += ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+      query +=
+          ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
       whereArgs.add(expenseCatId);
       whereArgs.add(incomeCatId);
     }
 
     if (category.isNotEmpty) {
-      query += ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
+      query +=
+          ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
       whereArgs.add('%$category%');
       whereArgs.add('%$category%');
     }
@@ -624,7 +775,6 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
       return [];
     }
   }
-
 
   Future<List<TransactionModel>> getTransactionList(
       String category, String email, int transactionType) async {
@@ -787,7 +937,8 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
   }
 
   static Future<List<TransactionModel>> getTasks() async {
-    final List<Map<String, dynamic>> tasks = await _database!.query(transaction_table);
+    final List<Map<String, dynamic>> tasks =
+        await _database!.query(transaction_table);
     return List.generate(tasks.length, (i) {
       return TransactionModel(
           id: tasks[i]['id'],
@@ -801,17 +952,27 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
           description: tasks[i]['description'],
           receipt_image1: tasks[i]['receipt_image1'],
           receipt_image2: tasks[i]['receipt_image2'],
-          receipt_image3: tasks[i]['receipt_image3']
-      );
+          receipt_image3: tasks[i]['receipt_image3']);
     });
   }
 
   static Future<String> exportAllToCSV() async {
     final tasks = await getTasks();
     List<List<dynamic>> rows = [
-      ['ID', 'member_email', 'amount', 'cat_name', 'cat_type', 'payment_method_name',
-        'transaction_date', 'transaction_type', 'description', 'receipt_image1',
-        'receipt_image2', 'receipt_image3']
+      [
+        'ID',
+        'member_email',
+        'amount',
+        'cat_name',
+        'cat_type',
+        'payment_method_name',
+        'transaction_date',
+        'transaction_type',
+        'description',
+        'receipt_image1',
+        'receipt_image2',
+        'receipt_image3'
+      ]
     ];
 
     /// Add transaction data
@@ -835,30 +996,28 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     return csv;
   }
 
-  Future<int> getCategoryID(String categoryName, int categoryType, int transactionType) async {
+  Future<int> getCategoryID(
+      String categoryName, int categoryType, int transactionType) async {
     String tableName = "";
     String fetchingId = "";
     String fetchingName = "";
 
-    if(transactionType == AppConstanst.spendingTransaction){
-      if(categoryType == 0){
+    if (transactionType == AppConstanst.spendingTransaction) {
+      if (categoryType == 0) {
         tableName = expense_category_table;
         fetchingId = ExpenseCategoryField.id;
         fetchingName = ExpenseCategoryField.name;
-      }
-      else{
+      } else {
         tableName = spending_sub_category_table;
         fetchingId = ExpenseSubCategoryFields.id;
         fetchingName = ExpenseSubCategoryFields.name;
       }
-    }
-    else{
-      if(categoryType == 0){
+    } else {
+      if (categoryType == 0) {
         tableName = income_category_table;
         fetchingId = CategoryFields.id;
         fetchingName = CategoryFields.name;
-      }
-      else{
+      } else {
         tableName = income_sub_category_table;
         fetchingId = IncomeSubCategoryFields.id;
         fetchingName = IncomeSubCategoryFields.name;
@@ -874,13 +1033,13 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
     if (result.isNotEmpty) {
       print(result);
       return result.first[fetchingId];
-
     } else {
       return -1; // or any other default value you prefer
     }
   }
 
-  Future<String?> getCategoryIcon(/*dynamic categoryId, */int categoryName, int categoryType, int transactionType) async {
+  Future<String?> getCategoryIcon(/*dynamic categoryId, */ int categoryName,
+      int categoryType, int transactionType) async {
     String tableName = "";
     String fetchingIcon = "";
     String fetchingName = "";
@@ -890,14 +1049,13 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
       tableName = income_category_table;
       fetchingIcon = CategoryFields.path;
       fetchingName = CategoryFields.id;
-    }
-    else{
+    } else {
       tableName = expense_category_table;
       fetchingIcon = ExpenseCategoryField.icons;
       fetchingName = ExpenseCategoryField.id;
     }
-      // }
-      /*else{
+    // }
+    /*else{
         tableName = spending_sub_category_table;
         fetchingIcon = ExpenseCategoryField.icons;
         fetchingName = ExpenseSubCategoryFields.name;
@@ -910,9 +1068,9 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
       }
     }*/
 
-      List<Map<String, dynamic>> result;
+    List<Map<String, dynamic>> result;
 
-      /* if (categoryId != null) {
+    /* if (categoryId != null) {
       result = await _database!.query(
         tableName,
         columns: [fetchingIcon],
@@ -920,73 +1078,68 @@ Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
         whereArgs: [categoryId],
       );
     } else {*/
-      result = await _database!.query(
-        tableName,
-        columns: [fetchingIcon],
-        where: '$fetchingName = ?',
-        whereArgs: [categoryName],
-      );
-      // }
+    result = await _database!.query(
+      tableName,
+      columns: [fetchingIcon],
+      where: '$fetchingName = ?',
+      whereArgs: [categoryName],
+    );
+    // }
 
-      if (result.isNotEmpty) {
-        return result.first[fetchingIcon];
-      } else {
-        return null; // Return null if category icon is not found
-      }
+    if (result.isNotEmpty) {
+      return result.first[fetchingIcon];
+    } else {
+      return null; // Return null if category icon is not found
     }
-
-
-
   }
+}
 
-  // Future<int?> getCategoryColor(/*dynamic categoryId, */String categoryName, int categoryType, int transactionType) async {
-  //   String tableName = "";
-  //   String fetchingColor = "";
-  //   String fetchingName = "";
-  //
-  //   if (transactionType == AppConstanst.incomeTransaction) {
-  //     if (categoryType == 0) {
-  //       tableName = income_category_table;
-  //       fetchingColor = CategoryFields.color;
-  //       fetchingName = CategoryFields.name;
-  //     }
-  //     /*else{
-  //       tableName = spending_sub_category_table;
-  //       fetchingIcon = ExpenseCategoryField.icons;
-  //       fetchingName = ExpenseSubCategoryFields.name;
-  //     }
-  //   }*/ /*else {
-  //     if (categoryType == 0) {
-  //       tableName = income_category_table;
-  //       fetchingIcon = CategoryFields.path;
-  //       fetchingName = CategoryFields.name;
-  //     }
-  //   }*/
-  //
-  //     List<Map<String, dynamic>> result;
-  //
-  //     /* if (categoryId != null) {
-  //     result = await _database!.query(
-  //       tableName,
-  //       columns: [fetchingIcon],
-  //       where: '${ExpenseCategoryField.id} = ?',
-  //       whereArgs: [categoryId],
-  //     );
-  //   } else {*/
-  //     result = await _database!.query(
-  //       tableName,
-  //       columns: [fetchingColor],
-  //       where: '$fetchingName = ?',
-  //       whereArgs: [categoryName],
-  //     );
-  //     // }
-  //
-  //     if (result.isNotEmpty) {
-  //       return result.first[fetchingColor];
-  //     } else {
-  //       return null; // Return null if category icon is not found
-  //     }
-  //   }
-  // }
-
-
+// Future<int?> getCategoryColor(/*dynamic categoryId, */String categoryName, int categoryType, int transactionType) async {
+//   String tableName = "";
+//   String fetchingColor = "";
+//   String fetchingName = "";
+//
+//   if (transactionType == AppConstanst.incomeTransaction) {
+//     if (categoryType == 0) {
+//       tableName = income_category_table;
+//       fetchingColor = CategoryFields.color;
+//       fetchingName = CategoryFields.name;
+//     }
+//     /*else{
+//       tableName = spending_sub_category_table;
+//       fetchingIcon = ExpenseCategoryField.icons;
+//       fetchingName = ExpenseSubCategoryFields.name;
+//     }
+//   }*/ /*else {
+//     if (categoryType == 0) {
+//       tableName = income_category_table;
+//       fetchingIcon = CategoryFields.path;
+//       fetchingName = CategoryFields.name;
+//     }
+//   }*/
+//
+//     List<Map<String, dynamic>> result;
+//
+//     /* if (categoryId != null) {
+//     result = await _database!.query(
+//       tableName,
+//       columns: [fetchingIcon],
+//       where: '${ExpenseCategoryField.id} = ?',
+//       whereArgs: [categoryId],
+//     );
+//   } else {*/
+//     result = await _database!.query(
+//       tableName,
+//       columns: [fetchingColor],
+//       where: '$fetchingName = ?',
+//       whereArgs: [categoryName],
+//     );
+//     // }
+//
+//     if (result.isNotEmpty) {
+//       return result.first[fetchingColor];
+//     } else {
+//       return null; // Return null if category icon is not found
+//     }
+//   }
+// }

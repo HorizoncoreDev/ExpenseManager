@@ -207,7 +207,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                       ),
                                       5.heightBox,
                                       Text(
-                                        'My family',
+                                        'My Accounts',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: Helper.getTextColor(context),

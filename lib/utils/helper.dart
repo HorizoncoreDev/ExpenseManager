@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:expense_manager/db_models/currency_model.dart';
+import 'package:expense_manager/db_models/language_model.dart';
 import 'package:expense_manager/db_models/payment_method_model.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
@@ -39,6 +41,21 @@ class Helper {
   static Color getCategoriesItemColors(BuildContext context) {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
     return themeNotifier.getTheme().dividerColor;
+  }
+
+  static Future<void> addCurrencyAndLanguages() async{
+    final databaseHelper = DatabaseHelper.instance;
+    List<CurrencyCategory> currencyTypes = [];
+    currencyTypes.add(CurrencyCategory(countryName: 'India', symbol: '₹', currencyCode: 'INR'));
+    currencyTypes.add(CurrencyCategory(countryName: 'US', symbol: '\$', currencyCode: 'USD'));
+    currencyTypes.add(CurrencyCategory(countryName: 'UK', symbol: "£", currencyCode: 'GBP'));
+    databaseHelper.insertAllCurrencyMethods(currencyTypes);
+
+    List<LanguageCategory> languageType = [];
+    languageType.add(LanguageCategory(name: 'Hindi', code: 'hi'));
+    languageType.add(LanguageCategory(name: 'English', code: 'en'));
+    languageType.add(LanguageCategory(name: 'Gujarati', code: 'gu'));
+    databaseHelper.insertAllLanguageMethods(languageType);
   }
 
   static Future<void> addDefaultCategories() async {
@@ -166,6 +183,9 @@ class Helper {
     paymentMethods.add( PaymentMethod(name: 'Online',status: 1,icon: 'ic_online_payment'));
     paymentMethods.add( PaymentMethod(name: 'Card',status: 1,icon: 'ic_card'));
     await databaseHelper.insertAllPaymentMethods(paymentMethods);
+
+
+
   }
 
   static Color getCardColor(BuildContext context) {
@@ -194,8 +214,8 @@ class Helper {
     AlertDialog alert=AlertDialog(
       content: Row(
         children: [
-          CircularProgressIndicator(),
-          Container(margin: EdgeInsets.only(left: 7),child:Text("Loading..." )),
+          const CircularProgressIndicator(),
+          Container(margin: const EdgeInsets.only(left: 7),child:const Text("Loading..." )),
         ],),
     );
     showDialog(barrierDismissible: false,
