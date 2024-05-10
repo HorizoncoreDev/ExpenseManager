@@ -1807,8 +1807,57 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
       } else {
         image3 = tmpFile;
       }
+      setState(() {
+      });
     } catch (e) {
       debugPrint('image-picker-error ${e.toString()}');
     }
+  }
+
+  void _showImage(BuildContext context,File image) async {
+    await showDialog(
+        context: context,
+        builder: (_) =>
+            AlertDialog(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                buttonPadding: EdgeInsets.zero,
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      style:
+                      const ButtonStyle(
+                        tapTargetSize:
+                        MaterialTapTargetSize
+                            .shrinkWrap, // the '2023' part
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.close),
+                      constraints: const BoxConstraints(),
+                    ),
+                    5.heightBox,
+                    Center(child:InteractiveViewer(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.file(image,
+                          frameBuilder: (BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded) {
+                            if (wasSynchronouslyLoaded) {
+                              return child;
+                            } else {
+                              return Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: Center(child: CircularProgressIndicator(color: Colors.blue,)),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),),
+                    10.heightBox,
+                  ],
+                )));
   }
 }
