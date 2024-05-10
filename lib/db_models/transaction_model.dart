@@ -113,7 +113,7 @@ class TransactionModel {
     this.last_updated,
   });
 
-  factory TransactionModel.fromMap(Map<String, dynamic> map) {
+  factory TransactionModel.fromMap(Map<dynamic, dynamic> map) {
     return TransactionModel(
       id: map['id'],
       key: map['key'],

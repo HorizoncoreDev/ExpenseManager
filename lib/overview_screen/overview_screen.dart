@@ -39,24 +39,32 @@ class OverviewScreenState extends State<OverviewScreen> {
   List<DateWiseTransactionModel> dateWiseSpendingTransaction = [];
   List<DateWiseTransactionModel> dateWiseIncomeTransaction = [];
   String userEmail = "";
+  String? userName="";
   int currentBalance = 0;
   int currentIncome = 0;
   int actualBudget = 0;
-  bool isSkippedUser = false;
+  bool isSkippedUser = false,loading = true;
   final databaseHelper = DatabaseHelper();
   ProfileModel profileModel = ProfileModel();
   List<TransactionModel> spendingTransaction = [];
 
+
   @override
   void initState() {
     MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
         .then((value) {
       if (value != null) {
         userEmail = value;
-      }
-      getTransactions();
-    });
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserName)
+            .then((value) {
+          if (value != null) {
+            userName = value;
+            getTransactions();
+          }
+        });
+      }});
 
     super.initState();
   }
@@ -144,10 +152,10 @@ class OverviewScreenState extends State<OverviewScreen> {
     }
   }
 
-  getTransactions() async {
+  getTransactions()  {
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-        .then((value) {
+        .then((value) async {
       if (value != null) {
         isSkippedUser = value;
         if (isSkippedUser) {
@@ -169,13 +177,13 @@ class OverviewScreenState extends State<OverviewScreen> {
         } else {
               getProfileData();
         }
-      }
-    });
+
+
 
     spendingTransaction = [];
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,userEmail)
+        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,userEmail,isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -206,10 +214,10 @@ class OverviewScreenState extends State<OverviewScreen> {
               SharedPreferencesKeys.skippedUserCurrentBalance,
               actualBudget.toString());
           currentBalance = actualBudget;
-          setState(() {});
+          setState(() {loading = false;});
         } else {
           currentBalance = actualBudget;
-          setState(() {});
+          setState(() {loading = false;});
           await DatabaseHelper.instance
               .getProfileData(userEmail)
               .then((profileData) async {
@@ -218,7 +226,8 @@ class OverviewScreenState extends State<OverviewScreen> {
 
           });
         }
-      } else {
+      }
+      else {
         dates.sort((a, b) => b.compareTo(a));
         for (var date in dates) {
           int totalAmount = 0;
@@ -244,15 +253,19 @@ class OverviewScreenState extends State<OverviewScreen> {
               transactionDay: Helper.getTransactionDay(date),
               transactions: newTransaction));
         }
-        setState(() {});
+        setState(() {loading = false;});
+      }
+
+
+    });
       }
     });
   }
 
-  getIncomeTransactions() async {
+  getIncomeTransactions()  {
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-        .then((value) {
+        .then((value) async {
       if (value != null) {
         isSkippedUser = value;
         if (isSkippedUser) {
@@ -271,22 +284,15 @@ class OverviewScreenState extends State<OverviewScreen> {
             }
           });
         } else {
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.userEmail)
-              .then((value) {
-            if (value != null) {
-              userEmail = value;
-              getProfileData();
-            }
-          });
+               getProfileData();
+
         }
-      }
-    });
+
 
     List<TransactionModel> incomeTransaction = [];
     dateWiseIncomeTransaction = [];
     await DatabaseHelper.instance
-        .getTransactions(AppConstanst.incomeTransaction)
+        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction,userEmail,isSkippedUser)
         .then((value) async {
       incomeTransaction = value;
       List<String> dates = [];
@@ -350,6 +356,9 @@ class OverviewScreenState extends State<OverviewScreen> {
         setState(() {});
       }
     });
+
+      }
+    });
   }
 
   @override
@@ -390,7 +399,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "\u20B9${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
+                                          "${userName ?? 'Guest'}: \u20B9${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
                                           style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -425,7 +434,22 @@ class OverviewScreenState extends State<OverviewScreen> {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                             const OtherScreen()),
-                                      );
+                                      ).then((value) {
+                                        MySharedPreferences.instance
+                                            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+                                            .then((value) {
+                                          if (value != null) {
+                                            userEmail = value;
+                                            MySharedPreferences.instance
+                                                .getStringValuesSF(SharedPreferencesKeys.currentUserName)
+                                                .then((value) {
+                                              if (value != null) {
+                                                userName = value;
+                                                getTransactions();
+                                              }
+                                            });
+                                          }});
+                                      });
                                     },
                                     child: Container(
                                         padding: const EdgeInsets.all(5),
@@ -454,6 +478,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 Tab(child: Text("Income")),
                               ],
                               onTap: (index) {
+                               setState(() {
+                                 loading = true;
+                               });
                                 AppConstanst.selectedTabIndex = index;
                                 if (index == 0) {
                                   getTransactions();
@@ -462,6 +489,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 }
                               },
                             ),
+
                             Expanded(
                               child: TabBarView(
                                   physics: const NeverScrollableScrollPhysics(),
@@ -631,143 +659,128 @@ class OverviewScreenState extends State<OverviewScreen> {
                 ),
               ],
             ),
-            if (dateWiseSpendingTransaction.isNotEmpty) 20.heightBox,
-            if (dateWiseSpendingTransaction.isNotEmpty )
+
+            if (dateWiseSpendingTransaction.isNotEmpty ) 20.heightBox,
+            if(loading)
+              100.heightBox,
+            if(loading)
+            const CircularProgressIndicator(color: Colors.blue,),
+
+            if (dateWiseSpendingTransaction.isNotEmpty && !loading)
               ListView.separated(
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
                 itemCount: dateWiseSpendingTransaction.length,
                 itemBuilder: (context, index) {
-                  if (dateWiseSpendingTransaction[index]
+                 if (dateWiseSpendingTransaction.isNotEmpty && dateWiseSpendingTransaction[index]
                       .transactions!
-                      .isNotEmpty ) {
-                    return Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "${dateWiseSpendingTransaction[index].transactionDay}, ${dateWiseSpendingTransaction[index].transactionDate}",
-                            style: const TextStyle(
-                                color: Colors.grey, fontSize: 14),
-                          ),
-                          Text(
-                            "-\u20B9${dateWiseSpendingTransaction[index].transactionTotal}",
-                            style: const TextStyle(
-                                color: Colors.pink, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                      15.heightBox,
-                      if (dateWiseSpendingTransaction[index]
-                          .transactions!
-                          .isNotEmpty )
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const ScrollPhysics(),
-                          itemCount: dateWiseSpendingTransaction[index].transactions!.length,
-                          itemBuilder: (context, index1) {
-                            final transaction = dateWiseSpendingTransaction[index].transactions![index1];
-                            return Dismissible(
-                              key: Key(transaction.id.toString()), // Unique key for each item
-                              direction: DismissDirection.endToStart, // Allow swiping from right to left
-                              background: Container(),
-                              secondaryBackground: Container(
-                                color: Colors.red,
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
-                                alignment: Alignment.centerRight,
-                                child: const Icon(Icons.delete, color: Colors.white),
+                      .isNotEmpty) {
+                  return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "${dateWiseSpendingTransaction[index].transactionDay}, ${dateWiseSpendingTransaction[index].transactionDate}",
+                          style: const TextStyle(
+                              color: Colors.grey, fontSize: 14),
+                        ),
+                        Text(
+                          "-\u20B9${dateWiseSpendingTransaction[index].transactionTotal}",
+                          style: const TextStyle(
+                              color: Colors.pink, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                    15.heightBox,
+                    if (dateWiseSpendingTransaction[index]
+                        .transactions!
+                        .isNotEmpty )
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const ScrollPhysics(),
+                        itemCount: dateWiseSpendingTransaction[index].transactions!.length,
+                        itemBuilder: (context, index1) {
+                          final transaction = dateWiseSpendingTransaction[index].transactions![index1];
+                          return Dismissible(
+                            key: Key(transaction.id.toString()), // Unique key for each item
+                            direction: DismissDirection.endToStart, // Allow swiping from right to left
+                            background: Container(),
+                            secondaryBackground: Container(
+                              color: Colors.red,
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              alignment: Alignment.centerRight,
+                              child: const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            confirmDismiss: (direction) async {
+                              return await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text("Confirm"),
+                                    content: const Text("Are you sure you want to delete this transaction?"),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(false),
+                                        child: const Text("Cancel"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                        },
+                                        child: const Text("Delete"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            onDismissed: (direction) async {
+                              setState(() {
+                                dateWiseSpendingTransaction[index].transactions!.removeAt(index1);
+                              });
+                              await databaseHelper.deleteTransactionFromDB(transaction);
+
+                              setState(() {
+                                currentBalance = currentBalance + transaction.amount!;
+                              });
+                              await DatabaseHelper.instance
+                                  .getProfileData(userEmail)
+                                  .then((profileData) async {
+                                    profileData!.current_balance = currentBalance.toString();
+                                await DatabaseHelper.instance.updateProfileData(profileData);
+
+                                getTransactions();
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Helper.getCardColor(context),
+                                borderRadius: const BorderRadius.all(Radius.circular(10)),
                               ),
-                              confirmDismiss: (direction) async {
-                                return await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text("Confirm"),
-                                      content: const Text("Are you sure you want to delete this transaction?"),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () => Navigator.of(context).pop(false),
-                                          child: const Text("Cancel"),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop(true);
-                                          },
-                                          child: const Text("Delete"),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              onDismissed: (direction) async {
-                                setState(() {
-                                  dateWiseSpendingTransaction[index].transactions!.removeAt(index1);
-                                });
-                                await databaseHelper.deleteTransactionFromDB(transaction);
-
-                                setState(() {
-                                  currentBalance = currentBalance + transaction.amount!;
-                                });
-                                await DatabaseHelper.instance
-                                    .getProfileData(userEmail)
-                                    .then((profileData) async {
-                                      profileData!.current_balance = currentBalance.toString();
-                                  await DatabaseHelper.instance.updateProfileData(profileData);
-
-                                  getTransactions();
-                                });
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Helper.getCardColor(context),
-                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(5),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                                      ),
-                                      child: SvgPicture.asset(
-                                        'asset/images/${transaction.cat_icon}.svg',
-                                        color: transaction.cat_color,
-                                        width: 24,
-                                        height: 24,
-                                      ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.all(Radius.circular(10)),
                                     ),
-                                    const SizedBox(width: 15),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            transaction.cat_name!,
-                                            style: TextStyle(
-                                              color: Helper.getTextColor(context),
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text(
-                                            transaction.description!,
-                                            style: TextStyle(
-                                              color: Helper.getTextColor(context),
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                    child: SvgPicture.asset(
+                                      'asset/images/${transaction.cat_icon}.svg',
+                                      color: transaction.cat_color,
+                                      width: 24,
+                                      height: 24,
                                     ),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                  ),
+                                  const SizedBox(width: 15),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "-\u20B9${transaction.amount!}",
+                                          transaction.cat_name!,
                                           style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 16,
@@ -775,7 +788,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           ),
                                         ),
                                         Text(
-                                          transaction.payment_method_name!,
+                                          transaction.description!,
                                           style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 14,
@@ -783,27 +796,48 @@ class OverviewScreenState extends State<OverviewScreen> {
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        "-\u20B9${transaction.amount!}",
+                                        style: TextStyle(
+                                          color: Helper.getTextColor(context),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        transaction.payment_method_name!,
+                                        style: TextStyle(
+                                          color: Helper.getTextColor(context),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            );
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return const SizedBox(height: 10);
-                          },
+                            ),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const SizedBox(height: 10);
+                        },
 
-                        ),
+                      ),
 
-                    ],
-                  );
-                  }
+                  ],
+                );
+                 }
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return 10.heightBox;
                 },
               ),
             if (dateWiseSpendingTransaction.isEmpty) 15.heightBox,
-            if (dateWiseSpendingTransaction.isEmpty)
+            if (dateWiseSpendingTransaction.isEmpty && !loading)
               Container(
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),

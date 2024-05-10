@@ -67,12 +67,18 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
   @override
   void initState() {
     MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
         .then((value) {
       if (value != null) {
         userEmail = value;
       }
-      getTransactions("");
+      MySharedPreferences.instance
+          .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+          .then((value) async {
+        if (value != null) {
+          isSkippedUser = value;
+          getTransactions("");
+        }});
     });
     getCategories();
     super.initState();
@@ -112,11 +118,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
 
     // showYear = DateFormat('yyyy').format(DateTime.now());
     //showMonth = DateFormat('MMMM').format(DateTime.now());
-    MySharedPreferences.instance
-        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-        .then((value) {
-      if (value != null) {
-        isSkippedUser = value;
+
         if (isSkippedUser) {
           MySharedPreferences.instance
               .getStringValuesSF(
@@ -134,31 +136,32 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
               });
             }
           });
-        } else {
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.userEmail)
-              .then((value) {
-            if (value != null) {
-              userEmail = value;
-              getProfileData();
-            }
-          });
         }
-      }
-    });
+        else {
+              getProfileData();
+
+        }
+
 
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
         .getTransactionList(
-            category.toLowerCase(), userEmail, AppConstanst.spendingTransaction)
+            category.toLowerCase(), userEmail, AppConstanst.spendingTransaction,isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
+      DateTime now = DateTime.now();
+      String currentMonthName = DateFormat('MMMM').format(now);
 
       for (var t in spendingTransaction) {
-        if (!dates.contains(t.transaction_date!.split(' ')[0])) {
-          dates.add(t.transaction_date!.split(' ')[0]);
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(t.transaction_date!);
+        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+        if (transactionMonthName == currentMonthName) {
+          if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+            dates.add(t.transaction_date!.split(' ')[0]);
+          }
         }
       }
 
@@ -205,6 +208,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
       spendingPercentage = totalMonthlySpentAmount > 0 ? 100 - percentage : 0;
       setState(() {});
     });
+
+
   }
 
   @override
@@ -680,9 +685,21 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        if(isFilterCleared){
-                          Navigator.pop(context);
-                          getTransactions("");
+                        if(isFilterCleared ){
+                          isFilterCleared = false;
+                          if (showYear != "Select Year" &&
+                              selectedMonths.isNotEmpty) {
+                            Navigator.pop(context);
+                            getFilteredData("");
+                          } if(showYear == "Select Year" ||
+                              selectedMonths.isEmpty){
+                            Navigator.pop(context);
+                            getTransactions("");
+                          }else if (showYear == "Select Year" ||
+                              selectedMonths.isEmpty) {
+                            Helper.showToast(
+                                "Please ensure you select a year and month to retrieve data");
+                          }
                         }else {
                           isFilterCleared = false;
                           if (showYear != "Select Year" &&
@@ -981,7 +998,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                 : -1,
             -1,
             userEmail,
-            AppConstanst.spendingTransaction,value)
+            AppConstanst.spendingTransaction,value,isSkippedUser)
         .then((value) {
       spendingTransaction = value;
       List<String> dates = [];

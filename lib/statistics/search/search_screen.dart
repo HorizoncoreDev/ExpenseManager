@@ -55,18 +55,25 @@ class _SearchScreenState extends State<SearchScreen> {
   List<MonthData> selectedMonths = [];
   String selectedCategory = "";
   int selectedCategoryIndex = -1;
-
+  bool isSkippedUser = false;
   bool isFilterCleared = false;
 
   @override
   void initState() {
     MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
-        .then((value) {
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) async {
       if (value != null) {
-        userEmail = value;
+        isSkippedUser = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+            .then((value) {
+          if (value != null) {
+            userEmail = value;
+          }
+          getTransactions("");
+        });
       }
-      getTransactions("");
     });
     getCategories();
     super.initState();
@@ -111,7 +118,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     await DatabaseHelper.instance
         .fetchAllDataForYearMonthsAndCategory(showYear, selectedMonths,
-            expenseCatId, incomeCatId, userEmail, value)
+            expenseCatId, incomeCatId, userEmail, value,isSkippedUser)
         .then((value) {
       spendingTransaction = value;
       List<String> dates = [];
@@ -339,8 +346,10 @@ class _SearchScreenState extends State<SearchScreen> {
   getTransactions(String category) async {
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
+
     await DatabaseHelper.instance
-        .getTransactionList(category.toLowerCase(), userEmail, -1)
+        .getTransactionList(
+            category.toLowerCase(), userEmail, -1, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -399,19 +408,6 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  filterList(String category) async {
-    List<DateWiseTransactionModel> tempDateWiseTransaction = [];
-    for (var d in dateWiseTransaction) {
-      for (var t in d.transactions!) {
-        if (t.cat_name!.toLowerCase().contains(category.toLowerCase())) {
-          tempDateWiseTransaction.add(d);
-        }
-      }
-    }
-    setState(() {
-      dateWiseTransaction = tempDateWiseTransaction;
-    });
-  }
 
   Widget _transactionView() {
     return Flexible(
@@ -433,7 +429,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     dateWiseTransaction[index].transactionTotal! < 0
                         ? "-\u20B9${dateWiseTransaction[index].transactionTotal.toString().replaceAll("-", '')}"
                         : '+\u20B9${dateWiseTransaction[index].transactionTotal}',
-                    style: const TextStyle(color: Colors.pink, fontSize: 14),
+                    style: TextStyle(color: dateWiseTransaction[index].transactionTotal! < 0?Colors.pink:Colors.green, fontSize: 14),
                   ),
                 ],
               ),

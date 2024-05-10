@@ -9,6 +9,7 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -221,10 +222,8 @@ class DatabaseHelper {
         whereArgs: [profileModel.email]);
 
     final Map<String, Map> updates = {};
-    updates['/$profile_table/${profileModel.key}'] =
-        profileModel.toMap();
+    updates['/$profile_table/${profileModel.key}'] = profileModel.toMap();
     FirebaseDatabase.instance.ref().update(updates);
-
   }
 
   // A method that retrieves Profile Data from the Profile table.
@@ -236,7 +235,7 @@ class DatabaseHelper {
   }
 
   Future<ProfileModel?> getProfileData(String email) async {
-    Database db = await database;
+   /* Database db = await database;
     final map = await db.rawQuery(
         "SELECT * FROM $profile_table WHERE ${ProfileTableFields.email} = ?",
         [email]);
@@ -245,7 +244,27 @@ class DatabaseHelper {
       return ProfileModel.fromJson(map.first);
     } else {
       return null;
-    }
+    }*/
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(profile_table)
+        .orderByChild('email')
+        .equalTo(email);
+
+    Completer<ProfileModel> completer = Completer<ProfileModel>();
+
+    reference.once().then((event) async {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+        dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+          ProfileModel?  profileModel = ProfileModel.fromMap(value);
+          completer.complete(profileModel);
+        });
+        }
+      });
+return completer.future;
   }
 
   Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
@@ -261,7 +280,8 @@ class DatabaseHelper {
     }
   }
 
-  Future<void> deleteTransactionFromDB(TransactionModel transactionModel) async {
+  Future<void> deleteTransactionFromDB(
+      TransactionModel transactionModel) async {
     Database db = await instance.database;
     await db.delete(
       transaction_table,
@@ -269,9 +289,9 @@ class DatabaseHelper {
       whereArgs: [transactionModel.id],
     );
 
-    final reference = FirebaseDatabase.instance.reference().child(transaction_table);
+    final reference =
+        FirebaseDatabase.instance.reference().child(transaction_table);
     reference.child(transactionModel.key!).remove();
-
   }
 
   Future<void> insertCategory(ExpenseCategory category) async {
@@ -377,17 +397,20 @@ class DatabaseHelper {
   }
 
   // Insert Transaction Detail
-  Future<int> insertTransactionData(TransactionModel transactionModel) async {
+  Future<int> insertTransactionData(
+      TransactionModel transactionModel, bool isSkippedUser) async {
     Database db = await database;
-
-    FirebaseDatabase.instance
-        .reference()
-        .child(transaction_table)
-        .child(FirebaseAuth.instance.currentUser!.uid)
-        .set(
-      transactionModel.toMap(),
-    );
-
+    if (!isSkippedUser) {
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(transaction_table)
+          .child(FirebaseAuth.instance.currentUser!.uid);
+      var newPostRef = reference.push();
+      transactionModel.key = newPostRef.key;
+      newPostRef.set(
+        transactionModel.toMap(),
+      );
+    }
     return await db.insert(transaction_table, transactionModel.toMap());
   }
 
@@ -418,55 +441,63 @@ class DatabaseHelper {
 
   //Get transaction data for current month
   Future<List<TransactionModel>> fetchDataForCurrentMonth(
-      int transactionType, String email) async {
-    Database db = await database;
-    // Get the current month and year
+      int transactionType, String email, bool isSkippedUser) async {
     DateTime now = DateTime.now();
     int currentMonth = now.month;
     int currentYear = now.year;
+    if (isSkippedUser) {
+      Database db = await database;
+      final List<Map<String, dynamic>> result = await db.query(
+        transaction_table,
+        where: 'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?'
+            ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) =?'
+            ' AND ${TransactionFields.transaction_type} = ?'
+            ' AND ${TransactionFields.member_email} = ?',
+        whereArgs: [
+          (currentMonth.toString().padLeft(2, '0')),
+          (currentYear.toString()),
+          transactionType,
+          email,
+        ],
+        orderBy: '${TransactionFields.transaction_date} DESC',
+      );
 
-    final List<Map<String, dynamic>> result = await db.query(
-      transaction_table,
-      where: 'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?'
-          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) =?'
-          ' AND ${TransactionFields.transaction_type} = ?'
-          ' AND ${TransactionFields.member_email} = ?',
-      whereArgs: [
-        (currentMonth.toString().padLeft(2, '0')),
-        (currentYear.toString()),
-        transactionType,
-        email,
-      ],
-      orderBy: '${TransactionFields.transaction_date} DESC',
-    );
+      return List.generate(
+          result.length, (index) => TransactionModel.fromMap(result[index]));
+    } else {
+      Completer<List<TransactionModel>> completer =
+          Completer<List<TransactionModel>>();
+      List<TransactionModel> transactions = [];
+      final reference = await FirebaseDatabase.instance
+          .reference()
+          .child(transaction_table)
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .orderByChild(TransactionFields.member_email)
+          .equalTo(email);
 
-    return List.generate(
-        result.length, (index) => TransactionModel.fromMap(result[index]));
-  /*  DateTime now = DateTime.now();
-    int currentMonth = now.month;
-    int currentYear = now.year;
+      reference.once().then((value) {
+        DataSnapshot dataSnapshot = value.snapshot;
+        if (value.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+              dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            DateTime transactionDate = DateFormat('dd/MM/yyyy HH:mm')
+                .parse(value[TransactionFields.transaction_date]);
 
-    DatabaseReference transactionsRef = FirebaseDatabase.instance.reference().child(transaction_table).child(FirebaseAuth.instance.currentUser!.uid).child(currentYear.toString()).child(currentMonth.toString());
+            if (value[TransactionFields.transaction_type] == transactionType &&
+                transactionDate.month == currentMonth &&
+                transactionDate.year == currentYear) {
+              transactions.add(TransactionModel.fromMap(value));
+            }
+          });
+        }
+        completer.complete(transactions);
+      }).catchError((error) {
+        completer.completeError(error);
+      });
 
-    final reference = await transactionsRef
-        .orderByChild('member_email')
-        .equalTo(email);
-
-    List<TransactionModel> transactions = [];
-    reference.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if(event.snapshot.exists){
-        Map<dynamic, dynamic> values =
-        dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) async {
-          if(value[TransactionFields.transaction_type]==transactionType) {
-            transactions.add(TransactionModel.fromMap(value));
-          }
-        });
-      }
-    });*/
-
-    return transactions;
+      return completer.future;
+    }
   }
 
   final Map<String, int> monthNameToNumber = {
@@ -490,60 +521,117 @@ class DatabaseHelper {
       int expenseCatId,
       int incomeCatId,
       String email,
-      String category) async {
-    Database db = await database;
-    String query = '''SELECT * FROM $transaction_table WHERE ''';
-
+      String category,
+      bool isSkippedUser) async {
     List<int> selectedMonthNumbers = months
         .map((monthData) => monthNameToNumber[monthData.text])
         .where((monthNumber) => monthNumber != null)
         .map((monthNumber) => monthNumber!)
         .toList();
 
-    List<String> conditions = [];
+    if (isSkippedUser) {
+      Database db = await database;
+      String query = '''SELECT * FROM $transaction_table WHERE ''';
 
-    for (int month in selectedMonthNumbers) {
-      conditions.add('SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?');
-    }
+      List<String> conditions = [];
 
-    query +=
-        '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
-    query +=
-        ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ?';
-    List<dynamic> whereArgs = [
-      ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
-      year,
-      email
-    ];
+      for (int month in selectedMonthNumbers) {
+        conditions
+            .add('SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?');
+      }
 
-    if (expenseCatId != -1 || incomeCatId != -1) {
       query +=
-          ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
-      whereArgs.add(expenseCatId);
-      whereArgs.add(incomeCatId);
-    }
-
-    if (category.isNotEmpty) {
+          '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
       query +=
-          ' AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE';
-      whereArgs.add('%$category%');
-      whereArgs.add('%$category%');
-    }
+          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ?';
+      List<dynamic> whereArgs = [
+        ...selectedMonthNumbers
+            .map((month) => month.toString().padLeft(2, '0')),
+        year,
+        email
+      ];
 
-    query += ' ORDER BY ${TransactionFields.transaction_date} DESC';
+      if (expenseCatId != -1 || incomeCatId != -1) {
+        query +=
+            ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+        whereArgs.add(expenseCatId);
+        whereArgs.add(incomeCatId);
+      }
 
-    print('object..$query..${whereArgs}');
-    try {
-      List<Map<String, dynamic>> result = await db.rawQuery(
-        query,
-        whereArgs,
-      );
+      if (category.isNotEmpty) {
+        query +=
+            ' AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE';
+        whereArgs.add('%$category%');
+        whereArgs.add('%$category%');
+      }
 
-      return List.generate(
-          result.length, (index) => TransactionModel.fromMap(result[index]));
-    } catch (e) {
-      print('Error fetching data: $e');
-      return [];
+      query += ' ORDER BY ${TransactionFields.transaction_date} DESC';
+
+      print('object..$query..${whereArgs}');
+      try {
+        List<Map<String, dynamic>> result = await db.rawQuery(
+          query,
+          whereArgs,
+        );
+
+        return List.generate(
+            result.length, (index) => TransactionModel.fromMap(result[index]));
+      } catch (e) {
+        print('Error fetching data: $e');
+        return [];
+      }
+    } else {
+      Completer<List<TransactionModel>> completer =
+          Completer<List<TransactionModel>>();
+      List<TransactionModel> transactions = [];
+      final reference = await FirebaseDatabase.instance
+          .reference()
+          .child(transaction_table)
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .orderByChild(TransactionFields.member_email)
+          .equalTo(email);
+
+
+      List<String> months = selectedMonthNumbers
+          .map((month) => month.toString().padLeft(2, '0'))
+          .toList();
+
+      reference.once().then((value) {
+        DataSnapshot dataSnapshot = value.snapshot;
+        if (value.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+              dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            if (months.contains(value[TransactionFields.transaction_date].substring(3, 5))
+                &&
+                value[TransactionFields.transaction_date].substring(6, 10) ==
+                    year) {
+              if ((expenseCatId == -1 ||
+                      value[TransactionFields.expense_cat_id] ==
+                          expenseCatId) &&
+                  (incomeCatId == -1 ||
+                      value[TransactionFields.income_cat_id] == incomeCatId) &&
+                  (category.isEmpty ||
+                      value[TransactionFields.cat_name]
+                          .toLowerCase()
+                          .contains(category.toLowerCase()) ||
+                      value[TransactionFields.description]
+                          .toLowerCase()
+                          .contains(category.toLowerCase()))) {
+                transactions.add(TransactionModel.fromMap(value));
+              }
+            }
+          });
+          // Sort transactions by transaction date in descending order
+          transactions.sort(
+              (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
+        }
+        completer.complete(transactions);
+      }).catchError((error) {
+        completer.completeError(error);
+      });
+
+      return completer.future;
     }
   }
 
@@ -554,69 +642,124 @@ class DatabaseHelper {
       int incomeCatId,
       String email,
       int transactionType,
-      String category) async {
-    Database db = await database;
-
-    String query = '''SELECT * FROM $transaction_table WHERE ''';
-
+      String category,
+      bool isSkippedUser) async {
     List<int> selectedMonthNumbers = months
         .map((monthData) => monthNameToNumber[monthData.text])
         .where((monthNumber) => monthNumber != null)
         .map((monthNumber) => monthNumber!)
         .toList();
+    if (isSkippedUser) {
+      Database db = await database;
 
-    List<String> conditions = [];
-    List<dynamic> whereArgs = [];
-    for (int month in selectedMonthNumbers) {
-      conditions.add('SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?');
-    }
+      String query = '''SELECT * FROM $transaction_table WHERE ''';
 
-    query +=
-        '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
-    query +=
-        ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
+      List<String> conditions = [];
+      List<dynamic> whereArgs = [];
+      for (int month in selectedMonthNumbers) {
+        conditions
+            .add('SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?');
+      }
 
-    whereArgs = [
-      ...selectedMonthNumbers.map((month) => month.toString().padLeft(2, '0')),
-      year,
-      email,
-      transactionType
-    ];
-
-    if (expenseCatId == -1 && incomeCatId != -1) {
-      query += ' AND ${TransactionFields.income_cat_id} = ?';
-      whereArgs.add(incomeCatId);
-    } else if (expenseCatId != -1 && incomeCatId == -1) {
-      query += ' AND ${TransactionFields.expense_cat_id} = ?';
-      whereArgs.add(expenseCatId);
-    } else if (expenseCatId != -1 && incomeCatId != -1) {
       query +=
-          ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
-      whereArgs.add(expenseCatId);
-      whereArgs.add(incomeCatId);
-    }
-
-    if (category.isNotEmpty) {
+          '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
       query +=
-          ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
-      whereArgs.add('%$category%');
-      whereArgs.add('%$category%');
-    }
+          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
 
-    query += ' ORDER BY ${TransactionFields.transaction_date} DESC';
+      whereArgs = [
+        ...selectedMonthNumbers
+            .map((month) => month.toString().padLeft(2, '0')),
+        year,
+        email,
+        transactionType
+      ];
 
-    print('object.  query...${query}');
-    print('object.  Arguments...${whereArgs}');
-    try {
-      List<Map<String, dynamic>> result = await db.rawQuery(
-        query,
-        whereArgs,
-      );
-      return List.generate(
-          result.length, (index) => TransactionModel.fromMap(result[index]));
-    } catch (e) {
-      print('Error fetching data: $e');
-      return [];
+      if (expenseCatId == -1 && incomeCatId != -1) {
+        query += ' AND ${TransactionFields.income_cat_id} = ?';
+        whereArgs.add(incomeCatId);
+      } else if (expenseCatId != -1 && incomeCatId == -1) {
+        query += ' AND ${TransactionFields.expense_cat_id} = ?';
+        whereArgs.add(expenseCatId);
+      } else if (expenseCatId != -1 && incomeCatId != -1) {
+        query +=
+            ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+        whereArgs.add(expenseCatId);
+        whereArgs.add(incomeCatId);
+      }
+
+      if (category.isNotEmpty) {
+        query +=
+            ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
+        whereArgs.add('%$category%');
+        whereArgs.add('%$category%');
+      }
+
+      query += ' ORDER BY ${TransactionFields.transaction_date} DESC';
+
+      print('object.  query...${query}');
+      print('object.  Arguments...${whereArgs}');
+      try {
+        List<Map<String, dynamic>> result = await db.rawQuery(
+          query,
+          whereArgs,
+        );
+        return List.generate(
+            result.length, (index) => TransactionModel.fromMap(result[index]));
+      } catch (e) {
+        print('Error fetching data: $e');
+        return [];
+      }
+    } else {
+      Completer<List<TransactionModel>> completer =
+          Completer<List<TransactionModel>>();
+      List<TransactionModel> transactions = [];
+      final reference = await FirebaseDatabase.instance
+          .reference()
+          .child(transaction_table)
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .orderByChild(TransactionFields.member_email)
+          .equalTo(email);
+
+      List<String> months = selectedMonthNumbers
+          .map((month) => month.toString().padLeft(2, '0'))
+          .toList();
+      reference.once().then((value) {
+        DataSnapshot dataSnapshot = value.snapshot;
+        if (value.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+              dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            if (months[0] == value['transaction_date'].substring(3, 5) &&
+                value[TransactionFields.transaction_date].substring(6, 10) ==
+                    year &&
+                value[TransactionFields.transaction_type] == transactionType &&
+                ((expenseCatId == -1 && incomeCatId == -1) ||
+                    (expenseCatId != -1 &&
+                        value[TransactionFields.expense_cat_id] ==
+                            expenseCatId) ||
+                    (incomeCatId != -1 &&
+                        value[TransactionFields.income_cat_id] ==
+                            incomeCatId)) &&
+                (category.isEmpty ||
+                    value[TransactionFields.cat_name]
+                        .toLowerCase()
+                        .contains(category.toLowerCase()) ||
+                    value[TransactionFields.description]
+                        .toLowerCase()
+                        .contains(category.toLowerCase()))) {
+              transactions.add(TransactionModel.fromMap(value));
+            }
+          });
+          // Sort transactions by transaction date in descending order
+          transactions.sort(
+              (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
+        }
+        completer.complete(transactions);
+      }).catchError((error) {
+        completer.completeError(error);
+      });
+
+      return completer.future;
     }
   }
 
@@ -686,67 +829,112 @@ class DatabaseHelper {
     }
   }
 
-  Future<List<TransactionModel>> getTransactionList(
-      String category, String email, int transactionType) async {
-    Database db = await database;
+  Future<List<TransactionModel>> getTransactionList(String category,
+      String email, int transactionType, bool isSkippedUser) async {
+    if (isSkippedUser) {
+      Database db = await database;
 
-    String query = '''SELECT * FROM $transaction_table WHERE ''';
-    List<dynamic> whereArgs = [];
+      String query = '''SELECT * FROM $transaction_table WHERE ''';
+      List<dynamic> whereArgs = [];
 
-    DateTime now = DateTime.now();
-    int currentMonth = now.month;
-    int currentYear = now.year;
+      DateTime now = DateTime.now();
+      int currentMonth = now.month;
+      int currentYear = now.year;
 
-    query += '(SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?) '
-        'AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? '
-        'AND ${TransactionFields.member_email} = ? ';
+      query += '(SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?) '
+          'AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? '
+          'AND ${TransactionFields.member_email} = ? ';
 
-    whereArgs = [
-      (currentMonth.toString().padLeft(2, '0')),
-      (currentYear.toString()),
-      email
-    ];
+      whereArgs = [
+        (currentMonth.toString().padLeft(2, '0')),
+        (currentYear.toString()),
+        email
+      ];
 
-    if (transactionType == -1) {
-      if (category.isNotEmpty) {
-        query += 'AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE '
-            'OR ${TransactionFields.description} LIKE ? COLLATE NOCASE) ';
-        whereArgs.add('%$category%');
-        whereArgs.add('%$category%');
-      }
-    } else {
-      if (category.isNotEmpty) {
-        query += 'AND ${TransactionFields.transaction_type} = ? '
-            'AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE '
-            'OR ${TransactionFields.description} LIKE ? COLLATE NOCASE) ';
-        whereArgs.add(transactionType);
-        whereArgs.add('%$category%');
-        whereArgs.add('%$category%');
+      if (transactionType == -1) {
+        if (category.isNotEmpty) {
+          query += 'AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE '
+              'OR ${TransactionFields.description} LIKE ? COLLATE NOCASE) ';
+          whereArgs.add('%$category%');
+          whereArgs.add('%$category%');
+        }
       } else {
-        query += 'AND ${TransactionFields.transaction_type} = ?';
-        whereArgs.add(transactionType);
+        if (category.isNotEmpty) {
+          query += 'AND ${TransactionFields.transaction_type} = ? '
+              'AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE '
+              'OR ${TransactionFields.description} LIKE ? COLLATE NOCASE) ';
+          whereArgs.add(transactionType);
+          whereArgs.add('%$category%');
+          whereArgs.add('%$category%');
+        } else {
+          query += 'AND ${TransactionFields.transaction_type} = ?';
+          whereArgs.add(transactionType);
+        }
       }
-    }
-    query += ' ORDER BY ${TransactionFields.transaction_date} DESC';
-    print('object.  query...${query}');
-    print('object.  Arguments...${whereArgs}');
-    List<Map<String, dynamic>> result = await db.rawQuery(
-      query,
-      whereArgs,
-    );
+      query += ' ORDER BY ${TransactionFields.transaction_date} DESC';
+      print('object.  query...${query}');
+      print('object.  Arguments...${whereArgs}');
+      List<Map<String, dynamic>> result = await db.rawQuery(
+        query,
+        whereArgs,
+      );
 
-    return List.generate(
-        result.length, (index) => TransactionModel.fromMap(result[index]));
+      return List.generate(
+          result.length, (index) => TransactionModel.fromMap(result[index]));
+    } else {
+      Completer<List<TransactionModel>> completer =
+          Completer<List<TransactionModel>>();
+      List<TransactionModel> transactions = [];
+      final reference = await FirebaseDatabase.instance
+          .reference()
+          .child(transaction_table)
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .orderByChild(TransactionFields.member_email)
+          .equalTo(email);
+
+      reference.once().then((value) {
+        DataSnapshot dataSnapshot = value.snapshot;
+        if (value.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+              dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            if ((category.isEmpty ||
+                value[TransactionFields.cat_name]
+                    .toLowerCase()
+                    .contains(category.toLowerCase()) ||
+                value[TransactionFields.description]
+                    .toLowerCase()
+                    .contains(category.toLowerCase()))) {
+              if (transactionType != -1 &&
+                  value[TransactionFields.transaction_type] ==
+                      transactionType) {
+                transactions.add(TransactionModel.fromMap(value));
+              } else {
+                transactions.add(TransactionModel.fromMap(value));
+              }
+            }
+          });
+          // Sort transactions by transaction date in descending order
+          transactions.sort(
+              (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
+        }
+        completer.complete(transactions);
+      }).catchError((error) {
+        completer.completeError(error);
+      });
+
+      return completer.future;
+    }
   }
 
-  // Update Transaction Detail
+// Update Transaction Detail
   Future<void> updateTransactionData(TransactionModel transactionModel) async {
     var db = await database;
     await db.update(transaction_table, transactionModel.toMap(),
         where: '${TransactionFields.id} = ?', whereArgs: [transactionModel.id]);
   }
 
-  // Insert Income Sub Category
+// Insert Income Sub Category
   Future<void> insertIncomeSubCategory(
       int categoryId, IncomeSubCategory incomeSubCategory) async {
     incomeSubCategory.categoryId = categoryId;
@@ -754,7 +942,7 @@ class DatabaseHelper {
     await db.insert(income_sub_category_table, incomeSubCategory.toMap());
   }
 
-  // Update Income Sub Category
+// Update Income Sub Category
   Future<void> updateIncomeSubCategory(
       IncomeSubCategory incomeSubCategory) async {
     var db = await database;
@@ -763,7 +951,7 @@ class DatabaseHelper {
         whereArgs: [incomeSubCategory.id]);
   }
 
-  // A method that retrieves all the income sub category from the income sub table.
+// A method that retrieves all the income sub category from the income sub table.
   Future<List<IncomeSubCategory>> getIncomeSubCategory(int categoryId) async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -775,7 +963,7 @@ class DatabaseHelper {
         maps.length, (index) => IncomeSubCategory.fromMap(maps[index]));
   }
 
-  // Insert Spending Sub Category
+// Insert Spending Sub Category
   Future<void> insertSpendingSubCategory(
       int categoryId, ExpenseSubCategory spendingSubCategory) async {
     spendingSubCategory.categoryId = categoryId;
@@ -798,7 +986,7 @@ class DatabaseHelper {
     return affectedRows;
   }
 
-  // Update Spending Sub Category
+// Update Spending Sub Category
   Future<void> updateSpendingSubCategory(
       ExpenseSubCategory spendingSubCategory) async {
     var db = await database;
@@ -807,7 +995,7 @@ class DatabaseHelper {
         whereArgs: [spendingSubCategory.id]);
   }
 
-  // A method that retrieves all the spending sub category from the spending sub table.
+// A method that retrieves all the spending sub category from the spending sub table.
   Future<List<ExpenseSubCategory>> getSpendingSubCategory(
       int categoryId) async {
     Database db = await database;
@@ -820,7 +1008,7 @@ class DatabaseHelper {
         maps.length, (index) => ExpenseSubCategory.fromMap(maps[index]));
   }
 
-  /*Future<void> deleteDB() async {
+/*Future<void> deleteDB() async {
     Directory directory = await getApplicationDocumentsDirectory();
     String path = '${directory.path}em.db';
 
@@ -955,7 +1143,7 @@ class DatabaseHelper {
     String fetchingName = "";
 
     if (transactionType == AppConstanst.incomeTransaction) {
-      //   if (categoryType == AppConstanst.mainCategory) {
+//   if (categoryType == AppConstanst.mainCategory) {
       tableName = income_category_table;
       fetchingIcon = CategoryFields.path;
       fetchingName = CategoryFields.id;
@@ -964,8 +1152,8 @@ class DatabaseHelper {
       fetchingIcon = ExpenseCategoryField.icons;
       fetchingName = ExpenseCategoryField.id;
     }
-    // }
-    /*else{
+// }
+/*else{
         tableName = spending_sub_category_table;
         fetchingIcon = ExpenseCategoryField.icons;
         fetchingName = ExpenseSubCategoryFields.name;
@@ -980,7 +1168,7 @@ class DatabaseHelper {
 
     List<Map<String, dynamic>> result;
 
-    /* if (categoryId != null) {
+/* if (categoryId != null) {
       result = await _database!.query(
         tableName,
         columns: [fetchingIcon],
@@ -994,7 +1182,7 @@ class DatabaseHelper {
       where: '$fetchingName = ?',
       whereArgs: [categoryName],
     );
-    // }
+// }
 
     if (result.isNotEmpty) {
       return result.first[fetchingIcon];

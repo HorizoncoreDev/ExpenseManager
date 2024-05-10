@@ -280,7 +280,7 @@ class MyDialog {
         last_updated: DateTime.now().toString(),
       );
 
-      await DatabaseHelper().insertTransactionData(transactionModel).then((value) async {
+      await DatabaseHelper().insertTransactionData(transactionModel,isSkippedUser).then((value) async {
         if (value != null) {
             if (isSkippedUser) {
               if (transactionType == AppConstanst.spendingTransaction) {

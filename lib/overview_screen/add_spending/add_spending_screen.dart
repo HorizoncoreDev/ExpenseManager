@@ -194,7 +194,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   createSpendingIncome(BuildContext context, int id, String email) async {
 
     TransactionModel transactionModel = TransactionModel(
-      key: FirebaseAuth.instance.currentUser!.uid,
+      key: "",
         member_id: id,
         member_email: email,
         amount: int.parse(amountController.text),
@@ -245,7 +245,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         last_updated: DateTime.now().toString());
     await databaseHelper
         .insertTransactionData(
-      transactionModel,
+      transactionModel,isSkippedUser
     )
         .then((value) async {
       if (value != null) {
@@ -1545,7 +1545,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
       File tmpFile = File(imageFile.path);
       final appDir = await getExternalStorageDirectory();
       final fileName = basename(imageFile.path);
-      tmpFile = await tmpFile.copy('${appDir!.path}/$fileName');
+      tmpFile = await tmpFile.copy('/storage/emulated/0/Download/$fileName');
       if (position == 1) {
         image1 = tmpFile;
       } else if (position == 2) {

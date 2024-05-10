@@ -1,4 +1,5 @@
 import 'package:expense_manager/dashboard/dashboard.dart';
+import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/sign_in/bloc/bloc.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -182,13 +183,22 @@ class _SignInScreenState extends State<SignInScreen> {
                             children: [
                               InkWell(
                                 onTap: () {
+
                                   MySharedPreferences.instance.addBoolToSF(
                                       SharedPreferencesKeys.isSkippedUser, true);
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                          const BudgetScreen()));
+        if (AppConstanst.signInClicked == 1) {
+          AppConstanst.signInClicked=0;
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const DashBoard()),
+                  (Route<dynamic> route) => false);
+        }else{
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                  const BudgetScreen()));
+        }
                                 },
                                 child: Text(
                                   "Skip",
@@ -240,6 +250,8 @@ class _SignInScreenState extends State<SignInScreen> {
           List<String> names = user.displayName?.split(" ") ?? [];
           String firstName = names.isNotEmpty ? names[0] : "";
           String lastName = names.length > 1 ? names.last : "";
+          MySharedPreferences.instance.addBoolToSF(
+              SharedPreferencesKeys.isSkippedUser, false);
 
           var currentBalance = "0";
           var currentIncome = "0";
@@ -293,19 +305,33 @@ class _SignInScreenState extends State<SignInScreen> {
             });
 
             await DatabaseHelper.instance
-                .getTransactionList("", "", -1)
+                .getTransactionList("", "", -1,true)
                 .then((value) async {
               for (var t in value) {
                 t.member_id = 1;
                 t.member_email = user.email;
                 await databaseHelper.updateTransaction(t);
+
+                final reference = FirebaseDatabase.instance
+                    .reference()
+                    .child(transaction_table)
+                    .child(FirebaseAuth.instance.currentUser!.uid);
+                var newPostRef = reference.push();
+                t.key = newPostRef.key;
+                newPostRef.set(
+                  t.toMap(),
+                );
               }
             });
 
             MySharedPreferences.instance
                 .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
             MySharedPreferences.instance
+                .addStringToSF(SharedPreferencesKeys.currentUserEmail, user.email);
+            MySharedPreferences.instance
                 .addStringToSF(SharedPreferencesKeys.userName, user.displayName);
+            MySharedPreferences.instance
+                .addStringToSF(SharedPreferencesKeys.currentUserName, user.displayName);
             MySharedPreferences.instance
                 .addBoolToSF(SharedPreferencesKeys.isLogin, true);
             MySharedPreferences.instance.addStringToSF(
@@ -320,6 +346,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 MaterialPageRoute(builder: (context) => const DashBoard()),
                     (Route<dynamic> route) => false);
           } else {
+
             MySharedPreferences.instance
                 .getStringValuesSF(SharedPreferencesKeys.userFcmToken)
                 .then((value) async {
@@ -331,52 +358,44 @@ class _SignInScreenState extends State<SignInScreen> {
                   .orderByChild('email')
                   .equalTo(user.email!);
               bool calledOnce=false,profileCheckCalledOnce=false;;
-              reference.onValue.listen((event) async {
+              reference.once().then((event) async {
                 DataSnapshot dataSnapshot = event.snapshot;
                 if (event.snapshot.exists && !profileCheckCalledOnce) {
-                  ProfileModel? profileModel;
+                  ProfileModel? profileModel,profileInsertModel;
+
                   Map<dynamic, dynamic> values =
                   dataSnapshot.value as Map<dynamic, dynamic>;
                   values.forEach((key, value) async {
-
-                         profileModel = ProfileModel(
-                        key: value['key'],
-                        first_name:  value['first_name'],
-                        last_name:  value['last_name'],
-                        email:  value['email'],
-                        full_name:  value['full_name'],
-                        dob:  value['dob'],
-                        user_code:  value['user_code'],
-                        profile_image:  value['profile_image'],
-                        mobile_number:  value['mobile_number'],
-                        current_balance:  value['current_balance'],
-                        current_income:  value['current_income'],
-                        actual_budget:  value['actual_budget'],
-                        gender:  value['gender'],
-                        fcm_token: fcmToken);
-
+                         profileModel = ProfileModel.fromMap(value);
+                         profileInsertModel = ProfileModel.fromInsertMap(value);
+                         profileModel!.fcm_token=fcmToken;
                     final Map<String, Map> updates = {};
                     updates['/$profile_table/${profileModel!.key}'] =
                         profileModel!.toMap();
                     FirebaseDatabase.instance.ref().update(updates);
                   });
 
-
                   await databaseHelper
                       .getProfileData(user.email!)
                       .then((profileData) async {
                     if(profileData!=null){
+                      profileModel!.id = profileData.id;
                       await databaseHelper.updateProfileData(profileModel!);
                     }else{
                       if(!calledOnce) {
                         calledOnce = true;
-                        await databaseHelper.insertProfileData(profileModel!,true);
+                        await databaseHelper.insertProfileData(profileInsertModel!,true);
                       }
                     }
                   });
 
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.userEmail, user.email);
+
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.currentUserEmail, user.email);
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.currentUserName, user.displayName);
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.userName, user.displayName);
                   MySharedPreferences.instance
@@ -417,6 +436,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         SharedPreferencesKeys.userEmail, user.email);
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.userName, user.displayName);
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.currentUserEmail, user.email);
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.currentUserName, user.displayName);
                     MySharedPreferences.instance
                         .addBoolToSF(SharedPreferencesKeys.isLogin, true);
                     Navigator.push(

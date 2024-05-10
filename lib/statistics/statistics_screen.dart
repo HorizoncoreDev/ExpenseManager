@@ -86,11 +86,17 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   String incomeSelectedCategoryName = "";
   int incomeSelectedCategoryIndex = -1;
   String userEmail = "";
+  bool isSkippedUser = false;
   bool isSpendingFilterCleared = false;
   bool isIncomeFilterCleared = false;
 
   @override
   void initState() {
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
+        isSkippedUser = value;
     MySharedPreferences.instance
         .getStringValuesSF(SharedPreferencesKeys.userEmail)
         .then((value) {
@@ -99,6 +105,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       }
       getTransactions();
     });
+      }});
 
     getCategories();
     super.initState();
@@ -119,7 +126,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   getTransactions() async {
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction, userEmail)
+        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction, userEmail,isSkippedUser)
         .then((value) {
       parseSpendingList(value);
     });
@@ -177,7 +184,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   getIncomeData() async {
     dateWiseIncomeTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction, userEmail)
+        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction, userEmail,isSkippedUser)
         .then((value) {
       parseIncomeList(value);
     });

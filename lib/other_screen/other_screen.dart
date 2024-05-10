@@ -124,9 +124,9 @@ class _OtherScreenState extends State<OtherScreen> {
                               InkWell(
                                 onTap: () {
                                   if (isSkippedUser) {
-                                    MySharedPreferences.instance.addBoolToSF(
+                                   /* MySharedPreferences.instance.addBoolToSF(
                                         SharedPreferencesKeys.isSkippedUser,
-                                        false);
+                                        false);*/
                                     AppConstanst.signInClicked++;
                                     Helper.showToast(
                                         "Kindly proceed with your sign-in.");
@@ -181,6 +181,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                     Radius.circular(10))),
                             child: Row(
                               children: [
+                                if(!isSkippedUser)
                                  InkWell(
                                   onTap: () {
                                     Navigator.push(
@@ -207,7 +208,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                       ),
                                       5.heightBox,
                                       Text(
-                                        'My family',
+                                        'My Account',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: Helper.getTextColor(context),
@@ -217,6 +218,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                     ],
                                   ),
                                 ),
+                                if(!isSkippedUser)
                                 20.widthBox,
                                 InkWell(
                                   onTap: () {

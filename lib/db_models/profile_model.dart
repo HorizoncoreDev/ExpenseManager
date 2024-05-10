@@ -72,9 +72,29 @@ class ProfileModel {
     this.fcm_token,
   });
 
-  factory ProfileModel.fromMap(Map<String, dynamic> map) {
+  factory ProfileModel.fromMap(Map<dynamic, dynamic> map) {
     return ProfileModel(
       id: map['id'],
+      key: map['key'],
+      first_name: map['first_name'],
+      last_name: map['last_name'],
+      email: map['email'],
+      user_code: map['user_code'],
+      full_name: map['full_name'],
+      dob: map['dob'],
+      profile_image: map['profile_image'],
+      mobile_number: map['mobile_number'],
+      gender: map['gender'],
+      current_balance: map['current_balance'],
+      current_income: map['current_income'],
+      actual_budget: map['actual_budget'],
+      fcm_token: map['fcm_token']
+    );
+  }
+
+  factory ProfileModel.fromInsertMap(Map<dynamic, dynamic> map) {
+    return ProfileModel(
+     // id: map['id'],
       key: map['key'],
       first_name: map['first_name'],
       last_name: map['last_name'],

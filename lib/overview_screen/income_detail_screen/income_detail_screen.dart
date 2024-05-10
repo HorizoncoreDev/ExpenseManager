@@ -68,13 +68,17 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   @override
   void initState() {
     MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
+        isSkippedUser = value; MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
         .then((value) {
       if (value != null) {
         userEmail = value;
       }
       getIncomeTransactions("");
-    });
+    });}});
     getCategories();
     super.initState();
   }
@@ -113,11 +117,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
     date = DateFormat('MM/yyyy').format(DateTime.now());
     // showYear = DateFormat('yyyy').format(DateTime.now());
     // showMonth = DateFormat('MMMM').format(DateTime.now());
-    MySharedPreferences.instance
-        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-        .then((value) {
-      if (value != null) {
-        isSkippedUser = value;
+
         if (isSkippedUser) {
           MySharedPreferences.instance
               .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentIncome)
@@ -133,23 +133,17 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
               actualBudget = int.parse(value);
             }
           });
-        } else {
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.userEmail)
-              .then((value) {
-            if (value != null) {
-              userEmail = value;
-              getProfileData();
-            }
-          });
         }
-      }
-    });
+        else {
+              getProfileData();
+
+        }
+
 
     List<TransactionModel> incomeTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactions(AppConstanst.incomeTransaction)
+        .getTransactionList(value.toLowerCase(), userEmail, AppConstanst.incomeTransaction,isSkippedUser)
         .then((value) async {
       incomeTransaction = value;
       List<String> dates = [];
@@ -359,7 +353,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                     ],
                                   ),
                                   Text(
-                                    "\u20B9${currentIncome - actualBudget}",
+                                    "\u20B9$totalMonthlyIncomeAmount",
                                     style: TextStyle(
                                         color: Helper.getTextColor(context),
                                         fontSize: 16,
@@ -388,7 +382,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                     ],
                                   ),
                                   Text(
-                                    "\u20B90",
+                                    "\u20B9${actualBudget - totalMonthlyIncomeAmount}",
                                     style: TextStyle(
                                         color: Helper.getTextColor(context),
                                         fontSize: 16,
@@ -703,8 +697,19 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                     InkWell(
                       onTap: () {
                         if (isFilterCleared) {
-                          Navigator.pop(context);
-                          getIncomeTransactions("");
+                          if (showYear != "Select Year" &&
+                              selectedMonths.isNotEmpty) {
+                            Navigator.pop(context);
+                            getFilteredData("");
+                          } if(showYear == "Select Year" ||
+                              selectedMonths.isEmpty){
+                            Navigator.pop(context);
+                            getIncomeTransactions("");
+                          }else if (showYear == "Select Year" ||
+                              selectedMonths.isEmpty) {
+                            Helper.showToast(
+                                "Please ensure you select a year and month to retrieve data");
+                          }
                         } else {
                           isFilterCleared = false;
                           if (showYear != "Select Year" &&
@@ -1029,7 +1034,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
             -1,
             userEmail,
             AppConstanst.incomeTransaction,
-            value)
+            value,isSkippedUser)
         .then((value) {
       incomeTransaction = value;
       List<String> dates = [];
@@ -1039,6 +1044,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
         }
       }
       dates.sort((a, b) => b.compareTo(a));
+      totalMonthlyIncomeAmount = 0;
       for (var date in dates) {
         int totalAmount = 0;
         List<TransactionModel> newTransaction = [];
@@ -1069,13 +1075,16 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
             transactionTotal: totalAmount,
             transactionDay: Helper.getTransactionDay(date),
             transactions: newTransaction));
+        totalMonthlyIncomeAmount = totalMonthlyIncomeAmount + totalAmount;
       }
       if (dateWiseTransaction.isNotEmpty) {
         var dates = dateWiseTransaction[0].transactionDate!.split('/');
         date = '${dates[1]}/${dates[2]}';
       }
-      // incomePercentage =
-      // totalMonthlySpentAmount > 0 ? (totalMonthlySpentAmount / actualBudget) * 100 : 100;
+
+      incomePercentage = totalMonthlyIncomeAmount < actualBudget
+          ? (totalMonthlyIncomeAmount / actualBudget) * 100
+          : 100;
       setState(() {});
     });
   }
