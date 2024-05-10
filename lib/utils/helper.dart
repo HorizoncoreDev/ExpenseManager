@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:expense_manager/db_models/currency_category_model.dart';
+import 'package:expense_manager/db_models/language_category_model.dart';
 import 'package:expense_manager/db_models/payment_method_model.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
@@ -39,6 +41,21 @@ class Helper {
   static Color getCategoriesItemColors(BuildContext context) {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
     return themeNotifier.getTheme().dividerColor;
+  }
+
+  static Future<void> addCurrencyAndLanguages() async{
+    final databaseHelper = DatabaseHelper.instance;
+    List<CurrencyCategory> currencyTypes = [];
+    currencyTypes.add(CurrencyCategory(countryName: 'India', symbol: '₹', currencyCode: 'INR'));
+    currencyTypes.add(CurrencyCategory(countryName: 'US', symbol: '\$', currencyCode: 'USD'));
+    currencyTypes.add(CurrencyCategory(countryName: 'UK', symbol: "£", currencyCode: 'GBP'));
+    databaseHelper.insertAllCurrencyMethods(currencyTypes);
+
+    List<LanguageCategory> languageType = [];
+    languageType.add(LanguageCategory(name: 'Hindi', code: 'hi'));
+    languageType.add(LanguageCategory(name: 'English', code: 'en'));
+    languageType.add(LanguageCategory(name: 'Gujarati', code: 'gu'));
+    databaseHelper.insertAllLanguageMethods(languageType);
   }
 
   static Future<void> addDefaultCategories() async {

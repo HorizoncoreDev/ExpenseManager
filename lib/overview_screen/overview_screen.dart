@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:expense_manager/db_models/profile_model.dart';
@@ -65,7 +64,7 @@ class OverviewScreenState extends State<OverviewScreen> {
           }
         });
       }});
-
+    getTransactions();
     super.initState();
   }
 

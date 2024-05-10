@@ -1,3 +1,5 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:expense_manager/db_models/currency_category_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -30,6 +32,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
   final formKey = GlobalKey<FormState>();
   String userEmail = '';
   bool isSkippedUser = false;
+  List<CurrencyCategory> currencyTypes = [];
+  final databaseHelper = DatabaseHelper.instance;
+  CurrencyCategory? currency;
+  bool currencyDropdownOpen = false;
 
   @override
   void initState() {
@@ -40,6 +46,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
         .then((value) {
       if (value != null) {
         isSkippedUser = value;
+        getCurrencyTypes();
       }
     });
     MySharedPreferences.instance
@@ -47,8 +54,21 @@ class _BudgetScreenState extends State<BudgetScreen> {
         .then((value) {
       if (value != null) {
         userEmail = value;
+        getCurrencyTypes();
       }
     });
+  }
+
+  Future<void> getCurrencyTypes() async{
+    try{
+      List<CurrencyCategory> currencyTypeList = await databaseHelper.currencyMethods();
+      setState(() {
+        currencyTypes = currencyTypeList;
+      });
+    }
+    catch(e){
+      Helper.showToast(e.toString());
+    }
   }
 
   @override
@@ -233,21 +253,44 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   borderRadius: const BorderRadius.only(
                                       topRight: Radius.circular(5),
                                       bottomRight: Radius.circular(5))),
-                              child: Row(
-                                children: [
-                                  5.widthBox,
-                                  const Text("\$",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 16, color: Colors.blue)),
-                                  5.widthBox,
-                                  Icon(
-                                    Icons.arrow_forward_ios_outlined,
-                                    size: 14,
-                                    color: Helper.getTextColor(context),
-                                  )
-                                ],
-                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton2<CurrencyCategory>(
+                                  dropdownElevation: 0,
+                                  buttonDecoration: const BoxDecoration(
+                                    color: Colors.transparent,
+                                  ),
+                                  dropdownDecoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: const Color(0xff22435b),
+                                  ),
+                                  items: currencyTypes.map<DropdownMenuItem<CurrencyCategory>>((CurrencyCategory value) {
+                                    return DropdownMenuItem<CurrencyCategory>(
+                                      value: value,
+                                      child: Text(value.symbol!),
+                                    );
+                                  }).toList(),
+                                  hint: const Text("₹"),
+                                  offset: const Offset(0, 0),
+                                  value: currency,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      currency = value;
+                                    });
+                                  },
+                                  onMenuStateChange: (isOpen){
+                                    setState(() {
+                                      currencyDropdownOpen = isOpen;
+                                    });
+                                  },
+                                  buttonPadding: EdgeInsets.zero,
+                                  buttonHeight: 25,
+                                  icon: Icon(
+                                    !currencyDropdownOpen ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+
                             ),
                           ]),
                         ),

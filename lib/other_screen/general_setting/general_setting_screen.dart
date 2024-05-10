@@ -2,6 +2,7 @@
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/master_password/master_password_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
   bool isSecurityCode = false;
   bool themeMode = false;
   List<List<dynamic>> data = [];
+  bool _backUpTileExpanded = false;
 
   @override
   void initState() {
@@ -193,7 +195,119 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                         ),
                       ),
                       20.heightBox,
-                      InkWell(
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius:
+                            const BorderRadius.all(Radius.circular(10))),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            title: Text("Backup",
+                              style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 16
+                              ),
+                            ),
+                            trailing: Icon(
+                              !_backUpTileExpanded
+                                  ? Icons.keyboard_arrow_down
+                                  : Icons.keyboard_arrow_up_rounded,
+                              color: Helper.getTextColor(context),
+                            ),
+                            onExpansionChanged: (bool expanded){
+                              setState(() {
+                                _backUpTileExpanded = expanded;
+                              });
+                            },
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: Column(
+                                  children: [
+                                    InkWell(
+                                      onTap: (){
+                                        MyDialog().showMasterPasswordDialog( context: context, export: true, backupType : "CSV");
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            height: 38,
+                                            width: 38,
+                                            padding: const EdgeInsets.all(6),
+                                            decoration:  BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Colors.grey.shade800),
+                                            child: Image.asset(ImageConstanst.icCSV, color: Colors.blue,)
+                                          ),
+                                          10.widthBox,
+                                          Text("CSV File",
+                                            style: TextStyle(
+                                                color: Helper.getTextColor(context),
+                                              fontSize: 15
+                                            ),)
+                                        ],
+                                      ),
+                                    ),
+                                    14.heightBox,
+                                    InkWell(
+                                      onTap: (){
+                                        MyDialog().showMasterPasswordDialog( context: context, export: true, backupType : "DRIVE");
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            child: Image.asset(ImageConstanst.isDrive,
+                                              color: Colors.blue,
+                                            ),
+                                            padding: const EdgeInsets.all(6),
+                                            decoration:  BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Colors.grey.shade800),
+                                            height: 38,
+                                            width: 38,),
+                                          10.widthBox,
+                                          Text("Google Drive",
+                                              style: TextStyle(
+                                                  color: Helper.getTextColor(context),
+                                                  fontSize: 15
+                                              ))
+                                        ],
+                                      ),
+                                    ),
+                                    14.heightBox,
+                                    InkWell(
+                                      onTap: (){
+                                        MyDialog().showMasterPasswordDialog( context: context, export: true, backupType : "DB");
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            child: Image.asset(ImageConstanst.isDb, color: Colors.blue),
+                                            height: 38,
+                                            width: 38,
+                                            padding: const EdgeInsets.all(6),
+                                            decoration:  BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Colors.grey.shade800),
+                                          ),
+                                          10.widthBox,
+                                          Text("DB File", style: TextStyle(
+                                              color: Helper.getTextColor(context),
+                                              fontSize: 15
+                                          ))
+                                        ],
+                                      ),
+                                    ),
+                                    14.heightBox
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                 /*     InkWell(
                         onTap: (){
                           MyDialog().showMasterPasswordDialog( context: context, export: true);
                         },
@@ -224,11 +338,11 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                             ),
                           ),
                         ),
-                      ),
+                      ),*/
                       20.heightBox,
                       InkWell(
                         onTap: (){
-                          MyDialog().showMasterPasswordDialog(context: context, export: false);
+                          MyDialog().showMasterPasswordDialog(context: context, export: false, backupType: "");
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),

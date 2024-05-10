@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
 import '../../db_models/transaction_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../overview_screen/add_spending/DateWiseTransactionModel.dart';
@@ -509,7 +508,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                     ? "-\u20B9${dateWiseTransaction[index].transactions![index1].amount!}"
                                     : "+\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
                                 style: TextStyle(
-                                    color: Helper.getTextColor(context),
+                                    color: dateWiseTransaction[index]
+                                        .transactions![index1]
+                                        .transaction_type ==
+                                        AppConstanst.spendingTransaction ? Colors.green : Colors.red,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold),
                               ),

@@ -26,22 +26,10 @@ class MyDialog {
   List<List<dynamic>> data = [];
   int catType = 1;
   bool isSkippedUser = false;
+  // FirebaseAuth? _firebaseAuth;
+  String email = "";
 
-  final List<Color> colors = [
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.yellow,
-    Colors.orange,
-    Colors.purple,
-    Colors.grey,
-    Colors.blueGrey,
-    Colors.white,
-  ];
-
-  Color? isSelectedColor;
-
-  Future<void> showMasterPasswordDialog({required BuildContext context, required bool export}) async {
+  Future<void> showMasterPasswordDialog({required BuildContext context, required bool export, required String backupType}) async {
     MySharedPreferences.instance.getBoolValuesSF(
         SharedPreferencesKeys.isMasterPasswordGenerated).then((value) {
       if (value != null) isMPGenerate = value;
@@ -52,6 +40,13 @@ class MyDialog {
         .then((value) {
       if (value != null) {
         isSkippedUser = value;
+      }
+    });
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        email = value;
       }
     });
     showDialog(
@@ -65,36 +60,41 @@ class MyDialog {
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    Expanded(
-                      child: CustomBoxTextFormField(
-                        controller: masterPasswordController,
-                        onChanged: (val) {},
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          bottomLeft: Radius.circular(5),
-                        ),
-                        keyboardType: TextInputType.text,
-                        hintText: "Password",
-                        maxLength: 8,
-                        minLines: 1,
-                        obscureText: true,
-                        fillColor: Helper.getCardColor(context),
-                        borderColor: Colors.transparent,
-                        textStyle: TextStyle(
-                          color: Helper.getTextColor(context),
-                        ),
-                        padding: 15,
-                        horizontalPadding: 5,
-                        //focusNode: _focus,
-                        validator: (value) {
-                          return null;
-                        },
+                    CustomBoxTextFormField(
+                      controller: masterPasswordController,
+                      onChanged: (val) {},
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        bottomLeft: Radius.circular(5),
                       ),
+                      keyboardType: TextInputType.text,
+                      hintText: "Password",
+                      maxLength: 8,
+                      minLines: 1,
+                      obscureText: true,
+                      fillColor: Helper.getCardColor(context),
+                      borderColor: Colors.transparent,
+                      textStyle: TextStyle(
+                        color: Helper.getTextColor(context),
+                      ),
+                      padding: 15,
+                      horizontalPadding: 5,
+                      //focusNode: _focus,
+                      validator: (value) {
+                        return null;
+                      },
                     ),
                     if (isMPGenerate)...[
                       10.heightBox,
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
+                        /*  try {
+                            await _firebaseAuth!.sendPasswordResetEmail(email: email);
+                          } on FirebaseAuthException catch (err) {
+                            throw Exception(err.message.toString());
+                          } catch (err) {
+                            throw Exception(err.toString());
+                          }*/
                           createMP(context, setState);
                         },
                         child: const Text('Forgot Password?'),
@@ -117,16 +117,15 @@ class MyDialog {
                       TextButton(
                         onPressed: () async {
                           FirebaseDatabase.instance
-                              .reference()
-                              .child('masterPasswords')
+                              .ref()
+                              .child('master_passwords_table')
                               .child(FirebaseAuth.instance.currentUser!.uid)
                               .onValue
                               .listen((event) async {
                             DataSnapshot dataSnapshot = event.snapshot;
                             Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
-                            print("value is ${values['masterPassword']}");
-                            getMasterPassword =
-                            await decryptData(values['masterPassword']);
+                            print("value is ${values['master_password']}");
+                            getMasterPassword = await decryptData(values['master_password']);
                             print("value is $getMasterPassword");
                             if (masterPasswordController.text.isEmpty) {
                               Helper.showToast("Please enter password");
@@ -146,7 +145,18 @@ class MyDialog {
                                   "Password submitted successfully");
                               if(export){
                                 Navigator.pop(context);
-                                exportCSVFile();
+                                if(backupType == "CSV"){
+                                  exportCSVFile();
+                                }
+                                else if(backupType == "DRIVE"){
+
+                                }
+                                else if(backupType == "DB"){
+
+                                }
+                                else{
+                                  Helper.showToast("Select any backup type");
+                                }
                               }
                               else {
                                 FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -205,9 +215,9 @@ class MyDialog {
     print("EP is $encryptedPassword");
     final DatabaseReference dbRef = FirebaseDatabase.instance.reference();
     await dbRef
-        .child('masterPasswords')
+        .child('master_passwords_table')
         .child(FirebaseAuth.instance.currentUser!.uid)
-        .set({'masterPassword': encryptedPassword});
+        .set({'master_password': encryptedPassword});
   }
 
   void exportCSVFile() async {
@@ -235,6 +245,10 @@ class MyDialog {
   }
 
   void addDataIntoTransactionTable(BuildContext context) async {
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(transaction_table);
+    var newPostRef = reference.push();
     for (int i = 1; i < data.length; i++) {
       /// Start from index 1 to skip the header row
 
@@ -252,6 +266,7 @@ class MyDialog {
 
 
       TransactionModel transactionModel = TransactionModel(
+        key: newPostRef.key,
         member_id: data[i][0],
         member_email: email,
         amount: amount,
@@ -313,8 +328,7 @@ class MyDialog {
                 });
               }
             } else {
-              await DatabaseHelper.instance
-                  .getProfileData(email)
+              await DatabaseHelper.instance.getProfileData(email)
                   .then((profileData) async {
                 if (transactionType == AppConstanst.spendingTransaction) {
                   profileData!.current_balance =
@@ -333,7 +347,6 @@ class MyDialog {
           // }
         }
       });
-
       print("Data is inserted");
     }
   }
@@ -347,31 +360,29 @@ class MyDialog {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Expanded(
-                  child: CustomBoxTextFormField(
-                    controller: generateMasterPasswordController,
-                    onChanged: (val) async {},
-                    maxLength: 8,
-                    minLines: 1,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(5),
-                      bottomLeft: Radius.circular(5),
-                    ),
-                    obscureText: true,
-                    keyboardType: TextInputType.text,
-                    hintText: "Create master password",
-                    fillColor: Helper.getCardColor(
-                        context),
-                    borderColor: Colors.transparent,
-                    textStyle: TextStyle(
-                      color: Helper.getTextColor(context),
-                    ),
-                    padding: 15,
-                    horizontalPadding: 5,
-                    validator: (value) {
-                      return null;
-                    },
+                CustomBoxTextFormField(
+                  controller: generateMasterPasswordController,
+                  onChanged: (val) async {},
+                  maxLength: 8,
+                  minLines: 1,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(5),
                   ),
+                  obscureText: true,
+                  keyboardType: TextInputType.text,
+                  hintText: "Create master password",
+                  fillColor: Helper.getCardColor(
+                      context),
+                  borderColor: Colors.transparent,
+                  textStyle: TextStyle(
+                    color: Helper.getTextColor(context),
+                  ),
+                  padding: 15,
+                  horizontalPadding: 5,
+                  validator: (value) {
+                    return null;
+                  },
                 ),
               ],
             ),
@@ -429,9 +440,4 @@ class MyDialog {
       },
     );
   }
-
-
-
-
-
 }

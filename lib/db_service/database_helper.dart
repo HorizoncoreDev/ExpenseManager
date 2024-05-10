@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
+import 'package:expense_manager/db_models/currency_category_model.dart';
+import 'package:expense_manager/db_models/language_category_model.dart';
 import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/statistics/statistics_screen.dart';
@@ -46,7 +48,7 @@ class DatabaseHelper {
 
     // Open/create the database at a given path
     var notesDatabase =
-        await openDatabase(path, version: 1, onCreate: _createDb);
+    await openDatabase(path, version: 1, onCreate: _createDb);
     return notesDatabase;
   }
 
@@ -120,6 +122,23 @@ class DatabaseHelper {
       ${ExpenseSubCategoryFields.name} $textType,
       ${ExpenseSubCategoryFields.categoryId} $integerType,
       ${ExpenseSubCategoryFields.priority} $textType
+      )
+   ''');
+
+    await db.execute('''
+      CREATE TABLE $currency_table(
+      ${CurrencyFields.id} $idType,
+      ${CurrencyFields.countryName} $textType,
+      ${CurrencyFields.symbol} $textType,
+      ${CurrencyFields.currencyCode} $textType
+      )
+   ''');
+
+    await db.execute('''
+      CREATE TABLE $language_table(
+      ${LanguageFields.id} $idType,
+      ${LanguageFields.name} $textType,
+      ${LanguageFields.code} $textType
       )
    ''');
 
@@ -358,6 +377,75 @@ return completer.future;
     final db = await database;
     await db.update(payment_method_table, paymentMethod.toMap(),
         where: '${PaymentMethodFields.id} = ?', whereArgs: [paymentMethod.id]);
+  }
+
+  Future<void> insertCurrencyMethod(CurrencyCategory currencyCategory) async {
+    Database db = await database;
+    await db.insert(currency_table, currencyCategory.toMap());
+  }
+
+  Future<int> insertAllCurrencyMethods(
+      List<CurrencyCategory> currencyCategory) async {
+    final db = await database;
+    final Batch batch = db.batch();
+    for (CurrencyCategory currencyCategory in currencyCategory) {
+      batch.insert(currency_table, currencyCategory.toMap());
+    }
+
+    final List<dynamic> result = await batch.commit();
+    final int affectedRows = result.reduce((sum, element) => sum + element);
+    return affectedRows;
+  }
+
+  // A method that retrieves all the currencyMethod from the currencyCategory table.
+  Future<List<CurrencyCategory>> currencyMethods() async {
+    Database db = await database;
+    final List<Map<String, dynamic>> maps =
+    await db.query(currency_table);
+    return List.generate(
+        maps.length, (index) => CurrencyCategory.fromMap(maps[index]));
+  }
+
+  Future<void> updateCurrencyMethod(CurrencyCategory currencyCategory) async {
+    final db = await database;
+    await db.update(currency_table, currencyCategory.toMap(),
+        where: '${CurrencyFields.id} = ?', whereArgs: [currencyCategory.id]);
+  }
+
+  Future<void> insertLanguageMethod(LanguageCategory languageCategory) async {
+    Database db = await database;
+    await db.insert(language_table, languageCategory.toMap());
+  }
+
+
+  Future<int> insertAllLanguageMethods(
+      List<LanguageCategory> languageCategory) async {
+    final db = await database;
+
+    final Batch batch = db.batch();
+
+    for (LanguageCategory languageCategory in languageCategory) {
+      batch.insert(language_table, languageCategory.toMap());
+    }
+
+    final List<dynamic> result = await batch.commit();
+    final int affectedRows = result.reduce((sum, element) => sum + element);
+    return affectedRows;
+  }
+
+  // A method that retrieves all the paymentMethods from the paymentMethods table.
+  Future<List<LanguageCategory>> languageMethods() async {
+    Database db = await database;
+    final List<Map<String, dynamic>> maps =
+    await db.query(language_table);
+    return List.generate(
+        maps.length, (index) => LanguageCategory.fromMap(maps[index]));
+  }
+
+  Future<void> updateLanguageMethod(LanguageCategory languageCategory) async {
+    final db = await database;
+    await db.update(language_table, languageCategory.toMap(),
+        where: '${LanguageFields.id} = ?', whereArgs: [languageCategory.id]);
   }
 
   // Insert Income Category
