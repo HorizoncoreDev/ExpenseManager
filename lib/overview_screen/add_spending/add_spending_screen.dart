@@ -19,9 +19,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../db_models/expense_category_model.dart';
+import '../../db_models/expense_sub_category.dart';
 import '../../db_models/income_category.dart';
 import '../../db_models/income_sub_category.dart';
-import '../../db_models/expense_sub_category.dart';
 import '../../db_service/database_helper.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import 'bloc/add_spending_bloc.dart';
@@ -167,14 +167,16 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   void _incrementDate() {
     setState(() {
       selectedDate = selectedDate.add(const Duration(days: 1));
-      forwardIconColor = selectedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
+      forwardIconColor =
+          selectedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
     });
   }
 
   void _decrementDate() {
     setState(() {
       selectedDate = selectedDate.subtract(const Duration(days: 1));
-      forwardIconColor = selectedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
+      forwardIconColor =
+          selectedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
     });
   }
 
@@ -193,7 +195,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   int selectedPaymentMethodIndex = 0;
 
   createSpendingIncome(BuildContext context, String email) async {
-
     TransactionModel transactionModel = TransactionModel(
         key: "",
         // member_id: id,
@@ -210,31 +211,34 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
             : -1,
         sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
             ? selectedIncomeSubIndex != -1
-            ? incomeSubCategories[selectedIncomeSubIndex].id
-            : -1
+                ? incomeSubCategories[selectedIncomeSubIndex].id
+                : -1
             : -1,
         cat_name: selectedValue == AppConstanst.spendingTransactionName
             ? selectedSpendingSubIndex != -1
-            ? spendingSubCategories[selectedSpendingSubIndex].name
-            : categories[selectedSpendingIndex].name
+                ? spendingSubCategories[selectedSpendingSubIndex].name
+                : categories[selectedSpendingIndex].name
             : selectedIncomeSubIndex != -1
-            ? incomeSubCategories[selectedIncomeSubIndex].name
-            : incomeCategories[selectedIncomeIndex].name,
+                ? incomeSubCategories[selectedIncomeSubIndex].name
+                : incomeCategories[selectedIncomeIndex].name,
         cat_type: selectedValue == AppConstanst.spendingTransactionName
-            ? selectedSpendingSubIndex != -1?AppConstanst.subCategory:AppConstanst.mainCategory
-            : selectedIncomeSubIndex != -1?AppConstanst.subCategory:AppConstanst.mainCategory,
+            ? selectedSpendingSubIndex != -1
+                ? AppConstanst.subCategory
+                : AppConstanst.mainCategory
+            : selectedIncomeSubIndex != -1
+                ? AppConstanst.subCategory
+                : AppConstanst.mainCategory,
         cat_color: selectedValue == AppConstanst.spendingTransactionName
             ? categories[selectedSpendingIndex].color
             : incomeCategories[selectedIncomeIndex].color,
         cat_icon: selectedValue == AppConstanst.spendingTransactionName
             ? categories[selectedSpendingIndex].icons
             : incomeCategories[selectedIncomeIndex].path,
-        payment_method_id:paymentMethods[selectedPaymentMethodIndex].id,
-        payment_method_name:paymentMethods[selectedPaymentMethodIndex].name,
+        payment_method_id: paymentMethods[selectedPaymentMethodIndex].id,
+        payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
         status: 1,
         transaction_date: '${formattedDate()} ${formattedTime()}',
-        transaction_type:
-        selectedValue == AppConstanst.spendingTransactionName
+        transaction_type: selectedValue == AppConstanst.spendingTransactionName
             ? AppConstanst.spendingTransaction
             : AppConstanst.incomeTransaction,
         description: descriptionController.text,
@@ -245,9 +249,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         created_at: DateTime.now().toString(),
         last_updated: DateTime.now().toString());
     await databaseHelper
-        .insertTransactionData(
-        transactionModel,isSkippedUser
-    )
+        .insertTransactionData(transactionModel, isSkippedUser)
         .then((value) async {
       if (value != null) {
         // Helper.hideLoading(context);
@@ -261,12 +263,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
             if (selectedValue == AppConstanst.spendingTransactionName) {
               MySharedPreferences.instance
                   .getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentBalance)
+                      SharedPreferencesKeys.skippedUserCurrentBalance)
                   .then((value) {
                 if (value != null) {
                   String updateBalance =
-                  (int.parse(value) - int.parse(amountController.text))
-                      .toString();
+                      (int.parse(value) - int.parse(amountController.text))
+                          .toString();
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.skippedUserCurrentBalance,
                       updateBalance);
@@ -275,12 +277,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
             } else {
               MySharedPreferences.instance
                   .getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentIncome)
+                      SharedPreferencesKeys.skippedUserCurrentIncome)
                   .then((value) {
                 if (value != null) {
                   String updateBalance =
-                  (int.parse(value) + int.parse(amountController.text))
-                      .toString();
+                      (int.parse(value) + int.parse(amountController.text))
+                          .toString();
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.skippedUserCurrentIncome,
                       updateBalance);
@@ -294,16 +296,15 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
               if (selectedValue == AppConstanst.spendingTransactionName) {
                 profileData!.current_balance =
                     (int.parse(profileData.current_balance!) -
-                        int.parse(amountController.text))
+                            int.parse(amountController.text))
                         .toString();
               } else {
                 profileData!.current_income =
                     (int.parse(profileData.current_income!) +
-                        int.parse(amountController.text))
+                            int.parse(amountController.text))
                         .toString();
               }
               await DatabaseHelper.instance.updateProfileData(profileData);
-
             });
           }
         }
@@ -421,8 +422,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           await databaseHelper
                               .getProfileData(userEmail)
                               .then((value) async {
-                            createSpendingIncome(
-                                context,  value!.email!);
+                            createSpendingIncome(context, value!.email!);
                           });
                         } else {
                           print("USER SKIPPED $isSkippedUser");
@@ -1042,12 +1042,17 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                 initialDate: DateTime.now(),
                                 firstDate: DateTime(2000),
                                 lastDate: DateTime.now());
-                            if (pickedDate != null && pickedDate != selectedDate) {
+                            if (pickedDate != null &&
+                                pickedDate != selectedDate) {
                               setState(() {
                                 selectedDate = pickedDate;
-                                forwardIconColor = pickedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
+                                forwardIconColor =
+                                    pickedDate.isBefore(DateTime.now())
+                                        ? Colors.blue
+                                        : Colors.grey;
                               });
-                            } else if (pickedDate != null && pickedDate == DateTime.now()) {
+                            } else if (pickedDate != null &&
+                                pickedDate == DateTime.now()) {
                               // If user selects the current date, set forward icon color to grey
                               setState(() {
                                 forwardIconColor = Colors.grey;
@@ -1091,7 +1096,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               .parse(formattedDateTime)
                               .isAfter(format.parse(formattedDate()))) {
                             _incrementDate();
-                          }else {
+                          } else {
                             // If the selected date is the current date, set forward icon color to grey
                             setState(() {
                               forwardIconColor = Colors.grey;
@@ -1287,7 +1292,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                 15.widthBox,
                 InkWell(
                   onTap: () {
-                    FocusScope.of(addSpendingBloc.context).requestFocus(FocusNode());
+                    FocusScope.of(addSpendingBloc.context)
+                        .requestFocus(FocusNode());
                     _storagePermission(1);
                   },
                   child: Stack(
@@ -1295,26 +1301,29 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       // Image or Camera Icon
                       state is SelectedImageState && image1 != null
                           ? ClipRRect(
-                        borderRadius: BorderRadius.circular(5), // Set the border radius here
-                        child: Image.file(
-                          image1!,
-                          fit: BoxFit.cover,
-                          height: 50,
-                          width: 50,
-                        ),
-                      )
+                              borderRadius: BorderRadius.circular(5),
+                              // Set the border radius here
+                              child: Image.file(
+                                image1!,
+                                fit: BoxFit.cover,
+                                height: 50,
+                                width: 50,
+                              ),
+                            )
                           : Container(
-                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: Colors.blueGrey,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt_outlined,
-                          color: Colors.blue,
-                        ),
-                      ),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 15),
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                color: Colors.blueGrey,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5)),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt_outlined,
+                                color: Colors.blue,
+                              ),
+                            ),
                       // Close Icon
                       if (state is SelectedImageState && image1 != null)
                         Positioned(
@@ -1329,7 +1338,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(2),
                               decoration: const BoxDecoration(
-                                color: Colors.blue, // Change color to indicate wrong type
+                                color: Colors.blue,
+                                // Change color to indicate wrong type
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -1346,7 +1356,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                 10.widthBox,
                 InkWell(
                   onTap: () {
-                    FocusScope.of(addSpendingBloc.context).requestFocus(FocusNode());
+                    FocusScope.of(addSpendingBloc.context)
+                        .requestFocus(FocusNode());
                     _storagePermission(2);
                   },
                   child: Stack(
@@ -1354,26 +1365,29 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       // Image or Camera Icon
                       state is SelectedImageState && image2 != null
                           ? ClipRRect(
-                        borderRadius: BorderRadius.circular(5), // Set the border radius here
-                        child: Image.file(
-                          image2!,
-                          fit: BoxFit.cover,
-                          height: 50,
-                          width: 50,
-                        ),
-                      )
+                              borderRadius: BorderRadius.circular(5),
+                              // Set the border radius here
+                              child: Image.file(
+                                image2!,
+                                fit: BoxFit.cover,
+                                height: 50,
+                                width: 50,
+                              ),
+                            )
                           : Container(
-                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: Colors.blueGrey,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt_outlined,
-                          color: Colors.blue,
-                        ),
-                      ),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 15),
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                color: Colors.blueGrey,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5)),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt_outlined,
+                                color: Colors.blue,
+                              ),
+                            ),
                       // Close Icon
                       if (state is SelectedImageState && image2 != null)
                         Positioned(
@@ -1388,7 +1402,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(2),
                               decoration: const BoxDecoration(
-                                color: Colors.blue, // Change color to indicate wrong type
+                                color: Colors.blue,
+                                // Change color to indicate wrong type
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -1405,7 +1420,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                 10.widthBox,
                 InkWell(
                   onTap: () {
-                    FocusScope.of(addSpendingBloc.context).requestFocus(FocusNode());
+                    FocusScope.of(addSpendingBloc.context)
+                        .requestFocus(FocusNode());
                     _storagePermission(3);
                   },
                   child: Stack(
@@ -1413,26 +1429,29 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       // Image or Camera Icon
                       state is SelectedImageState && image3 != null
                           ? ClipRRect(
-                        borderRadius: BorderRadius.circular(5), // Set the border radius here
-                        child: Image.file(
-                          image3!,
-                          fit: BoxFit.cover,
-                          height: 50,
-                          width: 50,
-                        ),
-                      )
+                              borderRadius: BorderRadius.circular(5),
+                              // Set the border radius here
+                              child: Image.file(
+                                image3!,
+                                fit: BoxFit.cover,
+                                height: 50,
+                                width: 50,
+                              ),
+                            )
                           : Container(
-                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: Colors.blueGrey,
-                          borderRadius: BorderRadius.all(Radius.circular(3)),
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt_outlined,
-                          color: Colors.blue,
-                        ),
-                      ),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 15),
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                color: Colors.blueGrey,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(3)),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt_outlined,
+                                color: Colors.blue,
+                              ),
+                            ),
                       // Close Icon
                       if (state is SelectedImageState && image3 != null)
                         Positioned(
@@ -1447,7 +1466,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(2),
                               decoration: const BoxDecoration(
-                                color: Colors.blue, // Change color to indicate wrong type
+                                color: Colors.blue,
+                                // Change color to indicate wrong type
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -1599,9 +1619,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
       XFile? imageFile = await picker.pickImage(source: imageSource);
       if (imageFile == null) return;
       File tmpFile = File(imageFile.path);
-      final appDir = await getApplicationDocumentsDirectory();
+      final appDir = await getExternalStorageDirectory();
       final fileName = basename(imageFile.path);
-      tmpFile = await tmpFile.copy('${appDir.path}/$fileName');
+      tmpFile = await tmpFile.copy('/storage/emulated/0/Download/$fileName');
       if (position == 1) {
         image1 = tmpFile;
       } else if (position == 2) {
