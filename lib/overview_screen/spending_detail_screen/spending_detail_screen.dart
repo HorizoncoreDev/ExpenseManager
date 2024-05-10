@@ -18,6 +18,7 @@ import '../../db_models/transaction_model.dart';
 import '../../statistics/statistics_screen.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import '../add_spending/DateWiseTransactionModel.dart';
+import '../edit_spending/edit_spending_screen.dart';
 import 'bloc/spending_detail_bloc.dart';
 import 'bloc/spending_detail_state.dart';
 
@@ -481,57 +482,100 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                           .transactions!
                                           .length,
                                       itemBuilder: (context, index1) {
-                                        return Container(
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                              color:
-                                                  Helper.getCardColor(context),
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(10))),
-                                          child: Row(
-                                            children: [
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.all(5),
-                                                decoration: const BoxDecoration(
-                                                    color: Colors.black,
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                10))),
-                                                child: SvgPicture.asset(
-                                                  'asset/images/${dateWiseTransaction[index].transactions![index1].cat_icon}.svg',
-                                                  color:
-                                                      dateWiseTransaction[index]
-                                                          .transactions![index1]
-                                                          .cat_color,
-                                                  width: 24,
-                                                  height: 24,
+                                        return InkWell(
+                                          onTap: (){
+                                            Navigator.of(context, rootNavigator: true)
+                                                .push(
+                                              MaterialPageRoute(
+                                                  builder: (context) => EditSpendingScreen(
+                                                    transactionModel: dateWiseTransaction[index].transactions![index1],
+                                                  )),
+                                            )
+                                                .then((value) {
+                                              if (value != null) {
+                                                if (value) {
+                                                  getTransactions("");
+                                                }
+                                              }
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                                color:
+                                                    Helper.getCardColor(context),
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                        Radius.circular(10))),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.all(5),
+                                                  decoration: const BoxDecoration(
+                                                      color: Colors.black,
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  10))),
+                                                  child: SvgPicture.asset(
+                                                    'asset/images/${dateWiseTransaction[index].transactions![index1].cat_icon}.svg',
+                                                    color:
+                                                        dateWiseTransaction[index]
+                                                            .transactions![index1]
+                                                            .cat_color,
+                                                    width: 24,
+                                                    height: 24,
+                                                  ),
                                                 ),
-                                              ),
-                                              15.widthBox,
-                                              Expanded(
-                                                child: Column(
+                                                15.widthBox,
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        dateWiseTransaction[index]
+                                                            .transactions![index1]
+                                                            .cat_name!,
+                                                        style: TextStyle(
+                                                            color: Helper
+                                                                .getTextColor(
+                                                                    context),
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold),
+                                                      ),
+                                                      Text(
+                                                        dateWiseTransaction[index]
+                                                            .transactions![index1]
+                                                            .description!,
+                                                        style: TextStyle(
+                                                          color:
+                                                              Helper.getTextColor(
+                                                                  context),
+                                                          fontSize: 14,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                                Column(
                                                   crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                                      CrossAxisAlignment.end,
                                                   children: [
                                                     Text(
-                                                      dateWiseTransaction[index]
-                                                          .transactions![index1]
-                                                          .cat_name!,
+                                                      "-\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
                                                       style: TextStyle(
-                                                          color: Helper
-                                                              .getTextColor(
+                                                          color:
+                                                              Helper.getTextColor(
                                                                   context),
                                                           fontSize: 16,
                                                           fontWeight:
                                                               FontWeight.bold),
                                                     ),
                                                     Text(
-                                                      dateWiseTransaction[index]
-                                                          .transactions![index1]
-                                                          .description!,
+                                                      dateWiseTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
                                                       style: TextStyle(
                                                         color:
                                                             Helper.getTextColor(
@@ -540,34 +584,9 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                                       ),
                                                     )
                                                   ],
-                                                ),
-                                              ),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: [
-                                                  Text(
-                                                    "-\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
-                                                    style: TextStyle(
-                                                        color:
-                                                            Helper.getTextColor(
-                                                                context),
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  Text(
-                                                    dateWiseTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
-                                                    style: TextStyle(
-                                                      color:
-                                                          Helper.getTextColor(
-                                                              context),
-                                                      fontSize: 14,
-                                                    ),
-                                                  )
-                                                ],
-                                              )
-                                            ],
+                                                )
+                                              ],
+                                            ),
                                           ),
                                         );
                                       },

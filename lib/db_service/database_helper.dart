@@ -324,17 +324,18 @@ return completer.future;*/
   }
 
   Future<void> deleteTransactionFromDB(
-      TransactionModel transactionModel) async {
+      TransactionModel transactionModel,bool isSkippedUser) async {
     Database db = await instance.database;
     await db.delete(
       transaction_table,
       where: 'key = ?',
       whereArgs: [transactionModel.key],
     );
-
-    final reference =
-        FirebaseDatabase.instance.reference().child(transaction_table);
-    reference.child(transactionModel.key!).remove();
+    if(!isSkippedUser) {
+      final reference =
+      FirebaseDatabase.instance.reference().child(transaction_table);
+      reference.child(FirebaseAuth.instance.currentUser!.uid).child(transactionModel.key!).remove();
+    }
   }
 
   Future<void> insertCategory(ExpenseCategory category) async {
@@ -1030,10 +1031,11 @@ return completer.future;*/
                 value[TransactionFields.description]
                     .toLowerCase()
                     .contains(category.toLowerCase()))) {
-              if (transactionType != -1 &&
-                  value[TransactionFields.transaction_type] ==
+              if (transactionType != -1 ){
+                  if(value[TransactionFields.transaction_type] ==
                       transactionType) {
-                transactions.add(TransactionModel.fromMap(value));
+                    transactions.add(TransactionModel.fromMap(value));
+                  }
               } else {
                 transactions.add(TransactionModel.fromMap(value));
               }
