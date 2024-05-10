@@ -412,8 +412,6 @@ class _SignInScreenState extends State<SignInScreen> {
                   if(!profileCheckCalledOnce) {
                     profileCheckCalledOnce = true;
                     String userCode = await Helper.generateUniqueCode();
-
-
                     ProfileModel profileModel = ProfileModel(
                         key: FirebaseAuth.instance.currentUser!.uid,
                         first_name: firstName,
@@ -430,6 +428,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         gender: "",
                         fcm_token: fcmToken);
                     await databaseHelper.insertProfileData(profileModel,false);
+
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.userEmail, user.email);
                     MySharedPreferences.instance.addStringToSF(

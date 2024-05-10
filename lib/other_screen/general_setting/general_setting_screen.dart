@@ -343,6 +343,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                       InkWell(
                         onTap: (){
                           MyDialog().showMasterPasswordDialog(context: context, export: false, backupType: "");
+                          print("backup");
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),
