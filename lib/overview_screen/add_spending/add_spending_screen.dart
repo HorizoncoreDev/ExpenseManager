@@ -42,7 +42,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   File? image1, image2, image3;
   TextEditingController amountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-
   int currPage = 1;
   bool isSkippedUser = false;
   String selectedValue = AppConstanst.spendingTransactionName;
@@ -314,9 +313,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         Navigator.of(context).pop(true);
       }
     });
-
-
-
   }
 
   @override

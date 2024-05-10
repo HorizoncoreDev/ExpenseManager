@@ -532,7 +532,7 @@ return completer.future;*/
     Database db = await database;
     if (!isSkippedUser) {
       final Map<String, Map> updates = {};
-      updates['/$profile_table/${transactionModel.key}'] = transactionModel.toMap();
+      updates['/$transaction_table/${FirebaseAuth.instance.currentUser!.uid}/${transactionModel.key}'] = transactionModel.toMap();
       FirebaseDatabase.instance.ref().update(updates);
     }
 
