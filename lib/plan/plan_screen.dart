@@ -1,4 +1,5 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/global.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -165,7 +166,7 @@ class _PlanScreenState extends State<PlanScreen> {
                                 color: Colors.grey,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10))),
-                            child: const Column(
+                            child:  Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
@@ -184,7 +185,7 @@ class _PlanScreenState extends State<PlanScreen> {
                                   ],
                                 ),
                                 Text(
-                                  "\u20B928,700",
+                                  "${AppConstanst.currencySymbol}28,700",
                                   style: TextStyle(
                                     color: Colors.pink,
                                     fontSize: 18,
@@ -203,7 +204,7 @@ class _PlanScreenState extends State<PlanScreen> {
                                 color: Colors.grey,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10))),
-                            child: const Column(
+                            child:  Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
@@ -211,7 +212,7 @@ class _PlanScreenState extends State<PlanScreen> {
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 Text(
-                                  "\u20B9925.81",
+                                  "${AppConstanst.currencySymbol}925.81",
                                   style: TextStyle(
                                     color: Colors.blue,
                                     fontSize: 18,
@@ -266,7 +267,7 @@ class _PlanScreenState extends State<PlanScreen> {
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Column(
               children: [
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -281,7 +282,7 @@ class _PlanScreenState extends State<PlanScreen> {
                       Column(
                         children: [
                           Text(
-                            "\u20B95,100",
+                            "${AppConstanst.currencySymbol}5,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -320,7 +321,7 @@ class _PlanScreenState extends State<PlanScreen> {
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Column(
               children: [
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -335,7 +336,7 @@ class _PlanScreenState extends State<PlanScreen> {
                       Column(
                         children: [
                           Text(
-                            "\u20B95,100",
+                            "${AppConstanst.currencySymbol}5,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -374,7 +375,7 @@ class _PlanScreenState extends State<PlanScreen> {
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Column(
               children: [
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -389,7 +390,7 @@ class _PlanScreenState extends State<PlanScreen> {
                       Column(
                         children: [
                           Text(
-                            "\u20B95,100",
+                            "${AppConstanst.currencySymbol}5,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -428,7 +429,7 @@ class _PlanScreenState extends State<PlanScreen> {
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Column(
               children: [
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -443,7 +444,7 @@ class _PlanScreenState extends State<PlanScreen> {
                       Column(
                         children: [
                           Text(
-                            "\u20B95,100",
+                            "${AppConstanst.currencySymbol}5,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -482,7 +483,7 @@ class _PlanScreenState extends State<PlanScreen> {
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Column(
               children: [
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -497,7 +498,7 @@ class _PlanScreenState extends State<PlanScreen> {
                       Column(
                         children: [
                           Text(
-                            "\u20B95,100",
+                            "${AppConstanst.currencySymbol}5,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -536,7 +537,7 @@ class _PlanScreenState extends State<PlanScreen> {
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Column(
               children: [
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -551,7 +552,7 @@ class _PlanScreenState extends State<PlanScreen> {
                       Column(
                         children: [
                           Text(
-                            "\u20B95,100",
+                            "${AppConstanst.currencySymbol}5,100",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -599,7 +600,7 @@ class _PlanScreenState extends State<PlanScreen> {
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Column(
               children: [
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -612,7 +613,7 @@ class _PlanScreenState extends State<PlanScreen> {
                             fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        "\u20B95,100",
+                        "${AppConstanst.currencySymbol}5,100",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,

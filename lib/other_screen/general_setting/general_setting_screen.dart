@@ -1,3 +1,6 @@
+import 'package:expense_manager/db_models/currency_category_model.dart';
+import 'package:expense_manager/db_models/language_category_model.dart';
+import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/master_password/master_password_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
@@ -27,21 +30,48 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
   bool themeMode = false;
   List<List<dynamic>> data = [];
   bool _backUpTileExpanded = false;
-
+  List<LanguageCategory> languageTypes = [];
+  final databaseHelper = DatabaseHelper.instance;
+  String? language = "English";
+  LanguageCategory? selectedLanguage;
+  List<CurrencyCategory> currencyTypes = [];
+  int selectedCurrency = -1;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
+    getLanguageTypes();
+    getCurrencyTypes();
+  }
+
+  Future<void> getLanguageTypes() async {
+    try {
+      List<LanguageCategory> languageTypesList =
+      await databaseHelper.languageMethods();
+      setState(() {
+        languageTypes = languageTypesList;
+      });
+    } catch (e) {
+      Helper.showToast(e.toString());
+    }
+  }
+
+  Future<void> getCurrencyTypes() async{
+    try{
+      List<CurrencyCategory> currencyTypeList = await databaseHelper.currencyMethods();
+      setState(() {
+        currencyTypes = currencyTypeList;
+      });
+    }
+    catch(e){
+      Helper.showToast(e.toString());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     generalSettingBloc.context = context;
-
-    /*_themeNotifier = Provider.of<ThemeNotifier>(context);
-    bool isDarkMode = _themeNotifier.isDarkMode;*/
-
     return BlocConsumer<GeneralSettingBloc, GeneralSettingState>(
       bloc: generalSettingBloc,
       listener: (context, state) {},
@@ -142,24 +172,29 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                             Padding(
                               padding: const EdgeInsets.only(
                                   left: 15, right: 5, top: 3, bottom: 3),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      "Language",
+                              child: InkWell(
+                                onTap: (){
+                                  languageBottomSheet();
+                                },
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        "Language",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Helper.getTextColor(context)),
+                                      ),
+                                    ),
+                                    Text(
+                                      language!,
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: Helper.getTextColor(context)),
                                     ),
-                                  ),
-                                  Text(
-                                    "English",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        color: Helper.getTextColor(context)),
-                                  ),
-                                  5.widthBox,
-                                ],
+                                    5.widthBox,
+                                  ],
+                                ),
                               ),
                             ),
                             const Divider(
@@ -169,24 +204,29 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                             Padding(
                               padding: const EdgeInsets.only(
                                   left: 15, right: 5, top: 3, bottom: 3),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      "Currency",
+                              child: InkWell(
+                                onTap: (){
+                                  currencyBottomSheet();
+                                },
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        "Currency",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Helper.getTextColor(context)),
+                                      ),
+                                    ),
+                                    Text(
+                                     AppConstanst.currencyCode,
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: Helper.getTextColor(context)),
                                     ),
-                                  ),
-                                  Text(
-                                    "INR",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        color: Helper.getTextColor(context)),
-                                  ),
-                                  5.widthBox,
-                                ],
+                                    5.widthBox,
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -425,9 +465,167 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                   ),
                 ),
               ));
-
         }
         return Container();
+      },
+    );
+  }
+
+  void languageBottomSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.35,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Select Language',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Helper.getTextColor(context),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Helper.getTextColor(context),),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: languageTypes.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final LanguageCategory languageCategory = languageTypes[index];
+                    final bool isSelected = language != null && language == languageCategory.name;
+                    return ListTile(
+                      title: Text(languageCategory.name.toString()),
+                      onTap: () {
+                          language = languageCategory.name;
+                      },
+                      trailing: isSelected ? const Icon(Icons.check) : null,
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InkWell(
+                  onTap: (){
+                    Navigator.of(context).pop();
+                    setState(() {
+
+                    });
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10),
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(10))),
+                    child: const Text(
+                      "Update",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+  void currencyBottomSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.35,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Select Currency',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Helper.getTextColor(context),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Helper.getTextColor(context),),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: currencyTypes.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final CurrencyCategory currencyCategory = currencyTypes[index];
+                    AppConstanst.setCurrency = AppConstanst.currencyCode == currencyCategory.currencyCode;;
+                    return ListTile(
+                      title: Text(currencyCategory.currencyCode.toString()),
+                      onTap: () {
+                        setState(() {
+                          AppConstanst.currencyCode = currencyCategory.currencyCode!;
+                          AppConstanst.currencySymbol = currencyCategory.symbol!;
+                          selectedCurrency = index;
+                        });
+                      },
+                      trailing: AppConstanst.setCurrency ? const Icon(Icons.check) : null,
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InkWell(
+                  onTap: (){
+                    Navigator.of(context).pop();
+                    setState(() {
+
+                    });
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10),
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(10))),
+                    child: const Text(
+                      "Update",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
       },
     );
   }

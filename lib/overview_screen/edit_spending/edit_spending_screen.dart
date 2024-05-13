@@ -102,6 +102,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
 
   Future<void> getSpendingSubCategory(int catId) async {
     try {
+
       List<ExpenseSubCategory> fetchedSpendingSubCategories =
           await databaseHelper.getSpendingSubCategory(catId);
       setState(() {
@@ -691,7 +692,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                         child: Row(
                           children: [
                             5.widthBox,
-                            const Text("\u20B9",
+                            Text("${AppConstanst.currencySymbol}",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 16, color: Colors.blue)),

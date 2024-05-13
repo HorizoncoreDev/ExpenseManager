@@ -164,8 +164,6 @@ if(isSkippedUser){
   }
 
   getTransactions()  async {
-
-
         if (isSkippedUser) {
           MySharedPreferences.instance
               .getStringValuesSF(
@@ -185,8 +183,6 @@ if(isSkippedUser){
         } else {
               getProfileData();
         }
-
-
 
     spendingTransaction = [];
     dateWiseSpendingTransaction = [];
@@ -407,7 +403,7 @@ if(isSkippedUser){
                                         CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "${userName ?? 'Guest'}: \u20B9${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
+                                            "${userName ?? 'Guest'}: ${AppConstanst.currencySymbol}${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
@@ -544,7 +540,7 @@ if(isSkippedUser){
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "\u20B9$actualBudget",
+                              "${AppConstanst.currencySymbol}$actualBudget",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
@@ -580,8 +576,8 @@ if(isSkippedUser){
                             5.heightBox,
                             Text(
                               currentBalance == actualBudget
-                                  ? "\u20B90"
-                                  : "\u20B9${(actualBudget - currentBalance).toString()}",
+                                  ? "${AppConstanst.currencySymbol}0"
+                                  : "${AppConstanst.currencySymbol}${(actualBudget - currentBalance).toString()}",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
@@ -607,8 +603,8 @@ if(isSkippedUser){
                             5.heightBox,
                             Text(
                               currentBalance == actualBudget
-                                  ? "\u20B9$actualBudget"
-                                  : "\u20B9${currentBalance.toString()}",
+                                  ? "${AppConstanst.currencySymbol}$actualBudget"
+                                  : "${AppConstanst.currencySymbol}${currentBalance.toString()}",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
@@ -696,7 +692,7 @@ if(isSkippedUser){
                               color: Colors.grey, fontSize: 14),
                         ),
                         Text(
-                          "-\u20B9${dateWiseSpendingTransaction[index].transactionTotal}",
+                          "-${AppConstanst.currencySymbol}${dateWiseSpendingTransaction[index].transactionTotal}",
                           style: const TextStyle(
                               color: Colors.pink, fontSize: 14),
                         ),
@@ -828,7 +824,7 @@ if(isSkippedUser){
                                       crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
                                         Text(
-                                          "-\u20B9${transaction.amount!}",
+                                          "-${AppConstanst.currencySymbol}${transaction.amount!}",
                                           style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 16,
@@ -955,7 +951,7 @@ if(isSkippedUser){
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "\u20B9$currentIncome",
+                              "${AppConstanst.currencySymbol}$currentIncome",
                               style: TextStyle(
                                   color: currentIncome < actualBudget
                                       ? Colors.red
@@ -979,7 +975,7 @@ if(isSkippedUser){
                             ),
                             5.heightBox,
                             Text(
-                              "\u20B9$actualBudget",
+                              "${AppConstanst.currencySymbol}$actualBudget",
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 20),
@@ -993,7 +989,7 @@ if(isSkippedUser){
                             ),
                             5.heightBox,
                             Text(
-                              currentIncome>=actualBudget?'\u20B9$actualBudget+${currentIncome - actualBudget}':"\u20B9${actualBudget - currentIncome}",
+                              currentIncome>=actualBudget?'${AppConstanst.currencySymbol}$actualBudget+${currentIncome - actualBudget}':"${AppConstanst.currencySymbol}${actualBudget - currentIncome}",
                               style: TextStyle(
                                   color: currentIncome < actualBudget
                                       ? Helper.getChartColor(context)
@@ -1075,7 +1071,7 @@ if(isSkippedUser){
                                 color: Colors.grey, fontSize: 14),
                           ),
                           Text(
-                            "+\u20B9${dateWiseIncomeTransaction[index].transactionTotal}",
+                            "+${AppConstanst.currencySymbol}${dateWiseIncomeTransaction[index].transactionTotal}",
                             style: const TextStyle(
                                 color: Colors.green, fontSize: 14),
                           ),
@@ -1206,7 +1202,7 @@ if(isSkippedUser){
                                         crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                            "+\u20B9${transaction.amount!}",
+                                            "+${AppConstanst.currencySymbol}${transaction.amount!}",
                                             style: TextStyle(
                                               color: Helper.getTextColor(context),
                                               fontSize: 16,

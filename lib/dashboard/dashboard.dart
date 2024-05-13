@@ -36,7 +36,6 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   void initState() {
-    print("Dashboard INIT Loaded_-----------------------");
 
     super.initState();
     MySharedPreferences.instance
@@ -54,13 +53,18 @@ class _DashBoardState extends State<DashBoard> {
             .addBoolToSF(SharedPreferencesKeys.isCategoriesAdded, true));
       }
     });
+
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.currencySymbol)
+        .then((value) {
+      if (value != null) {
+        AppConstanst.currencySymbol = value;
+        print("CS --- ${ AppConstanst.currencySymbol}");
+      }});
   }
-
-
 
   @override
   Widget build(BuildContext context) {
-    print("Dashboard Loaded_-----------------------");
     return SafeArea(
       child: Scaffold(
         key: scaffoldKey,

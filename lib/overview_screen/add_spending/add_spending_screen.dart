@@ -489,7 +489,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         child: Row(
                           children: [
                             5.widthBox,
-                            const Text("\u20B9",
+                            Text("${AppConstanst.currencySymbol}",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 16, color: Colors.blue)),

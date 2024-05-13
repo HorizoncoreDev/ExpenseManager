@@ -575,7 +575,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 color: Colors.grey, fontSize: 14),
                           ),
                           Text(
-                            "-\u20B9${dateWiseSpendingTransaction[index].transactionTotal}",
+                            "-${AppConstanst.currencySymbol}${dateWiseSpendingTransaction[index].transactionTotal}",
                             style: const TextStyle(
                                 color: Colors.pink, fontSize: 14),
                           ),
@@ -656,7 +656,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        "-\u20B9${dateWiseSpendingTransaction[index].transactions![index1].amount}",
+                                        "-${AppConstanst.currencySymbol}${dateWiseSpendingTransaction[index].transactions![index1].amount}",
                                         style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 16),
@@ -796,7 +796,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 color: Colors.grey, fontSize: 14),
                           ),
                           Text(
-                            "+\u20B9${dateWiseIncomeTransaction[index].transactionTotal}",
+                            "+${AppConstanst.currencySymbol}${dateWiseIncomeTransaction[index].transactionTotal}",
                             style: const TextStyle(
                                 color: Colors.green, fontSize: 14),
                           ),
@@ -876,7 +876,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        "+\u20B9${dateWiseIncomeTransaction[index].transactions![index1].amount}",
+                                        "+${AppConstanst.currencySymbol}${dateWiseIncomeTransaction[index].transactions![index1].amount}",
                                         style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 16),

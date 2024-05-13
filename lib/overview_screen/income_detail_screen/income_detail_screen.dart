@@ -252,7 +252,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                           fontSize: 22,
                           color: Helper.getTextColor(context),
                         )),
-                    Text(" /\u20B9$actualBudget",
+                    Text(" /${AppConstanst.currencySymbol}$actualBudget",
                         style: TextStyle(
                           fontSize: 18,
                           color: Helper.getTextColor(context),
@@ -354,7 +354,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                     ],
                                   ),
                                   Text(
-                                    "\u20B9$totalMonthlyIncomeAmount",
+                                    "${AppConstanst.currencySymbol}$totalMonthlyIncomeAmount",
                                     style: TextStyle(
                                         color: Helper.getTextColor(context),
                                         fontSize: 16,
@@ -383,7 +383,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                     ],
                                   ),
                                   Text(
-                                    "\u20B9${actualBudget - totalMonthlyIncomeAmount}",
+                                    "${AppConstanst.currencySymbol}${actualBudget - totalMonthlyIncomeAmount}",
                                     style: TextStyle(
                                         color: Helper.getTextColor(context),
                                         fontSize: 16,
@@ -475,7 +475,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                             color: Colors.grey, fontSize: 14),
                                       ),
                                       Text(
-                                        "+\u20B9${dateWiseTransaction[index].transactionTotal}",
+                                        "+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactionTotal}",
                                         style: const TextStyle(
                                             color: Colors.green, fontSize: 14),
                                       ),
@@ -575,7 +575,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                                       CrossAxisAlignment.end,
                                                   children: [
                                                     Text(
-                                                      "+\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
+                                                      "+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactions![index1].amount!}",
                                                       style: TextStyle(
                                                           color:
                                                               Helper.getTextColor(

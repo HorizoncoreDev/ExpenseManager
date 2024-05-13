@@ -427,8 +427,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   Text(
                     dateWiseTransaction[index].transactionTotal! < 0
-                        ? "-\u20B9${dateWiseTransaction[index].transactionTotal.toString().replaceAll("-", '')}"
-                        : '+\u20B9${dateWiseTransaction[index].transactionTotal}',
+                        ? "-${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactionTotal.toString().replaceAll("-", '')}"
+                        : '+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactionTotal}',
                     style: TextStyle(color: dateWiseTransaction[index].transactionTotal! < 0?Colors.pink:Colors.green, fontSize: 14),
                   ),
                 ],
@@ -523,13 +523,13 @@ class _SearchScreenState extends State<SearchScreen> {
                                               .transactions![index1]
                                               .transaction_type ==
                                           AppConstanst.spendingTransaction
-                                      ? "-\u20B9${dateWiseTransaction[index].transactions![index1].amount!}"
-                                      : "+\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
+                                      ? "-${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactions![index1].amount!}"
+                                      : "+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactions![index1].amount!}",
                                   style: TextStyle(
                                       color: dateWiseTransaction[index]
                                           .transactions![index1]
                                           .transaction_type ==
-                                          AppConstanst.spendingTransaction ? Colors.green : Colors.red,
+                                          AppConstanst.spendingTransaction ? Colors.red : Colors.green,
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold),
                                 ),

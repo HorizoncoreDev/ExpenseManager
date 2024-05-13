@@ -601,7 +601,7 @@ return completer.future;*/
           .orderByChild(TransactionFields.member_email)
           .equalTo(email);
 
-      reference.once().then((value) {
+      reference.onValue.listen((value) {
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
@@ -618,9 +618,9 @@ return completer.future;*/
           });
         }
         completer.complete(transactions);
-      }).catchError((error) {
+      });/*.catchError((error) {
         completer.completeError(error);
-      });
+      });*/
 
       return completer.future;
     }
