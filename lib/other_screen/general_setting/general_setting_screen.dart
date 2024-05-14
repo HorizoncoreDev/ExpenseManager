@@ -5,12 +5,12 @@ import 'package:expense_manager/master_password/master_password_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:provider/provider.dart';
-
 import 'bloc/general_setting_bloc.dart';
 import 'bloc/general_setting_state.dart';
 
@@ -36,6 +36,8 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
   LanguageCategory? selectedLanguage;
   List<CurrencyCategory> currencyTypes = [];
   int selectedCurrency = -1;
+  String cCode = "";
+  String cSymbol = "";
   @override
   void initState() {
     // TODO: implement initState
@@ -587,11 +589,12 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                     return ListTile(
                       title: Text(currencyCategory.currencyCode.toString()),
                       onTap: () {
-                        setState(() {
-                          AppConstanst.currencyCode = currencyCategory.currencyCode!;
-                          AppConstanst.currencySymbol = currencyCategory.symbol!;
-                          selectedCurrency = index;
-                        });
+                        cCode = currencyCategory.currencyCode!;
+                        cSymbol = currencyCategory.symbol!;
+                        AppConstanst.currencyCode = currencyCategory.currencyCode!;
+                        AppConstanst.currencySymbol = currencyCategory.symbol!;
+                        selectedCurrency = index;
+
                       },
                       trailing: AppConstanst.setCurrency ? const Icon(Icons.check) : null,
                     );
@@ -604,7 +607,12 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                   onTap: (){
                     Navigator.of(context).pop();
                     setState(() {
-
+                      MySharedPreferences.instance.addStringToSF(
+                          SharedPreferencesKeys.currencySymbol,
+                         cSymbol);
+                      MySharedPreferences.instance.addStringToSF(
+                          SharedPreferencesKeys.currencyCode,
+                          cCode);
                     });
                   },
                   child: Container(

@@ -272,7 +272,6 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                             color:
                                                 Helper.getTextColor(context)),
                                       ),
-
                                     ],
                                   ),
                                 ),

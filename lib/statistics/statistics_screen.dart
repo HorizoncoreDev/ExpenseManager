@@ -1309,7 +1309,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   selectYear(context, StateSetter setState) async {
-    print("Calling date picker");
     showDialog(
       context: context,
       builder: (BuildContext context) {

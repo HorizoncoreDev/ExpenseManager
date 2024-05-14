@@ -166,7 +166,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                           Icons.arrow_back_ios,
                           color: Helper.getTextColor(context),
                         )),
-                    Text("My Family",
+                    Text("My Account",
                         style: TextStyle(
                           fontSize: 22,
                           color: Helper.getTextColor(context),

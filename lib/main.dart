@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'budget/budget_screen.dart';
 import 'intro_screen/intro_screen.dart';
@@ -242,6 +243,17 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: themeNotifier.getTheme(),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', ''), // English
+          Locale('hi', ''), // Hindi
+          Locale('gu', ''), // Gujarati
+          // Add more locales as needed
+        ],
+        locale: Locale('en'),
         home: AppConstanst.notificationClicked?
         const FamilyAccountScreen():isBudgetAdded
             ? isLogin

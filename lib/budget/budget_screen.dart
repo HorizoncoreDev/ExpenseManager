@@ -277,9 +277,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                       MySharedPreferences.instance.addStringToSF(
                                           SharedPreferencesKeys.currencySymbol,
                                           currency!.symbol);
-                                      AppConstanst.currencyCode = currency!.currencyCode!;
+                                      MySharedPreferences.instance.addStringToSF(
+                                          SharedPreferencesKeys.currencyCode,
+                                          currency!.currencyCode);
                                       print("currency is ---- ${currency!.symbol}");
-                                      print("currency is ---- ${AppConstanst.currencyCode}");
                                     });
                                   },
                                   onMenuStateChange: (isOpen){

@@ -61,6 +61,14 @@ class _DashBoardState extends State<DashBoard> {
         AppConstanst.currencySymbol = value;
         print("CS --- ${ AppConstanst.currencySymbol}");
       }});
+
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.currencyCode)
+        .then((value) {
+      if (value != null) {
+        AppConstanst.currencyCode = value;
+        print("CS --- ${ AppConstanst.currencyCode}");
+      }});
   }
 
   @override

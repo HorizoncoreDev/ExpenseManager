@@ -64,6 +64,7 @@ abstract class SharedPreferencesKeys {
   static const userFcmToken = "userFcmToken";
   static const userName = "userName";
   static const currencySymbol = "currencySymbol";
+  static const currencyCode = "currencyCode";
   static const currentUserName = "currentUserName";
   static const isSkippedUser = "skippedUser";
   static const skippedUserCurrentBalance = "skippedUserCurrentBalance";

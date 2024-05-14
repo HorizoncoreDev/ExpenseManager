@@ -53,6 +53,20 @@ class MasterPasswordDialog {
         email = value;
       }
     });
+    FirebaseDatabase.instance
+        .ref()
+        .child('master_passwords_table')
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .onValue
+        .listen((event) async {
+      DataSnapshot dataSnapshot = event.snapshot;
+      Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic,
+          dynamic>;
+      getMasterPassword = values['master_password'];
+      if(getMasterPassword.isNotEmpty){
+        isMPGenerate = true;
+      }
+    });
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -117,7 +131,7 @@ class MasterPasswordDialog {
                       },
                       child: const Text('Close'),
                     ),
-                    if(isMPGenerate)
+                    if(isMPGenerate && getMasterPassword.isNotEmpty)
                       TextButton(
                         onPressed: () async {
                           FirebaseDatabase.instance
@@ -186,7 +200,7 @@ class MasterPasswordDialog {
                         },
                         child: const Text('Submit'),
                       ),
-                    if(!isMPGenerate)
+                    if(!isMPGenerate )
                       TextButton(
                         onPressed: () {
                           createMP(context, setState);
