@@ -3,11 +3,13 @@ import 'package:expense_manager/db_models/currency_category_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 import '../dashboard/dashboard.dart';
 import '../db_models/profile_model.dart';
@@ -115,7 +117,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       10.widthBox,
                       Expanded(
                         child: Text(
-                          "Hello",
+                          LocaleKeys.hello.tr,
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -128,7 +130,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     InkWell(
                       onTap: () async {
                         if (budgetController.text.isEmpty) {
-                          Helper.showToast('Enter your budget');
+                          Helper.showToast(LocaleKeys.enterBudgetText.tr);
                         } else {
                           if (!isSkippedUser) {
                             await DatabaseHelper.instance
@@ -196,19 +198,19 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Text(
-                            "Follow your plan to avoid unnecessary spending.Set\na budget for the month and try to follow it to\nachieve your financial goals.",
+                            LocaleKeys.budgetStaticText.tr,
                             textAlign: TextAlign.center,
                             style:
                                 TextStyle(color: Helper.getTextColor(context)),
                           ),
                         ),
                         20.heightBox,
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.symmetric(horizontal: 20),
                           child: Align(
                             alignment: Alignment.topLeft,
                             child: Text(
-                              "MONTHLY BUDGET",
+                              LocaleKeys.monthlyBudget.tr,
                               style: TextStyle(
                                   color: Colors.white70, fontSize: 16),
                             ),
@@ -228,7 +230,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                         topLeft: Radius.circular(5),
                                         bottomLeft: Radius.circular(5)),
                                     keyboardType: TextInputType.number,
-                                    hintText: "Enter your budget",
+                                    hintText: LocaleKeys.enterBudgetText.tr,
                                     fillColor: Helper.getCardColor(context),
                                     borderColor: Colors.transparent,
                                     textStyle: TextStyle(

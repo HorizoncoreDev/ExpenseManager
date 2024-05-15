@@ -3,12 +3,14 @@ import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/sign_in/bloc/bloc.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../budget/budget_screen.dart';
@@ -58,16 +60,16 @@ class _SignInScreenState extends State<SignInScreen> {
                           child: Column(
                             children: [
                               20.heightBox,
-                              const Text(
-                                "Smart Expensee",
+                              Text(
+                                LocaleKeys.smartExpense.tr,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 26,
                                     fontWeight: FontWeight.w500),
                               ),
                               15.heightBox,
-                              const Text(
-                                "Login to sync data across multiple devices and\nexperience our many exciting features",
+                              Text(
+                                LocaleKeys.loginText.tr,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.white,
@@ -108,7 +110,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                   ),
                                   15.widthBox,
                                   Text(
-                                    "Sign in with Google",
+                                    LocaleKeys.signIn.tr,
                                     style: TextStyle(
                                         color: Helper.getTextColor(context),
                                         fontSize: 14),
@@ -201,7 +203,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                   }
                                 },
                                 child: Text(
-                                  "Skip",
+                                  LocaleKeys.skip.tr,
                                   style: TextStyle(
                                       color: Helper.getTextColor(context),
                                       fontSize: 16),

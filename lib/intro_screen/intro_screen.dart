@@ -1,12 +1,16 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:expense_manager/dashboard/dashboard.dart';
 import 'package:expense_manager/db_models/language_category_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/intro_screen/bloc/bloc.dart';
 import 'package:expense_manager/sign_in/sign_in_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 import '../utils/global.dart';
 
@@ -153,7 +157,7 @@ class _IntroScreenState extends State<IntroScreen> {
             ),
             80.heightBox,
             Text(
-              "Smart Expense",
+              LocaleKeys.smartExpense.tr,
               style: TextStyle(
                   color: Helper.getTextColor(context),
                   fontSize: 24,
@@ -161,7 +165,7 @@ class _IntroScreenState extends State<IntroScreen> {
             ),
             10.heightBox,
             Text(
-              "Be a smart spender",
+              LocaleKeys.smartSpender.tr,
               style: TextStyle(
                 color: Helper.getTextColor(context),
                 fontSize: 16,
@@ -198,7 +202,7 @@ class _IntroScreenState extends State<IntroScreen> {
                               child: Text(value.name!),
                             );
                           }).toList(),
-                          hint: const Text("Select the language"),
+                          hint: Text(LocaleKeys.selectLanguage.tr),
                           dropdownMaxHeight: 200,
                           offset: const Offset(0, -1),
                           value: language,
@@ -206,6 +210,27 @@ class _IntroScreenState extends State<IntroScreen> {
                             setState(() {
                               var val = value;
                               language = val;
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.languageCode,
+                                  language!.code);
+                              Locale getLocale;
+                              if(language!.code == "en"){
+                                getLocale = const Locale('en', 'US');
+                                Get.updateLocale(getLocale);
+                                print("local en is $getLocale");
+                              }
+                              else if(language!.code == "hi"){
+                                getLocale = const Locale('hi', 'IN');
+                                Get.updateLocale(getLocale);
+                                print("local hi is $getLocale");
+
+                              }
+                              else if(language!.code == "gu"){
+                                getLocale = const Locale('gu', 'GJ');
+                                Get.updateLocale(getLocale);
+                                print("local gu is $getLocale");
+                              }
+                              Get.deleteAll();
                             });
                           },
                           onMenuStateChange: (isOpen) {
@@ -242,7 +267,7 @@ class _IntroScreenState extends State<IntroScreen> {
                       (Route<dynamic> route) => false,
                     );
                   } else {
-                    Helper.showToast("Please select a language before proceeding.");
+                    Helper.showToast(LocaleKeys.plSelectLang.tr);
                   }
                 },
                 child: Container(
@@ -253,8 +278,8 @@ class _IntroScreenState extends State<IntroScreen> {
                   decoration: const BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: const Text(
-                    "Start",
+                  child: Text(
+                    LocaleKeys.start.tr,
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),
                 ),

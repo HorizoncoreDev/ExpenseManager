@@ -1,12 +1,14 @@
 import 'package:expense_manager/budget/budget_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../db_models/profile_model.dart';
@@ -106,7 +108,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                   )),
               backgroundColor: Helper.getBackgroundColor(context),
               titleSpacing: 0.0,
-              title: Text("Account Details",
+              title: Text(LocaleKeys.accountDetails.tr,
                   style: TextStyle(
                       fontSize: 20, color: Helper.getTextColor(context))),
               elevation: 0.0,
@@ -196,7 +198,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                     ),
                     20.heightBox,
                     Text(
-                      "ACCOUNT",
+                      LocaleKeys.account.tr,
                       style: TextStyle(
                           fontSize: 14,
                           color: Helper.getTextColor(context),
@@ -228,7 +230,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                 15.widthBox,
                                 Expanded(
                                   child: Text(
-                                    "Account linked",
+                                    LocaleKeys.accountLinked.tr,
                                     style: TextStyle(
                                         fontSize: 16,
                                         color: Helper.getTextColor(context)),
@@ -266,7 +268,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   child: Wrap(
                                     children: [
                                       Text(
-                                        "User Code ",
+                                        LocaleKeys.userCode.tr,
                                         style: TextStyle(
                                             fontSize: 16,
                                             color:
@@ -367,7 +369,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                   15.widthBox,
                                   Expanded(
                                     child: Text(
-                                      "Logout",
+                                      LocaleKeys.logout.tr,
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: Helper.getTextColor(context)),
@@ -382,7 +384,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                     ),
                     20.heightBox,
                     Text(
-                      "USER DATA",
+                     LocaleKeys.userData.tr,
                       style: TextStyle(
                           fontSize: 14,
                           color: Helper.getTextColor(context),
@@ -416,9 +418,9 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                     ),
                                   ),
                                   15.widthBox,
-                                  const Expanded(
+                                  Expanded(
                                     child: Text(
-                                      "Clear data, refresh application",
+                                      LocaleKeys.clearData.tr,
                                       style: TextStyle(
                                           fontSize: 16, color: Colors.blue),
                                     ),
@@ -450,9 +452,9 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                                     ),
                                   ),
                                   15.widthBox,
-                                  const Expanded(
+                                  Expanded(
                                     child: Text(
-                                      "Delete account, stop using",
+                                      LocaleKeys.deleteAccount.tr,
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: Colors.redAccent),
@@ -511,7 +513,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                 ),
                 10.heightBox,
                 Text(
-                  "Are you sure you want to delete this account?",
+                  LocaleKeys.sureToDelete.tr,
                   style: TextStyle(
                     color: Helper.getTextColor(context),
                     fontSize: 20,
@@ -528,7 +530,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           Navigator.pop(cont);
                         },
                         child: Text(
-                          "No",
+                          LocaleKeys.no.tr,
                           style: TextStyle(
                             color: Helper.getTextColor(context),
                             fontSize: 20,
@@ -543,7 +545,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           Navigator.pop(context);
                         },
                         child: Text(
-                          "Yes",
+                          LocaleKeys.yes.tr,
                           style: TextStyle(
                             color: Helper.getTextColor(context),
                             fontSize: 20,
@@ -597,7 +599,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                 ),
                 10.heightBox,
                 Text(
-                  "Are you sure you want to logout?",
+                  LocaleKeys.sureToLogout.tr,
                   textAlign: TextAlign.start,
                   style: TextStyle(
                     color: Helper.getTextColor(context),
@@ -615,7 +617,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           Navigator.pop(cont);
                         },
                         child: Text(
-                          "No",
+                          LocaleKeys.no.tr,
                           style: TextStyle(
                             color: Helper.getTextColor(context),
                             fontSize: 20,
@@ -630,7 +632,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           signOut();
                         },
                         child: Text(
-                          "Yes",
+                          LocaleKeys.yes.tr,
                           style: TextStyle(
                             color: Helper.getTextColor(context),
                             fontSize: 20,
@@ -684,7 +686,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                 ),
                 10.heightBox,
                 Text(
-                  "Are you sure you want to clear data?",
+                  LocaleKeys.sureToClear.tr,
                   textAlign: TextAlign.start,
                   style: TextStyle(
                     color: Helper.getTextColor(context),
@@ -702,7 +704,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           Navigator.pop(cont);
                         },
                         child: Text(
-                          "No",
+                          LocaleKeys.no.tr,
                           style: TextStyle(
                             color: Helper.getTextColor(context),
                             fontSize: 20,
@@ -717,7 +719,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                           Navigator.pop(cont);
                         },
                         child: Text(
-                          "Yes",
+                          LocaleKeys.yes.tr,
                           style: TextStyle(
                             color: Helper.getTextColor(context),
                             fontSize: 20,

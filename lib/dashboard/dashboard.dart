@@ -1,7 +1,9 @@
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 
 import '../overview_screen/add_spending/add_spending_screen.dart';
@@ -36,7 +38,7 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   void initState() {
-
+    print(Get.locale!.languageCode);
     super.initState();
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isCategoriesAdded)
@@ -104,7 +106,7 @@ class _DashBoardState extends State<DashBoard> {
     return [
       PersistentBottomNavBarItem(
         icon: Icon(Icons.home),
-        title: "Overview",
+        title: LocaleKeys.overview.tr,
         activeColorPrimary:
             Helper.getBottomNavigationColor(context).selectedItemColor!,
         inactiveColorPrimary:
@@ -142,7 +144,7 @@ class _DashBoardState extends State<DashBoard> {
           }),
       PersistentBottomNavBarItem(
         icon: Icon(Icons.search),
-        title: ("Statistics"),
+        title: (LocaleKeys.statistics.tr),
         activeColorPrimary:
             Helper.getBottomNavigationColor(context).selectedItemColor!,
         inactiveColorPrimary:

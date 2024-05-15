@@ -7,6 +7,7 @@ import 'package:expense_manager/overview_screen/spending_detail_screen/spending_
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -403,14 +404,14 @@ if(isSkippedUser){
                                         CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "${userName ?? 'Guest'}: ${AppConstanst.currencySymbol}${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
+                                            "${userName ?? LocaleKeys.guest.tr}: ${AppConstanst.currencySymbol}${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 20),
                                           ),
                                           Text(
-                                            "TODAY, ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
+                                            "${LocaleKeys.today.tr}, ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 13),
@@ -477,9 +478,9 @@ if(isSkippedUser){
                                 padding: EdgeInsets.zero,
                                 indicatorPadding: EdgeInsets.zero,
                                 labelPadding: EdgeInsets.zero,
-                                tabs: const [
-                                  Tab(child: Text("Spending")),
-                                  Tab(child: Text("Income")),
+                                tabs: [
+                                  Tab(child: Text(LocaleKeys.spending.tr)),
+                                  Tab(child: Text(LocaleKeys.income.tr)),
                                 ],
                                 onTap: (index) {
                                  setState(() {
@@ -547,8 +548,8 @@ if(isSkippedUser){
                             ),
                             Text(
                               currentBalance < 0
-                                  ? "You are spending over budget!"
-                                  : "You are spending on plan!",
+                                  ? LocaleKeys.spendingOverPlan.tr
+                                  : LocaleKeys.spendingOnPlan.tr,
                               style: TextStyle(
                                   color: currentBalance < 0
                                       ? Colors.red
@@ -566,7 +567,7 @@ if(isSkippedUser){
                                 ),
                                 5.widthBox,
                                 Text(
-                                  "Spent",
+                                  LocaleKeys.spent.tr,
                                   style: TextStyle(
                                       color: Helper.getTextColor(context),
                                       fontSize: 12),
@@ -593,7 +594,7 @@ if(isSkippedUser){
                                 ),
                                 5.widthBox,
                                 Text(
-                                  "Remaining",
+                                  LocaleKeys.remaining.tr,
                                   style: TextStyle(
                                       color: Helper.getTextColor(context),
                                       fontSize: 12),
@@ -723,18 +724,18 @@ if(isSkippedUser){
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: const Text("Confirm"),
-                                    content: const Text("Are you sure you want to delete this transaction?"),
+                                    title:  Text(LocaleKeys.confirm.tr),
+                                    content:  Text(LocaleKeys.deleteTransaction.tr),
                                     actions: <Widget>[
                                       TextButton(
                                         onPressed: () => Navigator.of(context).pop(false),
-                                        child: const Text("Cancel"),
+                                        child: Text(LocaleKeys.cancel.tr),
                                       ),
                                       TextButton(
                                         onPressed: () {
                                           Navigator.of(context).pop(true);
                                         },
-                                        child: const Text("Delete"),
+                                        child: Text(LocaleKeys.delete.tr),
                                       ),
                                     ],
                                   );
@@ -878,7 +879,7 @@ if(isSkippedUser){
                       ),
                       10.heightBox,
                       Text(
-                        "You don't have any expenses yet",
+                        LocaleKeys.dontHaveExpense.tr,
                         style: TextStyle(color: Helper.getTextColor(context)),
                       ),
                       20.heightBox,
@@ -911,8 +912,8 @@ if(isSkippedUser){
                                 color: Colors.blue,
                                 borderRadius:
                                 BorderRadius.all(Radius.circular(10))),
-                            child: const Text(
-                              "Add spending",
+                            child: Text(
+                              LocaleKeys.addSpending.tr,
                               style:
                               TextStyle(color: Colors.white, fontSize: 14),
                             ),
@@ -960,15 +961,15 @@ if(isSkippedUser){
                             ),
                             Text(
                               currentIncome >= actualBudget
-                                  ? 'Income is same as target'
-                                  : "Income is not as expected!",
+                                  ? LocaleKeys.incomeAsTarget.tr
+                                  : LocaleKeys.incomeExpected.tr,
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 12),
                             ),
                             10.heightBox,
                             Text(
-                              "Plan",
+                              LocaleKeys.plan.tr,
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 12),
@@ -982,7 +983,7 @@ if(isSkippedUser){
                             ),
                             10.heightBox,
                             Text(
-                              currentIncome>=actualBudget? "More than the Target": "Less than the Target",
+                              currentIncome>=actualBudget? LocaleKeys.moreThenTarget.tr: LocaleKeys.lessThenTarget.tr,
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 12),
@@ -1102,16 +1103,16 @@ if(isSkippedUser){
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: const Text("Confirm"),
-                                      content: const Text("Are you sure you want to delete this transaction?"),
+                                      title:  Text(LocaleKeys.confirm.tr),
+                                      content:  Text(LocaleKeys.deleteTransaction.tr),
                                       actions: <Widget>[
                                         TextButton(
                                           onPressed: () => Navigator.of(context).pop(false),
-                                          child: const Text("Cancel"),
+                                          child:  Text(LocaleKeys.cancel.tr),
                                         ),
                                         TextButton(
                                           onPressed: () => Navigator.of(context).pop(true),
-                                          child: const Text("Delete"),
+                                          child:  Text(LocaleKeys.delete.tr),
                                         ),
                                       ],
                                     );
@@ -1254,7 +1255,7 @@ if(isSkippedUser){
                       ),
                       10.heightBox,
                       Text(
-                        "You don't have any income yet",
+                        LocaleKeys.dontHaveIncome.tr,
                         style: TextStyle(color: Helper.getTextColor(context)),
                       ),
                       20.heightBox,
@@ -1287,8 +1288,8 @@ if(isSkippedUser){
                                 color: Colors.blue,
                                 borderRadius:
                                 BorderRadius.all(Radius.circular(10))),
-                            child: const Text(
-                              "Add income",
+                            child: Text(
+                              LocaleKeys.addIncome.tr,
                               style:
                               TextStyle(color: Colors.white, fontSize: 14),
                             ),

@@ -1,16 +1,22 @@
+import 'package:expense_manager/dashboard/dashboard.dart';
 import 'package:expense_manager/db_models/currency_category_model.dart';
 import 'package:expense_manager/db_models/language_category_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/master_password/master_password_screen.dart';
+import 'package:expense_manager/other_screen/general_setting/currency_bottom_sheet.dart';
+import 'package:expense_manager/other_screen/general_setting/lang_bottom_sheet.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+
 import 'bloc/general_setting_bloc.dart';
 import 'bloc/general_setting_state.dart';
 
@@ -32,17 +38,46 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
   bool _backUpTileExpanded = false;
   List<LanguageCategory> languageTypes = [];
   final databaseHelper = DatabaseHelper.instance;
-  String? language = "English";
+  String? language = "";
+  String? langCode = "";
   LanguageCategory? selectedLanguage;
   List<CurrencyCategory> currencyTypes = [];
   int selectedCurrency = -1;
+  int selectedLang = -1;
   String cCode = "";
   String cSymbol = "";
+
+  String codeFromBottomSheet = "";
+
+  void _setDataFromBottomSheet(String data) {
+    setState(() {
+      codeFromBottomSheet = data;
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.languageCode)
+        .then((value) {
+      if (value == "en") {
+        language = 'English';
+      } else if (value == "hi") {
+        language = "Hindi";
+      } else if (value == "gu") {
+        language = "Gujarati";
+      }
+    });
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.currencyCode)
+        .then((value) {
+          if(value != null){
+            cCode = value;
+          }
+    });
     getLanguageTypes();
     getCurrencyTypes();
   }
@@ -50,7 +85,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
   Future<void> getLanguageTypes() async {
     try {
       List<LanguageCategory> languageTypesList =
-      await databaseHelper.languageMethods();
+          await databaseHelper.languageMethods();
       setState(() {
         languageTypes = languageTypesList;
       });
@@ -59,14 +94,14 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
     }
   }
 
-  Future<void> getCurrencyTypes() async{
-    try{
-      List<CurrencyCategory> currencyTypeList = await databaseHelper.currencyMethods();
+  Future<void> getCurrencyTypes() async {
+    try {
+      List<CurrencyCategory> currencyTypeList =
+          await databaseHelper.currencyMethods();
       setState(() {
         currencyTypes = currencyTypeList;
       });
-    }
-    catch(e){
+    } catch (e) {
       Helper.showToast(e.toString());
     }
   }
@@ -92,7 +127,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                       color: Helper.getTextColor(context),
                     )),
                 title: Text(
-                  "General Settings",
+                  LocaleKeys.generalSettings.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context),
                       fontSize: 24,
@@ -110,7 +145,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                     children: [
                       10.heightBox,
                       Text(
-                        "DISPLAY",
+                        LocaleKeys.display.tr,
                         style: TextStyle(
                             fontSize: 14,
                             color: Helper.getTextColor(context),
@@ -132,7 +167,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      "Dark mode",
+                                      LocaleKeys.darkMode.tr,
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: Helper.getTextColor(context)),
@@ -172,33 +207,34 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               color: Colors.black12,
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 15, right: 5, top: 3, bottom: 3),
-                              child: InkWell(
-                                onTap: (){
-                                  languageBottomSheet();
-                                },
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        "Language",
+                                padding: const EdgeInsets.only(
+                                    left: 15, right: 5, top: 3, bottom: 3),
+                                child: InkWell(
+                                  onTap: () {
+                                    languageBottomSheet();
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          LocaleKeys.language.tr,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color:
+                                                  Helper.getTextColor(context)),
+                                        ),
+                                      ),
+                                      Text(
+                                        language!,
                                         style: TextStyle(
                                             fontSize: 16,
-                                            color: Helper.getTextColor(context)),
+                                            color:
+                                                Helper.getTextColor(context)),
                                       ),
-                                    ),
-                                    Text(
-                                      language!,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Helper.getTextColor(context)),
-                                    ),
-                                    5.widthBox,
-                                  ],
-                                ),
-                              ),
-                            ),
+                                      5.widthBox,
+                                    ],
+                                  ),
+                                )),
                             const Divider(
                               thickness: 1,
                               color: Colors.black12,
@@ -207,21 +243,22 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               padding: const EdgeInsets.only(
                                   left: 15, right: 5, top: 3, bottom: 3),
                               child: InkWell(
-                                onTap: (){
+                                onTap: () {
                                   currencyBottomSheet();
                                 },
                                 child: Row(
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        "Currency",
+                                        LocaleKeys.currency.tr,
                                         style: TextStyle(
                                             fontSize: 16,
-                                            color: Helper.getTextColor(context)),
+                                            color:
+                                                Helper.getTextColor(context)),
                                       ),
                                     ),
                                     Text(
-                                     AppConstanst.currencyCode,
+                                      codeFromBottomSheet.isEmpty ? AppConstanst.currencyCode: codeFromBottomSheet,
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: Helper.getTextColor(context)),
@@ -239,15 +276,16 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                         decoration: BoxDecoration(
                             color: Helper.getCardColor(context),
                             borderRadius:
-                            const BorderRadius.all(Radius.circular(10))),
+                                const BorderRadius.all(Radius.circular(10))),
                         child: Theme(
-                          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                          data: Theme.of(context)
+                              .copyWith(dividerColor: Colors.transparent),
                           child: ExpansionTile(
-                            title: Text("Backup",
+                            title: Text(
+                              LocaleKeys.backUp.tr,
                               style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 16
-                              ),
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 16),
                             ),
                             trailing: Icon(
                               !_backUpTileExpanded
@@ -255,7 +293,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                   : Icons.keyboard_arrow_up_rounded,
                               color: Helper.getTextColor(context),
                             ),
-                            onExpansionChanged: (bool expanded){
+                            onExpansionChanged: (bool expanded) {
                               setState(() {
                                 _backUpTileExpanded = expanded;
                               });
@@ -266,77 +304,97 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                 child: Column(
                                   children: [
                                     InkWell(
-                                      onTap: (){
-
-                                        MasterPasswordDialog().showMasterPasswordDialog( context: context, export: true, backupType : "CSV");
+                                      onTap: () {
+                                        MasterPasswordDialog()
+                                            .showMasterPasswordDialog(
+                                                context: context,
+                                                export: true,
+                                                backupType: "CSV");
                                       },
                                       child: Row(
                                         children: [
                                           Container(
-                                            height: 38,
-                                            width: 38,
-                                            padding: const EdgeInsets.all(6),
-                                            decoration:  BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Colors.grey.shade800),
-                                            child: Image.asset(ImageConstanst.icCSV, color: Colors.blue,)
-                                          ),
+                                              height: 38,
+                                              width: 38,
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.grey.shade800),
+                                              child: Image.asset(
+                                                ImageConstanst.icCSV,
+                                                color: Colors.blue,
+                                              )),
                                           10.widthBox,
-                                          Text("CSV File",
+                                          Text(
+                                            LocaleKeys.csvFile.tr,
                                             style: TextStyle(
-                                                color: Helper.getTextColor(context),
-                                              fontSize: 15
-                                            ),)
+                                                color: Helper.getTextColor(
+                                                    context),
+                                                fontSize: 15),
+                                          )
                                         ],
                                       ),
                                     ),
                                     14.heightBox,
                                     InkWell(
-                                      onTap: (){
-                                        MasterPasswordDialog().showMasterPasswordDialog( context: context, export: true, backupType : "DRIVE");
+                                      onTap: () {
+                                        MasterPasswordDialog()
+                                            .showMasterPasswordDialog(
+                                                context: context,
+                                                export: true,
+                                                backupType: "DRIVE");
                                       },
                                       child: Row(
                                         children: [
                                           Container(
-                                            child: Image.asset(ImageConstanst.isDrive,
+                                            child: Image.asset(
+                                              ImageConstanst.isDrive,
                                               color: Colors.blue,
                                             ),
                                             padding: const EdgeInsets.all(6),
-                                            decoration:  BoxDecoration(
+                                            decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
                                                 color: Colors.grey.shade800),
                                             height: 38,
-                                            width: 38,),
+                                            width: 38,
+                                          ),
                                           10.widthBox,
-                                          Text("Google Drive",
+                                          Text(LocaleKeys.gDrive.tr,
                                               style: TextStyle(
-                                                  color: Helper.getTextColor(context),
-                                                  fontSize: 15
-                                              ))
+                                                  color: Helper.getTextColor(
+                                                      context),
+                                                  fontSize: 15))
                                         ],
                                       ),
                                     ),
                                     14.heightBox,
                                     InkWell(
-                                      onTap: (){
-                                        MasterPasswordDialog().showMasterPasswordDialog( context: context, export: true, backupType : "DB");
+                                      onTap: () {
+                                        MasterPasswordDialog()
+                                            .showMasterPasswordDialog(
+                                                context: context,
+                                                export: true,
+                                                backupType: "DB");
                                       },
                                       child: Row(
                                         children: [
                                           Container(
-                                            child: Image.asset(ImageConstanst.isDb, color: Colors.blue),
+                                            child: Image.asset(
+                                                ImageConstanst.isDb,
+                                                color: Colors.blue),
                                             height: 38,
                                             width: 38,
                                             padding: const EdgeInsets.all(6),
-                                            decoration:  BoxDecoration(
+                                            decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
                                                 color: Colors.grey.shade800),
                                           ),
                                           10.widthBox,
-                                          Text("DB File", style: TextStyle(
-                                              color: Helper.getTextColor(context),
-                                              fontSize: 15
-                                          ))
+                                          Text(LocaleKeys.dbFile.tr,
+                                              style: TextStyle(
+                                                  color: Helper.getTextColor(
+                                                      context),
+                                                  fontSize: 15))
                                         ],
                                       ),
                                     ),
@@ -348,7 +406,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                           ),
                         ),
                       ),
-                 /*     InkWell(
+                      /*     InkWell(
                         onTap: (){
                           MyDialog().showMasterPasswordDialog( context: context, export: true);
                         },
@@ -382,8 +440,9 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                       ),*/
                       20.heightBox,
                       InkWell(
-                        onTap: (){
-                          MasterPasswordDialog().showMasterPasswordDialog(context: context, export: false, backupType: "");
+                        onTap: () {
+                          MasterPasswordDialog().showMasterPasswordDialog(
+                              context: context, export: false, backupType: "");
                           print("backup");
                         },
                         child: Container(
@@ -391,7 +450,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                           decoration: BoxDecoration(
                               color: Helper.getCardColor(context),
                               borderRadius:
-                              const BorderRadius.all(Radius.circular(10))),
+                                  const BorderRadius.all(Radius.circular(10))),
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 left: 15, right: 5, top: 3, bottom: 3),
@@ -399,7 +458,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    "Restore",
+                                    LocaleKeys.restore.tr,
                                     style: TextStyle(
                                         fontSize: 16,
                                         color: Helper.getTextColor(context)),
@@ -407,14 +466,17 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                 ),
                                 const Padding(
                                   padding: EdgeInsets.only(right: 5.0),
-                                  child: Icon(Icons.arrow_forward_ios_outlined, size: 16,),
+                                  child: Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    size: 16,
+                                  ),
                                 )
                               ],
                             ),
                           ),
                         ),
                       ),
-                    /*  ListView.builder(
+                      /*  ListView.builder(
                         itemCount: data.length > 1 ? data.length - 1 : 0,
                         // Adjusted for skipping the header row
                         itemBuilder: (context, index) {
@@ -477,163 +539,16 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.35,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Select Language',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Helper.getTextColor(context),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close, color: Helper.getTextColor(context),),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: languageTypes.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final LanguageCategory languageCategory = languageTypes[index];
-                    final bool isSelected = language != null && language == languageCategory.name;
-                    return ListTile(
-                      title: Text(languageCategory.name.toString()),
-                      onTap: () {
-                          language = languageCategory.name;
-                      },
-                      trailing: isSelected ? const Icon(Icons.check) : null,
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: InkWell(
-                  onTap: (){
-                    Navigator.of(context).pop();
-                    setState(() {
-
-                    });
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10),
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(10))),
-                    child: const Text(
-                      "Update",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        );
+        return LanguageBottomSheetContent();
       },
     );
   }
+
   void currencyBottomSheet() {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.35,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Select Currency',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Helper.getTextColor(context),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close, color: Helper.getTextColor(context),),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: currencyTypes.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final CurrencyCategory currencyCategory = currencyTypes[index];
-                    AppConstanst.setCurrency = AppConstanst.currencyCode == currencyCategory.currencyCode;;
-                    return ListTile(
-                      title: Text(currencyCategory.currencyCode.toString()),
-                      onTap: () {
-                        cCode = currencyCategory.currencyCode!;
-                        cSymbol = currencyCategory.symbol!;
-                        AppConstanst.currencyCode = currencyCategory.currencyCode!;
-                        AppConstanst.currencySymbol = currencyCategory.symbol!;
-                        selectedCurrency = index;
-
-                      },
-                      trailing: AppConstanst.setCurrency ? const Icon(Icons.check) : null,
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: InkWell(
-                  onTap: (){
-                    Navigator.of(context).pop();
-                    setState(() {
-                      MySharedPreferences.instance.addStringToSF(
-                          SharedPreferencesKeys.currencySymbol,
-                         cSymbol);
-                      MySharedPreferences.instance.addStringToSF(
-                          SharedPreferencesKeys.currencyCode,
-                          cCode);
-                    });
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10),
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(10))),
-                    child: const Text(
-                      "Update",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        );
+        return CurrencyBottomSheet(setData : _setDataFromBottomSheet);
       },
     );
   }

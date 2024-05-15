@@ -6,6 +6,7 @@ import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/drive_upload_import/drive_service.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -13,6 +14,7 @@ import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/views/custom_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -74,7 +76,7 @@ class MasterPasswordDialog {
           builder: (BuildContext context,
               void Function(void Function()) setState) {
             return AlertDialog(
-              title: const Text('Master Password'),
+              title: Text(LocaleKeys.masterPassword.tr),
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
@@ -86,7 +88,7 @@ class MasterPasswordDialog {
                         bottomLeft: Radius.circular(5),
                       ),
                       keyboardType: TextInputType.text,
-                      hintText: "Password",
+                      hintText: LocaleKeys.password.tr,
                       maxLength: 8,
                       minLines: 1,
                       obscureText: true,
@@ -115,7 +117,7 @@ class MasterPasswordDialog {
                           }*/
                           createMP(context, setState);
                         },
-                        child: const Text('Forgot Password?'),
+                        child: Text('${LocaleKeys.forgotPassword.tr}?'),
                       ),
                     ]
                   ],
@@ -129,7 +131,7 @@ class MasterPasswordDialog {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Close'),
+                      child: Text(LocaleKeys.close.tr),
                     ),
                     if(isMPGenerate && getMasterPassword.isNotEmpty)
                       TextButton(
@@ -146,21 +148,21 @@ class MasterPasswordDialog {
                             getMasterPassword = await decryptData(values['master_password']);
                             print("value is $getMasterPassword");
                             if (masterPasswordController.text.isEmpty) {
-                              Helper.showToast("Please enter password");
+                              Helper.showToast(LocaleKeys.enterPassword.tr);
                             } else
                             if (masterPasswordController.text.length < 8) {
                               Helper.showToast(
-                                  "Please enter 8 characters password");
+                                  LocaleKeys.eightCharacterPw.tr);
                             } else if (masterPasswordController.text !=
                                 getMasterPassword) {
                               print("value iss $getMasterPassword");
                               print("value isss ${masterPasswordController
                                   .text}");
-                              Helper.showToast("You entered wrong password");
+                              Helper.showToast(LocaleKeys.wrongPassword.tr);
                             } else if (masterPasswordController.text ==
                                 getMasterPassword) {
                               Helper.showToast(
-                                  "Password submitted successfully");
+                                  LocaleKeys.submitSuccessfully.tr);
                               if(export){
                                 Navigator.pop(context);
                                 if(backupType == "CSV"){
@@ -173,7 +175,7 @@ class MasterPasswordDialog {
 
                                 }
                                 else{
-                                  Helper.showToast("Select any backup type");
+                                  Helper.showToast(LocaleKeys.selectBackupType.tr);
                                 }
                               }
                               else {
@@ -198,14 +200,14 @@ class MasterPasswordDialog {
                             }
                           });
                         },
-                        child: const Text('Submit'),
+                        child: Text(LocaleKeys.submit.tr),
                       ),
                     if(!isMPGenerate )
                       TextButton(
                         onPressed: () {
                           createMP(context, setState);
                         },
-                        child: const Text('Generate'),
+                        child: Text(LocaleKeys.generate.tr),
                       ),
                   ],
                 ),
@@ -258,7 +260,7 @@ class MasterPasswordDialog {
     final File file = File(filePath);
     await file.writeAsString(csvData);
 
-    Helper.showToast('CSV file has been exported to $path');
+    Helper.showToast('${LocaleKeys.csvExportedTo.tr} $path');
     print("file path $path");
   }
 
@@ -282,7 +284,7 @@ class MasterPasswordDialog {
     final File file = File(filePath);
     await file.writeAsString(csvData);
 
-    Helper.showToast('CSV file has been exported to $path');
+    Helper.showToast('${LocaleKeys.csvExportedTo.tr} $path');
     print("file path $path");
 
     String? fileId = await uploadDrive(context, filePath, fileName);
@@ -296,18 +298,18 @@ class MasterPasswordDialog {
   Future<String?> uploadDrive(BuildContext context, String filePath, String fileName) async {
     final bool exists = await File(filePath).exists();
     if (!exists) {
-      Helper.showToast('File does not exist: $filePath');
+      Helper.showToast('${LocaleKeys.fileNotExist.tr}: $filePath');
       return null;
     }
     fileId = await _driveService.uploadFile(fileName, filePath);
     print("upload file id:- $fileId");
 
     if (fileId != null) {
-      Helper.showToast('File uploaded successfully with ID: $fileId');
+      Helper.showToast('${LocaleKeys.fileUploadWithId.tr}: $fileId');
       print("'File uploaded successfully with ID: $fileId'");
       return fileId;
     } else {
-      Helper.showToast('Failed to upload file to Google Drive');
+      Helper.showToast(LocaleKeys.failedUploadGDrive.tr);
       return null;
     }
   }
@@ -321,9 +323,9 @@ class MasterPasswordDialog {
     String? filePath = await _driveService.downloadFile(fileId, downloadedFilePath);
 
     if (filePath != null) {
-      Helper.showToast('File downloaded successfully at: $filePath');
+      Helper.showToast('${LocaleKeys.fileDownloadAt.tr}: $filePath');
     } else {
-      Helper.showToast('Failed to download file from Google Drive');
+      Helper.showToast(LocaleKeys.failedUploadGDrive.tr);
     }
   }
 
@@ -441,7 +443,7 @@ class MasterPasswordDialog {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Generate Password'),
+          title: Text(LocaleKeys.generatePW.tr),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
@@ -456,7 +458,7 @@ class MasterPasswordDialog {
                   ),
                   obscureText: true,
                   keyboardType: TextInputType.text,
-                  hintText: "Create master password",
+                  hintText: LocaleKeys.createMPW.tr,
                   fillColor: Helper.getCardColor(
                       context),
                   borderColor: Colors.transparent,
@@ -480,23 +482,23 @@ class MasterPasswordDialog {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Close'),
+                  child: Text(LocaleKeys.close.tr),
                 ),
                 TextButton(
                   onPressed: () async {
                     if (generateMasterPasswordController
                         .text.isEmpty) {
                       Helper.showToast(
-                          "Please enter password");
+                          LocaleKeys.enterPassword.tr);
                     } else
                     if (generateMasterPasswordController
                         .text.length < 8) {
                       Helper.showToast(
-                          "Please enter 8 characters password");
+                          LocaleKeys.eightCharacterPw.tr);
                     } else {
                       await generatingPassword();
                       Helper.showToast(
-                          "Password is generated successfully");
+                          LocaleKeys.passwordGenerate.tr);
                       MySharedPreferences.instance
                           .addBoolToSF(
                           SharedPreferencesKeys
@@ -516,7 +518,7 @@ class MasterPasswordDialog {
                       });
                     }
                   },
-                  child: const Text('Submit'),
+                  child: Text(LocaleKeys.submit.tr),
                 ),
               ],
             ),
@@ -525,6 +527,4 @@ class MasterPasswordDialog {
       },
     );
   }
-
-
 }

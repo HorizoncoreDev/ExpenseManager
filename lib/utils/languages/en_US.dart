@@ -1,13 +1,15 @@
-Map<String, String> english = {
+Map<String, String> enUS = {
   ///Intro Screen
   'smartExpense': 'Smart Expense',
   'smartSpender': 'Be a smart spender',
   'selectLanguage': 'Select the language',
   'start': 'Start',
+  'plSelectLang': 'Please select a language before proceeding.', //new
   ///Sign in screen
   'loginText': 'Login to sync data across multiple devices and\nexperience our many exciting features',
   'signIn': 'Sign in with Google',
   'skip': 'Skip',
+  'someError': 'some error occured',// new
   ///Budget screen
   'hello': 'Hello',
   'monthlyBudget': 'MONTHLY BUDGET',
@@ -35,6 +37,7 @@ Map<String, String> english = {
   'moreThenTarget': 'More than the Target',
   'lessThenTarget': 'Less than the Target',
   'dontHaveIncome': "You don't have any income yet",
+
   ///Statistics screen
   'selectYear': 'Select Year',
   'selectMonth': 'Select Month',
@@ -60,6 +63,7 @@ Map<String, String> english = {
   'category':'CATEGORY',
   'yesterday':'Yesterday',
   'monthFilterText':'MONTH(Can filter one or more)',
+
   ///Add Spending Screen & Edit spending
   'spendingSuccessfully':'Spending created successfully',
   'spendingUpdateSuccessfully':'Spending updated successfully',
@@ -74,6 +78,7 @@ Map<String, String> english = {
   'camera':'Camera',
   'gallery':'Gallery',
   'copy':'Copy',
+
   ///Spending Details screen & income details screen & Search screen
   "notesCategories":'Notes, categories',
   "collected":'Collected',
@@ -82,6 +87,7 @@ Map<String, String> english = {
   "searchBy":'Search by category, note',
   "recordNotFound":'Record Not Found',
   "noNote":'No note',
+
   ///Other Screen
   'categorySmall':'Category',
   'myLibrary':'My Library',
@@ -105,6 +111,7 @@ Map<String, String> english = {
   'greatRewardText':'Your 5 star review is a great reward to us!',
   'permissionDenied':'Permission is permanently denied',
   'allowContactAccess':'Please allow to access contacts!!',
+
   ///My account
   'addAccount':'Add Account',
   'currently':'Currently',
@@ -118,6 +125,7 @@ Map<String, String> english = {
   'userNotExist':'User does not exist',
   'alreadyExist':'Request already exist',
   'alreadyHaveAccess':'You already have access',
+
   ///Category, subcategory and add category screen
   'noCatFound':'No categories found.',
   'noSubCatFound':'No sub categories found.',
@@ -129,9 +137,11 @@ Map<String, String> english = {
   'back':'Back',
   'color':'COLOR',
   'icon':'ICON',
+
   ///My library screen and invite friends screen
   "haveNotLibrary":"You don't have any library yet",
   "invite":"Invite",
+
   ///General settings
   'display':'DISPLAY',
   'darkMode':'Dark mode',
@@ -148,7 +158,7 @@ Map<String, String> english = {
   'masterPassword':'Master Password',
   'forgotPassword':'Forgot Password',
   'enterPassword':'Please enter password',
-  '8CharacterPw':'Please enter 8 characters password',
+  'eightCharacterPw':'Please enter 8 characters password',
   'wrongPassword':'You entered wrong password',
   'submitSuccessfully':'Password submitted successfully',
   'selectBackupType':'Select any backup type',
@@ -162,6 +172,7 @@ Map<String, String> english = {
   'generatePW':'Generate Password',
   'createMPW':'Create master password',
   'passwordGenerate':'Password is generated successfully',
+
   ///Account details & Edit Account
   'female':'Female',
   'male':'Male',
@@ -182,4 +193,7 @@ Map<String, String> english = {
   'enterName':'Enter First Name',
   'enterLastName':'Enter Last Name',
   'enterEmail':'Enter Email',
+
+  ///Dashboard
+  'overview' : 'Overview'
 };

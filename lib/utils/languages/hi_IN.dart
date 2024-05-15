@@ -1,8 +1,9 @@
-Map<String, String> hindi = {
+Map<String, String> hiIN = {
   'smartExpense': 'स्मार्ट व्यय',
   'smartSpender': 'एक स्मार्ट खर्चकर्ता बनें',
   'selectLanguage': 'भाषा चुनें',
   'start': 'शुरू',
+  'plSelectLang': 'कृपया आगे बढ़ने से पहले एक भाषा चुनें.',
   'loginText': 'एकाधिक डिवाइस पर डेटा सिंक्रनाइज़ करने के लिए लॉगिन करें और हमारे कई रोचक विशेषताओं का अनुभव करें',
   'signIn': 'Google से साइन इन करें',
   'skip': 'छोड़ें',
@@ -136,7 +137,7 @@ Map<String, String> hindi = {
   'masterPassword':'मास्टर पासवर्ड',
   'forgotPassword':'पासवर्ड भूल गए',
   'enterPassword':'कृपया पासवर्ड डालें',
-  '8CharacterPw':'कृपया 8 अक्षरों का पासवर्ड डालें',
+  'eightCharacterPw':'कृपया 8 अक्षरों का पासवर्ड डालें',
   'wrongPassword':'आपने गलत पासवर्ड डाला है',
   'submitSuccessfully':'पासवर्ड सफलतापूर्वक प्रस्तुत किया गया',
   'selectBackupType':'किसी बैकअप प्रकार का चयन करें',
@@ -169,4 +170,7 @@ Map<String, String> hindi = {
   'enterName':'पहला नाम दर्ज करें',
   'enterLastName':'अंतिम नाम दर्ज करें',
   'enterEmail':'ईमेल दर्ज करें',
+
+  'overview' : 'अवलोकन'
+
 };

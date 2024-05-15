@@ -2,6 +2,7 @@ import 'package:expense_manager/statistics/search/CommonCategoryModel.dart';
 import 'package:expense_manager/statistics/statistics_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,8 +34,8 @@ class _SearchScreenState extends State<SearchScreen> {
   List<CommonCategoryModel> categoryList = [];
   List<TransactionModel> spendingTransaction = [];
   List<TransactionModel> incomeTransaction = [];
-  String showYear = 'Select Year';
-  String showMonth = 'Select month';
+  String showYear = LocaleKeys.selectYear.tr;
+  String showMonth = LocaleKeys.selectMonth.tr;
   DateTime _selectedYear = DateTime.now();
   int isIncome = 0;
 
@@ -187,7 +188,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           color: Helper.getTextColor(context),
                           size: 20,
                         )),
-                    Text("Search",
+                    Text(LocaleKeys.search.tr,
                         style: TextStyle(
                           fontSize: 22,
                           color: Helper.getTextColor(context),
@@ -263,7 +264,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(10)),
                         keyboardType: TextInputType.text,
-                        hintText: "Search by category, note",
+                        hintText: LocaleKeys.searchBy.tr,
                         fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 10,
@@ -274,7 +275,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             ? InkWell(
                                 onTap: () {
                                   searchController.clear();
-                                  if (showYear != "Select Year" &&
+                                  if (showYear != LocaleKeys.selectYear.tr &&
                                       selectedMonths.isNotEmpty) {
                                     getFilteredData("");
                                   } else {
@@ -300,7 +301,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
-                            if (showYear != "Select Year" &&
+                            if (showYear != LocaleKeys.selectYear.tr &&
                                 selectedMonths.isNotEmpty) {
                               getFilteredData(value);
                             } else {
@@ -308,7 +309,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             }
                           } else {
                             dateWiseTransaction = originalDateWiseTransaction;
-                            if (showYear != "Select Year" &&
+                            if (showYear != LocaleKeys.selectYear.tr &&
                                 selectedMonths.isNotEmpty) {
                               getFilteredData("");
                             } else {
@@ -326,7 +327,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         child: Align(
                           alignment: Alignment.center,
                           child: Text(
-                            "Record Not Found",
+                            LocaleKeys.recordNotFound.tr,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: Helper.getTextColor(context),
@@ -503,7 +504,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                                 .transactions![index1]
                                                 .description!
                                                 .isEmpty)
-                                        ? 'No note'
+                                        ? LocaleKeys.noNote.tr
                                         : dateWiseTransaction[index]
                                             .transactions![index1]
                                             .description!,
@@ -580,14 +581,14 @@ class _SearchScreenState extends State<SearchScreen> {
                         clearSelection(setState);
                       },
                       child: Text(
-                        "Clear filter",
+                        LocaleKeys.clearFilter.tr,
                         style: TextStyle(
                             color: Helper.getTextColor(context), fontSize: 16),
                       ),
                     ),
                     Expanded(
                       child: Text(
-                        "Filter",
+                       LocaleKeys.filter.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Helper.getTextColor(context),
@@ -602,22 +603,22 @@ class _SearchScreenState extends State<SearchScreen> {
                           getTransactions("");
                         } else {
                           isFilterCleared = false;
-                          if (showYear != "Select Year" &&
+                          if (showYear != LocaleKeys.selectYear.tr &&
                               selectedMonths.isNotEmpty) {
                             Navigator.pop(context);
                             getFilteredData("");
-                          } else if (showYear == "Select Year" ||
+                          } else if (showYear == LocaleKeys.selectYear.tr ||
                               selectedMonths.isEmpty) {
                             Helper.showToast(
-                                "Please ensure you select a year and month to retrieve data");
+                                LocaleKeys.selectMonthOrYearText.tr);
                           } else {
                             Navigator.pop(context);
                             getTransactions("");
                           }
                         }
                       },
-                      child: const Text(
-                        "Done",
+                      child: Text(
+                        LocaleKeys.done.tr,
                         style: TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
@@ -639,13 +640,13 @@ class _SearchScreenState extends State<SearchScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "YEAR",
+                      LocaleKeys.year.tr,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
                     ),
                     15.widthBox,
                     Text(
-                      "MONTH(Can filter one or more)",
+                      LocaleKeys.monthFilterText.tr,
                       textAlign: TextAlign.end,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
@@ -706,7 +707,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Text(
-                  "CATEGORY",
+                  LocaleKeys.category.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context), fontSize: 14),
                 ),
@@ -773,8 +774,8 @@ class _SearchScreenState extends State<SearchScreen> {
         item.isSelected = false;
       }
       selectedMonths.clear();
-      showMonth = 'Select Month';
-      showYear = 'Select Year';
+      showMonth = LocaleKeys.selectMonth.tr;
+      showYear = LocaleKeys.selectYear.tr;
       selectedCategoryIndex = -1;
       selectedCategory = '';
     });
@@ -786,7 +787,7 @@ class _SearchScreenState extends State<SearchScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Select Year"),
+          title: Text(LocaleKeys.selectYear.tr),
           content: SizedBox(
             width: 300,
             height: 300,
@@ -816,7 +817,7 @@ class _SearchScreenState extends State<SearchScreen> {
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, setState1) {
           return AlertDialog(
-            title: const Text("Select Month"),
+            title: Text(LocaleKeys.selectMonth.tr),
             contentPadding:
                 const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
             content: SizedBox(
@@ -879,8 +880,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     Navigator.pop(context);
                   });
                 },
-                child: const Text(
-                  "Done",
+                child: Text(
+                  LocaleKeys.done.tr,
                   style: TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,

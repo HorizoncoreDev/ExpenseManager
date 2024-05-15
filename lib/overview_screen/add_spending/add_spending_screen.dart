@@ -8,10 +8,12 @@ import 'package:expense_manager/overview_screen/add_spending/bloc/add_spending_e
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
@@ -306,8 +308,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
           }
         }
         Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
-            ? "Spending created successfully"
-            : "Income created successfully");
+            ? LocaleKeys.spendingSuccessfully.tr
+            : LocaleKeys.incomeSuccessfully.tr);
         Navigator.of(context).pop(true);
       }
     });
@@ -328,7 +330,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      "Cancel",
+                      LocaleKeys.cancel.tr,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 16),
@@ -395,19 +397,19 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                     onTap: () async {
                       if (amountController.text.isEmpty ||
                           amountController.text == "0") {
-                        Helper.showToast("Please add amount");
+                        Helper.showToast(LocaleKeys.addAmount.tr);
                       } else if (selectedValue ==
                               AppConstanst.spendingTransactionName
                           ? selectedSpendingIndex == -1
                           : selectedIncomeIndex == -1) {
-                        Helper.showToast("Please select category");
+                        Helper.showToast(LocaleKeys.addCategory.tr);
                       } else if (selectedValue ==
                               AppConstanst.spendingTransactionName
                           ? (spendingSubCategories.isNotEmpty &&
                               selectedSpendingSubIndex == -1)
                           : (incomeSubCategories.isNotEmpty &&
                               selectedIncomeSubIndex == -1)) {
-                        Helper.showToast("Please select sub category");
+                        Helper.showToast(LocaleKeys.addSubCategory.tr);
                       } else {
                         //   Helper.showLoading(context);
                         if (!isSkippedUser) {
@@ -423,8 +425,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         }
                       }
                     },
-                    child: const Text(
-                      "Done",
+                    child: Text(
+                      LocaleKeys.done.tr,
                       style: TextStyle(color: Colors.blue, fontSize: 16),
                     ),
                   ),
@@ -545,7 +547,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         ? Row(
                             children: [
                               Text(
-                                "CATEGORY",
+                                LocaleKeys.category.tr,
                                 style: TextStyle(
                                     color: Helper.getTextColor(context),
                                     fontSize: 14),
@@ -612,7 +614,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         : Row(
                             children: [
                               Text(
-                                "CATEGORY",
+                                LocaleKeys.category.tr,
                                 style: TextStyle(
                                     color: Helper.getTextColor(context),
                                     fontSize: 14),
@@ -1125,7 +1127,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    "DETAILS",
+                                    LocaleKeys.details.tr,
                                     style: TextStyle(
                                         color: currPage == 1
                                             ? Colors.blue
@@ -1187,7 +1189,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(5)),
                         keyboardType: TextInputType.text,
-                        hintText: "Enter description",
+                        hintText: LocaleKeys.enterDescription.tr,
                         fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 11,
@@ -1556,7 +1558,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Choose Option',
+                      LocaleKeys.chooseOption.tr,
                       textAlign: TextAlign.start,
                       style: TextStyle(
                           fontSize: 12,
@@ -1585,7 +1587,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Text(
-                      'Camera',
+                      LocaleKeys.camera.tr,
                       textAlign: TextAlign.start,
                       style: TextStyle(
                           fontWeight: FontWeight.w400,
@@ -1603,7 +1605,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Text(
-                      'Gallery',
+                      LocaleKeys.gallery.tr,
                       textAlign: TextAlign.start,
                       style: TextStyle(
                           fontWeight: FontWeight.w400,

@@ -6,11 +6,13 @@ import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import 'add_account_screen.dart';
@@ -166,7 +168,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                           Icons.arrow_back_ios,
                           color: Helper.getTextColor(context),
                         )),
-                    Text("My Account",
+                    Text(LocaleKeys.myAccount.tr,
                         style: TextStyle(
                           fontSize: 22,
                           color: Helper.getTextColor(context),
@@ -188,8 +190,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                   decoration: const BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: const Text(
-                    "Add Account",
+                  child:  Text(
+                    LocaleKeys.addAccount.tr,
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),
                 ),
@@ -213,15 +215,15 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                               Expanded(
                                 child: Text(
                                   accessRequestList.isNotEmpty
-                                      ? "Currently ${1 + accessRequestList.length} members"
-                                      : "Currently 1 member",
+                                      ? "${LocaleKeys.currently.tr} ${1 + accessRequestList.length} ${LocaleKeys.members.tr}"
+                                      : LocaleKeys.currentlyMember.tr,
                                   style: TextStyle(
                                       color: Helper.getTextColor(context)),
                                 ),
                               ),
                               RichText(
                                   text: TextSpan(
-                                      text: "CODE: ",
+                                      text: LocaleKeys.code.tr,
                                       style: const TextStyle(
                                         fontSize: 16,
                                         color: Colors.blue,
@@ -425,7 +427,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                             Row(
                               children: [
                                 Text(
-                                  'REQUESTS(${requestList.length})',
+                                  '${LocaleKeys.requests.tr}(${requestList.length})',
                                   style: TextStyle(
                                       color: Helper.getTextColor(context),
                                       fontSize: 18),

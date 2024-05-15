@@ -9,6 +9,7 @@ import 'package:expense_manager/statistics/search/search_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -32,8 +33,8 @@ class StatisticsScreen extends StatefulWidget {
 
 class StatisticsScreenState extends State<StatisticsScreen> {
   StatisticsBloc statisticsBloc = StatisticsBloc();
-  String spendingShowYear = 'Select Year';
-  String spendingShowMonth = 'Select Month';
+  String spendingShowYear = LocaleKeys.selectYear.tr;
+  String spendingShowMonth = LocaleKeys.selectMonth.tr;
   DateTime _spendingSelectedYear = DateTime.now();
   List<MonthData> spendingSelectedMonths = [];
   List<MonthData> spendingMonthList = [
@@ -51,8 +52,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     MonthData(text: 'December'),
   ];
 
-  String incomeShowYear = 'Select Year';
-  String incomeShowMonth = 'Select Month';
+  String incomeShowYear = LocaleKeys.selectYear.tr;
+  String incomeShowMonth = LocaleKeys.selectMonth.tr;
   DateTime _incomeSelectedYear = DateTime.now();
   List<MonthData> incomeSelectedMonths = [];
   List<MonthData> incomeMonthList = [
@@ -294,7 +295,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             parseIncomeList(value);
           } else {
             getIncomeData();
-            Helper.showToast("Data not found");
+            Helper.showToast(LocaleKeys.dataNotFound.tr);
           }
         });
       });
@@ -318,7 +319,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             parseSpendingList(value);
           } else {
             getTransactions();
-            Helper.showToast("Data not found");
+            Helper.showToast(LocaleKeys.dataNotFound.tr);
           }
         });
       });
@@ -337,7 +338,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               appBar: AppBar(
                 titleSpacing: 15,
                 backgroundColor: Helper.getBackgroundColor(context),
-                title: Text("Statistics",
+                title: Text(LocaleKeys.statistics.tr,
                     style: TextStyle(
                       fontSize: 22,
                       color: Helper.getTextColor(context),
@@ -449,8 +450,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     setState(() {
                                       currPage = 1;
                                     });
-                                    if (spendingShowYear != "Select Year" &&
-                                        spendingShowMonth != "Select Month") {
+                                    if (spendingShowYear != LocaleKeys.selectYear.tr &&
+                                        spendingShowMonth != LocaleKeys.selectMonth.tr) {
                                       getFilteredData();
                                     } else {
                                       getTransactions();
@@ -469,7 +470,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                       child: Align(
                                         alignment: Alignment.center,
                                         child: Text(
-                                          'Spending',
+                                          LocaleKeys.spending.tr,
                                           style: TextStyle(
                                             fontSize: 16,
                                             color: currPage == 1
@@ -486,7 +487,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     setState(() {
                                       currPage = 2;
                                     });
-                                    if (incomeShowYear != "Select Year" && incomeShowMonth != "Select Month") {
+                                    if (incomeShowYear != LocaleKeys.selectYear.tr && incomeShowMonth != LocaleKeys.selectMonth.tr) {
                                       getFilteredData();
                                     } else {
                                       getIncomeData();
@@ -505,7 +506,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                       child: Align(
                                         alignment: Alignment.center,
                                         child: Text(
-                                          'Income',
+                                          LocaleKeys.income.tr,
                                           style: TextStyle(
                                             fontSize: 16,
                                             color: currPage == 2
@@ -707,7 +708,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                       10.heightBox,
                       Text(
-                        "You don't have any expenses yet",
+                        LocaleKeys.dontHaveExpense.tr,
                         style: TextStyle(color: Helper.getTextColor(context)),
                       ),
                       20.heightBox,
@@ -740,8 +741,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 color: Colors.blue,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10))),
-                            child: const Text(
-                              "Add spending",
+                            child: Text(
+                              LocaleKeys.addSpending.tr,
                               style:
                                   TextStyle(color: Colors.white, fontSize: 14),
                             ),
@@ -927,7 +928,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                       10.heightBox,
                       Text(
-                        "You don't have any income yet",
+                        LocaleKeys.dontHaveIncome.tr,
                         style: TextStyle(color: Helper.getTextColor(context)),
                       ),
                       20.heightBox,
@@ -960,8 +961,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 color: Colors.blue,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10))),
-                            child: const Text(
-                              "Add income",
+                            child: Text(
+                              LocaleKeys.addIncome.tr,
                               style:
                                   TextStyle(color: Colors.white, fontSize: 14),
                             ),
@@ -996,14 +997,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         clearSelection(setState);
                       },
                       child: Text(
-                        "Clear filter",
+                        LocaleKeys.clearFilter.tr,
                         style: TextStyle(
                             color: Helper.getTextColor(context), fontSize: 16),
                       ),
                     ),
                     Expanded(
                       child: Text(
-                        "Filter",
+                        LocaleKeys.filter.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Helper.getTextColor(context),
@@ -1019,12 +1020,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             getTransactions();
                           } else {
                             isSpendingFilterCleared = false;
-                            if (spendingShowYear != "Select Year" && spendingShowMonth != "Select Month") {
+                            if (spendingShowYear != LocaleKeys.selectYear.tr && spendingShowMonth != LocaleKeys.selectMonth.tr) {
                               Navigator.pop(context);
                               getFilteredData();
-                            } else if (spendingShowYear == "Select Year" || spendingShowMonth == "Select Month") {
+                            } else if (spendingShowYear == LocaleKeys.selectYear.tr || spendingShowMonth == LocaleKeys.selectMonth.tr) {
                               Helper.showToast(
-                                  "Please ensure you select a year and month to retrieve data");
+                                  LocaleKeys.selectMonthOrYearText.tr);
                             } else {
                               Navigator.pop(context);
                               getTransactions();
@@ -1036,12 +1037,12 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             getTransactions();
                           } else {
                             isIncomeFilterCleared = false;
-                            if (incomeShowYear != "Select Year" && incomeShowMonth != "Select Month") {
+                            if (incomeShowYear != LocaleKeys.selectYear.tr && incomeShowMonth != LocaleKeys.selectMonth.tr) {
                               Navigator.pop(context);
                               getFilteredData();
-                            } else if (incomeShowYear == "Select Year" || incomeShowMonth == "Select Month") {
+                            } else if (incomeShowYear == LocaleKeys.selectYear.tr || incomeShowMonth == LocaleKeys.selectMonth.tr) {
                               Helper.showToast(
-                                  "Please ensure you select a year and month to retrieve data");
+                                 LocaleKeys.selectMonthOrYearText.tr);
                             } else {
                               Navigator.pop(context);
                               getTransactions();
@@ -1049,8 +1050,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           }
                         }
                       },
-                      child: const Text(
-                        "Done",
+                      child: Text(
+                        LocaleKeys.done.tr,
                         style: TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
@@ -1072,13 +1073,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "YEAR",
+                      LocaleKeys.year.tr,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
                     ),
                     15.widthBox,
                     Text(
-                      "MONTH(Can filter one or more)",
+                      LocaleKeys.monthFilterText.tr,
                       textAlign: TextAlign.end,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
@@ -1141,7 +1142,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Text(
-                  "CATEGORY",
+                  LocaleKeys.category.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context), fontSize: 14),
                 ),
@@ -1273,8 +1274,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           month.isSelected = false;
         }
         spendingSelectedMonths.clear();
-        spendingShowYear = 'Select Year';
-        spendingShowMonth = 'Select Month';
+        spendingShowYear = LocaleKeys.selectYear.tr;
+        spendingShowMonth = LocaleKeys.selectMonth.tr;
       } else {
         isIncomeFilterCleared = true;
         for (var item in incomeCategoryList) {
@@ -1284,8 +1285,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           month.isSelected = false;
         }
         incomeSelectedMonths.clear();
-        incomeShowYear = 'Select Year';
-        incomeShowMonth = 'Select Month';
+        incomeShowYear = LocaleKeys.selectYear.tr;
+        incomeShowMonth = LocaleKeys.selectMonth.tr;
       }
     });
   }
@@ -1298,11 +1299,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     if (dateTime.year == today.year &&
         dateTime.month == today.month &&
         dateTime.day == today.day) {
-      return 'Today, ${DateFormat('MM/dd/yyyy').format(dateTime)}';
+      return '${LocaleKeys.today.tr}, ${DateFormat('MM/dd/yyyy').format(dateTime)}';
     } else if (dateTime.year == yesterday.year &&
         dateTime.month == yesterday.month &&
         dateTime.day == yesterday.day) {
-      return 'Yesterday, ${DateFormat('MM/dd/yyyy').format(dateTime)}';
+      return '${LocaleKeys.yesterday.tr}, ${DateFormat('MM/dd/yyyy').format(dateTime)}';
     } else {
       return DateFormat('MM/dd/yyyy').format(dateTime);
     }
@@ -1313,7 +1314,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Select Year"),
+          title: Text(LocaleKeys.selectYear.tr),
           content: SizedBox(
             width: 300,
             height: 300,
@@ -1350,7 +1351,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, setState1) {
           return AlertDialog(
-            title: const Text("Select Month"),
+            title:  Text(LocaleKeys.selectMonth.tr),
             contentPadding:
                 const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
             content: SizedBox(

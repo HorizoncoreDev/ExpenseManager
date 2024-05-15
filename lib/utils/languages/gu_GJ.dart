@@ -1,9 +1,10 @@
-Map<String, String> gujarati = {
+Map<String, String> guGJ = {
   ///Intro Screen
   'smartExpense': 'સ્માર્ટ વ્યય',
   'smartSpender': 'સ્માર્ટ વ્યયકર્તા બનો',
   'selectLanguage': 'ભાષા પસંદ કરો',
   'start': 'શરૂ',
+  'plSelectLang': 'કૃપા કરીને આગળ વધતા પહેલા એક ભાષા પસંદ કરો.',
   ///Sign in screen
   'loginText': 'એકાઉન્ટ્સ અને અનેક ડિવાઇસમાં ડેટા સીંક કરવા માટે લોગઇન કરો અને અમારા ઘણા રોમંચક ફિચર્સનો આનંદ માણો',
   'signIn': 'Google સાથે સાઇન ઇન કરો',
@@ -148,7 +149,7 @@ Map<String, String> gujarati = {
   'masterPassword': 'માસ્ટર પાસવર્ડ',
   'forgotPassword': 'પાસવર્ડ ભૂલી ગયો',
   'enterPassword': 'કૃપા કરીને પાસવર્ડ દાખલ કરો',
-  '8CharacterPw': 'કૃપા કરીને 8 અક્ષર વાળો પાસવર્ડ દાખલ કરો',
+  'eightCharacterPw': 'કૃપા કરીને 8 અક્ષર વાળો પાસવર્ડ દાખલ કરો',
   'wrongPassword': 'તમે ખોટો પાસવર્ડ દાખલ કર્યો છે',
   'submitSuccessfully': 'પાસવર્ડ સફળતાપૂર્વક સબમિટ થયો છે',
   'selectBackupType': 'કોઈ બેકઅપ પ્રકાર પસંદ કરો',
@@ -182,4 +183,7 @@ Map<String, String> gujarati = {
   'enterName': 'પ્રથમ નામ દાખલ કરો',
   'enterLastName': 'છેલ્લું નામ દાખલ કરો',
   'enterEmail': 'ઇમેઇલ દાખલ કરો',
+
+  'overview' : 'ઝાંખી'
+
 };
