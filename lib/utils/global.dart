@@ -55,6 +55,7 @@ abstract class SharedPreferencesKeys {
   static const isBudgetAdded = "isBudgetAdded";
   static const userEmail = "userEmail";
   static const currentUserEmail = "currentUserEmail";
+  static const currentUserKey = "currentUserKey";
   static const userFcmToken = "userFcmToken";
   static const userName = "userName";
   static const currentUserName = "currentUserName";

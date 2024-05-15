@@ -323,11 +323,11 @@ class MasterPasswordDialog {
     for (int i = 1; i < data.length; i++) {
       /// Start from index 1 to skip the header row
 
-      String categoryName = data[i][3].toString();
-      int categoryType = data[i][4];
-      int transactionType = data[i][7];
-      int amount = data[i][2];
-      String email = data[i][1].toString();
+      String categoryName = data[i][2].toString();
+      int categoryType = data[i][3];
+      int transactionType = data[i][6];
+      int amount = data[i][1];
+      String email = data[i][0].toString();
 
       int? catIds = await DatabaseHelper().getCategoryID(categoryName, categoryType, transactionType);
       String? catIcon = await DatabaseHelper().getCategoryIcon(catIds, /*categoryName*/ categoryType, transactionType);
@@ -349,19 +349,19 @@ class MasterPasswordDialog {
         cat_type: categoryType,
         cat_color: Colors.blueAccent,
         cat_icon: catIcon ?? "ic_card",
-        payment_method_id: data[i][5] == "Cash" ? 1
-            : data[i][5] == "Online" ? 2
-            : data[i][5] == "Card" ? 3
+        payment_method_id: data[i][4] == "Cash" ? 1
+            : data[i][4] == "Online" ? 2
+            : data[i][4] == "Card" ? 3
             : 1,
-        payment_method_name: data[i][5],
+        payment_method_name: data[i][4],
         status: 1,
-        transaction_date: data[i][6].toString(),
+        transaction_date: data[i][5].toString(),
         transaction_type: transactionType,
-        description: data[i][8].toString(),
+        description: data[i][7].toString(),
         currency_id: AppConstanst.rupeesCurrency,
-        receipt_image1: data[i][9].toString() ?? "",
-        receipt_image2: data[i][10].toString() ?? "",
-        receipt_image3: data[i][11].toString() ?? "",
+        receipt_image1: data[i][8].toString() ?? "",
+        receipt_image2: data[i][9].toString() ?? "",
+        receipt_image3: data[i][10].toString() ?? "",
         created_at: DateTime.now().toString(),
         last_updated: DateTime.now().toString(),
       );

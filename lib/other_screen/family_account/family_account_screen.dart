@@ -7,6 +7,7 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -255,6 +256,12 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                   SharedPreferencesKeys
                                       .currentUserName,
                                   userName);
+
+                              MySharedPreferences.instance
+                                  .addStringToSF(
+                                  SharedPreferencesKeys
+                                      .currentUserKey,
+                                  FirebaseAuth.instance.currentUser!.uid);
                             },
                             child: Container(
                               decoration: BoxDecoration(
@@ -348,6 +355,27 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                                     .currentUserName,
                                                 accessRequestList[index]!
                                                     .receiver_name);
+
+                                        final reference = FirebaseDatabase.instance
+                                            .reference()
+                                            .child(profile_table)
+                                            .orderByChild(ProfileTableFields.email)
+                                            .equalTo(currentUserEmail);
+
+                                        reference.onValue.listen((event) {
+                                          DataSnapshot dataSnapshot = event.snapshot;
+                                          if (event.snapshot.exists) {
+                                            Map<dynamic, dynamic> values =
+                                            dataSnapshot.value as Map<dynamic, dynamic>;
+                                            values.forEach((key, value) async {
+                                              MySharedPreferences.instance
+                                                  .addStringToSF(
+                                                  SharedPreferencesKeys
+                                                      .currentUserKey,
+                                                  value[ProfileTableFields.key]);
+                                            });
+                                          }
+                                        });
                                       },
                                       child: Container(
                                         padding: const EdgeInsets.all(10),

@@ -8,7 +8,6 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -33,6 +32,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   TextEditingController searchController = TextEditingController();
 
   String userEmail = "";
+  String userKey = "";
   bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
   List<DateWiseTransactionModel> dateWiseTransaction = [];
@@ -72,14 +72,26 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
         .then((value) {
       if (value != null) {
-        isSkippedUser = value; MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-        .then((value) {
-      if (value != null) {
-        userEmail = value;
+        isSkippedUser = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+            .then((value) {
+          if (value != null) {
+            userEmail = value;
+          }
+          MySharedPreferences.instance
+              .getStringValuesSF(
+              SharedPreferencesKeys
+                  .currentUserKey)
+              .then((value) {
+            if (value != null) {
+              userKey = value;
+            }
+            getIncomeTransactions("");
+          });
+        });
       }
-      getIncomeTransactions("");
-    });}});
+    });
     getCategories();
     super.initState();
   }
@@ -119,32 +131,30 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
     // showYear = DateFormat('yyyy').format(DateTime.now());
     // showMonth = DateFormat('MMMM').format(DateTime.now());
 
-        if (isSkippedUser) {
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentIncome)
-              .then((value) {
-            if (value != null) {
-              currentIncome = int.parse(value);
-            }
-          });
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
-              .then((value) {
-            if (value != null) {
-              actualBudget = int.parse(value);
-            }
-          });
+    if (isSkippedUser) {
+      MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentIncome)
+          .then((value) {
+        if (value != null) {
+          currentIncome = int.parse(value);
         }
-        else {
-              getProfileData();
-
+      });
+      MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
+          .then((value) {
+        if (value != null) {
+          actualBudget = int.parse(value);
         }
-
+      });
+    } else {
+      getProfileData();
+    }
 
     List<TransactionModel> incomeTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(value.toLowerCase(), userEmail, AppConstanst.incomeTransaction,isSkippedUser)
+        .getTransactionList(value.toLowerCase(), userEmail,userKey,
+            AppConstanst.incomeTransaction, isSkippedUser)
         .then((value) async {
       incomeTransaction = value;
       List<String> dates = [];
@@ -176,7 +186,6 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
               .then((profileData) async {
             profileData!.current_income = "0";
             await DatabaseHelper.instance.updateProfileData(profileData);
-
           });
         }
       } else {
@@ -493,13 +502,19 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                           .length,
                                       itemBuilder: (context, index1) {
                                         return InkWell(
-                                          onTap: (){
-                                            Navigator.of(context, rootNavigator: true)
+                                          onTap: () {
+                                            Navigator.of(context,
+                                                    rootNavigator: true)
                                                 .push(
                                               MaterialPageRoute(
-                                                  builder: (context) => EditSpendingScreen(
-                                                    transactionModel: dateWiseTransaction[index].transactions![index1],
-                                                  )),
+                                                  builder: (context) =>
+                                                      EditSpendingScreen(
+                                                        transactionModel:
+                                                            dateWiseTransaction[
+                                                                        index]
+                                                                    .transactions![
+                                                                index1],
+                                                      )),
                                             )
                                                 .then((value) {
                                               if (value != null) {
@@ -512,8 +527,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                           child: Container(
                                             padding: const EdgeInsets.all(10),
                                             decoration: BoxDecoration(
-                                                color:
-                                                    Helper.getCardColor(context),
+                                                color: Helper.getCardColor(
+                                                    context),
                                                 borderRadius:
                                                     const BorderRadius.all(
                                                         Radius.circular(10))),
@@ -522,18 +537,20 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                                 Container(
                                                   padding:
                                                       const EdgeInsets.all(5),
-                                                  decoration: const BoxDecoration(
-                                                      color: Colors.black,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10))),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                          color: Colors.black,
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10))),
                                                   child: SvgPicture.asset(
                                                     'asset/images/${dateWiseTransaction[index].transactions![index1].cat_icon}.svg',
-                                                    color:
-                                                        dateWiseTransaction[index]
-                                                            .transactions![index1]
-                                                            .cat_color,
+                                                    color: dateWiseTransaction[
+                                                            index]
+                                                        .transactions![index1]
+                                                        .cat_color,
                                                     width: 24,
                                                     height: 24,
                                                   ),
@@ -542,11 +559,14 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                                 Expanded(
                                                   child: Column(
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
-                                                        dateWiseTransaction[index]
-                                                            .transactions![index1]
+                                                        dateWiseTransaction[
+                                                                index]
+                                                            .transactions![
+                                                                index1]
                                                             .cat_name!,
                                                         style: TextStyle(
                                                             color: Helper
@@ -554,15 +574,18 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                                                     context),
                                                             fontSize: 16,
                                                             fontWeight:
-                                                                FontWeight.bold),
+                                                                FontWeight
+                                                                    .bold),
                                                       ),
                                                       Text(
-                                                        dateWiseTransaction[index]
-                                                            .transactions![index1]
+                                                        dateWiseTransaction[
+                                                                index]
+                                                            .transactions![
+                                                                index1]
                                                             .description!,
                                                         style: TextStyle(
-                                                          color:
-                                                              Helper.getTextColor(
+                                                          color: Helper
+                                                              .getTextColor(
                                                                   context),
                                                           fontSize: 14,
                                                         ),
@@ -577,15 +600,22 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                                     Text(
                                                       "+\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
                                                       style: TextStyle(
-                                                          color:
-                                                              Helper.getTextColor(
+                                                          color: Helper
+                                                              .getTextColor(
                                                                   context),
                                                           fontSize: 16,
                                                           fontWeight:
                                                               FontWeight.bold),
                                                     ),
                                                     Text(
-                                                      dateWiseTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
+                                                      dateWiseTransaction[index]
+                                                                  .transactions![
+                                                                      index1]
+                                                                  .payment_method_id ==
+                                                              AppConstanst
+                                                                  .cashPaymentType
+                                                          ? 'Cash'
+                                                          : '',
                                                       style: TextStyle(
                                                         color:
                                                             Helper.getTextColor(
@@ -655,7 +685,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10))),
                                         child: const Text(
-                                          "Add spending",
+                                          "Add income",
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 14),
@@ -720,11 +750,12 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                               selectedMonths.isNotEmpty) {
                             Navigator.pop(context);
                             getFilteredData("");
-                          } if(showYear == "Select Year" ||
-                              selectedMonths.isEmpty){
+                          }
+                          if (showYear == "Select Year" ||
+                              selectedMonths.isEmpty) {
                             Navigator.pop(context);
                             getIncomeTransactions("");
-                          }else if (showYear == "Select Year" ||
+                          } else if (showYear == "Select Year" ||
                               selectedMonths.isEmpty) {
                             Helper.showToast(
                                 "Please ensure you select a year and month to retrieve data");
@@ -1051,9 +1082,10 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 ? categoryList[selectedCategoryIndex].catId!
                 : -1,
             -1,
-            userEmail,
+            userEmail,userKey,
             AppConstanst.incomeTransaction,
-            value,isSkippedUser)
+            value,
+            isSkippedUser)
         .then((value) {
       incomeTransaction = value;
       List<String> dates = [];

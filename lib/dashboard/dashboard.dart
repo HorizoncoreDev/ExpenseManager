@@ -16,22 +16,41 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
-
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   PersistentTabController controller = PersistentTabController(initialIndex: 0);
   bool hideNavBar = false;
   GlobalKey<OverviewScreenState> overviewKey = GlobalKey<OverviewScreenState>();
   GlobalKey<StatisticsScreenState> overviewKey1 =
       GlobalKey<StatisticsScreenState>();
+  String? userEmail, currentUserEmail;
 
   List<Widget> buildScreens() {
     return [
       OverviewScreen(
         key: overviewKey,
+        onAccountUpdate:updateBottomSheet
       ),
       Container(),
       StatisticsScreen(key: overviewKey1),
     ];
+  }
+
+  updateBottomSheet(){
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+            .then((value) {
+          if (value != null) {
+            currentUserEmail = value;
+            setState(() {});
+          }
+        });
+      }
+    });
   }
 
   @override
@@ -54,9 +73,8 @@ class _DashBoardState extends State<DashBoard> {
             .addBoolToSF(SharedPreferencesKeys.isCategoriesAdded, true));
       }
     });
+    updateBottomSheet();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +109,7 @@ class _DashBoardState extends State<DashBoard> {
   List<PersistentBottomNavBarItem> _navBarsItems() {
     return [
       PersistentBottomNavBarItem(
-        icon: Icon(Icons.home),
+        icon: const Icon(Icons.home),
         title: "Overview",
         activeColorPrimary:
             Helper.getBottomNavigationColor(context).selectedItemColor!,
@@ -100,9 +118,13 @@ class _DashBoardState extends State<DashBoard> {
         inactiveColorSecondary: Colors.white,
       ),
       PersistentBottomNavBarItem(
-          icon: const Icon(Icons.add),
+          icon: userEmail == currentUserEmail
+              ? const Icon(Icons.add)
+              : Container(),
           contentPadding: 0,
-          activeColorPrimary: Helper.getMiddleBottomNavBarItem(context),
+          activeColorPrimary: userEmail == currentUserEmail
+              ? Helper.getMiddleBottomNavBarItem(context)
+              : Colors.transparent,
           activeColorSecondary: Helper.getTextColor(context),
           inactiveColorPrimary: Helper.getTextColor(context),
           inactiveColorSecondary: Helper.getTextColor(context),
@@ -129,7 +151,7 @@ class _DashBoardState extends State<DashBoard> {
             });
           }),
       PersistentBottomNavBarItem(
-        icon: Icon(Icons.search),
+        icon: const Icon(Icons.search),
         title: ("Statistics"),
         activeColorPrimary:
             Helper.getBottomNavigationColor(context).selectedItemColor!,

@@ -27,6 +27,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   SearchBloc searchBloc = SearchBloc();
   String userEmail = "";
+  String userKey = "";
   TextEditingController searchController = TextEditingController();
   List<DateWiseTransactionModel> dateWiseTransaction = [];
   List<DateWiseTransactionModel> originalDateWiseTransaction = [];
@@ -71,8 +72,15 @@ class _SearchScreenState extends State<SearchScreen> {
           if (value != null) {
             userEmail = value;
           }
+          MySharedPreferences.instance
+              .getStringValuesSF(
+              SharedPreferencesKeys
+                  .currentUserKey)
+              .then((value) {
+            if (value != null) {
+              userKey = value;}
           getTransactions("");
-        });
+        });});
       }
     });
     getCategories();
@@ -118,7 +126,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     await DatabaseHelper.instance
         .fetchAllDataForYearMonthsAndCategory(showYear, selectedMonths,
-            expenseCatId, incomeCatId, userEmail, value,isSkippedUser)
+            expenseCatId, incomeCatId, userEmail,userKey, value,isSkippedUser)
         .then((value) {
       spendingTransaction = value;
       List<String> dates = [];
@@ -349,7 +357,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     await DatabaseHelper.instance
         .getTransactionList(
-            category.toLowerCase(), userEmail, -1, isSkippedUser)
+            category.toLowerCase(), userEmail,userKey, -1, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
