@@ -1,4 +1,3 @@
-import 'package:expense_manager/db_models/expense_category_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/statistics/search/CommonCategoryModel.dart';
 import 'package:expense_manager/utils/extensions.dart';
@@ -6,7 +5,6 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -33,6 +31,7 @@ class SpendingDetailScreen extends StatefulWidget {
 class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
   SpendingDetailBloc spendingDetailBloc = SpendingDetailBloc();
   String userEmail = "";
+  String userKey = "";
   bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
   List<DateWiseTransactionModel> dateWiseTransaction = [];
@@ -74,13 +73,23 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
       if (value != null) {
         userEmail = value;
       }
-      MySharedPreferences.instance
-          .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-          .then((value) async {
-        if (value != null) {
-          isSkippedUser = value;
-          getTransactions("");
-        }});
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
+            .then((value) {
+          if (value != null) {
+            userKey = value;
+          }
+            MySharedPreferences.instance
+                .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+                .then((value) async {
+              if (value != null) {
+                isSkippedUser = value;
+                getTransactions("");
+              }
+            });
+
+        });
+
     });
     getCategories();
     super.initState();
@@ -121,35 +130,30 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
     // showYear = DateFormat('yyyy').format(DateTime.now());
     //showMonth = DateFormat('MMMM').format(DateTime.now());
 
-        if (isSkippedUser) {
+    if (isSkippedUser) {
+      MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentBalance)
+          .then((value) {
+        if (value != null) {
+          currentBalance = int.parse(value);
           MySharedPreferences.instance
-              .getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentBalance)
+              .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
               .then((value) {
             if (value != null) {
-              currentBalance = int.parse(value);
-              MySharedPreferences.instance
-                  .getStringValuesSF(
-                      SharedPreferencesKeys.skippedUserActualBudget)
-                  .then((value) {
-                if (value != null) {
-                  actualBudget = int.parse(value);
-                }
-              });
+              actualBudget = int.parse(value);
             }
           });
         }
-        else {
-              getProfileData();
-
-        }
-
+      });
+    } else {
+      getProfileData();
+    }
 
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(
-            category.toLowerCase(), userEmail, AppConstanst.spendingTransaction,isSkippedUser)
+        .getTransactionList(category.toLowerCase(), userEmail, userKey,
+            AppConstanst.spendingTransaction, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -210,8 +214,6 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
       spendingPercentage = totalMonthlySpentAmount > 0 ? 100 - percentage : 0;
       setState(() {});
     });
-
-
   }
 
   @override
@@ -404,7 +406,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                     if (showYear != LocaleKeys.selectYear.tr &&
                                         selectedMonths.isNotEmpty) {
                                       getFilteredData("");
-                                    }else {
+                                    } else {
                                       getTransactions("");
                                     }
                                   },
@@ -438,7 +440,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                               if (showYear != LocaleKeys.selectYear.tr &&
                                   selectedMonths.isNotEmpty) {
                                 getFilteredData("");
-                              }else {
+                              } else {
                                 getTransactions("");
                               }
                             }
@@ -484,13 +486,19 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                           .length,
                                       itemBuilder: (context, index1) {
                                         return InkWell(
-                                          onTap: (){
-                                            Navigator.of(context, rootNavigator: true)
+                                          onTap: () {
+                                            Navigator.of(context,
+                                                    rootNavigator: true)
                                                 .push(
                                               MaterialPageRoute(
-                                                  builder: (context) => EditSpendingScreen(
-                                                    transactionModel: dateWiseTransaction[index].transactions![index1],
-                                                  )),
+                                                  builder: (context) =>
+                                                      EditSpendingScreen(
+                                                        transactionModel:
+                                                            dateWiseTransaction[
+                                                                        index]
+                                                                    .transactions![
+                                                                index1],
+                                                      )),
                                             )
                                                 .then((value) {
                                               if (value != null) {
@@ -503,8 +511,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                           child: Container(
                                             padding: const EdgeInsets.all(10),
                                             decoration: BoxDecoration(
-                                                color:
-                                                    Helper.getCardColor(context),
+                                                color: Helper.getCardColor(
+                                                    context),
                                                 borderRadius:
                                                     const BorderRadius.all(
                                                         Radius.circular(10))),
@@ -513,18 +521,20 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                                 Container(
                                                   padding:
                                                       const EdgeInsets.all(5),
-                                                  decoration: const BoxDecoration(
-                                                      color: Colors.black,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10))),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                          color: Colors.black,
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10))),
                                                   child: SvgPicture.asset(
                                                     'asset/images/${dateWiseTransaction[index].transactions![index1].cat_icon}.svg',
-                                                    color:
-                                                        dateWiseTransaction[index]
-                                                            .transactions![index1]
-                                                            .cat_color,
+                                                    color: dateWiseTransaction[
+                                                            index]
+                                                        .transactions![index1]
+                                                        .cat_color,
                                                     width: 24,
                                                     height: 24,
                                                   ),
@@ -533,11 +543,14 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                                 Expanded(
                                                   child: Column(
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
-                                                        dateWiseTransaction[index]
-                                                            .transactions![index1]
+                                                        dateWiseTransaction[
+                                                                index]
+                                                            .transactions![
+                                                                index1]
                                                             .cat_name!,
                                                         style: TextStyle(
                                                             color: Helper
@@ -545,15 +558,18 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                                                     context),
                                                             fontSize: 16,
                                                             fontWeight:
-                                                                FontWeight.bold),
+                                                                FontWeight
+                                                                    .bold),
                                                       ),
                                                       Text(
-                                                        dateWiseTransaction[index]
-                                                            .transactions![index1]
+                                                        dateWiseTransaction[
+                                                                index]
+                                                            .transactions![
+                                                                index1]
                                                             .description!,
                                                         style: TextStyle(
-                                                          color:
-                                                              Helper.getTextColor(
+                                                          color: Helper
+                                                              .getTextColor(
                                                                   context),
                                                           fontSize: 14,
                                                         ),
@@ -568,15 +584,22 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                                     Text(
                                                       "-${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactions![index1].amount!}",
                                                       style: TextStyle(
-                                                          color:
-                                                              Helper.getTextColor(
+                                                          color: Helper
+                                                              .getTextColor(
                                                                   context),
                                                           fontSize: 16,
                                                           fontWeight:
                                                               FontWeight.bold),
                                                     ),
                                                     Text(
-                                                      dateWiseTransaction[index].transactions![index1].payment_method_id == AppConstanst.cashPaymentType ? 'Cash' : '',
+                                                      dateWiseTransaction[index]
+                                                                  .transactions![
+                                                                      index1]
+                                                                  .payment_method_id ==
+                                                              AppConstanst
+                                                                  .cashPaymentType
+                                                          ? 'Cash'
+                                                          : '',
                                                       style: TextStyle(
                                                         color:
                                                             Helper.getTextColor(
@@ -705,12 +728,13 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        if(isFilterCleared ){
+                        if (isFilterCleared) {
                           isFilterCleared = false;
                           if (showYear != LocaleKeys.selectYear.tr &&
                               selectedMonths.isNotEmpty) {
                             Navigator.pop(context);
                             getFilteredData("");
+
                           } if(showYear == LocaleKeys.selectYear.tr ||
                               selectedMonths.isEmpty){
                             Navigator.pop(context);
@@ -720,7 +744,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                             Helper.showToast(
                                 LocaleKeys.selectMonthOrYearText.tr);
                           }
-                        }else {
+                        } else {
                           isFilterCleared = false;
                           if (showYear != LocaleKeys.selectYear.tr &&
                               selectedMonths.isNotEmpty) {
@@ -1018,7 +1042,10 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                 : -1,
             -1,
             userEmail,
-            AppConstanst.spendingTransaction,value,isSkippedUser)
+            userKey,
+            AppConstanst.spendingTransaction,
+            value,
+            isSkippedUser)
         .then((value) {
       spendingTransaction = value;
       List<String> dates = [];
@@ -1058,8 +1085,9 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
         var dates = dateWiseTransaction[0].transactionDate!.split('/');
         date = '${dates[1]}/${dates[2]}';
       }
-       spendingPercentage =
-      totalMonthlySpentAmount > 0 ? (totalMonthlySpentAmount / actualBudget) * 100 : 100;
+      spendingPercentage = totalMonthlySpentAmount > 0
+          ? (totalMonthlySpentAmount / actualBudget) * 100
+          : 100;
       setState(() {});
     });
   }

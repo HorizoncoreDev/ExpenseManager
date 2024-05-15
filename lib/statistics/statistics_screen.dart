@@ -1,6 +1,3 @@
-import 'dart:ffi';
-import 'dart:math';
-
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/add_spending_screen.dart';
@@ -11,13 +8,11 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:mrx_charts/mrx_charts.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../overview_screen/add_spending/DateWiseTransactionModel.dart';
@@ -87,6 +82,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   String incomeSelectedCategoryName = "";
   int incomeSelectedCategoryIndex = -1;
   String userEmail = "";
+  String currentUserEmail = "";
+  String currentUserKey = "";
   bool isSkippedUser = false;
   bool isSpendingFilterCleared = false;
   bool isIncomeFilterCleared = false;
@@ -98,15 +95,23 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         .then((value) {
       if (value != null) {
         isSkippedUser = value;
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
-        .then((value) {
-      if (value != null) {
-        userEmail = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
+            .then((value) {
+          if (value != null) {
+            currentUserKey = value;
+            MySharedPreferences.instance
+                .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+                .then((value) {
+              if (value != null) {
+                currentUserEmail = value;
+                getTransactions();
+              }
+            });
+          }
+        });
       }
-      getTransactions();
     });
-      }});
 
     getCategories();
     super.initState();
@@ -127,7 +132,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   getTransactions() async {
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction, userEmail,isSkippedUser)
+        .fetchDataForCurrentMonth(
+            AppConstanst.spendingTransaction, currentUserEmail,currentUserKey, isSkippedUser)
         .then((value) {
       parseSpendingList(value);
     });
@@ -185,7 +191,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   getIncomeData() async {
     dateWiseIncomeTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction, userEmail,isSkippedUser)
+        .fetchDataForCurrentMonth(
+            AppConstanst.incomeTransaction, currentUserEmail,currentUserKey, isSkippedUser)
         .then((value) {
       parseIncomeList(value);
     });
@@ -286,9 +293,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               incomeSelectedCategoryIndex != -1
                   ? incomeCategoryList[incomeSelectedCategoryIndex].catId!
                   : -1,
-              userEmail,
+              currentUserEmail,
+              currentUserKey,
               AppConstanst.incomeTransaction,
-              "")
+              "",isSkippedUser)
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
@@ -310,9 +318,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   ? spendingCategoryList[spendingSelectedCategoryIndex].catId!
                   : -1,
               -1,
-              userEmail,
+              currentUserEmail,
+              currentUserKey,
               AppConstanst.spendingTransaction,
-              "")
+              "",isSkippedUser)
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
@@ -487,6 +496,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     setState(() {
                                       currPage = 2;
                                     });
+
                                     if (incomeShowYear != LocaleKeys.selectYear.tr && incomeShowMonth != LocaleKeys.selectMonth.tr) {
                                       getFilteredData();
                                     } else {
@@ -1020,6 +1030,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             getTransactions();
                           } else {
                             isSpendingFilterCleared = false;
+
                             if (spendingShowYear != LocaleKeys.selectYear.tr && spendingShowMonth != LocaleKeys.selectMonth.tr) {
                               Navigator.pop(context);
                               getFilteredData();
@@ -1037,6 +1048,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             getTransactions();
                           } else {
                             isIncomeFilterCleared = false;
+
                             if (incomeShowYear != LocaleKeys.selectYear.tr && incomeShowMonth != LocaleKeys.selectMonth.tr) {
                               Navigator.pop(context);
                               getFilteredData();
@@ -1378,7 +1390,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           setState1(() {
                             if (currPage == 1) {
                               if (spendingSelectedMonthIndex != -1) {
-                                spendingMonthList[spendingSelectedMonthIndex].isSelected = false;
+                                spendingMonthList[spendingSelectedMonthIndex]
+                                    .isSelected = false;
                               }
                               spendingMonthList[index].isSelected = true;
                               spendingSelectedMonthIndex = index;
@@ -1387,7 +1400,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               //spendingMonthList[index].isSelected = !spendingMonthList[index].isSelected;
                             } else {
                               if (incomeSelectedMonthIndex != -1) {
-                                incomeMonthList[incomeSelectedMonthIndex].isSelected = false;
+                                incomeMonthList[incomeSelectedMonthIndex]
+                                    .isSelected = false;
                               }
                               incomeMonthList[index].isSelected = true;
                               incomeSelectedMonthIndex = index;
@@ -1496,11 +1510,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
     return SizedBox(
       height: 300,
-
       child: SfCartesianChart(
           plotAreaBackgroundColor: Colors.black,
           backgroundColor: Colors.transparent,
-          plotAreaBackgroundImage:  const AssetImage('asset/images/ic_phone.png'),
+          plotAreaBackgroundImage:
+              const AssetImage('asset/images/ic_phone.png'),
           tooltipBehavior: TooltipBehavior(
               enable: true, header: type == 1 ? "Spending" : "Income"),
           primaryYAxis: NumericAxis(

@@ -307,7 +307,7 @@ class _SignInScreenState extends State<SignInScreen> {
             });
 
             await DatabaseHelper.instance
-                .getTransactionList("", "", -1,true)
+                .getTransactionList("", "","", -1,true)
                 .then((value) async {
               for (var t in value) {
                 // t.member_id = 1;
@@ -330,6 +330,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
             MySharedPreferences.instance
                 .addStringToSF(SharedPreferencesKeys.currentUserEmail, user.email);
+           MySharedPreferences.instance
+                .addStringToSF(SharedPreferencesKeys.currentUserKey, FirebaseAuth.instance.currentUser!.uid);
             MySharedPreferences.instance
                 .addStringToSF(SharedPreferencesKeys.userName, user.displayName);
             MySharedPreferences.instance
@@ -395,20 +397,31 @@ class _SignInScreenState extends State<SignInScreen> {
 
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.currentUserEmail, user.email);
+                  MySharedPreferences.instance
+                      .addStringToSF(SharedPreferencesKeys.currentUserKey, FirebaseAuth.instance.currentUser!.uid);
+
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.currentUserName, user.displayName);
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.userName, user.displayName);
                   MySharedPreferences.instance
                       .addBoolToSF(SharedPreferencesKeys.isLogin, true);
-                  MySharedPreferences.instance.addBoolToSF(
-                      SharedPreferencesKeys.isBudgetAdded, true);
+                  if(profileModel!.actual_budget=="0"){
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const BudgetScreen()),
+                            (Route<dynamic> route) => false);
+                  }else {
+                    MySharedPreferences.instance.addBoolToSF(
+                        SharedPreferencesKeys.isBudgetAdded, true);
 
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const DashBoard()),
-                          (Route<dynamic> route) => false);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const DashBoard()),
+                            (Route<dynamic> route) => false);
+                  }
                 }
                 else {
                   if(!profileCheckCalledOnce) {
@@ -437,6 +450,9 @@ class _SignInScreenState extends State<SignInScreen> {
                         SharedPreferencesKeys.userName, user.displayName);
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.currentUserEmail, user.email);
+                    MySharedPreferences.instance
+                        .addStringToSF(SharedPreferencesKeys.currentUserKey, FirebaseAuth.instance.currentUser!.uid);
+
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.currentUserName, user.displayName);
                     MySharedPreferences.instance
