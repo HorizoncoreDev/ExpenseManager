@@ -15,8 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 import '../db_models/request_model.dart';
 import '../db_models/transaction_model.dart';
@@ -44,11 +44,10 @@ class OverviewScreenState extends State<OverviewScreen> {
   int currentBalance = 0;
   int currentIncome = 0;
   int actualBudget = 0;
-  bool isSkippedUser = false,loading = true;
+  bool isSkippedUser = false, loading = true;
   final databaseHelper = DatabaseHelper();
   ProfileModel profileModel = ProfileModel();
   List<TransactionModel> spendingTransaction = [];
-
 
   @override
   void initState() {
@@ -57,31 +56,32 @@ class OverviewScreenState extends State<OverviewScreen> {
         .then((value) async {
       if (value != null) {
         isSkippedUser = value;
-if(isSkippedUser){
-  getTransactions();
-}else {
-  MySharedPreferences.instance
-      .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-      .then((value) {
-    if (value != null) {
-      userEmail = value;
-      MySharedPreferences.instance
-          .getStringValuesSF(SharedPreferencesKeys.currentUserName)
-          .then((value) {
-        if (value != null) {
-          userName = value;
+        if (isSkippedUser) {
           getTransactions();
+        } else {
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+              .then((value) {
+            if (value != null) {
+              userEmail = value;
+              MySharedPreferences.instance
+                  .getStringValuesSF(SharedPreferencesKeys.currentUserName)
+                  .then((value) {
+                if (value != null) {
+                  userName = value;
+                  getTransactions();
+                }
+              });
+            }
+          });
         }
-      });
-    }
-  });
-}
-      }});
+      }
+    });
 
     super.initState();
   }
 
-  void checkRequests(){
+  void checkRequests() {
     final reference = FirebaseDatabase.instance
         .reference()
         .child(request_table)
@@ -92,7 +92,7 @@ if(isSkippedUser){
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =
-        dataSnapshot.value as Map<dynamic, dynamic>;
+            dataSnapshot.value as Map<dynamic, dynamic>;
         values.forEach((key, value) {
           if (value['status'] == AppConstanst.pendingRequest) {
             RequestModel requestModel = RequestModel(
@@ -110,8 +110,8 @@ if(isSkippedUser){
     });
   }
 
-  void sendRequestNotification(RequestModel requesterModel, ProfileModel profileModel) async {
-
+  void sendRequestNotification(
+      RequestModel requesterModel, ProfileModel profileModel) async {
     final reference = FirebaseDatabase.instance
         .reference()
         .child(profile_table)
@@ -122,36 +122,34 @@ if(isSkippedUser){
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =
-        dataSnapshot.value as Map<dynamic, dynamic>;
+            dataSnapshot.value as Map<dynamic, dynamic>;
         values.forEach((key, value) async {
-
           await http.post(
             Uri.parse('https://fcm.googleapis.com/fcm/send'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization':'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
+              'Authorization':
+                  'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
             },
             body: jsonEncode({
               'to': value['fcm_token'],
-              'priority':'high',
+              'priority': 'high',
               'notification': {
                 'title': 'Hello ${requesterModel.receiver_name},',
-                'body': 'You have a new request from ${requesterModel.requester_name}',
+                'body':
+                    'You have a new request from ${requesterModel.requester_name}',
               },
             }),
           );
         });
       }
-
     });
-
-
   }
 
   getProfileData() async {
     try {
       ProfileModel? fetchedProfileData =
-      await databaseHelper.getProfileData(userEmail);
+          await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileModel = fetchedProfileData!;
         currentBalance = int.parse(profileModel.current_balance!);
@@ -164,31 +162,31 @@ if(isSkippedUser){
     }
   }
 
-  getTransactions()  async {
-        if (isSkippedUser) {
-          MySharedPreferences.instance
-              .getStringValuesSF(
-              SharedPreferencesKeys.skippedUserCurrentBalance)
-              .then((value) {
-            if (value != null) {
-              currentBalance = int.parse(value);
-            }
-          });
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
-              .then((value) {
-            if (value != null) {
-              actualBudget = int.parse(value);
-            }
-          });
-        } else {
-              getProfileData();
+  getTransactions() async {
+    if (isSkippedUser) {
+      MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentBalance)
+          .then((value) {
+        if (value != null) {
+          currentBalance = int.parse(value);
         }
+      });
+      MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
+          .then((value) {
+        if (value != null) {
+          actualBudget = int.parse(value);
+        }
+      });
+    } else {
+      getProfileData();
+    }
 
     spendingTransaction = [];
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,userEmail,isSkippedUser)
+        .fetchDataForCurrentMonth(
+            AppConstanst.spendingTransaction, userEmail, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -204,8 +202,8 @@ if(isSkippedUser){
             dates.add(t.transaction_date!.split(' ')[0]);
           }
         }
-        if(!isSkippedUser) {
-          if (t.member_email == "" ) {
+        if (!isSkippedUser) {
+          if (t.member_email == "") {
             // t.member_id = profileModel.id;
             t.member_email = profileModel.email;
             await databaseHelper.updateTransaction(t);
@@ -219,10 +217,14 @@ if(isSkippedUser){
               SharedPreferencesKeys.skippedUserCurrentBalance,
               actualBudget.toString());
           currentBalance = actualBudget;
-          setState(() {loading = false;});
+          setState(() {
+            loading = false;
+          });
         } else {
           currentBalance = actualBudget;
-          setState(() {loading = false;});
+          setState(() {
+            loading = false;
+          });
           await DatabaseHelper.instance
               .getProfileData(userEmail)
               .then((profileData) async {
@@ -230,8 +232,7 @@ if(isSkippedUser){
             await DatabaseHelper.instance.updateProfileData(profileData);
           });
         }
-      }
-      else {
+      } else {
         dates.sort((a, b) => b.compareTo(a));
         for (var date in dates) {
           int totalAmount = 0;
@@ -242,8 +243,8 @@ if(isSkippedUser){
               totalAmount = totalAmount + t.amount!;
             } else {
               DateWiseTransactionModel? found =
-              dateWiseSpendingTransaction.firstWhereOrNull((element) =>
-              element.transactionDate!.split(' ')[0] == date);
+                  dateWiseSpendingTransaction.firstWhereOrNull((element) =>
+                      element.transactionDate!.split(' ')[0] == date);
               if (found == null) {
                 continue;
               } else {
@@ -257,15 +258,14 @@ if(isSkippedUser){
               transactionDay: Helper.getTransactionDay(date),
               transactions: newTransaction));
         }
-        setState(() {loading = false;});
+        setState(() {
+          loading = false;
+        });
       }
-
-
     });
-
   }
 
-  getIncomeTransactions()  {
+  getIncomeTransactions() {
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
         .then((value) async {
@@ -287,79 +287,76 @@ if(isSkippedUser){
             }
           });
         } else {
-               getProfileData();
-
+          getProfileData();
         }
 
+        List<TransactionModel> incomeTransaction = [];
+        dateWiseIncomeTransaction = [];
+        await DatabaseHelper.instance
+            .fetchDataForCurrentMonth(
+                AppConstanst.incomeTransaction, userEmail, isSkippedUser)
+            .then((value) async {
+          incomeTransaction = value;
+          List<String> dates = [];
 
-    List<TransactionModel> incomeTransaction = [];
-    dateWiseIncomeTransaction = [];
-    await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction,userEmail,isSkippedUser)
-        .then((value) async {
-      incomeTransaction = value;
-      List<String> dates = [];
+          DateTime now = DateTime.now();
+          String currentMonthName = DateFormat('MMMM').format(now);
 
-      DateTime now = DateTime.now();
-      String currentMonthName = DateFormat('MMMM').format(now);
-
-      for (var t in incomeTransaction) {
-        DateFormat format = DateFormat("dd/MM/yyyy");
-        DateTime parsedDate = format.parse(t.transaction_date!);
-        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
-        if (transactionMonthName == currentMonthName) {
-          if (!dates.contains(t.transaction_date!.split(' ')[0])) {
-            dates.add(t.transaction_date!.split(' ')[0]);
-          }
-        }
-      }
-      if (dates.isEmpty) {
-        if (isSkippedUser) {
-          MySharedPreferences.instance.addStringToSF(
-              SharedPreferencesKeys.skippedUserCurrentIncome, "0");
-          currentIncome = 0;
-          setState(() {});
-        } else {
-          currentIncome = 0;
-          setState(() {});
-          await DatabaseHelper.instance
-              .getProfileData(userEmail)
-              .then((profileData) async {
-            profileData!.current_income = "0";
-            await DatabaseHelper.instance.updateProfileData(profileData);
-
-          });
-        }
-      } else {
-        dates.sort((a, b) => b.compareTo(a));
-        for (var date in dates) {
-          int totalAmount = 0;
-          List<TransactionModel> newTransaction = [];
           for (var t in incomeTransaction) {
-            if (date == t.transaction_date!.split(' ')[0]) {
-              newTransaction.add(t);
-              totalAmount = totalAmount + t.amount!;
-            } else {
-              DateWiseTransactionModel? found =
-              dateWiseIncomeTransaction.firstWhereOrNull((element) =>
-              element.transactionDate!.split(' ')[0] == date);
-              if (found == null) {
-                continue;
-              } else {
-                break;
+            DateFormat format = DateFormat("dd/MM/yyyy");
+            DateTime parsedDate = format.parse(t.transaction_date!);
+            String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+            if (transactionMonthName == currentMonthName) {
+              if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+                dates.add(t.transaction_date!.split(' ')[0]);
               }
             }
           }
-          dateWiseIncomeTransaction.add(DateWiseTransactionModel(
-              transactionDate: date,
-              transactionTotal: totalAmount,
-              transactionDay: Helper.getTransactionDay(date),
-              transactions: newTransaction));
-        }
-        setState(() {});
-      }
-    });
-
+          if (dates.isEmpty) {
+            if (isSkippedUser) {
+              MySharedPreferences.instance.addStringToSF(
+                  SharedPreferencesKeys.skippedUserCurrentIncome, "0");
+              currentIncome = 0;
+              setState(() {});
+            } else {
+              currentIncome = 0;
+              setState(() {});
+              await DatabaseHelper.instance
+                  .getProfileData(userEmail)
+                  .then((profileData) async {
+                profileData!.current_income = "0";
+                await DatabaseHelper.instance.updateProfileData(profileData);
+              });
+            }
+          } else {
+            dates.sort((a, b) => b.compareTo(a));
+            for (var date in dates) {
+              int totalAmount = 0;
+              List<TransactionModel> newTransaction = [];
+              for (var t in incomeTransaction) {
+                if (date == t.transaction_date!.split(' ')[0]) {
+                  newTransaction.add(t);
+                  totalAmount = totalAmount + t.amount!;
+                } else {
+                  DateWiseTransactionModel? found =
+                      dateWiseIncomeTransaction.firstWhereOrNull((element) =>
+                          element.transactionDate!.split(' ')[0] == date);
+                  if (found == null) {
+                    continue;
+                  } else {
+                    break;
+                  }
+                }
+              }
+              dateWiseIncomeTransaction.add(DateWiseTransactionModel(
+                  transactionDate: date,
+                  transactionTotal: totalAmount,
+                  transactionDay: Helper.getTransactionDay(date),
+                  transactions: newTransaction));
+            }
+            setState(() {});
+          }
+        });
       }
     });
   }
@@ -395,13 +392,13 @@ if(isSkippedUser){
                               20.heightBox,
                               Padding(
                                 padding:
-                                const EdgeInsets.symmetric(horizontal: 20),
+                                    const EdgeInsets.symmetric(horizontal: 20),
                                 child: Row(
                                   children: [
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             "${userName ?? LocaleKeys.guest.tr}: ${AppConstanst.currencySymbol}${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
@@ -421,10 +418,12 @@ if(isSkippedUser){
                                     ),
                                     InkWell(
                                         onTap: () {
-                                          Navigator.of(context, rootNavigator: true).push(
+                                          Navigator.of(context,
+                                                  rootNavigator: true)
+                                              .push(
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                const SearchScreen()),
+                                                    const SearchScreen()),
                                           );
                                         },
                                         child: const Icon(
@@ -435,25 +434,33 @@ if(isSkippedUser){
                                     10.widthBox,
                                     InkWell(
                                       onTap: () {
-                                        Navigator.of(context, rootNavigator: true).push(
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .push(
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                              const OtherScreen()),
-                                        ).then((value) {
+                                                  const OtherScreen()),
+                                        )
+                                            .then((value) {
                                           MySharedPreferences.instance
-                                              .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+                                              .getStringValuesSF(
+                                                  SharedPreferencesKeys
+                                                      .currentUserEmail)
                                               .then((value) {
                                             if (value != null) {
                                               userEmail = value;
                                               MySharedPreferences.instance
-                                                  .getStringValuesSF(SharedPreferencesKeys.currentUserName)
+                                                  .getStringValuesSF(
+                                                      SharedPreferencesKeys
+                                                          .currentUserName)
                                                   .then((value) {
                                                 if (value != null) {
                                                   userName = value;
                                                   getTransactions();
                                                 }
                                               });
-                                            }});
+                                            }
+                                          });
                                         });
                                       },
                                       child: Container(
@@ -483,9 +490,9 @@ if(isSkippedUser){
                                   Tab(child: Text(LocaleKeys.income.tr)),
                                 ],
                                 onTap: (index) {
-                                 setState(() {
-                                   loading = true;
-                                 });
+                                  setState(() {
+                                    loading = true;
+                                  });
                                   AppConstanst.selectedTabIndex = index;
                                   if (index == 0) {
                                     getTransactions();
@@ -494,10 +501,10 @@ if(isSkippedUser){
                                   }
                                 },
                               ),
-
                               Expanded(
                                 child: TabBarView(
-                                    physics: const NeverScrollableScrollPhysics(),
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     children: [
                                       _spendingView(overviewBloc),
                                       _incomeView(overviewBloc)
@@ -531,7 +538,7 @@ if(isSkippedUser){
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                      const BorderRadius.all(Radius.circular(10))),
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -589,8 +596,9 @@ if(isSkippedUser){
                                 Container(
                                   padding: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Helper.getChartColor(context),),
+                                    shape: BoxShape.circle,
+                                    color: Helper.getChartColor(context),
+                                  ),
                                 ),
                                 5.widthBox,
                                 Text(
@@ -640,12 +648,10 @@ if(isSkippedUser){
                     alignment: Alignment.bottomRight,
                     child: InkWell(
                       onTap: () {
-
-                        Navigator.of(context, rootNavigator: true)
-                        .push(
+                        Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute(
                               builder: (context) =>
-                              const SpendingDetailScreen()),
+                                  const SpendingDetailScreen()),
                         );
                       },
                       child: Container(
@@ -666,197 +672,222 @@ if(isSkippedUser){
                 ),
               ],
             ),
-
-            if (dateWiseSpendingTransaction.isNotEmpty ) 20.heightBox,
-            if(loading)
-              100.heightBox,
-            if(loading)
-            const CircularProgressIndicator(color: Colors.blue,),
-
+            if (dateWiseSpendingTransaction.isNotEmpty) 20.heightBox,
+            if (loading) 100.heightBox,
+            if (loading)
+              const CircularProgressIndicator(
+                color: Colors.blue,
+              ),
             if (dateWiseSpendingTransaction.isNotEmpty && !loading)
               ListView.separated(
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
                 itemCount: dateWiseSpendingTransaction.length,
                 itemBuilder: (context, index) {
-                 if (dateWiseSpendingTransaction.isNotEmpty && dateWiseSpendingTransaction[index]
-                      .transactions!
-                      .isNotEmpty) {
-                  return Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  if (dateWiseSpendingTransaction.isNotEmpty &&
+                      dateWiseSpendingTransaction[index]
+                          .transactions!
+                          .isNotEmpty) {
+                    return Column(
                       children: [
-                        Text(
-                          "${dateWiseSpendingTransaction[index].transactionDay}, ${dateWiseSpendingTransaction[index].transactionDate}",
-                          style: const TextStyle(
-                              color: Colors.grey, fontSize: 14),
-                        ),
-                        Text(
-                          "-${AppConstanst.currencySymbol}${dateWiseSpendingTransaction[index].transactionTotal}",
-                          style: const TextStyle(
-                              color: Colors.pink, fontSize: 14),
-                        ),
-                      ],
-                    ),
-                    15.heightBox,
-                    if (dateWiseSpendingTransaction[index]
-                        .transactions!
-                        .isNotEmpty )
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const ScrollPhysics(),
-                        itemCount: dateWiseSpendingTransaction[index].transactions!.length,
-                        itemBuilder: (context, index1) {
-                          final transaction = dateWiseSpendingTransaction[index].transactions![index1];
-                          return Dismissible(
-                            key: Key(transaction.key!), // Unique key for each item
-                            direction: DismissDirection.endToStart, // Allow swiping from right to left
-                            background: Container(),
-                            secondaryBackground: Container(
-                              color: Colors.red,
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              alignment: Alignment.centerRight,
-                              child: const Icon(Icons.delete, color: Colors.white),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "${dateWiseSpendingTransaction[index].transactionDay}, ${dateWiseSpendingTransaction[index].transactionDate}",
+                              style: const TextStyle(
+                                  color: Colors.grey, fontSize: 14),
                             ),
-                            confirmDismiss: (direction) async {
-                              return await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title:  Text(LocaleKeys.confirm.tr),
-                                    content:  Text(LocaleKeys.deleteTransaction.tr),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () => Navigator.of(context).pop(false),
-                                        child: Text(LocaleKeys.cancel.tr),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop(true);
-                                        },
-                                        child: Text(LocaleKeys.delete.tr),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            onDismissed: (direction) async {
-                              setState(() {
-                                dateWiseSpendingTransaction[index].transactions!.removeAt(index1);
-                              });
-                              await databaseHelper.deleteTransactionFromDB(transaction,isSkippedUser);
-
-                              setState(() {
-                                currentBalance = currentBalance + transaction.amount!;
-                              });
-                              await DatabaseHelper.instance
-                                  .getProfileData(userEmail)
-                                  .then((profileData) async {
-                                    profileData!.current_balance = currentBalance.toString();
-                                await DatabaseHelper.instance.updateProfileData(profileData);
-
-                                getTransactions();
-                              });
-                            },
-                            child: InkWell(
-                                onTap: (){
-                                  Navigator.of(context, rootNavigator: true)
-                                      .push(
-                                    MaterialPageRoute(
-                                        builder: (context) => EditSpendingScreen(
-                                          transactionModel: transaction,
-                                        )),
-                                  )
-                                      .then((value) {
-                                    if (value != null) {
-                                      if (value) {
-                                        getTransactions();
-                                      }
-                                    }
-                                  });
-                                },
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Helper.getCardColor(context),
-                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                            Text(
+                              "-${AppConstanst.currencySymbol}${dateWiseSpendingTransaction[index].transactionTotal}",
+                              style: const TextStyle(
+                                  color: Colors.pink, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        15.heightBox,
+                        if (dateWiseSpendingTransaction[index]
+                            .transactions!
+                            .isNotEmpty)
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const ScrollPhysics(),
+                            itemCount: dateWiseSpendingTransaction[index]
+                                .transactions!
+                                .length,
+                            itemBuilder: (context, index1) {
+                              final transaction =
+                                  dateWiseSpendingTransaction[index]
+                                      .transactions![index1];
+                              return Dismissible(
+                                key: Key(transaction.key!),
+                                // Unique key for each item
+                                direction: DismissDirection.endToStart,
+                                // Allow swiping from right to left
+                                background: Container(),
+                                secondaryBackground: Container(
+                                  color: Colors.red,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  alignment: Alignment.centerRight,
+                                  child: const Icon(Icons.delete,
+                                      color: Colors.white),
                                 ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(5),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                                      ),
-                                      child: SvgPicture.asset(
-                                        'asset/images/${transaction.cat_icon}.svg',
-                                        color: transaction.cat_color,
-                                        width: 24,
-                                        height: 24,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 15),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            transaction.cat_name!,
-                                            style: TextStyle(
-                                              color: Helper.getTextColor(context),
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                confirmDismiss: (direction) async {
+                                  return await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text(LocaleKeys.confirm.tr),
+                                        content: Text(
+                                            LocaleKeys.deleteTransaction.tr),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context)
+                                                    .pop(false),
+                                            child: Text(LocaleKeys.cancel.tr),
                                           ),
-                                          Text(
-                                            transaction.description!,
-                                            style: TextStyle(
-                                              color: Helper.getTextColor(context),
-                                              fontSize: 14,
-                                            ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(true);
+                                            },
+                                            child: Text(LocaleKeys.delete.tr),
                                           ),
                                         ],
-                                      ),
+                                      );
+                                    },
+                                  );
+                                },
+                                onDismissed: (direction) async {
+                                  setState(() {
+                                    dateWiseSpendingTransaction[index]
+                                        .transactions!
+                                        .removeAt(index1);
+                                  });
+                                  await databaseHelper.deleteTransactionFromDB(
+                                      transaction, isSkippedUser);
+
+                                  setState(() {
+                                    currentBalance =
+                                        currentBalance + transaction.amount!;
+                                  });
+                                  await DatabaseHelper.instance
+                                      .getProfileData(userEmail)
+                                      .then((profileData) async {
+                                    profileData!.current_balance =
+                                        currentBalance.toString();
+                                    await DatabaseHelper.instance
+                                        .updateProfileData(profileData);
+
+                                    getTransactions();
+                                  });
+                                },
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .push(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditSpendingScreen(
+                                                transactionModel: transaction,
+                                              )),
+                                    )
+                                        .then((value) {
+                                      if (value != null) {
+                                        if (value) {
+                                          getTransactions();
+                                        }
+                                      }
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Helper.getCardColor(context),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(10)),
                                     ),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          "-${AppConstanst.currencySymbol}${transaction.amount!}",
-                                          style: TextStyle(
-                                            color: Helper.getTextColor(context),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                        Container(
+                                          padding: const EdgeInsets.all(5),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)),
+                                          ),
+                                          child: SvgPicture.asset(
+                                            'asset/images/${transaction.cat_icon}.svg',
+                                            color: transaction.cat_color,
+                                            width: 24,
+                                            height: 24,
                                           ),
                                         ),
-                                        Text(
-                                          transaction.payment_method_name!,
-                                          style: TextStyle(
-                                            color: Helper.getTextColor(context),
-                                            fontSize: 14,
+                                        const SizedBox(width: 15),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                transaction.cat_name!,
+                                                style: TextStyle(
+                                                  color: Helper.getTextColor(
+                                                      context),
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                transaction.description!,
+                                                style: TextStyle(
+                                                  color: Helper.getTextColor(
+                                                      context),
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
                                           ),
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              "-${AppConstanst.currencySymbol}${transaction.amount!}",
+                                              style: TextStyle(
+                                                color: Helper.getTextColor(
+                                                    context),
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              transaction.payment_method_name!,
+                                              style: TextStyle(
+                                                color: Helper.getTextColor(
+                                                    context),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                          );
-                        },
-                        separatorBuilder: (BuildContext context, int index) {
-                          return const SizedBox(height: 10);
-                        },
-
-                      ),
-
-                  ],
-                );
-                 }
-                 return null;
+                              );
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return const SizedBox(height: 10);
+                            },
+                          ),
+                      ],
+                    );
+                  }
+                  return null;
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return 10.heightBox;
@@ -868,7 +899,7 @@ if(isSkippedUser){
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                      const BorderRadius.all(Radius.circular(10))),
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Column(
                     children: [
                       20.heightBox,
@@ -891,9 +922,9 @@ if(isSkippedUser){
                                 .push(
                               MaterialPageRoute(
                                   builder: (context) => AddSpendingScreen(
-                                    transactionName: AppConstanst
-                                        .spendingTransactionName,
-                                  )),
+                                        transactionName: AppConstanst
+                                            .spendingTransactionName,
+                                      )),
                             )
                                 .then((value) {
                               if (value != null) {
@@ -911,11 +942,11 @@ if(isSkippedUser){
                             decoration: const BoxDecoration(
                                 color: Colors.blue,
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
+                                    BorderRadius.all(Radius.circular(10))),
                             child: Text(
                               LocaleKeys.addSpending.tr,
                               style:
-                              TextStyle(color: Colors.white, fontSize: 14),
+                                  TextStyle(color: Colors.white, fontSize: 14),
                             ),
                           ),
                         ),
@@ -942,7 +973,7 @@ if(isSkippedUser){
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                      const BorderRadius.all(Radius.circular(10))),
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -983,14 +1014,18 @@ if(isSkippedUser){
                             ),
                             10.heightBox,
                             Text(
-                              currentIncome>=actualBudget? LocaleKeys.moreThenTarget.tr: LocaleKeys.lessThenTarget.tr,
+                              currentIncome >= actualBudget
+                                  ? LocaleKeys.moreThenTarget.tr
+                                  : LocaleKeys.lessThenTarget.tr,
                               style: TextStyle(
                                   color: Helper.getTextColor(context),
                                   fontSize: 12),
                             ),
                             5.heightBox,
                             Text(
-                              currentIncome>=actualBudget?'${AppConstanst.currencySymbol}$actualBudget+${currentIncome - actualBudget}':"${AppConstanst.currencySymbol}${actualBudget - currentIncome}",
+                              currentIncome >= actualBudget
+                                  ? '${AppConstanst.currencySymbol}$actualBudget+${currentIncome - actualBudget}'
+                                  : "${AppConstanst.currencySymbol}${actualBudget - currentIncome}",
                               style: TextStyle(
                                   color: currentIncome < actualBudget
                                       ? Helper.getChartColor(context)
@@ -1027,8 +1062,7 @@ if(isSkippedUser){
                     alignment: Alignment.bottomRight,
                     child: InkWell(
                       onTap: () {
-                        Navigator.of(context, rootNavigator: true)
-                            .push(
+                        Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute(
                               builder: (context) => const IncomeDetailScreen()),
                         );
@@ -1060,177 +1094,205 @@ if(isSkippedUser){
                 itemBuilder: (context, index) {
                   if (dateWiseIncomeTransaction[index]
                       .transactions!
-                      .isNotEmpty ) {
+                      .isNotEmpty) {
                     return Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "${dateWiseIncomeTransaction[index].transactionDay}, ${dateWiseIncomeTransaction[index].transactionDate}",
-                            style: const TextStyle(
-                                color: Colors.grey, fontSize: 14),
-                          ),
-                          Text(
-                            "+${AppConstanst.currencySymbol}${dateWiseIncomeTransaction[index].transactionTotal}",
-                            style: const TextStyle(
-                                color: Colors.green, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                      15.heightBox,
-                      if (dateWiseIncomeTransaction[index]
-                          .transactions!
-                          .isNotEmpty)
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const ScrollPhysics(),
-                          itemCount: dateWiseIncomeTransaction[index].transactions!.length,
-                          itemBuilder: (context, index1) {
-                            final transaction = dateWiseIncomeTransaction[index].transactions![index1];
-                            return Dismissible(
-                              key: Key(transaction.key!), // Unique key for each item
-                              direction: DismissDirection.endToStart, // Allow swiping from right to left
-                              background: Container(),
-                              secondaryBackground: Container(
-                                color: Colors.red,
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
-                                alignment: Alignment.centerRight,
-                                child: const Icon(Icons.delete, color: Colors.white),
-                              ),
-                              confirmDismiss: (direction) async {
-                                return await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title:  Text(LocaleKeys.confirm.tr),
-                                      content:  Text(LocaleKeys.deleteTransaction.tr),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () => Navigator.of(context).pop(false),
-                                          child:  Text(LocaleKeys.cancel.tr),
-                                        ),
-                                        TextButton(
-                                          onPressed: () => Navigator.of(context).pop(true),
-                                          child:  Text(LocaleKeys.delete.tr),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              onDismissed: (direction) async {
-                                setState(() {
-                                  dateWiseIncomeTransaction[index].transactions!.removeAt(index1);
-                                });
-                                await databaseHelper.deleteTransactionFromDB(transaction,isSkippedUser);
-
-                                setState(() {
-                                  currentIncome = currentIncome - transaction.amount!;
-                                });
-                                await DatabaseHelper.instance
-                                    .getProfileData(userEmail)
-                                    .then((profileData) async {
-                                  profileData!.current_income = currentIncome.toString();
-                                  await DatabaseHelper.instance.updateProfileData(profileData);
-
-                                  getIncomeTransactions();
-                                });
-                              },
-
-                              child: InkWell(
-                                    onTap: (){
-                                      Navigator.of(context, rootNavigator: true)
-                                          .push(
-                                        MaterialPageRoute(
-                                            builder: (context) => EditSpendingScreen(
-                                              transactionModel: transaction,
-                                            )),
-                                      )
-                                          .then((value) {
-                                        if (value != null) {
-                                          if (value) {
-                                            getIncomeTransactions();
-                                          }
-                                        }
-                                      });
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "${dateWiseIncomeTransaction[index].transactionDay}, ${dateWiseIncomeTransaction[index].transactionDate}",
+                              style: const TextStyle(
+                                  color: Colors.grey, fontSize: 14),
+                            ),
+                            Text(
+                              "+${AppConstanst.currencySymbol}${dateWiseIncomeTransaction[index].transactionTotal}",
+                              style: const TextStyle(
+                                  color: Colors.green, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        15.heightBox,
+                        if (dateWiseIncomeTransaction[index]
+                            .transactions!
+                            .isNotEmpty)
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const ScrollPhysics(),
+                            itemCount: dateWiseIncomeTransaction[index]
+                                .transactions!
+                                .length,
+                            itemBuilder: (context, index1) {
+                              final transaction =
+                                  dateWiseIncomeTransaction[index]
+                                      .transactions![index1];
+                              return Dismissible(
+                                key: Key(transaction.key!),
+                                // Unique key for each item
+                                direction: DismissDirection.endToStart,
+                                // Allow swiping from right to left
+                                background: Container(),
+                                secondaryBackground: Container(
+                                  color: Colors.red,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  alignment: Alignment.centerRight,
+                                  child: const Icon(Icons.delete,
+                                      color: Colors.white),
+                                ),
+                                confirmDismiss: (direction) async {
+                                  return await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text(LocaleKeys.confirm.tr),
+                                        content: Text(
+                                            LocaleKeys.deleteTransaction.tr),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context)
+                                                    .pop(false),
+                                            child: Text(LocaleKeys.cancel.tr),
+                                          ),
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(true),
+                                            child: Text(LocaleKeys.delete.tr),
+                                          ),
+                                        ],
+                                      );
                                     },
-                                child: Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Helper.getCardColor(context),
-                                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(5),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  );
+                                },
+                                onDismissed: (direction) async {
+                                  setState(() {
+                                    dateWiseIncomeTransaction[index]
+                                        .transactions!
+                                        .removeAt(index1);
+                                  });
+                                  await databaseHelper.deleteTransactionFromDB(
+                                      transaction, isSkippedUser);
+
+                                  setState(() {
+                                    currentIncome =
+                                        currentIncome - transaction.amount!;
+                                  });
+                                  await DatabaseHelper.instance
+                                      .getProfileData(userEmail)
+                                      .then((profileData) async {
+                                    profileData!.current_income =
+                                        currentIncome.toString();
+                                    await DatabaseHelper.instance
+                                        .updateProfileData(profileData);
+
+                                    getIncomeTransactions();
+                                  });
+                                },
+
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .push(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditSpendingScreen(
+                                                transactionModel: transaction,
+                                              )),
+                                    )
+                                        .then((value) {
+                                      if (value != null) {
+                                        if (value) {
+                                          getIncomeTransactions();
+                                        }
+                                      }
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Helper.getCardColor(context),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(10)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(5),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)),
+                                          ),
+                                          child: SvgPicture.asset(
+                                            'asset/images/${transaction.cat_icon}.svg',
+                                            color: transaction.cat_color,
+                                            width: 24,
+                                            height: 24,
+                                          ),
                                         ),
-                                        child: SvgPicture.asset(
-                                          'asset/images/${transaction.cat_icon}.svg',
-                                          color: transaction.cat_color,
-                                          width: 24,
-                                          height: 24,
+                                        const SizedBox(width: 15),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                transaction.cat_name!,
+                                                style: TextStyle(
+                                                  color: Helper.getTextColor(
+                                                      context),
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                transaction.description!,
+                                                style: TextStyle(
+                                                  color: Helper.getTextColor(
+                                                      context),
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 15),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
                                           children: [
                                             Text(
-                                              transaction.cat_name!,
+                                              "+${AppConstanst.currencySymbol}${transaction.amount!}",
                                               style: TextStyle(
-                                                color: Helper.getTextColor(context),
+                                                color: Helper.getTextColor(
+                                                    context),
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             Text(
-                                              transaction.description!,
+                                              transaction.payment_method_name!,
                                               style: TextStyle(
-                                                color: Helper.getTextColor(context),
+                                                color: Helper.getTextColor(
+                                                    context),
                                                 fontSize: 14,
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            "+${AppConstanst.currencySymbol}${transaction.amount!}",
-                                            style: TextStyle(
-                                              color: Helper.getTextColor(context),
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text(
-                                            transaction.payment_method_name!,
-                                            style: TextStyle(
-                                              color: Helper.getTextColor(context),
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return const SizedBox(height: 10);
-                          },
-                        ),
-                    ],
-                  );
+                              );
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return const SizedBox(height: 10);
+                            },
+                          ),
+                      ],
+                    );
                   }
                   return null;
                 },
@@ -1244,7 +1306,7 @@ if(isSkippedUser){
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                      const BorderRadius.all(Radius.circular(10))),
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Column(
                     children: [
                       20.heightBox,
@@ -1267,9 +1329,9 @@ if(isSkippedUser){
                                 .push(
                               MaterialPageRoute(
                                   builder: (context) => AddSpendingScreen(
-                                    transactionName:
-                                    AppConstanst.incomeTransactionName,
-                                  )),
+                                        transactionName:
+                                            AppConstanst.incomeTransactionName,
+                                      )),
                             )
                                 .then((value) {
                               if (value != null) {
@@ -1287,11 +1349,11 @@ if(isSkippedUser){
                             decoration: const BoxDecoration(
                                 color: Colors.blue,
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
+                                    BorderRadius.all(Radius.circular(10))),
                             child: Text(
                               LocaleKeys.addIncome.tr,
                               style:
-                              TextStyle(color: Colors.white, fontSize: 14),
+                                  TextStyle(color: Colors.white, fontSize: 14),
                             ),
                           ),
                         ),
@@ -1307,9 +1369,9 @@ if(isSkippedUser){
 
   List<PieChartSectionData> showingSpendingSections() {
     double spendingPercentage =
-    currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
+        currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
     double remainingPercentage =
-    currentBalance > 0 ? 100 - spendingPercentage : 0;
+        currentBalance > 0 ? 100 - spendingPercentage : 0;
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;
@@ -1347,9 +1409,11 @@ if(isSkippedUser){
   }
 
   List<PieChartSectionData> showingIncomeSections() {
-    double incomePercentage =
-    currentIncome < actualBudget ? (currentIncome / actualBudget) * 100 : 100;
-    double remainingPercentage = currentIncome > 0 ? 100 - incomePercentage : 100;
+    double incomePercentage = currentIncome < actualBudget
+        ? (currentIncome / actualBudget) * 100
+        : 100;
+    double remainingPercentage =
+        currentIncome > 0 ? 100 - incomePercentage : 100;
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;
