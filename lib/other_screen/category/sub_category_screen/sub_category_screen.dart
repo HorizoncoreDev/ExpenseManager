@@ -1,7 +1,9 @@
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 
 import '../../../db_models/income_sub_category.dart';
 import '../../../db_models/expense_sub_category.dart';
@@ -187,7 +189,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                           : spendingSubCategories.isEmpty
                               ? Center(
                                   child: Text(
-                                  'No sub categories found.',
+                                  LocaleKeys.noSubCatFound.tr,
                                   style: TextStyle(
                                     color: Helper.getTextColor(context),
                                   ),
@@ -256,7 +258,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                           : incomeSubCategories.isEmpty
                               ? Center(
                                   child: Text(
-                                  'No sub categories found.',
+                                  LocaleKeys.noSubCatFound.tr,
                                   style: TextStyle(
                                       color: Helper.getTextColor(context)),
                                 ))
@@ -347,7 +349,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
               children: [
                 10.heightBox,
                 Text(
-                  "Name",
+                 LocaleKeys.name.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context), fontSize: 14),
                 ),
@@ -369,7 +371,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Priority",
+                     LocaleKeys.priority.tr,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
                     ),
@@ -424,7 +426,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        "Low",
+                       LocaleKeys.Low.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Helper.getTextColor(context), fontSize: 12),
@@ -432,7 +434,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                     ),
                     Expanded(
                       child: Text(
-                        "Medium",
+                        LocaleKeys.Medium.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Helper.getTextColor(context), fontSize: 12),
@@ -440,7 +442,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                     ),
                     Expanded(
                       child: Text(
-                        "High",
+                        LocaleKeys.high.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Helper.getTextColor(context), fontSize: 12),
@@ -469,8 +471,8 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                     decoration: const BoxDecoration(
                         color: Colors.blue,
                         borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: const Text(
-                      "Done",
+                    child: Text(
+                      LocaleKeys.done.tr,
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   ),

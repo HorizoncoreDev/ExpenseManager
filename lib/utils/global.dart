@@ -27,6 +27,8 @@ abstract class AppConstanst {
   static const int acceptedRequest = 2;
   static const int rejectedRequest = 3;
   static const int removedRequest = 4;
+  static bool setCurrency = false;
+
 
   static  bool notificationClicked = false;
 
@@ -35,6 +37,10 @@ abstract class AppConstanst {
   static const String priorityLow = "Low";
   static const String spendingTransactionName = "Spending";
   static const String incomeTransactionName = "Income";
+
+  static String currencySymbol = "\u20B9";
+  static String currencyCode = "INR";
+  // static const String currencySymbol = "\u20B9";
 }
 
 abstract class AppColors {
@@ -58,10 +64,13 @@ abstract class SharedPreferencesKeys {
   static const currentUserKey = "currentUserKey";
   static const userFcmToken = "userFcmToken";
   static const userName = "userName";
+  static const currencySymbol = "currencySymbol";
+  static const currencyCode = "currencyCode";
   static const currentUserName = "currentUserName";
   static const isSkippedUser = "skippedUser";
   static const skippedUserCurrentBalance = "skippedUserCurrentBalance";
   static const skippedUserCurrentIncome = "skippedUserCurrentIncome";
   static const skippedUserActualBudget = "skippedUserActualBudget";
   static const isMasterPasswordGenerated = "isMasterPasswordGenerated";
+  static const languageCode = "languageCode";
 }

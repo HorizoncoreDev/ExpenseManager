@@ -8,6 +8,7 @@ import 'package:expense_manager/overview_screen/add_spending/bloc/add_spending_e
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -102,6 +103,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
 
   Future<void> getSpendingSubCategory(int catId) async {
     try {
+
       List<ExpenseSubCategory> fetchedSpendingSubCategories =
           await databaseHelper.getSpendingSubCategory(catId);
       setState(() {
@@ -374,8 +376,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
           }
         }
         Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
-            ? "Spending updated successfully"
-            : "Income updated successfully");
+            ? LocaleKeys.spendingUpdateSuccessfully.tr
+            : LocaleKeys.incomeUpdateSuccessfully.tr);
         Navigator.of(context).pop(true);
       }
     });
@@ -495,8 +497,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
           }
         }
         Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
-            ? "Spending created successfully"
-            : "Income created successfully");
+            ? LocaleKeys.spendingSuccessfully.tr
+            : LocaleKeys.incomeSuccessfully.tr);
         Navigator.of(context).pop(true);
       }
     });
@@ -521,7 +523,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      "Cancel",
+                      LocaleKeys.cancel.tr,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 16),
@@ -691,7 +693,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                         child: Row(
                           children: [
                             5.widthBox,
-                            const Text("\u20B9",
+                            Text("${AppConstanst.currencySymbol}",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 16, color: Colors.blue)),
@@ -752,7 +754,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                         ? Row(
                             children: [
                               Text(
-                                "CATEGORY",
+                               LocaleKeys.category.tr,
                                 style: TextStyle(
                                     color: Helper.getTextColor(context),
                                     fontSize: 14),
@@ -819,7 +821,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                         : Row(
                             children: [
                               Text(
-                                "CATEGORY",
+                                LocaleKeys.category.tr,
                                 style: TextStyle(
                                     color: Helper.getTextColor(context),
                                     fontSize: 14),
@@ -1332,7 +1334,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    "DETAILS",
+                                    LocaleKeys.details.tr,
                                     style: TextStyle(
                                         color: currPage == 1
                                             ? Colors.blue
@@ -1398,7 +1400,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(5)),
                         keyboardType: TextInputType.text,
-                        hintText: "Enter description",
+                        hintText: LocaleKeys.enterDescription.tr,
                         fillColor: Helper.getCardColor(context),
                         borderColor: Colors.transparent,
                         padding: 11,
@@ -1693,19 +1695,19 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                         onTap: () async {
                           if (amountController.text.isEmpty ||
                               amountController.text == "0") {
-                            Helper.showToast("Please add amount");
+                            Helper.showToast(LocaleKeys.addAmount.tr);
                           } else if (selectedValue ==
                                   AppConstanst.spendingTransactionName
                               ? selectedSpendingIndex == -1
                               : selectedIncomeIndex == -1) {
-                            Helper.showToast("Please select category");
+                            Helper.showToast(LocaleKeys.addCategory.tr);
                           } else if (selectedValue ==
                                   AppConstanst.spendingTransactionName
                               ? (spendingSubCategories.isNotEmpty &&
                                   selectedSpendingSubIndex == -1)
                               : (incomeSubCategories.isNotEmpty &&
                                   selectedIncomeSubIndex == -1)) {
-                            Helper.showToast("Please select sub category");
+                            Helper.showToast(LocaleKeys.addSubCategory.tr);
                           } else {
                             //   Helper.showLoading(context);
                             if (!isSkippedUser) {
@@ -1730,8 +1732,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                               color: Colors.blue,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10))),
-                          child: const Text(
-                            "Update",
+                          child: Text(
+                            LocaleKeys.update.tr,
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                         )),
@@ -1742,19 +1744,19 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                         onTap: () async {
                           if (amountController.text.isEmpty ||
                               amountController.text == "0") {
-                            Helper.showToast("Please add amount");
+                            Helper.showToast(LocaleKeys.addAmount.tr);
                           } else if (selectedValue ==
                                   AppConstanst.spendingTransactionName
                               ? selectedSpendingIndex == -1
                               : selectedIncomeIndex == -1) {
-                            Helper.showToast("Please select category");
+                            Helper.showToast(LocaleKeys.addCategory.tr);
                           } else if (selectedValue ==
                                   AppConstanst.spendingTransactionName
                               ? (spendingSubCategories.isNotEmpty &&
                                   selectedSpendingSubIndex == -1)
                               : (incomeSubCategories.isNotEmpty &&
                                   selectedIncomeSubIndex == -1)) {
-                            Helper.showToast("Please select sub category");
+                            Helper.showToast(LocaleKeys.addSubCategory.tr);
                           } else {
                             //   Helper.showLoading(context);
                             if (!isSkippedUser) {
@@ -1779,8 +1781,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                               color: Colors.blue,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10))),
-                          child: const Text(
-                            "Copy",
+                          child:  Text(
+                           LocaleKeys.copy.tr,
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                         )),
@@ -1852,7 +1854,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Choose Option',
+                      LocaleKeys.chooseOption.tr,
                       textAlign: TextAlign.start,
                       style: TextStyle(
                           fontSize: 12,
@@ -1881,7 +1883,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Text(
-                      'Camera',
+                      LocaleKeys.camera.tr,
                       textAlign: TextAlign.start,
                       style: TextStyle(
                           fontWeight: FontWeight.w400,
@@ -1899,7 +1901,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Text(
-                      'Gallery',
+                      LocaleKeys.gallery.tr,
                       textAlign: TextAlign.start,
                       style: TextStyle(
                           fontWeight: FontWeight.w400,

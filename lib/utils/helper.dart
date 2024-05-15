@@ -13,12 +13,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../db_models/expense_category_model.dart';
-import '../db_models/income_category.dart';
 import '../db_models/expense_sub_category.dart';
+import '../db_models/income_category.dart';
 import '../db_service/database_helper.dart';
 
 class Helper {
-
   static void showToast(String message) {
     Fluttertoast.showToast(
         msg: message,
@@ -44,12 +43,15 @@ class Helper {
     return themeNotifier.getTheme().dividerColor;
   }
 
-  static Future<void> addCurrencyAndLanguages() async{
+  static Future<void> addCurrencyAndLanguages() async {
     final databaseHelper = DatabaseHelper.instance;
     List<CurrencyCategory> currencyTypes = [];
-    currencyTypes.add(CurrencyCategory(countryName: 'India', symbol: '₹', currencyCode: 'INR'));
-    currencyTypes.add(CurrencyCategory(countryName: 'US', symbol: '\$', currencyCode: 'USD'));
-    currencyTypes.add(CurrencyCategory(countryName: 'UK', symbol: "£", currencyCode: 'GBP'));
+    currencyTypes.add(CurrencyCategory(
+        countryName: 'India', symbol: '₹', currencyCode: 'INR'));
+    currencyTypes.add(
+        CurrencyCategory(countryName: 'US', symbol: '\$', currencyCode: 'USD'));
+    currencyTypes.add(
+        CurrencyCategory(countryName: 'UK', symbol: "£", currencyCode: 'GBP'));
     databaseHelper.insertAllCurrencyMethods(currencyTypes);
 
     List<LanguageCategory> languageType = [];
@@ -63,22 +65,22 @@ class Helper {
     final databaseHelper = DatabaseHelper.instance;
 
     List<ExpenseCategory> spendingCategories = [];
-    spendingCategories.add(
-        ExpenseCategory(name: 'Dine out', color: Colors.blue, icons: 'ic_dine_out'));
-    spendingCategories
-        .add(ExpenseCategory(name: 'Commute', color: Colors.blue, icons: 'ic_commute'));
-    spendingCategories.add(
-        ExpenseCategory(name: 'Enjoyment', color: Colors.blue, icons: 'ic_enjoyment'));
-    spendingCategories.add(
-        ExpenseCategory(name: 'Child care', color: Colors.blue, icons: 'ic_child_care'));
-    spendingCategories.add(
-        ExpenseCategory(name: 'Shopping', color: Colors.blue, icons: 'ic_shopping'));
-    spendingCategories.add(
-        ExpenseCategory(name: 'Insurance', color: Colors.blue, icons: 'ic_insurance'));
-    spendingCategories
-        .add(ExpenseCategory(name: 'Health', color: Colors.blue, icons: 'ic_health'));
-    spendingCategories.add(
-        ExpenseCategory(name: 'Personal', color: Colors.blue, icons: 'ic_personal'));
+    spendingCategories.add(ExpenseCategory(
+        name: 'Dine out', color: Colors.blue, icons: 'ic_dine_out'));
+    spendingCategories.add(ExpenseCategory(
+        name: 'Commute', color: Colors.blue, icons: 'ic_commute'));
+    spendingCategories.add(ExpenseCategory(
+        name: 'Enjoyment', color: Colors.blue, icons: 'ic_enjoyment'));
+    spendingCategories.add(ExpenseCategory(
+        name: 'Child care', color: Colors.blue, icons: 'ic_child_care'));
+    spendingCategories.add(ExpenseCategory(
+        name: 'Shopping', color: Colors.blue, icons: 'ic_shopping'));
+    spendingCategories.add(ExpenseCategory(
+        name: 'Insurance', color: Colors.blue, icons: 'ic_insurance'));
+    spendingCategories.add(ExpenseCategory(
+        name: 'Health', color: Colors.blue, icons: 'ic_health'));
+    spendingCategories.add(ExpenseCategory(
+        name: 'Personal', color: Colors.blue, icons: 'ic_personal'));
     await databaseHelper.insertAllCategory(spendingCategories);
 
     List<ExpenseSubCategory> spendingSubCategories = [];
@@ -180,9 +182,10 @@ class Helper {
     await databaseHelper.insertIncomeAllCategory(incomeCategories);
 
     List<PaymentMethod> paymentMethods = [];
-    paymentMethods.add( PaymentMethod(name: 'Cash',status: 1,icon: 'ic_cash'));
-    paymentMethods.add( PaymentMethod(name: 'Online',status: 1,icon: 'ic_online_payment'));
-    paymentMethods.add( PaymentMethod(name: 'Card',status: 1,icon: 'ic_card'));
+    paymentMethods.add(PaymentMethod(name: 'Cash', status: 1, icon: 'ic_cash'));
+    paymentMethods.add(
+        PaymentMethod(name: 'Online', status: 1, icon: 'ic_online_payment'));
+    paymentMethods.add(PaymentMethod(name: 'Card', status: 1, icon: 'ic_card'));
     await databaseHelper.insertAllPaymentMethods(paymentMethods);
   }
 
@@ -190,6 +193,7 @@ class Helper {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
     return themeNotifier.getTheme().cardColor;
   }
+
   static Color getChartColor(BuildContext context) {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
     return themeNotifier.getTheme().disabledColor;
@@ -207,18 +211,19 @@ class Helper {
   }
 
   static void showLoading(BuildContext context) {
-
-
-    AlertDialog alert=AlertDialog(
+    AlertDialog alert = AlertDialog(
       content: Row(
         children: [
           CircularProgressIndicator(),
-          Container(margin: EdgeInsets.only(left: 7),child:Text("Loading..." )),
-        ],),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
     );
-    showDialog(barrierDismissible: false,
-      context:context,
-      builder:(BuildContext context){
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
         return alert;
       },
     );
@@ -252,30 +257,34 @@ class Helper {
 
   static bool isToday(DateTime date) {
     DateTime now = DateTime.now();
-    return date.year == now.year && date.month == now.month && date.day == now.day;
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
   }
 
   static bool isYesterday(DateTime date) {
     DateTime now = DateTime.now();
     DateTime yesterday = DateTime(now.year, now.month, now.day - 1);
-    return date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day;
+    return date.year == yesterday.year &&
+        date.month == yesterday.month &&
+        date.day == yesterday.day;
   }
 
-  static String getTransactionDay(String date){
+  static String getTransactionDay(String date) {
     var transactionDay = "";
     DateFormat format = DateFormat("dd/MM/yyyy");
     DateTime parsedDate = format.parse(date);
-    if(isToday(parsedDate)){
+    if (isToday(parsedDate)) {
       transactionDay = "TODAY";
-    }else if(isYesterday(parsedDate)){
+    } else if (isYesterday(parsedDate)) {
       transactionDay = "YESTERDAY";
-    }else{
+    } else {
       transactionDay = Helper.getWeekdayName(parsedDate.weekday);
     }
     return transactionDay;
   }
 
-  static bool isAfterDay(String date){
+  static bool isAfterDay(String date) {
     DateFormat format = DateFormat("dd/MM/yyyy");
     DateTime parsedDate = format.parse(date);
     return parsedDate.isAfter(parsedDate);
@@ -291,21 +300,21 @@ class Helper {
     }
     Completer<String> completer = Completer<String>();
 
-    await DatabaseHelper.instance
-        .getProfileDataUserCode(code).then((value){
-      if(value!=null){
+    await DatabaseHelper.instance.getProfileDataUserCode(code).then((value) {
+      if (value != null) {
         generateAnotherUniqueCode(completer);
-      }else{
+      } else {
         completer.complete(code);
       }
-    }).catchError((error){
+    }).catchError((error) {
       completer.complete(code);
     });
 
     return completer.future;
   }
 
- static Future<String> generateAnotherUniqueCode(Completer<String> completer) async {
+  static Future<String> generateAnotherUniqueCode(
+      Completer<String> completer) async {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random();
     String code = '';
@@ -313,11 +322,10 @@ class Helper {
     for (int i = 0; i < 6; i++) {
       code += chars[random.nextInt(chars.length)];
     }
-    await DatabaseHelper.instance
-        .getProfileDataUserCode(code).then((value){
-      if(value!=null){
+    await DatabaseHelper.instance.getProfileDataUserCode(code).then((value) {
+      if (value != null) {
         generateAnotherUniqueCode(completer);
-      }else{
+      } else {
         completer.complete(code);
       }
     });
@@ -337,7 +345,6 @@ class Helper {
     String firstChar = firstStr.substring(0, 1);
     String secondChar = secondStr.substring(0, 1);
 
-    return  firstChar + secondChar;
+    return firstChar + secondChar;
   }
-
 }

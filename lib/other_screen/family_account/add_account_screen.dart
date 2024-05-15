@@ -4,9 +4,11 @@ import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class MyDialog {
@@ -30,7 +32,7 @@ class MyDialog {
           builder:
               (BuildContext context, void Function(void Function()) setState) {
             return AlertDialog(
-              title: Text('Add Account',
+              title: Text(LocaleKeys.addAccount.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context),
                       fontSize: 25,
@@ -38,7 +40,7 @@ class MyDialog {
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    Text('Enter 6 digit UserCode',
+                    Text(LocaleKeys.sixDigitCode.tr,
                         style: TextStyle(
                             color: Helper.getTextColor(context),
                             fontSize: 16,
@@ -53,7 +55,7 @@ class MyDialog {
                       onCodeChanged: (String code) {},
                       onSubmit: (String verificationCode) {
                         if (profileModel.user_code == verificationCode) {
-                          Helper.showToast('Add other user\'s request code');
+                          Helper.showToast(LocaleKeys.addOtherRequestCode.tr);
                         } else {
                           validateCode(context, verificationCode, profileModel);
                         }
@@ -70,7 +72,7 @@ class MyDialog {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Close'),
+                      child: Text(LocaleKeys.close.tr),
                     ),
                   ],
                 ),
@@ -100,7 +102,7 @@ class MyDialog {
         }
       });
       if (!profileExist) {
-        Helper.showToast('User does not exist');
+        Helper.showToast(LocaleKeys.userNotExist.tr);
       }
     });
   }
@@ -121,11 +123,11 @@ class MyDialog {
           if (values['receiver_email'] == receiverEmail &&
               values['status'] == AppConstanst.pendingRequest) {
             requestExist = true;
-            Helper.showToast('Request already exist');
+            Helper.showToast(LocaleKeys.alreadyExist.tr);
           }else if (values['receiver_email'] == receiverEmail &&
               values['status'] == AppConstanst.pendingRequest) {
             requestExist = true;
-            Helper.showToast('You already have access');
+            Helper.showToast(LocaleKeys.alreadyHaveAccess.tr);
           }
         });
       }

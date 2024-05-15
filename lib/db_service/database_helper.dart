@@ -623,6 +623,7 @@ return completer.future;*/
         }
         completer.complete(transactions);
       }).onError((error) {
+
         completer.completeError(error);
       });
 

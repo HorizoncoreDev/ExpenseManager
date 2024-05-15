@@ -1,10 +1,12 @@
 import 'package:expense_manager/other_screen/category/sub_category_screen/sub_category_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 import '../../db_models/expense_category_model.dart';
 import '../../db_models/income_category.dart';
@@ -101,7 +103,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           size: 20,
                         )),
                     10.widthBox,
-                    Text("Category",
+                    Text(LocaleKeys.category.tr,
                         style: TextStyle(
                           fontSize: 22,
                           color: Helper.getTextColor(context),
@@ -185,7 +187,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                     child: Align(
                                       alignment: Alignment.center,
                                       child: Text(
-                                        'Spending',
+                                       LocaleKeys.spending.tr,
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: currPage == 1
@@ -217,7 +219,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                     child: Align(
                                       alignment: Alignment.center,
                                       child: Text(
-                                        'Income',
+                                        LocaleKeys.income.tr,
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: currPage == 2
@@ -251,7 +253,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         : categories.isEmpty
             ? Center(
                 child: Text(
-                'No categories found.',
+                LocaleKeys.noCatFound.tr,
                 style: TextStyle(color: Helper.getTextColor(context)),
               ))
             : SingleChildScrollView(
@@ -542,7 +544,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         ? Center(child: CircularProgressIndicator())
         : incomeCategories.isEmpty
             ? Center(
-                child: Text('No categories found.',
+                child: Text(LocaleKeys.noCatFound.tr,
                     style: TextStyle(color: Helper.getTextColor(context))))
             : SingleChildScrollView(
                 child: Column(

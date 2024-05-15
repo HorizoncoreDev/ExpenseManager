@@ -7,6 +7,7 @@ import 'package:expense_manager/statistics/statistics_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,8 +62,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   List<MonthData> selectedMonths = [];
   String selectedCategory = "";
   int selectedCategoryIndex = -1;
-  String showYear = 'Select Year';
-  String showMonth = 'Select month';
+  String showYear = LocaleKeys.selectYear.tr;
+  String showMonth = LocaleKeys.selectMonth.tr;
   DateTime _selectedYear = DateTime.now();
   bool isFilterCleared = false;
 
@@ -261,7 +262,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                           fontSize: 22,
                           color: Helper.getTextColor(context),
                         )),
-                    Text(" /\u20B9$actualBudget",
+                    Text(" /${AppConstanst.currencySymbol}$actualBudget",
                         style: TextStyle(
                           fontSize: 18,
                           color: Helper.getTextColor(context),
@@ -355,7 +356,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                       ),
                                       5.widthBox,
                                       Text(
-                                        "Collected",
+                                        LocaleKeys.collected.tr,
                                         style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 12),
@@ -363,7 +364,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                     ],
                                   ),
                                   Text(
-                                    "\u20B9$totalMonthlyIncomeAmount",
+                                    "${AppConstanst.currencySymbol}$totalMonthlyIncomeAmount",
                                     style: TextStyle(
                                         color: Helper.getTextColor(context),
                                         fontSize: 16,
@@ -384,7 +385,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                       ),
                                       5.widthBox,
                                       Text(
-                                        "Missing",
+                                        LocaleKeys.missing.tr,
                                         style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 12),
@@ -392,7 +393,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                     ],
                                   ),
                                   Text(
-                                    "\u20B9${actualBudget - totalMonthlyIncomeAmount}",
+                                    "${AppConstanst.currencySymbol}${actualBudget - totalMonthlyIncomeAmount}",
                                     style: TextStyle(
                                         color: Helper.getTextColor(context),
                                         fontSize: 16,
@@ -409,7 +410,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(5)),
                             keyboardType: TextInputType.text,
-                            hintText: "Notes, categories",
+                            hintText: LocaleKeys.notesCategories.tr,
                             fillColor: Helper.getCardColor(context),
                             borderColor: Colors.transparent,
                             padding: 10,
@@ -420,7 +421,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                 ? InkWell(
                                     onTap: () {
                                       searchController.clear();
-                                      if (showYear != "Select Year" &&
+                                      if (showYear != LocaleKeys.selectYear.tr &&
                                           selectedMonths.isNotEmpty) {
                                         getFilteredData("");
                                       }
@@ -445,7 +446,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                   ),
                             onChanged: (value) {
                               if (value.isNotEmpty) {
-                                if (showYear != "Select Year" &&
+                                if (showYear != LocaleKeys.selectYear.tr &&
                                     selectedMonths.isNotEmpty) {
                                   getFilteredData(value);
                                 } else {
@@ -454,7 +455,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                               } else {
                                 dateWiseTransaction =
                                     originalDateWiseTransaction;
-                                if (showYear != "Select Year" &&
+                                if (showYear != LocaleKeys.selectYear.tr &&
                                     selectedMonths.isNotEmpty) {
                                   getFilteredData("");
                                 } else {
@@ -484,7 +485,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                             color: Colors.grey, fontSize: 14),
                                       ),
                                       Text(
-                                        "+\u20B9${dateWiseTransaction[index].transactionTotal}",
+                                        "+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactionTotal}",
                                         style: const TextStyle(
                                             color: Colors.green, fontSize: 14),
                                       ),
@@ -598,7 +599,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                                       CrossAxisAlignment.end,
                                                   children: [
                                                     Text(
-                                                      "+\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
+                                                      "+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactions![index1].amount!}",
                                                       style: TextStyle(
                                                           color: Helper
                                                               .getTextColor(
@@ -660,7 +661,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                   ),
                                   10.heightBox,
                                   Text(
-                                    "You don't have any income yet",
+                                    LocaleKeys.dontHaveIncome.tr,
                                     style: TextStyle(
                                         color: Helper.getTextColor(context)),
                                   ),
@@ -684,8 +685,9 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                             color: Colors.blue,
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10))),
-                                        child: const Text(
-                                          "Add income",
+
+                                        child:  Text(
+                                          LocaleKeys.addIncome.tr,
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 14),
@@ -728,14 +730,14 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                         clearSelection(setState);
                       },
                       child: Text(
-                        "Clear filter",
+                        LocaleKeys.clearFilter.tr,
                         style: TextStyle(
                             color: Helper.getTextColor(context), fontSize: 16),
                       ),
                     ),
                     Expanded(
                       child: Text(
-                        "Filter",
+                        LocaleKeys.filter.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Helper.getTextColor(context),
@@ -746,38 +748,38 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                     InkWell(
                       onTap: () {
                         if (isFilterCleared) {
-                          if (showYear != "Select Year" &&
+                          if (showYear != LocaleKeys.selectYear.tr &&
                               selectedMonths.isNotEmpty) {
                             Navigator.pop(context);
                             getFilteredData("");
-                          }
-                          if (showYear == "Select Year" ||
-                              selectedMonths.isEmpty) {
+
+                          } if(showYear == LocaleKeys.selectYear.tr ||
+                              selectedMonths.isEmpty){
                             Navigator.pop(context);
                             getIncomeTransactions("");
-                          } else if (showYear == "Select Year" ||
+                          }else if (showYear == LocaleKeys.selectYear.tr ||
                               selectedMonths.isEmpty) {
                             Helper.showToast(
-                                "Please ensure you select a year and month to retrieve data");
+                                LocaleKeys.selectMonthOrYearText.tr);
                           }
                         } else {
                           isFilterCleared = false;
-                          if (showYear != "Select Year" &&
+                          if (showYear != LocaleKeys.selectYear.tr &&
                               selectedMonths.isNotEmpty) {
                             Navigator.pop(context);
                             getFilteredData("");
-                          } else if (showYear == "Select Year" ||
+                          } else if (showYear == LocaleKeys.selectYear.tr ||
                               selectedMonths.isEmpty) {
                             Helper.showToast(
-                                "Please ensure you select a year and month to retrieve data");
+                                LocaleKeys.selectMonthOrYearText.tr);
                           } else {
                             Navigator.pop(context);
                             getIncomeTransactions("");
                           }
                         }
                       },
-                      child: const Text(
-                        "Done",
+                      child: Text(
+                       LocaleKeys.done.tr,
                         style: TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
@@ -799,13 +801,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "YEAR",
+                      LocaleKeys.year.tr,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
                     ),
                     15.widthBox,
                     Text(
-                      "MONTH(Can filter one or more)",
+                      LocaleKeys.monthFilterText.tr,
                       textAlign: TextAlign.end,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
@@ -866,7 +868,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Text(
-                  "CATEGORY",
+                  LocaleKeys.category.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context), fontSize: 14),
                 ),
@@ -933,8 +935,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
         item.isSelected = false;
       }
       selectedMonths.clear();
-      showMonth = 'Select Month';
-      showYear = 'Select Year';
+      showMonth = LocaleKeys.selectMonth.tr;
+      showYear = LocaleKeys.selectYear.tr;
       selectedCategoryIndex = -1;
       selectedCategory = '';
     });
@@ -946,7 +948,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Select Year"),
+          title: Text(LocaleKeys.selectYear.tr),
           content: SizedBox(
             width: 300,
             height: 300,
@@ -976,7 +978,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, setState1) {
           return AlertDialog(
-            title: const Text("Select Month"),
+            title: Text(LocaleKeys.selectMonth.tr),
             contentPadding:
                 const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
             content: SizedBox(
@@ -1056,8 +1058,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                     Navigator.pop(context);
                   });
                 },
-                child: const Text(
-                  "Done",
+                child: Text(
+                  LocaleKeys.done.tr,
                   style: TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,

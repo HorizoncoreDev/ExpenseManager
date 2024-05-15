@@ -72,19 +72,19 @@ class OverviewScreenState extends State<OverviewScreen> {
                   .then((value) {
                 if (value != null) {
                   currentUserEmail = value;
-              MySharedPreferences.instance
-                  .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
-                  .then((value) {
-                if (value != null) {
-                  currentUserKey = value;
                   MySharedPreferences.instance
-                      .getStringValuesSF(SharedPreferencesKeys.currentUserName)
+                      .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
                       .then((value) {
                     if (value != null) {
-                      userName = value;
-                      getTransactions();
-                    }
-                  }); }
+                      currentUserKey = value;
+                      MySharedPreferences.instance
+                          .getStringValuesSF(SharedPreferencesKeys.currentUserName)
+                          .then((value) {
+                        if (value != null) {
+                          userName = value;
+                          getTransactions();
+                        }
+                      }); }
                   });
                 }
               });
@@ -108,7 +108,7 @@ class OverviewScreenState extends State<OverviewScreen> {
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
+        dataSnapshot.value as Map<dynamic, dynamic>;
         values.forEach((key, value) {
           if (value['status'] == AppConstanst.pendingRequest) {
             RequestModel requestModel = RequestModel(
@@ -138,14 +138,14 @@ class OverviewScreenState extends State<OverviewScreen> {
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
+        dataSnapshot.value as Map<dynamic, dynamic>;
         values.forEach((key, value) async {
           await http.post(
             Uri.parse('https://fcm.googleapis.com/fcm/send'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization':
-                  'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
+              'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
             },
             body: jsonEncode({
               'to': value['fcm_token'],
@@ -153,7 +153,7 @@ class OverviewScreenState extends State<OverviewScreen> {
               'notification': {
                 'title': 'Hello ${requesterModel.receiver_name},',
                 'body':
-                    'You have a new request from ${requesterModel.requester_name}',
+                'You have a new request from ${requesterModel.requester_name}',
               },
             }),
           );
@@ -187,10 +187,10 @@ class OverviewScreenState extends State<OverviewScreen> {
             Map<dynamic, dynamic> values =
             dataSnapshot.value as Map<dynamic, dynamic>;
             values.forEach((key, value) async {
-             profileModel = ProfileModel.fromMap(value);
-             currentBalance = int.parse(profileModel.current_balance!);
-             currentIncome = int.parse(profileModel.current_income!);
-             actualBudget = int.parse(profileModel.actual_budget!);
+              profileModel = ProfileModel.fromMap(value);
+              currentBalance = int.parse(profileModel.current_balance!);
+              currentIncome = int.parse(profileModel.current_income!);
+              actualBudget = int.parse(profileModel.actual_budget!);
             });
           }
         });
@@ -217,14 +217,14 @@ class OverviewScreenState extends State<OverviewScreen> {
         }
       });
     } else {
-        getProfileData();
+      getProfileData();
     }
 
     spendingTransaction = [];
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForCurrentMonth(
-            AppConstanst.spendingTransaction, currentUserEmail,currentUserKey, isSkippedUser)
+        AppConstanst.spendingTransaction, currentUserEmail,currentUserKey, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -283,8 +283,8 @@ class OverviewScreenState extends State<OverviewScreen> {
               totalAmount = totalAmount + t.amount!;
             } else {
               DateWiseTransactionModel? found =
-                  dateWiseSpendingTransaction.firstWhereOrNull((element) =>
-                      element.transactionDate!.split(' ')[0] == date);
+              dateWiseSpendingTransaction.firstWhereOrNull((element) =>
+              element.transactionDate!.split(' ')[0] == date);
               if (found == null) {
                 continue;
               } else {
@@ -306,95 +306,95 @@ class OverviewScreenState extends State<OverviewScreen> {
   }
 
   getIncomeTransactions() async {
+    if (isSkippedUser) {
+      MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentIncome)
+          .then((value) {
+        if (value != null) {
+          currentIncome = int.parse(value);
+        }
+      });
+      MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
+          .then((value) {
+        if (value != null) {
+          actualBudget = int.parse(value);
+        }
+      });
+    }
+    else {
+      getProfileData();
+    }
+
+    List<TransactionModel> incomeTransaction = [];
+    dateWiseIncomeTransaction = [];
+    await DatabaseHelper.instance
+        .fetchDataForCurrentMonth(
+        AppConstanst.incomeTransaction, currentUserEmail,currentUserKey, isSkippedUser)
+        .then((value) async {
+      incomeTransaction = value;
+      List<String> dates = [];
+
+      DateTime now = DateTime.now();
+      String currentMonthName = DateFormat('MMMM').format(now);
+
+      for (var t in incomeTransaction) {
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(t.transaction_date!);
+        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+        if (transactionMonthName == currentMonthName) {
+          if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+            dates.add(t.transaction_date!.split(' ')[0]);
+          }
+        }
+      }
+      if (dates.isEmpty) {
         if (isSkippedUser) {
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentIncome)
-              .then((value) {
-            if (value != null) {
-              currentIncome = int.parse(value);
-            }
-          });
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
-              .then((value) {
-            if (value != null) {
-              actualBudget = int.parse(value);
-            }
-          });
+          MySharedPreferences.instance.addStringToSF(
+              SharedPreferencesKeys.skippedUserCurrentIncome, "0");
+          currentIncome = 0;
+          setState(() {});
+        } else {
+          currentIncome = 0;
+          setState(() {});
+          if(userEmail == currentUserEmail) {
+            await DatabaseHelper.instance
+                .getProfileData(currentUserEmail)
+                .then((profileData) async {
+              profileData!.current_income = "0";
+              await DatabaseHelper.instance.updateProfileData(profileData);
+            });
+          }
         }
-        else {
-          getProfileData();
-        }
-
-        List<TransactionModel> incomeTransaction = [];
-        dateWiseIncomeTransaction = [];
-        await DatabaseHelper.instance
-            .fetchDataForCurrentMonth(
-                AppConstanst.incomeTransaction, currentUserEmail,currentUserKey, isSkippedUser)
-            .then((value) async {
-          incomeTransaction = value;
-          List<String> dates = [];
-
-          DateTime now = DateTime.now();
-          String currentMonthName = DateFormat('MMMM').format(now);
-
+      } else {
+        dates.sort((a, b) => b.compareTo(a));
+        for (var date in dates) {
+          int totalAmount = 0;
+          List<TransactionModel> newTransaction = [];
           for (var t in incomeTransaction) {
-            DateFormat format = DateFormat("dd/MM/yyyy");
-            DateTime parsedDate = format.parse(t.transaction_date!);
-            String transactionMonthName = DateFormat('MMMM').format(parsedDate);
-            if (transactionMonthName == currentMonthName) {
-              if (!dates.contains(t.transaction_date!.split(' ')[0])) {
-                dates.add(t.transaction_date!.split(' ')[0]);
-              }
-            }
-          }
-          if (dates.isEmpty) {
-            if (isSkippedUser) {
-              MySharedPreferences.instance.addStringToSF(
-                  SharedPreferencesKeys.skippedUserCurrentIncome, "0");
-              currentIncome = 0;
-              setState(() {});
+            if (date == t.transaction_date!.split(' ')[0]) {
+              newTransaction.add(t);
+              totalAmount = totalAmount + t.amount!;
             } else {
-              currentIncome = 0;
-              setState(() {});
-              if(userEmail == currentUserEmail) {
-                await DatabaseHelper.instance
-                    .getProfileData(currentUserEmail)
-                    .then((profileData) async {
-                  profileData!.current_income = "0";
-                  await DatabaseHelper.instance.updateProfileData(profileData);
-                });
+              DateWiseTransactionModel? found =
+              dateWiseIncomeTransaction.firstWhereOrNull((element) =>
+              element.transactionDate!.split(' ')[0] == date);
+              if (found == null) {
+                continue;
+              } else {
+                break;
               }
             }
-          } else {
-            dates.sort((a, b) => b.compareTo(a));
-            for (var date in dates) {
-              int totalAmount = 0;
-              List<TransactionModel> newTransaction = [];
-              for (var t in incomeTransaction) {
-                if (date == t.transaction_date!.split(' ')[0]) {
-                  newTransaction.add(t);
-                  totalAmount = totalAmount + t.amount!;
-                } else {
-                  DateWiseTransactionModel? found =
-                      dateWiseIncomeTransaction.firstWhereOrNull((element) =>
-                          element.transactionDate!.split(' ')[0] == date);
-                  if (found == null) {
-                    continue;
-                  } else {
-                    break;
-                  }
-                }
-              }
-              dateWiseIncomeTransaction.add(DateWiseTransactionModel(
-                  transactionDate: date,
-                  transactionTotal: totalAmount,
-                  transactionDay: Helper.getTransactionDay(date),
-                  transactions: newTransaction));
-            }
-            setState(() {});
           }
-        });
+          dateWiseIncomeTransaction.add(DateWiseTransactionModel(
+              transactionDate: date,
+              transactionTotal: totalAmount,
+              transactionDay: Helper.getTransactionDay(date),
+              transactions: newTransaction));
+        }
+        setState(() {});
+      }
+    });
 
   }
 
@@ -429,13 +429,13 @@ class OverviewScreenState extends State<OverviewScreen> {
                               20.heightBox,
                               Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
+                                const EdgeInsets.symmetric(horizontal: 20),
                                 child: Row(
                                   children: [
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             "${userName ?? 'Guest'}: \u20B9${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
@@ -456,11 +456,11 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     InkWell(
                                         onTap: () {
                                           Navigator.of(context,
-                                                  rootNavigator: true)
+                                              rootNavigator: true)
                                               .push(
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    const SearchScreen()),
+                                                const SearchScreen()),
                                           );
                                         },
                                         child: const Icon(
@@ -472,42 +472,38 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     InkWell(
                                       onTap: () {
                                         Navigator.of(context,
-                                                rootNavigator: true)
+                                            rootNavigator: true)
                                             .push(
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  const OtherScreen()),
+                                              const OtherScreen()),
                                         )
                                             .then((value) {
                                           widget.onAccountUpdate();
                                           MySharedPreferences.instance
                                               .getStringValuesSF(
-                                                  SharedPreferencesKeys
-                                                      .currentUserKey)
+                                              SharedPreferencesKeys
+                                                  .currentUserKey)
                                               .then((value) {
                                             if (value != null) {
                                               currentUserKey = value;
-                                          MySharedPreferences.instance
-                                              .getStringValuesSF(
-                                                  SharedPreferencesKeys
-                                                      .currentUserEmail)
-                                              .then((value) {
-                                            if (value != null) {
-                                              currentUserEmail = value;
                                               MySharedPreferences.instance
                                                   .getStringValuesSF(
-                                                      SharedPreferencesKeys
-                                                          .currentUserName)
+                                                  SharedPreferencesKeys
+                                                      .currentUserEmail)
                                                   .then((value) {
                                                 if (value != null) {
-                                                  userName = value;
-                                                 if( AppConstanst.selectedTabIndex==0){
-                                                   getTransactions();
-                                                 }else {
-                                                   getIncomeTransactions();
-                                                 }
-                                                }
-                                              }); }
+                                                  currentUserEmail = value;
+                                                  MySharedPreferences.instance
+                                                      .getStringValuesSF(
+                                                      SharedPreferencesKeys
+                                                          .currentUserName)
+                                                      .then((value) {
+                                                    if (value != null) {
+                                                      userName = value;
+                                                      getTransactions();
+                                                    }
+                                                  }); }
                                               });
                                             }
                                           });
@@ -554,7 +550,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                               Expanded(
                                 child: TabBarView(
                                     physics:
-                                        const NeverScrollableScrollPhysics(),
+                                    const NeverScrollableScrollPhysics(),
                                     children: [
                                       _spendingView(overviewBloc),
                                       _incomeView(overviewBloc)
@@ -588,7 +584,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                          const BorderRadius.all(Radius.circular(10))),
+                      const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -701,7 +697,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                         Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const SpendingDetailScreen()),
+                              const SpendingDetailScreen()),
                         );
                       },
                       child: Container(
@@ -767,8 +763,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 .length,
                             itemBuilder: (context, index1) {
                               final transaction =
-                                  dateWiseSpendingTransaction[index]
-                                      .transactions![index1];
+                              dateWiseSpendingTransaction[index]
+                                  .transactions![index1];
                               return AbsorbPointer(
                                 absorbing: userEmail != currentUserEmail,
                                 child: Dismissible(
@@ -882,7 +878,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   transaction.cat_name!,
@@ -906,7 +902,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           ),
                                           Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.end,
+                                            CrossAxisAlignment.end,
                                             children: [
                                               Text(
                                                 "-\u20B9${transaction.amount!}",
@@ -951,11 +947,11 @@ class OverviewScreenState extends State<OverviewScreen> {
             if (dateWiseSpendingTransaction.isEmpty) 15.heightBox,
             if (dateWiseSpendingTransaction.isEmpty && !loading)
               Container(
-                width: double.maxFinite,
+                  width: double.maxFinite,
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                          const BorderRadius.all(Radius.circular(10))),
+                      const BorderRadius.all(Radius.circular(10))),
                   child: Column(
                     children: [
                       20.heightBox,
@@ -979,9 +975,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   .push(
                                 MaterialPageRoute(
                                     builder: (context) => AddSpendingScreen(
-                                          transactionName: AppConstanst
-                                              .spendingTransactionName,
-                                        )),
+                                      transactionName: AppConstanst
+                                          .spendingTransactionName,
+                                    )),
                               )
                                   .then((value) {
                                 if (value != null) {
@@ -999,7 +995,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                               decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(10))),
+                                  BorderRadius.all(Radius.circular(10))),
                               child: const Text(
                                 "Add spending",
                                 style: TextStyle(
@@ -1030,7 +1026,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                          const BorderRadius.all(Radius.circular(10))),
+                      const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -1181,8 +1177,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 .length,
                             itemBuilder: (context, index1) {
                               final transaction =
-                                  dateWiseIncomeTransaction[index]
-                                      .transactions![index1];
+                              dateWiseIncomeTransaction[index]
+                                  .transactions![index1];
                               return AbsorbPointer(
                                 absorbing: userEmail != currentUserEmail,
                                 child: Dismissible(
@@ -1292,7 +1288,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   transaction.cat_name!,
@@ -1316,7 +1312,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           ),
                                           Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.end,
+                                            CrossAxisAlignment.end,
                                             children: [
                                               Text(
                                                 "+\u20B9${transaction.amount!}",
@@ -1361,11 +1357,11 @@ class OverviewScreenState extends State<OverviewScreen> {
             if (dateWiseIncomeTransaction.isEmpty) 10.heightBox,
             if (dateWiseIncomeTransaction.isEmpty)
               Container(
-                width: double.maxFinite,
+                  width: double.maxFinite,
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                          const BorderRadius.all(Radius.circular(10))),
+                      const BorderRadius.all(Radius.circular(10))),
                   child: Column(
                     children: [
                       20.heightBox,
@@ -1381,43 +1377,43 @@ class OverviewScreenState extends State<OverviewScreen> {
                       ),
                       20.heightBox,
                       if (userEmail == currentUserEmail)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 35),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .push(
-                              MaterialPageRoute(
-                                  builder: (context) => AddSpendingScreen(
-                                        transactionName:
-                                            AppConstanst.incomeTransactionName,
-                                      )),
-                            )
-                                .then((value) {
-                              if (value != null) {
-                                if (value) {
-                                  getIncomeTransactions();
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 35),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.of(context, rootNavigator: true)
+                                  .push(
+                                MaterialPageRoute(
+                                    builder: (context) => AddSpendingScreen(
+                                      transactionName:
+                                      AppConstanst.incomeTransactionName,
+                                    )),
+                              )
+                                  .then((value) {
+                                if (value != null) {
+                                  if (value) {
+                                    getIncomeTransactions();
+                                  }
                                 }
-                              }
-                            });
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 15),
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                            child: const Text(
-                              "Add income",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 14),
+                              });
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 15),
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                              child: const Text(
+                                "Add income",
+                                style:
+                                TextStyle(color: Colors.white, fontSize: 14),
+                              ),
                             ),
                           ),
                         ),
-                      ),
                       15.heightBox,
                     ],
                   )),
@@ -1429,9 +1425,9 @@ class OverviewScreenState extends State<OverviewScreen> {
 
   List<PieChartSectionData> showingSpendingSections() {
     double spendingPercentage =
-        currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
+    currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
     double remainingPercentage =
-        currentBalance > 0 ? 100 - spendingPercentage : 0;
+    currentBalance > 0 ? 100 - spendingPercentage : 0;
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;
@@ -1473,7 +1469,7 @@ class OverviewScreenState extends State<OverviewScreen> {
         ? (currentIncome / actualBudget) * 100
         : 100;
     double remainingPercentage =
-        currentIncome > 0 ? 100 - incomePercentage : 100;
+    currentIncome > 0 ? 100 - incomePercentage : 100;
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;

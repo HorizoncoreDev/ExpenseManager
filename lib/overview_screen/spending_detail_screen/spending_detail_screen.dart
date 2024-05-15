@@ -3,6 +3,7 @@ import 'package:expense_manager/statistics/search/CommonCategoryModel.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,8 +60,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
   List<MonthData> selectedMonths = [];
   String selectedCategory = "";
   int selectedCategoryIndex = -1;
-  String showYear = 'Select Year';
-  String showMonth = 'Select month';
+  String showYear = LocaleKeys.selectYear.tr;
+  String showMonth = LocaleKeys.selectMonth.tr;
   DateTime _selectedYear = DateTime.now();
   bool isFilterCleared = false;
 
@@ -245,7 +246,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                           fontSize: 22,
                           color: Helper.getTextColor(context),
                         )),
-                    Text(" /\u20B9$actualBudget",
+                    Text(" /${AppConstanst.currencySymbol}$actualBudget",
                         style: TextStyle(
                           fontSize: 16,
                           color: Helper.getTextColor(context),
@@ -337,7 +338,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                     ),
                                     5.widthBox,
                                     Text(
-                                      "Spent",
+                                      LocaleKeys.spent.tr,
                                       style: TextStyle(
                                           color: Helper.getTextColor(context),
                                           fontSize: 12),
@@ -345,7 +346,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                   ],
                                 ),
                                 Text(
-                                  "\u20B9$totalMonthlySpentAmount",
+                                  "${AppConstanst.currencySymbol}$totalMonthlySpentAmount",
                                   style: TextStyle(
                                       color: Helper.getTextColor(context),
                                       fontSize: 16,
@@ -366,7 +367,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                     ),
                                     5.widthBox,
                                     Text(
-                                      "Remaining",
+                                      LocaleKeys.remaining.tr,
                                       style: TextStyle(
                                           color: Helper.getTextColor(context),
                                           fontSize: 12),
@@ -374,7 +375,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                   ],
                                 ),
                                 Text(
-                                  "\u20B9${actualBudget - totalMonthlySpentAmount}",
+                                  "${AppConstanst.currencySymbol}${actualBudget - totalMonthlySpentAmount}",
                                   style: TextStyle(
                                       color: Helper.getTextColor(context),
                                       fontSize: 16,
@@ -391,7 +392,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(5)),
                           keyboardType: TextInputType.text,
-                          hintText: "Notes, categories",
+                          hintText: LocaleKeys.notesCategories.tr,
                           fillColor: Helper.getCardColor(context),
                           borderColor: Colors.transparent,
                           padding: 10,
@@ -402,7 +403,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                               ? InkWell(
                                   onTap: () {
                                     searchController.clear();
-                                    if (showYear != "Select Year" &&
+                                    if (showYear != LocaleKeys.selectYear.tr &&
                                         selectedMonths.isNotEmpty) {
                                       getFilteredData("");
                                     } else {
@@ -428,7 +429,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                 ),
                           onChanged: (value) {
                             if (value.isNotEmpty) {
-                              if (showYear != "Select Year" &&
+                              if (showYear != LocaleKeys.selectYear.tr &&
                                   selectedMonths.isNotEmpty) {
                                 getFilteredData(value);
                               } else {
@@ -436,7 +437,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                               }
                             } else {
                               dateWiseTransaction = originalDateWiseTransaction;
-                              if (showYear != "Select Year" &&
+                              if (showYear != LocaleKeys.selectYear.tr &&
                                   selectedMonths.isNotEmpty) {
                                 getFilteredData("");
                               } else {
@@ -467,7 +468,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                             color: Colors.grey, fontSize: 14),
                                       ),
                                       Text(
-                                        "-\u20B9${dateWiseTransaction[index].transactionTotal}",
+                                        "-${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactionTotal}",
                                         style: const TextStyle(
                                             color: Colors.pink, fontSize: 14),
                                       ),
@@ -581,7 +582,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                                       CrossAxisAlignment.end,
                                                   children: [
                                                     Text(
-                                                      "-\u20B9${dateWiseTransaction[index].transactions![index1].amount!}",
+                                                      "-${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactions![index1].amount!}",
                                                       style: TextStyle(
                                                           color: Helper
                                                               .getTextColor(
@@ -644,7 +645,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                 ),
                                 10.heightBox,
                                 Text(
-                                  "You don't have any spending yet",
+                                  LocaleKeys.dontHaveExpense.tr,
                                   style: TextStyle(
                                       color: Helper.getTextColor(context)),
                                 ),
@@ -668,8 +669,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                           color: Colors.blue,
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(10))),
-                                      child: const Text(
-                                        "Add spending",
+                                      child: Text(
+                                        LocaleKeys.addSpending.tr,
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 14),
                                       ),
@@ -710,14 +711,14 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                         clearSelection(setState);
                       },
                       child: Text(
-                        "Clear filter",
+                        LocaleKeys.clearFilter.tr,
                         style: TextStyle(
                             color: Helper.getTextColor(context), fontSize: 16),
                       ),
                     ),
                     Expanded(
                       child: Text(
-                        "Filter",
+                        LocaleKeys.filter.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Helper.getTextColor(context),
@@ -729,38 +730,38 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                       onTap: () {
                         if (isFilterCleared) {
                           isFilterCleared = false;
-                          if (showYear != "Select Year" &&
+                          if (showYear != LocaleKeys.selectYear.tr &&
                               selectedMonths.isNotEmpty) {
                             Navigator.pop(context);
                             getFilteredData("");
-                          }
-                          if (showYear == "Select Year" ||
-                              selectedMonths.isEmpty) {
+
+                          } if(showYear == LocaleKeys.selectYear.tr ||
+                              selectedMonths.isEmpty){
                             Navigator.pop(context);
                             getTransactions("");
-                          } else if (showYear == "Select Year" ||
+                          }else if (showYear == LocaleKeys.selectYear.tr ||
                               selectedMonths.isEmpty) {
                             Helper.showToast(
-                                "Please ensure you select a year and month to retrieve data");
+                                LocaleKeys.selectMonthOrYearText.tr);
                           }
                         } else {
                           isFilterCleared = false;
-                          if (showYear != "Select Year" &&
+                          if (showYear != LocaleKeys.selectYear.tr &&
                               selectedMonths.isNotEmpty) {
                             Navigator.pop(context);
                             getFilteredData("");
-                          } else if (showYear == "Select Year" ||
+                          } else if (showYear == LocaleKeys.selectYear.tr ||
                               selectedMonths.isEmpty) {
                             Helper.showToast(
-                                "Please ensure you select a year and month to retrieve data");
+                                LocaleKeys.selectMonthOrYearText.tr);
                           } else {
                             Navigator.pop(context);
                             getTransactions("");
                           }
                         }
                       },
-                      child: const Text(
-                        "Done",
+                      child: Text(
+                        LocaleKeys.done.tr,
                         style: TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
@@ -782,13 +783,13 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "YEAR",
+                      LocaleKeys.year.tr,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
                     ),
                     15.widthBox,
                     Text(
-                      "MONTH(Can filter one or more)",
+                      LocaleKeys.monthFilterText.tr,
                       textAlign: TextAlign.end,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
@@ -849,7 +850,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Text(
-                  "CATEGORY",
+                  LocaleKeys.category.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context), fontSize: 14),
                 ),
@@ -916,8 +917,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
         item.isSelected = false;
       }
       selectedMonths.clear();
-      showMonth = 'Select Month';
-      showYear = 'Select Year';
+      showMonth = LocaleKeys.selectMonth.tr;
+      showYear = LocaleKeys.selectYear.tr;
       selectedCategoryIndex = -1;
       selectedCategory = '';
     });
@@ -929,7 +930,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Select Year"),
+          title: Text(LocaleKeys.selectYear.tr),
           content: SizedBox(
             width: 300,
             height: 300,
@@ -959,7 +960,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, setState1) {
           return AlertDialog(
-            title: const Text("Select Month"),
+            title: Text(LocaleKeys.selectMonth.tr),
             contentPadding:
                 const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
             content: SizedBox(

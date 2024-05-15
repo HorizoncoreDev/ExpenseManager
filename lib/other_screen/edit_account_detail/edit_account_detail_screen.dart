@@ -4,11 +4,13 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:expense_manager/other_screen/account_detail/account_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../db_models/profile_model.dart';
@@ -160,7 +162,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         onTap: () {
                           Navigator.pop(context);
                         },
-                        child: Text("Cancel",
+                        child: Text(LocaleKeys.cancel.tr,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 20,
@@ -170,7 +172,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                     ],
                   ),
                 ),
-                title: Text("Account details",
+                title: Text(LocaleKeys.accountDetails.tr,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 20,
@@ -224,7 +226,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                             CustomBoxTextFormField(
                               controller: firstNameController,
                               keyboardType: TextInputType.text,
-                              hintText: "Enter First Name",
+                              hintText: LocaleKeys.enterName.tr,
                               hintColor: Helper.getTextColor(context),
                               textStyle: const TextStyle(fontSize: 16),
                               borderRadius: BorderRadius.circular(10),
@@ -262,7 +264,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                             CustomBoxTextFormField(
                               controller: lastNameController,
                               keyboardType: TextInputType.text,
-                              hintText: "Enter Last Name",
+                              hintText: LocaleKeys.enterLastName.tr,
                               hintColor: Helper.getTextColor(context),
                               textStyle: const TextStyle(fontSize: 16),
                               borderRadius: BorderRadius.circular(10),
@@ -299,7 +301,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                             CustomBoxTextFormField(
                               controller: emailController,
                               keyboardType: TextInputType.text,
-                              hintText: "Enter Email",
+                              hintText: LocaleKeys.enterEmail.tr,
                               hintColor: Helper.getTextColor(context),
                               textStyle: const TextStyle(fontSize: 16),
                               borderRadius: BorderRadius.circular(10),
@@ -493,7 +495,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(10))),
                                 child: Text(
-                                  "Update",
+                                  LocaleKeys.update.tr,
                                   style: TextStyle(
                                       color: Helper.getTextColor(context),
                                       fontSize: 14),

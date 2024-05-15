@@ -1,6 +1,8 @@
 import 'package:contacts_service/contacts_service.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InviteFriendsScreen extends StatefulWidget {
@@ -34,7 +36,7 @@ class _InviteFriendsScreenState extends State<InviteFriendsScreen> {
                 color: Helper.getTextColor(context),
               )),
           title: Text(
-            "Invite Friends",
+            LocaleKeys.invite.tr,
             style: TextStyle(
                 color: Helper.getTextColor(context),
                 fontSize: 24,
@@ -76,9 +78,9 @@ class _InviteFriendsScreenState extends State<InviteFriendsScreen> {
                                 padding: const EdgeInsets.all(6.0),
                                 child: InkWell(
                                   onTap: () {
-                                    sendingSMS('Hello, ${item.displayName}', '${item.phones![0].value}');
+                                    sendingSMS('${LocaleKeys.hello.tr}, ${item.displayName}', '${item.phones![0].value}');
                                   },
-                                  child: const Text("INVITE",
+                                  child: Text(LocaleKeys.invite.tr,
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 12,

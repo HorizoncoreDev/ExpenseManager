@@ -5,10 +5,12 @@ import 'package:expense_manager/other_screen/invite_friends_screen.dart';
 import 'package:expense_manager/sign_in/sign_in_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../utils/global.dart';
 import 'account_detail/account_detail_screen.dart';
@@ -112,7 +114,7 @@ class _OtherScreenState extends State<OtherScreen> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                "Other",
+                                LocaleKeys.other.tr,
                                 style: TextStyle(
                                     color: Helper.getTextColor(context),
                                     fontSize: 25,
@@ -127,7 +129,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         false);*/
                                     AppConstanst.signInClicked++;
                                     Helper.showToast(
-                                        "Kindly proceed with your sign-in.");
+                                        LocaleKeys.proceedSignIn.tr);
                                     Navigator.of(context, rootNavigator: true)
                                         .push(
                                       MaterialPageRoute(
@@ -164,7 +166,7 @@ class _OtherScreenState extends State<OtherScreen> {
                           ),
                           15.heightBox,
                           Text(
-                            "MANAGE",
+                            LocaleKeys.manage.tr,
                             style: TextStyle(
                                 fontSize: 14,
                                 color: Helper.getTextColor(context),
@@ -206,7 +208,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                       ),
                                       5.heightBox,
                                       Text(
-                                        'My Account',
+                                        LocaleKeys.myAccount.tr,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: Helper.getTextColor(context),
@@ -246,7 +248,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                       ),
                                       5.heightBox,
                                       Text(
-                                        'Category',
+                                        LocaleKeys.category.tr,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: Helper.getTextColor(context),
@@ -285,7 +287,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                       ),
                                       5.heightBox,
                                       Text(
-                                        'My Library',
+                                        LocaleKeys.myLibrary.tr,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: Helper.getTextColor(context),
@@ -300,7 +302,7 @@ class _OtherScreenState extends State<OtherScreen> {
                           ),
                           15.heightBox,
                           Text(
-                            "APP",
+                            LocaleKeys.app.tr,
                             style: TextStyle(
                                 fontSize: 14,
                                 color: Helper.getTextColor(context),
@@ -343,7 +345,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         15.widthBox,
                                         Expanded(
                                           child: Text(
-                                            "General settings",
+                                            LocaleKeys.generalSettings.tr,
                                             style: TextStyle(
                                                 fontSize: 16,
                                                 color: Helper.getTextColor(
@@ -389,7 +391,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         15.widthBox,
                                         Expanded(
                                           child: Text(
-                                            "Invite friends",
+                                            LocaleKeys.inviteFriends.tr,
                                             style: TextStyle(
                                                 fontSize: 16,
                                                 color:
@@ -434,7 +436,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                         15.widthBox,
                                         Expanded(
                                           child: Text(
-                                            "Rate the app",
+                                            LocaleKeys.rateApp.tr,
                                             style: TextStyle(
                                                 fontSize: 16,
                                                 color: Helper.getTextColor(
@@ -475,7 +477,7 @@ class _OtherScreenState extends State<OtherScreen> {
                                       15.widthBox,
                                       Expanded(
                                         child: Text(
-                                          "Version",
+                                          LocaleKeys.version.tr,
                                           style: TextStyle(
                                               fontSize: 16,
                                               color:
@@ -541,7 +543,7 @@ class _OtherScreenState extends State<OtherScreen> {
                           color: Helper.getTextColor(context),
                         ))),
                 Text(
-                  "Review",
+                  LocaleKeys.review.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context),
                       fontSize: 26,
@@ -549,7 +551,7 @@ class _OtherScreenState extends State<OtherScreen> {
                 ),
                 30.heightBox,
                 Text(
-                  "Do you like this app?",
+                  LocaleKeys.likeApp.tr,
                   style: TextStyle(
                     color: Helper.getTextColor(context),
                     fontSize: 16,
@@ -567,7 +569,7 @@ class _OtherScreenState extends State<OtherScreen> {
                             size: 50,
                           ),
                           Text(
-                            "No",
+                            LocaleKeys.no.tr,
                             style: TextStyle(
                               color: Helper.getTextColor(context),
                               fontSize: 16,
@@ -585,7 +587,7 @@ class _OtherScreenState extends State<OtherScreen> {
                               size: 50,
                             ),
                             Text(
-                              "Like",
+                              LocaleKeys.like.tr,
                               style: TextStyle(
                                 color: Helper.getTextColor(context),
                                 fontSize: 16,
@@ -602,7 +604,7 @@ class _OtherScreenState extends State<OtherScreen> {
                               size: 50,
                             ),
                             Text(
-                              "Like so much",
+                             LocaleKeys.likeSoMuch.tr,
                               style: TextStyle(
                                 color: Helper.getTextColor(context),
                                 fontSize: 16,
@@ -615,21 +617,21 @@ class _OtherScreenState extends State<OtherScreen> {
                 30.heightBox,
                 RichText(
                     text: TextSpan(
-                        text: "Please leave a review ",
+                        text: LocaleKeys.leaveReviewText.tr,
                         style: TextStyle(
                           fontSize: 16,
                           color: Helper.getTextColor(context),
                         ),
                         children: [
-                          const TextSpan(
-                            text: "5 stars ",
+                          TextSpan(
+                            text: LocaleKeys.stars.tr,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.blue,
                             ),
                           ),
                           TextSpan(
-                            text: "for this app on the AppStore?",
+                            text: LocaleKeys.appStoreText.tr,
                             style: TextStyle(
                               fontSize: 16,
                               color: Helper.getTextColor(context),
@@ -647,15 +649,15 @@ class _OtherScreenState extends State<OtherScreen> {
                     decoration: const BoxDecoration(
                         color: Colors.blue,
                         borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: const Text(
-                      "Rate the app",
+                    child: Text(
+                      LocaleKeys.rateApp.tr,
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   ),
                 ),
                 10.heightBox,
                 Text(
-                  "Your 5 star review is a great reward to us!",
+                  LocaleKeys.greatRewardText.tr,
                   style: TextStyle(
                     color: Helper.getTextColor(context),
                     fontSize: 12,
@@ -681,10 +683,10 @@ class _OtherScreenState extends State<OtherScreen> {
       }
       else if(status.isPermanentlyDenied){
         openAppSettings();
-        Helper.showToast("Permission is permanently denied");
+        Helper.showToast(LocaleKeys.permissionDenied.tr);
       }
       else{
-        Helper.showToast("Please allow to access contacts!!");
+        Helper.showToast(LocaleKeys.allowContactAccess.tr);
       }
   }
 

@@ -5,6 +5,7 @@ import 'package:expense_manager/other_screen/family_account/family_account_scree
 import 'package:expense_manager/sign_in/sign_in_screen.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/translation_service.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:expense_manager/utils/push_notification_service.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
@@ -16,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'budget/budget_screen.dart';
 import 'intro_screen/intro_screen.dart';
@@ -163,6 +165,8 @@ class _MyAppState extends State<MyApp> {
   bool isBudgetAdded;
   bool isSkippedUser;
   bool isLogin;
+  Locale currentLocale = const Locale('en', 'US');
+
 
   _MyAppState(
       {
@@ -237,11 +241,37 @@ class _MyAppState extends State<MyApp> {
     // _notificationService.initialize();
 
     User? user = FirebaseAuth.instance.currentUser;
-
+    String langCode = "";
+    MySharedPreferences.instance.getStringValuesSF(SharedPreferencesKeys
+        .languageCode).then((value) {
+          if(value!= null){
+             langCode = value;
+             if (langCode.isNotEmpty)
+               if (langCode == 'en') {
+               currentLocale = const Locale('en', 'US');
+             } else if (langCode == 'hi') {
+               currentLocale = const Locale('hi', 'IN');
+             } else if (langCode == 'gu') {
+               currentLocale = const Locale('gu', 'GJ');
+             }
+          }
+    });
     return GetMaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: themeNotifier.getTheme(),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        // supportedLocales: const [
+        //   Locale('en', ''), // English
+        //   Locale('hi', ''), // Hindi
+        //   Locale('gu', ''), // Gujarati
+        //   // Add more locales as needed
+        // ],
+        translations: TranslationService(),
+        locale: currentLocale,
         home: AppConstanst.notificationClicked?
         const FamilyAccountScreen():isBudgetAdded
             ? isLogin

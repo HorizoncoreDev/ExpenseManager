@@ -1,7 +1,9 @@
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 
 import '../overview_screen/add_spending/add_spending_screen.dart';
@@ -30,7 +32,7 @@ class _DashBoardState extends State<DashBoard> {
         key: overviewKey,
         onAccountUpdate:updateBottomSheet
       ),
-      Container(),
+      SizedBox(),
       StatisticsScreen(key: overviewKey1),
     ];
   }
@@ -55,8 +57,7 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   void initState() {
-    print("Dashboard INIT Loaded_-----------------------");
-
+    print(Get.locale!.languageCode);
     super.initState();
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isCategoriesAdded)
@@ -74,11 +75,26 @@ class _DashBoardState extends State<DashBoard> {
       }
     });
     updateBottomSheet();
+
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.currencySymbol)
+        .then((value) {
+      if (value != null) {
+        AppConstanst.currencySymbol = value;
+        print("CS --- ${ AppConstanst.currencySymbol}");
+      }});
+
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.currencyCode)
+        .then((value) {
+      if (value != null) {
+        AppConstanst.currencyCode = value;
+        print("CS --- ${ AppConstanst.currencyCode}");
+      }});
   }
 
   @override
   Widget build(BuildContext context) {
-    print("Dashboard Loaded_-----------------------");
     return SafeArea(
       child: Scaffold(
         key: scaffoldKey,
@@ -110,7 +126,7 @@ class _DashBoardState extends State<DashBoard> {
     return [
       PersistentBottomNavBarItem(
         icon: const Icon(Icons.home),
-        title: "Overview",
+        title: LocaleKeys.overview.tr,
         activeColorPrimary:
             Helper.getBottomNavigationColor(context).selectedItemColor!,
         inactiveColorPrimary:
@@ -120,7 +136,7 @@ class _DashBoardState extends State<DashBoard> {
       PersistentBottomNavBarItem(
           icon: userEmail == currentUserEmail
               ? const Icon(Icons.add)
-              : Container(),
+              : SizedBox(),
           contentPadding: 0,
           activeColorPrimary: userEmail == currentUserEmail
               ? Helper.getMiddleBottomNavBarItem(context)
@@ -151,8 +167,9 @@ class _DashBoardState extends State<DashBoard> {
             });
           }),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.search),
-        title: ("Statistics"),
+
+        icon: Icon(Icons.search),
+        title: (LocaleKeys.statistics.tr),
         activeColorPrimary:
             Helper.getBottomNavigationColor(context).selectedItemColor!,
         inactiveColorPrimary:

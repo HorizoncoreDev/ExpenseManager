@@ -4,9 +4,11 @@ import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'bloc/my_library_bloc.dart';
 import 'bloc/my_library_state.dart';
 
@@ -129,7 +131,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
                           size: 20,
                         )),
                     10.widthBox,
-                    Text("My Library",
+                    Text(LocaleKeys.myLibrary.tr,
                         style: TextStyle(
                           fontSize: 22,
                           color: Helper.getTextColor(context),
@@ -143,7 +145,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
                 child: Align(
                   alignment: Alignment.center,
                   child: Text(
-                    "You don't have any library yet",
+                   LocaleKeys.haveNotLibrary.tr,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Helper.getTextColor(context),
@@ -195,7 +197,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Close'),
+          child: Text(LocaleKeys.close.tr),
         ),
       ],
     );
