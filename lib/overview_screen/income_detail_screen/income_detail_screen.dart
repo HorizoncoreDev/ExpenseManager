@@ -260,7 +260,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
         double percentage = totalMonthlyIncomeAmount > 0
             ? (totalMonthlyIncomeAmount / actualBudget) * 100
             : 100;
-        // incomePercentage = totalMonthlyIncomeAmount > 0 ? 100 - percentage : 0;
+        incomePercentage = totalMonthlyIncomeAmount > 0 ? 100 - percentage : 0;
         setState(() {});
       }
     });

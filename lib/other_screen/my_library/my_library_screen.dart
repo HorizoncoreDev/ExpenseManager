@@ -141,7 +141,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
               ),
 
               body: imageList.isEmpty ?
-              Expanded(
+              Center(
                 child: Align(
                   alignment: Alignment.center,
                   child: Text(

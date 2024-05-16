@@ -364,7 +364,7 @@ return completer.future;*/
     return affectedRows;
   }
 
-  // A method that retrieves all the category from the category table.
+  /// A method that retrieves all the category from the category table.
   Future<List<ExpenseCategory>> categorys() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
@@ -373,7 +373,7 @@ return completer.future;*/
         maps.length, (index) => ExpenseCategory.fromMap(maps[index]));
   }
 
-  // Insert Payment Method
+  /// Insert Payment Method
   Future<void> insertPaymentMethod(PaymentMethod paymentMethod) async {
     Database db = await database;
     await db.insert(payment_method_table, paymentMethod.toMap());
@@ -394,7 +394,7 @@ return completer.future;*/
     return affectedRows;
   }
 
-  // A method that retrieves all the paymentMethods from the paymentMethods table.
+  /// A method that retrieves all the paymentMethods from the paymentMethods table.
   Future<List<PaymentMethod>> paymentMethods() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
@@ -403,7 +403,7 @@ return completer.future;*/
         maps.length, (index) => PaymentMethod.fromMap(maps[index]));
   }
 
-  // Update Payment Method
+  /// Update Payment Method
   Future<void> updatePaymentMethod(PaymentMethod paymentMethod) async {
     final db = await database;
     await db.update(payment_method_table, paymentMethod.toMap(),
@@ -428,7 +428,7 @@ return completer.future;*/
     return affectedRows;
   }
 
-  // A method that retrieves all the currencyMethod from the currencyCategory table.
+  /// A method that retrieves all the currencyMethod from the currencyCategory table.
   Future<List<CurrencyCategory>> currencyMethods() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(currency_table);
@@ -462,7 +462,7 @@ return completer.future;*/
     return affectedRows;
   }
 
-  // A method that retrieves all the paymentMethods from the paymentMethods table.
+  /// A method that retrieves all the language methods from the paymentMethods table.
   Future<List<LanguageCategory>> languageMethods() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(language_table);
@@ -496,7 +496,7 @@ return completer.future;*/
     return affectedRows;
   }
 
-  // A method that retrieves all the IncomeCategory from the IncomeCategory table.
+  /// A method that retrieves all the IncomeCategory from the IncomeCategory table.
   Future<List<IncomeCategory>> getIncomeCategory() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
@@ -505,14 +505,14 @@ return completer.future;*/
         maps.length, (index) => IncomeCategory.fromMap(maps[index]));
   }
 
-  // Update Income Category
+  /// Update Income Category
   Future<void> updateIncomeCategory(IncomeCategory incomeCategory) async {
     var db = await database;
     await db.update(income_category_table, incomeCategory.toMap(),
         where: '${CategoryFields.id} = ?', whereArgs: [incomeCategory.id]);
   }
 
-  // Insert Transaction Detail
+  /// Insert Transaction Detail
   Future<int> insertTransactionData(
       TransactionModel transactionModel, bool isSkippedUser) async {
     Database db = await database;
@@ -551,7 +551,7 @@ return completer.future;*/
         whereArgs: [transactionModel.key]);
   }
 
-  // A method that retrieves all the TransactionData from the TransactionData table.
+  /// A method that retrieves all the TransactionData from the TransactionData table.
   Future<List<TransactionModel>> getTransactionData() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(transaction_table);
@@ -577,7 +577,7 @@ return completer.future;*/
         maps.length, (index) => TransactionModel.fromMap(maps[index]));
   }
 
-  //Get transaction data for current month
+  /// Get transaction data for current month
   Future<List<TransactionModel>> fetchDataForCurrentMonth(
       int transactionType, String email, String key, bool isSkippedUser) async {
     DateTime now = DateTime.now();
@@ -1128,7 +1128,7 @@ return completer.future;*/
     }
   }
 
-// Insert Income Sub Category
+/// Insert Income Sub Category
   Future<void> insertIncomeSubCategory(
       int categoryId, IncomeSubCategory incomeSubCategory) async {
     incomeSubCategory.categoryId = categoryId;
@@ -1136,7 +1136,7 @@ return completer.future;*/
     await db.insert(income_sub_category_table, incomeSubCategory.toMap());
   }
 
-// Update Income Sub Category
+/// Update Income Sub Category
   Future<void> updateIncomeSubCategory(
       IncomeSubCategory incomeSubCategory) async {
     var db = await database;
@@ -1145,7 +1145,7 @@ return completer.future;*/
         whereArgs: [incomeSubCategory.id]);
   }
 
-// A method that retrieves all the income sub category from the income sub table.
+/// A method that retrieves all the income sub category from the income sub table.
   Future<List<IncomeSubCategory>> getIncomeSubCategory(int categoryId) async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -1157,7 +1157,7 @@ return completer.future;*/
         maps.length, (index) => IncomeSubCategory.fromMap(maps[index]));
   }
 
-// Insert Spending Sub Category
+/// Insert Spending Sub Category
   Future<void> insertSpendingSubCategory(
       int categoryId, ExpenseSubCategory spendingSubCategory) async {
     spendingSubCategory.categoryId = categoryId;
@@ -1180,7 +1180,7 @@ return completer.future;*/
     return affectedRows;
   }
 
-// Update Spending Sub Category
+/// Update Spending Sub Category
   Future<void> updateSpendingSubCategory(
       ExpenseSubCategory spendingSubCategory) async {
     var db = await database;
@@ -1189,7 +1189,7 @@ return completer.future;*/
         whereArgs: [spendingSubCategory.id]);
   }
 
-// A method that retrieves all the spending sub category from the spending sub table.
+/// A method that retrieves all the spending sub category from the spending sub table.
   Future<List<ExpenseSubCategory>> getSpendingSubCategory(
       int categoryId) async {
     Database db = await database;

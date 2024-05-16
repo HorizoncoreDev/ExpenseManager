@@ -1,8 +1,10 @@
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 import '../../../db_models/expense_category_model.dart';
 import '../../../db_models/income_category.dart';
@@ -111,13 +113,13 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         Navigator.pop(context);
                       },
                       child: Text(
-                        "Back",
+                        LocaleKeys.back.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Helper.getTextColor(context), fontSize: 16),
                       ),
                     ),
-                    Text("Add category",
+                    Text(LocaleKeys.addCategory.tr,
                         style: TextStyle(
                             fontSize: 22,
                             color: Helper.getTextColor(context),
@@ -131,7 +133,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         }
                       },
                       child: Text(
-                        "Done",
+                        LocaleKeys.done.tr,
                         style: TextStyle(
                             color: Helper.getTextColor(context), fontSize: 16),
                       ),
@@ -152,7 +154,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "NAME",
+                          LocaleKeys.name.tr,
                           style: TextStyle(
                               color: Helper.getTextColor(context),
                               fontSize: 14),
@@ -177,7 +179,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         }),
                     20.heightBox,
                     Text(
-                      "COLOR",
+                      LocaleKeys.color.tr,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
                     ),
@@ -225,7 +227,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                     ),
                     20.heightBox,
                     Text(
-                      "ICON",
+                      LocaleKeys.icon.tr,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
                     ),
