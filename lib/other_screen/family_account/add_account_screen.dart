@@ -112,7 +112,7 @@ class MyDialog {
     final reference =
         FirebaseDatabase.instance.reference().child(request_table);
 
-
+bool requestExist=false;
     reference.once().then((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       if (dataSnapshot.exists) {
@@ -121,10 +121,29 @@ class MyDialog {
         values.forEach((key, values) {
           if (values['receiver_email'] == receiverEmail &&
               values['status'] == AppConstanst.pendingRequest) {
+            requestExist = true;
             Helper.showToast(LocaleKeys.alreadyExist.tr);
           }else if (values['receiver_email'] == receiverEmail &&
               values['status'] == AppConstanst.acceptedRequest) {
+            requestExist = true;
             Helper.showToast(LocaleKeys.alreadyHaveAccess.tr);
+          }
+          if(!requestExist){
+            requestExist=true;
+            var newPostRef = reference.push();
+            RequestModel data = RequestModel(
+              key: newPostRef.key,
+              requester_email: profileModel.email,
+              requester_name: profileModel.full_name,
+              receiver_email: receiverEmail,
+              receiver_name: receiverName,
+              status: 1,
+              created_at: DateTime.now().toString(),
+            );
+
+            newPostRef.set(data.toMap());
+            sendRequestNotification(data, profileModel);
+            Helper.showToast(LocaleKeys.requestSentSuccessFully.tr);
           }
         });
       }else{

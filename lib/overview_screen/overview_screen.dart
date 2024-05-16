@@ -173,7 +173,7 @@ class OverviewScreenState extends State<OverviewScreen> {
           currentBalance = int.parse(profileModel.current_balance!);
           currentIncome = int.parse(profileModel.current_income!);
           actualBudget = int.parse(profileModel.actual_budget!);
-          checkRequests();
+          // checkRequests();
         });
       }else{
         final reference = FirebaseDatabase.instance

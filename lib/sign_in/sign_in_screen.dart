@@ -43,7 +43,6 @@ class _SignInScreenState extends State<SignInScreen> {
       if(value!=null){
         languageCode = value;
       }
-
     });
   }
   @override
@@ -330,55 +329,56 @@ class _SignInScreenState extends State<SignInScreen> {
                               profileModel, false);
                       }
                     });
+                    await DatabaseHelper.instance
+                        .getTransactionList("", "", "", -1, true)
+                        .then((value) async {
+                      for (var t in value) {
+                        // t.member_id = 1;
+                        t.member_email = user.email;
+                        await databaseHelper.updateTransaction(t);
+
+                        final reference = FirebaseDatabase.instance
+                            .reference()
+                            .child(transaction_table)
+                            .child(FirebaseAuth.instance.currentUser!.uid);
+                        var newPostRef = reference.push();
+                        t.key = newPostRef.key;
+                        newPostRef.set(
+                          t.toMap(),
+                        );
+                      }
+                    });
+
+                    MySharedPreferences.instance
+                        .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.currentUserEmail, user.email);
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.currentUserKey,
+                        FirebaseAuth.instance.currentUser!.uid);
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.userName, user.displayName);
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.currentUserName, user.displayName);
+                    MySharedPreferences.instance
+                        .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.skippedUserCurrentBalance, "0");
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.skippedUserCurrentIncome, "0");
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.skippedUserActualBudget, "0");
+
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const DashBoard()),
+                            (Route<dynamic> route) => false);
                   });
                 });
               });
             });
 
-            await DatabaseHelper.instance
-                .getTransactionList("", "", "", -1, true)
-                .then((value) async {
-              for (var t in value) {
-                // t.member_id = 1;
-                t.member_email = user.email;
-                await databaseHelper.updateTransaction(t);
 
-                final reference = FirebaseDatabase.instance
-                    .reference()
-                    .child(transaction_table)
-                    .child(FirebaseAuth.instance.currentUser!.uid);
-                var newPostRef = reference.push();
-                t.key = newPostRef.key;
-                newPostRef.set(
-                  t.toMap(),
-                );
-              }
-            });
-
-            MySharedPreferences.instance
-                .addStringToSF(SharedPreferencesKeys.userEmail, user.email);
-            MySharedPreferences.instance.addStringToSF(
-                SharedPreferencesKeys.currentUserEmail, user.email);
-            MySharedPreferences.instance.addStringToSF(
-                SharedPreferencesKeys.currentUserKey,
-                FirebaseAuth.instance.currentUser!.uid);
-            MySharedPreferences.instance.addStringToSF(
-                SharedPreferencesKeys.userName, user.displayName);
-            MySharedPreferences.instance.addStringToSF(
-                SharedPreferencesKeys.currentUserName, user.displayName);
-            MySharedPreferences.instance
-                .addBoolToSF(SharedPreferencesKeys.isLogin, true);
-            MySharedPreferences.instance.addStringToSF(
-                SharedPreferencesKeys.skippedUserCurrentBalance, "0");
-            MySharedPreferences.instance.addStringToSF(
-                SharedPreferencesKeys.skippedUserCurrentIncome, "0");
-            MySharedPreferences.instance.addStringToSF(
-                SharedPreferencesKeys.skippedUserActualBudget, "0");
-
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const DashBoard()),
-                (Route<dynamic> route) => false);
           } else {
             MySharedPreferences.instance
                 .getStringValuesSF(SharedPreferencesKeys.userFcmToken)
@@ -390,13 +390,11 @@ class _SignInScreenState extends State<SignInScreen> {
                   .child(profile_table)
                   .orderByChild('email')
                   .equalTo(user.email!);
-              bool calledOnce = false, profileCheckCalledOnce = false;
-              ;
+              bool calledOnce=false,profileCheckCalledOnce=false;
               reference.once().then((event) async {
                 DataSnapshot dataSnapshot = event.snapshot;
                 if (event.snapshot.exists && !profileCheckCalledOnce) {
                   ProfileModel? profileModel;
-
                   Map<dynamic, dynamic> values =
                       dataSnapshot.value as Map<dynamic, dynamic>;
                   values.forEach((key, value) async {
