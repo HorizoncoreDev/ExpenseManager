@@ -224,7 +224,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                               ),
                               RichText(
                                   text: TextSpan(
-                                      text: LocaleKeys.code.tr,
+                                      text: '${LocaleKeys.code.tr}: ',
                                       style: const TextStyle(
                                         fontSize: 16,
                                         color: Colors.blue,
@@ -599,7 +599,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
         .orderByChild('email')
         .equalTo(requestModel.requester_email);
 
-    reference.onValue.listen((event) {
+    reference.once().then((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =

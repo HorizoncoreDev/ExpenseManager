@@ -168,14 +168,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 budgetController.text.toString());
                             MySharedPreferences.instance.addBoolToSF(
                                 SharedPreferencesKeys.isBudgetAdded, true);
-
-                            await DatabaseHelper.instance
-                                .getProfileData(userEmail)
-                                .then((profileData) async {
-                              profileData!.currency_code = currencyCode.isEmpty ? "INR" : currencyCode;
-                              profileData.currency_symbol = currencySymbol.isEmpty ? "\u20B9" : currencySymbol;
-                              await DatabaseHelper.instance
-                                  .updateProfileData(profileData);
+                            MySharedPreferences.instance.addStringToSF(
+                                SharedPreferencesKeys.currencyCode,
+                                currencyCode.isEmpty ? "INR" : currencyCode);
+                            MySharedPreferences.instance.addStringToSF(
+                                SharedPreferencesKeys.currencySymbol,
+                                currencySymbol.isEmpty ? "\u20B9" : currencySymbol);
 
                               MySharedPreferences.instance.addBoolToSF(
                                   SharedPreferencesKeys.isBudgetAdded, true);
@@ -184,7 +182,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   MaterialPageRoute(
                                       builder: (context) => const DashBoard()),
                                       (Route<dynamic> route) => false);
-                            });
                           }
                         }
                         //budgetBloc.add(BudgetDoneEvent(budgetController.text));
