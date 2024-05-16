@@ -37,6 +37,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
   List<CurrencyCategory> currencyTypes = [];
   final databaseHelper = DatabaseHelper.instance;
   CurrencyCategory? currency;
+  String currencyCode = "";
+  String currencySymbol = "";
   bool currencyDropdownOpen = false;
 
   @override
@@ -140,8 +142,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   budgetController.text.toString();
                               profileData.actual_budget =
                                   budgetController.text.toString();
-                              profileData.currency_code = currency!.currencyCode;
-                              profileData.currency_symbol = currency!.symbol;
+                              profileData.currency_code = currencyCode.isEmpty ? "INR" : currencyCode;
+                              profileData.currency_symbol = currencySymbol.isEmpty ? "\u20B9" : currencySymbol;
                               await DatabaseHelper.instance
                                   .updateProfileData(profileData);
 
@@ -170,8 +172,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             await DatabaseHelper.instance
                                 .getProfileData(userEmail)
                                 .then((profileData) async {
-                              profileData!.currency_code = currency!.currencyCode;
-                              profileData.currency_symbol = currency!.symbol;
+                              profileData!.currency_code = currencyCode.isEmpty ? "INR" : currencyCode;
+                              profileData.currency_symbol = currencySymbol.isEmpty ? "\u20B9" : currencySymbol;
                               await DatabaseHelper.instance
                                   .updateProfileData(profileData);
 
@@ -291,12 +293,14 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   onChanged: (value) {
                                     setState(() {
                                       currency = value;
+                                      currencyCode = currency!.currencyCode!;
+                                      currencySymbol = currency!.symbol!;
                                       MySharedPreferences.instance.addStringToSF(
                                           SharedPreferencesKeys.currencySymbol,
-                                          currency!.symbol);
+                                          currencySymbol);
                                       MySharedPreferences.instance.addStringToSF(
                                           SharedPreferencesKeys.currencyCode,
-                                          currency!.currencyCode);
+                                          currencyCode);
                                       print("currency is ---- ${currency!.symbol}");
                                     });
                                   },

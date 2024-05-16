@@ -43,7 +43,6 @@ class _SignInScreenState extends State<SignInScreen> {
       if(value!=null){
         languageCode = value;
       }
-
     });
   }
   @override
@@ -378,12 +377,11 @@ class _SignInScreenState extends State<SignInScreen> {
                   .child(profile_table)
                   .orderByChild('email')
                   .equalTo(user.email!);
-              bool calledOnce=false,profileCheckCalledOnce=false;;
+              bool calledOnce=false,profileCheckCalledOnce=false;
               reference.once().then((event) async {
                 DataSnapshot dataSnapshot = event.snapshot;
                 if (event.snapshot.exists && !profileCheckCalledOnce) {
                   ProfileModel? profileModel;
-
                   Map<dynamic, dynamic> values =
                   dataSnapshot.value as Map<dynamic, dynamic>;
                   values.forEach((key, value) async {
