@@ -177,7 +177,10 @@ class DatabaseHelper {
       ${ProfileTableFields.current_income} $textType,
       ${ProfileTableFields.actual_budget} $textType,
       ${ProfileTableFields.gender} $textType,
-      ${ProfileTableFields.fcm_token} $textType
+      ${ProfileTableFields.fcm_token} $textType,
+      ${ProfileTableFields.lang_code} $textType,
+      ${ProfileTableFields.currency_code} $textType,
+      ${ProfileTableFields.currency_symbol} $textType
       )
    ''');
   }

@@ -118,7 +118,11 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         full_name: "${firstNameController.text} ${lastNameController.text}",
         profile_image: "",
         mobile_number: "",
-    fcm_token: fcmToken);
+    fcm_token: fcmToken,
+        lang_code: Get.locale!.languageCode,
+        currency_code: AppConstanst.currencyCode,
+        currency_symbol: AppConstanst.currencySymbol
+    );
     await databaseHelper.updateProfileData(
       profileModel
     );

@@ -184,4 +184,12 @@ abstract class LocaleKeys {
   static const enterEmail = 'enterEmail';
   ///Overview
   static const overview = 'overview';
+
+  static const monday ='Monday';
+  static const tuesday ='Tuesday';
+  static const wednesday = 'Wednesday';
+  static const thursday = 'Thursday';
+  static const friday ='Friday';
+  static const saturday ='Saturday';
+  static const sunday = 'Sunday';
 }

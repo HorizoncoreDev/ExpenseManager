@@ -171,6 +171,14 @@ Map<String, String> hiIN = {
   'enterLastName':'अंतिम नाम दर्ज करें',
   'enterEmail':'ईमेल दर्ज करें',
 
-  'overview' : 'अवलोकन'
+  'overview' : 'अवलोकन',
+
+  'monday': 'सोमवार',
+  'tuesday': 'मंगलवार',
+  'wednesday': 'बुधवार',
+  'thursday': 'गुरुवार',
+  'friday': 'शुक्रवार',
+  'saturday': 'शनिवार',
+  'sunday': 'रविवार',
 
 };

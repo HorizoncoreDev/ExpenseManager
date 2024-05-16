@@ -195,5 +195,12 @@ Map<String, String> enUS = {
   'enterEmail':'Enter Email',
 
   ///Dashboard
-  'overview' : 'Overview'
+  'overview' : 'Overview',
+  'monday' : 'Monday',
+  'tuesday' : 'Tuesday',
+  'wednesday' : 'Wednesday',
+  'thursday' : 'Thursday',
+  'friday' : 'Friday',
+  'saturday' : 'Saturday',
+  'sunday' : 'Sunday',
 };

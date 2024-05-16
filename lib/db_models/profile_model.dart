@@ -17,7 +17,10 @@ class ProfileTableFields {
     current_income,
     actual_budget,
     gender,
-    fcm_token
+    fcm_token,
+    lang_code,
+    currency_code,
+    currency_symbol,
   ];
 
   // static const String id = 'id';
@@ -35,6 +38,9 @@ class ProfileTableFields {
   static const String current_income = 'current_income';
   static const String actual_budget = 'actual_budget';
   static const String fcm_token = 'fcm_token';
+  static const String lang_code = 'lang_code';
+  static const String currency_code = 'currency_code';
+  static const String currency_symbol = 'currency_symbol';
 }
 
 class ProfileModel {
@@ -53,6 +59,9 @@ class ProfileModel {
   String? actual_budget;
   String? gender;
   String? fcm_token;
+  String? lang_code;
+  String? currency_code;
+  String? currency_symbol;
 
   ProfileModel({
     // this.id,
@@ -70,6 +79,9 @@ class ProfileModel {
     this.actual_budget,
     this.gender,
     this.fcm_token,
+    this.lang_code,
+    this.currency_code,
+    this.currency_symbol,
   });
 
   factory ProfileModel.fromMap(Map<dynamic, dynamic> map) {
@@ -88,7 +100,10 @@ class ProfileModel {
       current_balance: map['current_balance'],
       current_income: map['current_income'],
       actual_budget: map['actual_budget'],
-      fcm_token: map['fcm_token']
+      fcm_token: map['fcm_token'],
+        lang_code: map['lang_code'],
+        currency_code: map['currency_code'],
+        currency_symbol: map['currency_symbol']
     );
   }
 
@@ -108,7 +123,10 @@ class ProfileModel {
         current_balance: json[ProfileTableFields.current_balance] as String,
     current_income: json[ProfileTableFields.current_income] as String,
     actual_budget: json[ProfileTableFields.actual_budget] as String,
-    fcm_token: json[ProfileTableFields.fcm_token] as String
+    fcm_token: json[ProfileTableFields.fcm_token] as String,
+    lang_code: json[ProfileTableFields.lang_code] as String,
+    currency_code: json[ProfileTableFields.currency_code] as String,
+    currency_symbol: json[ProfileTableFields.currency_symbol] as String,
       );
 
   Map<String, dynamic> toMap() {
@@ -127,7 +145,10 @@ class ProfileModel {
       'current_balance': current_balance,
       'current_income': current_income,
       'actual_budget': actual_budget,
-      'fcm_token': fcm_token
+      'fcm_token': fcm_token,
+      'lang_code': lang_code,
+      'currency_code': currency_code,
+      'currency_symbol': currency_symbol,
     };
   }
 }

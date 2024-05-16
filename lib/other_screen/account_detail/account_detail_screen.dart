@@ -10,12 +10,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
 import '../../db_models/profile_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../sign_in/sign_in_screen.dart';
 import '../../utils/global.dart';
-
 import '../edit_account_detail/edit_account_detail_screen.dart';
 import 'bloc/account_detail_bloc.dart';
 import 'bloc/account_detail_state.dart';
@@ -749,8 +747,9 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
       MySharedPreferences.instance
           .addBoolToSF(SharedPreferencesKeys.isLogin, false);
 
-      Navigator.of(context, rootNavigator: true)
-          .push(MaterialPageRoute(builder: (context) => const SignInScreen()));
+      Get.offAll(SignInScreen());
+     /* Navigator.of(context, rootNavigator: true)
+          .push(MaterialPageRoute(builder: (context) => const SignInScreen()));*/
     } catch (e) {
       Helper.showToast('Error signing out. Try again.');
     }

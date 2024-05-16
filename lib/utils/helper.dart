@@ -5,10 +5,12 @@ import 'package:expense_manager/db_models/currency_category_model.dart';
 import 'package:expense_manager/db_models/language_category_model.dart';
 import 'package:expense_manager/db_models/payment_method_model.dart';
 import 'package:expense_manager/utils/global.dart';
+import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -237,19 +239,19 @@ class Helper {
   static String getWeekdayName(int weekday) {
     switch (weekday) {
       case 1:
-        return 'Monday';
+        return LocaleKeys.monday.tr;
       case 2:
-        return 'Tuesday';
+        return LocaleKeys.tuesday.tr;
       case 3:
-        return 'Wednesday';
+        return LocaleKeys.wednesday.tr;
       case 4:
-        return 'Thursday';
+        return LocaleKeys.thursday.tr;
       case 5:
-        return 'Friday';
+        return LocaleKeys.friday.tr;
       case 6:
-        return 'Saturday';
+        return LocaleKeys.saturday.tr;
       case 7:
-        return 'Sunday';
+        return LocaleKeys.sunday.tr;
       default:
         return '';
     }
@@ -275,9 +277,9 @@ class Helper {
     DateFormat format = DateFormat("dd/MM/yyyy");
     DateTime parsedDate = format.parse(date);
     if (isToday(parsedDate)) {
-      transactionDay = "TODAY";
+      transactionDay = LocaleKeys.today.tr;
     } else if (isYesterday(parsedDate)) {
-      transactionDay = "YESTERDAY";
+      transactionDay = LocaleKeys.yesterday.tr;
     } else {
       transactionDay = Helper.getWeekdayName(parsedDate.weekday);
     }

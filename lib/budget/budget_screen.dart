@@ -140,6 +140,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   budgetController.text.toString();
                               profileData.actual_budget =
                                   budgetController.text.toString();
+                              profileData.currency_code = currency!.currencyCode;
+                              profileData.currency_symbol = currency!.symbol;
                               await DatabaseHelper.instance
                                   .updateProfileData(profileData);
 
@@ -152,6 +154,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                       (Route<dynamic> route) => false);
                             });
                           } else {
+
                             MySharedPreferences.instance.addStringToSF(
                                 SharedPreferencesKeys.skippedUserCurrentBalance,
                                 budgetController.text.toString());
@@ -163,11 +166,23 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 budgetController.text.toString());
                             MySharedPreferences.instance.addBoolToSF(
                                 SharedPreferencesKeys.isBudgetAdded, true);
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const DashBoard()),
-                                    (Route<dynamic> route) => false);
+
+                            await DatabaseHelper.instance
+                                .getProfileData(userEmail)
+                                .then((profileData) async {
+                              profileData!.currency_code = currency!.currencyCode;
+                              profileData.currency_symbol = currency!.symbol;
+                              await DatabaseHelper.instance
+                                  .updateProfileData(profileData);
+
+                              MySharedPreferences.instance.addBoolToSF(
+                                  SharedPreferencesKeys.isBudgetAdded, true);
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const DashBoard()),
+                                      (Route<dynamic> route) => false);
+                            });
                           }
                         }
                         //budgetBloc.add(BudgetDoneEvent(budgetController.text));
