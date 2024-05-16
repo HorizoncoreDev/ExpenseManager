@@ -168,17 +168,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 budgetController.text.toString());
                             MySharedPreferences.instance.addBoolToSF(
                                 SharedPreferencesKeys.isBudgetAdded, true);
-<<<<<<< HEAD
 
-                          /*  await DatabaseHelper.instance
-                                .getProfileData(userEmail)
-                                .then((profileData) async {
-                              profileData!.currency_code = currencyCode.isEmpty ? "INR" : currencyCode;
-                              profileData.currency_symbol = currencySymbol.isEmpty ? "\u20B9" : currencySymbol;
-                              await DatabaseHelper.instance
-                                  .updateProfileData(profileData);
-*/
-=======
                             MySharedPreferences.instance.addStringToSF(
                                 SharedPreferencesKeys.currencyCode,
                                 currencyCode.isEmpty ? "INR" : currencyCode);
@@ -186,7 +176,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 SharedPreferencesKeys.currencySymbol,
                                 currencySymbol.isEmpty ? "\u20B9" : currencySymbol);
 
->>>>>>> f8e777b46658c06274afb36d8969ba834534fdcb
                               MySharedPreferences.instance.addBoolToSF(
                                   SharedPreferencesKeys.isBudgetAdded, true);
                               Navigator.pushAndRemoveUntil(
@@ -194,10 +183,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   MaterialPageRoute(
                                       builder: (context) => const DashBoard()),
                                       (Route<dynamic> route) => false);
-<<<<<<< HEAD
-                           // });
-=======
->>>>>>> f8e777b46658c06274afb36d8969ba834534fdcb
+
                           }
                         }
                         //budgetBloc.add(BudgetDoneEvent(budgetController.text));

@@ -9,6 +9,7 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -120,20 +121,46 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
 
   getProfileData() async {
     try {
-      ProfileModel? fetchedProfileData =
-          await databaseHelper.getProfileData(currentUserEmail);
-      setState(() {
-        currentBalance = int.parse(fetchedProfileData!.current_balance!);
-        actualBudget = int.parse(fetchedProfileData.actual_budget!);
-        currentIncome = int.parse(fetchedProfileData.current_income!);
-        incomePercentage = currentIncome < actualBudget
-            ? (currentIncome / actualBudget) * 100
-            : 100;
-      });
+      if(currentUserEmail==userEmail) {
+        ProfileModel? fetchedProfileData =
+        await databaseHelper.getProfileData(currentUserEmail);
+        setState(() {
+          currentBalance = int.parse(fetchedProfileData!.current_balance!);
+          actualBudget = int.parse(fetchedProfileData.actual_budget!);
+          currentIncome = int.parse(fetchedProfileData.current_income!);
+          incomePercentage = currentIncome < actualBudget
+              ? (currentIncome / actualBudget) * 100
+              : 100;
+        });
+      }else{
+        final reference = FirebaseDatabase.instance
+            .reference()
+            .child(profile_table)
+            .orderByChild(ProfileTableFields.email)
+            .equalTo(currentUserEmail);
+
+        reference.onValue.listen((event) {
+          DataSnapshot dataSnapshot = event.snapshot;
+          if (event.snapshot.exists) {
+            Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
+            values.forEach((key, value) async {
+              var profileModel = ProfileModel.fromMap(value);
+              currentBalance = int.parse(profileModel.current_balance!);
+              currentIncome = int.parse(profileModel.current_income!);
+              actualBudget = int.parse(profileModel.actual_budget!);
+              incomePercentage = currentIncome < actualBudget
+                  ? (currentIncome / actualBudget) * 100
+                  : 100;
+            });
+          }
+        });
+      }
     } catch (error) {
       print('Error fetching Profile Data: $error');
     }
   }
+
 
   getIncomeTransactions(String value) async {
     date = DateFormat('MM/yyyy').format(DateTime.now());
