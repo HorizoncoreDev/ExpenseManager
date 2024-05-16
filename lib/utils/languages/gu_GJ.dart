@@ -185,6 +185,17 @@ Map<String, String> guGJ = {
   'enterLastName': 'છેલ્લું નામ દાખલ કરો',
   'enterEmail': 'ઇમેઇલ દાખલ કરો',
 
-  'overview' : 'ઝાંખી'
+  'overview' : 'ઝાંખી',
+
+  'monday': 'સોમવાર',
+  'tuesday': 'મંગળવાર',
+  'wednesday': 'બુધવાર',
+  'thursday': 'ગુરુવાર',
+  'friday': 'શુક્રવાર',
+  'saturday': 'શનિવાર',
+  'sunday': 'રવિવાર',
+
+
+
 
 };

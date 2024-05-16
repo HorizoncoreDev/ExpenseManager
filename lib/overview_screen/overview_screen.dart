@@ -603,7 +603,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                             Text(
                               currentBalance < 0
                                   ? LocaleKeys.spendingOverPlan.tr
-                                  : LocaleKeys.spendingOnPlan,
+                                  : LocaleKeys.spendingOnPlan.tr,
                               style: TextStyle(
                                   color: currentBalance < 0
                                       ? Colors.red

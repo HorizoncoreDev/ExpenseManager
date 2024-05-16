@@ -32,7 +32,20 @@ class _SignInScreenState extends State<SignInScreen> {
 
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
+  String languageCode = "";
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    MySharedPreferences.instance.getStringValuesSF(SharedPreferencesKeys.languageCode)
+    .then((value) {
+      if(value!=null){
+        languageCode = value;
+      }
+
+    });
+  }
   @override
   Widget build(BuildContext context) {
     signInBloc.context = context;
@@ -299,8 +312,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         current_income: currentIncome,
                         actual_budget: currentActualBudget,
                         gender: "",
-                        fcm_token: fcmToken);
-                   // await databaseHelper.insertProfileData(profileModel, false);
+                        fcm_token: fcmToken,
+                      lang_code: languageCode,
+                      currency_code: "",
+                      currency_symbol: "",
+                    );
+                    await databaseHelper.insertProfileData(profileModel,false);
 
                     await databaseHelper
                         .getProfileData(user.email!)
@@ -455,8 +472,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         current_income: "0",
                         actual_budget: "0",
                         gender: "",
-                        fcm_token: fcmToken);
-                    await databaseHelper.insertProfileData(profileModel, false);
+                        fcm_token: fcmToken,
+                      lang_code: languageCode,
+                      currency_code: "",
+                      currency_symbol: "",
+                    );
+                    await databaseHelper.insertProfileData(profileModel,false);
 
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.userEmail, user.email);

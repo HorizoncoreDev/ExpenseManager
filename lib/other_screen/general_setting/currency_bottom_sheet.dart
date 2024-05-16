@@ -1,4 +1,6 @@
+import 'package:expense_manager/dashboard/dashboard.dart';
 import 'package:expense_manager/db_models/currency_category_model.dart';
+import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -23,7 +25,9 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
   int selectedLang = -1;
   String cCode = "";
   String cSymbol = "";
+  ProfileModel? profileModel;
   final databaseHelper = DatabaseHelper.instance;
+  String userEmail = "";
 
   @override
   void initState() {
@@ -111,6 +115,7 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
             padding: const EdgeInsets.all(8.0),
             child: InkWell(
               onTap: () {
+
                 widget.setData(cCode);
                 Navigator.of(context).pop();
                 setState(() {
@@ -119,6 +124,22 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.currencyCode, cCode);
                 });
+                MySharedPreferences.instance.getStringValuesSF(SharedPreferencesKeys.userEmail)
+                    .then((value) async {
+                  if(value!= null){
+                    userEmail = value;
+                    await DatabaseHelper.instance
+                        .getProfileData(userEmail)
+                        .then((profileData) async {
+                      profileData!.currency_code = cCode;
+                      profileData!.currency_symbol = cSymbol;
+                      await DatabaseHelper.instance
+                          .updateProfileData(profileData);
+                    });
+                    await databaseHelper.updateProfileData(profileModel!);
+                  }
+                });
+                Get.offAll(DashBoard());
               },
               child: Container(
                 width: double.infinity,

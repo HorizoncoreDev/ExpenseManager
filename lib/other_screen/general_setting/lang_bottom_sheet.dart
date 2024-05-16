@@ -1,5 +1,6 @@
 import 'package:expense_manager/dashboard/dashboard.dart';
 import 'package:expense_manager/db_models/language_category_model.dart';
+import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -22,12 +23,15 @@ class _LanguageBottomSheetContentState extends State<LanguageBottomSheetContent>
   String? language = "";
   String? langCode = "";
   LanguageCategory? selectedLanguage;
+  ProfileModel? profileModel;
+  String userEmail = "";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     langCode = Get.locale!.languageCode;
+
     getLanguageTypes();
   }
 
@@ -102,7 +106,7 @@ class _LanguageBottomSheetContentState extends State<LanguageBottomSheetContent>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InkWell(
-              onTap: () {
+              onTap: () async {
                 Locale getLocale;
                 Navigator.of(context).pop();
                 MySharedPreferences.instance.addStringToSF(
@@ -120,6 +124,21 @@ class _LanguageBottomSheetContentState extends State<LanguageBottomSheetContent>
                   Get.updateLocale(getLocale);
                   print("local gu is $getLocale");
                 }
+                MySharedPreferences.instance.getStringValuesSF(SharedPreferencesKeys.userEmail)
+                    .then((value) async {
+                  if(value!= null){
+                    userEmail = value;
+                    await DatabaseHelper.instance
+                        .getProfileData(userEmail)
+                        .then((profileData) async {
+                      profileData!.lang_code = langCode;
+                      await DatabaseHelper.instance
+                          .updateProfileData(profileData);
+                    });
+                    await databaseHelper.updateProfileData(profileModel!);
+                  }
+                });
+
                 Get.deleteAll();
                 Get.offAll(DashBoard());
               },
