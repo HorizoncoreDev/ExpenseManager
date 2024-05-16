@@ -173,7 +173,7 @@ class OverviewScreenState extends State<OverviewScreen> {
           currentBalance = int.parse(profileModel.current_balance!);
           currentIncome = int.parse(profileModel.current_income!);
           actualBudget = int.parse(profileModel.actual_budget!);
-          // checkRequests();
+          //checkRequests();
         });
       }else{
         final reference = FirebaseDatabase.instance
@@ -1146,153 +1146,194 @@ class OverviewScreenState extends State<OverviewScreen> {
                 physics: const ScrollPhysics(),
                 itemCount: dateWiseIncomeTransaction.length,
                 itemBuilder: (context, index) {
-                  if (dateWiseIncomeTransaction[index]
-                      .transactions!
-                      .isNotEmpty) {
-                    return Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "${dateWiseIncomeTransaction[index].transactionDay}, ${dateWiseIncomeTransaction[index].transactionDate}",
-                              style: const TextStyle(
-                                  color: Colors.grey, fontSize: 14),
-                            ),
-                            Text(
-                              "+${AppConstanst.currencySymbol}${dateWiseIncomeTransaction[index].transactionTotal}",
-                              style: const TextStyle(
-                                  color: Colors.green, fontSize: 14),
-                            ),
-                          ],
-                        ),
-                        15.heightBox,
-                        if (dateWiseIncomeTransaction[index]
-                            .transactions!
-                            .isNotEmpty)
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const ScrollPhysics(),
-                            itemCount: dateWiseIncomeTransaction[index]
-                                .transactions!
-                                .length,
-                            itemBuilder: (context, index1) {
-                              final transaction =
-                              dateWiseIncomeTransaction[index]
-                                  .transactions![index1];
-                              return AbsorbPointer(
-                                absorbing: userEmail != currentUserEmail,
-                                child: Dismissible(
-                                  key: Key(transaction.key!),
-                                  direction: DismissDirection.endToStart,
-                                  background: Container(),
-                                  secondaryBackground: Container(
-                                    color: Colors.red,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    alignment: Alignment.centerRight,
-                                    child: const Icon(Icons.delete,
-                                        color: Colors.white),
-                                  ),
-                                  confirmDismiss: (direction) async {
-                                    return await showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title:  Text(LocaleKeys.confirm.tr),
-                                          content:  Text(
-                                              LocaleKeys.deleteTransaction.tr),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pop(false),
-                                              child:  Text(LocaleKeys.cancel.tr),
-                                            ),
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context).pop(true),
-                                              child:  Text(LocaleKeys.delete.tr),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  onDismissed: (direction) async {
-                                    setState(() {
-                                      dateWiseIncomeTransaction[index]
-                                          .transactions!
-                                          .removeAt(index1);
-                                    });
-                                    await databaseHelper.deleteTransactionFromDB(
-                                        transaction, isSkippedUser);
+                  if(dateWiseIncomeTransaction.isNotEmpty) {
+                    if (dateWiseIncomeTransaction[index]
+                        .transactions!
+                        .isNotEmpty) {
+                      return Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "${dateWiseIncomeTransaction[index]
+                                    .transactionDay}, ${dateWiseIncomeTransaction[index]
+                                    .transactionDate}",
+                                style: const TextStyle(
+                                    color: Colors.grey, fontSize: 14),
+                              ),
+                              Text(
+                                "+${AppConstanst
+                                    .currencySymbol}${dateWiseIncomeTransaction[index]
+                                    .transactionTotal}",
+                                style: const TextStyle(
+                                    color: Colors.green, fontSize: 14),
+                              ),
+                            ],
+                          ),
+                          15.heightBox,
+                          if (dateWiseIncomeTransaction[index]
+                              .transactions!
+                              .isNotEmpty)
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const ScrollPhysics(),
+                              itemCount: dateWiseIncomeTransaction[index]
+                                  .transactions!
+                                  .length,
+                              itemBuilder: (context, index1) {
+                                final transaction =
+                                dateWiseIncomeTransaction[index]
+                                    .transactions![index1];
+                                return AbsorbPointer(
+                                  absorbing: userEmail != currentUserEmail,
+                                  child: Dismissible(
+                                    key: Key(transaction.key!),
+                                    direction: DismissDirection.endToStart,
+                                    background: Container(),
+                                    secondaryBackground: Container(
+                                      color: Colors.red,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      alignment: Alignment.centerRight,
+                                      child: const Icon(Icons.delete,
+                                          color: Colors.white),
+                                    ),
+                                    confirmDismiss: (direction) async {
+                                      return await showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text(LocaleKeys.confirm.tr),
+                                            content: Text(
+                                                LocaleKeys.deleteTransaction
+                                                    .tr),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.of(context)
+                                                        .pop(false),
+                                                child: Text(
+                                                    LocaleKeys.cancel.tr),
+                                              ),
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.of(context).pop(
+                                                        true),
+                                                child: Text(
+                                                    LocaleKeys.delete.tr),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    onDismissed: (direction) async {
+                                      setState(() {
+                                        dateWiseIncomeTransaction[index]
+                                            .transactions!
+                                            .removeAt(index1);
+                                      });
+                                      await databaseHelper
+                                          .deleteTransactionFromDB(
+                                          transaction, isSkippedUser);
 
-                                    setState(() {
-                                      currentIncome =
-                                          currentIncome - transaction.amount!;
-                                    });
-                                    await DatabaseHelper.instance
-                                        .getProfileData(currentUserEmail)
-                                        .then((profileData) async {
-                                      profileData!.current_income =
-                                          currentIncome.toString();
+                                      setState(() {
+                                        currentIncome =
+                                            currentIncome - transaction.amount!;
+                                      });
                                       await DatabaseHelper.instance
-                                          .updateProfileData(profileData);
+                                          .getProfileData(currentUserEmail)
+                                          .then((profileData) async {
+                                        profileData!.current_income =
+                                            currentIncome.toString();
+                                        await DatabaseHelper.instance
+                                            .updateProfileData(profileData);
 
-                                      getIncomeTransactions();
-                                    });
-                                  },
-
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.of(context, rootNavigator: true)
-                                          .push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                EditSpendingScreen(
-                                                  transactionModel: transaction,
-                                                )),
-                                      )
-                                          .then((value) {
-                                        if (value != null) {
-                                          if (value) {
-                                            getIncomeTransactions();
-                                          }
-                                        }
+                                        getIncomeTransactions();
                                       });
                                     },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Helper.getCardColor(context),
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10)),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.all(5),
-                                            decoration: const BoxDecoration(
-                                              color: Colors.black,
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(10)),
+
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.of(
+                                            context, rootNavigator: true)
+                                            .push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditSpendingScreen(
+                                                    transactionModel: transaction,
+                                                  )),
+                                        )
+                                            .then((value) {
+                                          if (value != null) {
+                                            if (value) {
+                                              getIncomeTransactions();
+                                            }
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Helper.getCardColor(context),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(10)),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(5),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10)),
+                                              ),
+                                              child: SvgPicture.asset(
+                                                'asset/images/${transaction
+                                                    .cat_icon}.svg',
+                                                color: transaction.cat_color,
+                                                width: 24,
+                                                height: 24,
+                                              ),
                                             ),
-                                            child: SvgPicture.asset(
-                                              'asset/images/${transaction.cat_icon}.svg',
-                                              color: transaction.cat_color,
-                                              width: 24,
-                                              height: 24,
+                                            const SizedBox(width: 15),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    transaction.cat_name!,
+                                                    style: TextStyle(
+                                                      color: Helper
+                                                          .getTextColor(
+                                                          context),
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight
+                                                          .bold,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    transaction.description!,
+                                                    style: TextStyle(
+                                                      color: Helper
+                                                          .getTextColor(
+                                                          context),
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 15),
-                                          Expanded(
-                                            child: Column(
+                                            Column(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment.end,
                                               children: [
                                                 Text(
-                                                  transaction.cat_name!,
+                                                  "+${AppConstanst
+                                                      .currencySymbol}${transaction
+                                                      .amount!}",
                                                   style: TextStyle(
                                                     color: Helper.getTextColor(
                                                         context),
@@ -1301,7 +1342,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                                   ),
                                                 ),
                                                 Text(
-                                                  transaction.description!,
+                                                  transaction
+                                                      .payment_method_name!,
                                                   style: TextStyle(
                                                     color: Helper.getTextColor(
                                                         context),
@@ -1310,44 +1352,21 @@ class OverviewScreenState extends State<OverviewScreen> {
                                                 ),
                                               ],
                                             ),
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                            children: [
-                                              Text(
-                                                "+${AppConstanst.currencySymbol}${transaction.amount!}",
-                                                style: TextStyle(
-                                                  color: Helper.getTextColor(
-                                                      context),
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              Text(
-                                                transaction.payment_method_name!,
-                                                style: TextStyle(
-                                                  color: Helper.getTextColor(
-                                                      context),
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return const SizedBox(height: 10);
-                            },
-                          ),
-                      ],
-                    );
+                                );
+                              },
+                              separatorBuilder:
+                                  (BuildContext context, int index) {
+                                return const SizedBox(height: 10);
+                              },
+                            ),
+                        ],
+                      );
+                    }
                   }
                   return null;
                 },
