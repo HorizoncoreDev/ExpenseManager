@@ -47,7 +47,6 @@ class ThemeNotifier with ChangeNotifier {
 
   ThemeNotifier() {
     StorageManager.readData('themeMode').then((value) {
-      print('value read from storage: $value');
       var themeMode = value ?? 'dark';
       if (themeMode == 'light') {
         _themeData = lightTheme;
