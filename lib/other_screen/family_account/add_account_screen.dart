@@ -90,7 +90,7 @@ class MyDialog {
     final reference =
         FirebaseDatabase.instance.reference().child(profile_table);
 
-    reference.onValue.listen((event) {
+    reference.once().then((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       Map<dynamic, dynamic> values =
           dataSnapshot.value as Map<dynamic, dynamic>;
@@ -112,9 +112,8 @@ class MyDialog {
     final reference =
         FirebaseDatabase.instance.reference().child(request_table);
 
-    bool requestExist = false;
 
-    reference.onValue.listen((event) {
+    reference.once().then((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       if (dataSnapshot.exists) {
         Map<dynamic, dynamic> values =
@@ -122,18 +121,14 @@ class MyDialog {
         values.forEach((key, values) {
           if (values['receiver_email'] == receiverEmail &&
               values['status'] == AppConstanst.pendingRequest) {
-            requestExist = true;
             Helper.showToast(LocaleKeys.alreadyExist.tr);
           }else if (values['receiver_email'] == receiverEmail &&
-              values['status'] == AppConstanst.pendingRequest) {
-            requestExist = true;
+              values['status'] == AppConstanst.acceptedRequest) {
             Helper.showToast(LocaleKeys.alreadyHaveAccess.tr);
           }
         });
-      }
-      if (!requestExist) {
+      }else{
         var newPostRef = reference.push();
-
         RequestModel data = RequestModel(
           key: newPostRef.key,
           requester_email: profileModel.email,
@@ -146,7 +141,9 @@ class MyDialog {
 
         newPostRef.set(data.toMap());
         sendRequestNotification(data, profileModel);
+        Helper.showToast(LocaleKeys.requestSentSuccessFully.tr);
       }
+
     });
   }
 

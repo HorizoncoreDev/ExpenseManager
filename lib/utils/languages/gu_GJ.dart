@@ -119,6 +119,7 @@ Map<String, String> guGJ = {
   'userNotExist': 'વપરાશકર્તા અસ્તિત્વમાં નથી',
   'alreadyExist': 'અનુરોધ પહેલાથી અસ્તિત્વમાં છે',
   'alreadyHaveAccess': 'તમારો પહેલાથી પહોંચ છે',
+  'requestSentSuccessFully':'વિનંતી સફળતાપૂર્વક મોકલવામાં આવી',
   ///Category, subcategory and add category screen
   'noCatFound': 'કોઈ વર્ગો મળ્યા નથી.',
   'noSubCatFound': 'કોઈ ઉપ-વર્ગો મળ્યા નથી.',

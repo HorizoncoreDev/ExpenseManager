@@ -27,6 +27,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   SearchBloc searchBloc = SearchBloc();
+  String currentUserEmail = "";
   String userEmail = "";
   String userKey = "";
   TextEditingController searchController = TextEditingController();
@@ -71,6 +72,11 @@ class _SearchScreenState extends State<SearchScreen> {
             .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
             .then((value) {
           if (value != null) {
+            currentUserEmail = value;
+          } MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.userEmail)
+            .then((value) {
+          if (value != null) {
             userEmail = value;
           }
           MySharedPreferences.instance
@@ -81,7 +87,9 @@ class _SearchScreenState extends State<SearchScreen> {
             if (value != null) {
               userKey = value;}
           getTransactions("");
-        });});
+        });
+            });
+            });
       }
     });
     getCategories();
@@ -127,7 +135,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     await DatabaseHelper.instance
         .fetchAllDataForYearMonthsAndCategory(showYear, selectedMonths,
-            expenseCatId, incomeCatId, userEmail,userKey, value,isSkippedUser)
+            expenseCatId, incomeCatId, currentUserEmail,userKey, value,isSkippedUser)
         .then((value) {
       spendingTransaction = value;
       List<String> dates = [];
@@ -358,7 +366,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     await DatabaseHelper.instance
         .getTransactionList(
-            category.toLowerCase(), userEmail,userKey, -1, isSkippedUser)
+            category.toLowerCase(), currentUserEmail,userKey, -1, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -451,7 +459,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   itemBuilder: (context, index1) {
                     return InkWell(
                       onTap: (){
-                        Navigator.of(context, rootNavigator: true)
+                        if(userEmail==currentUserEmail) {
+                          Navigator.of(context, rootNavigator: true)
                             .push(
                           MaterialPageRoute(
                               builder: (context) => EditSpendingScreen(
@@ -465,6 +474,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             }
                           }
                         });
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(10),

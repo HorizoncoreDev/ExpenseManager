@@ -10,6 +10,8 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -194,6 +196,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   int selectedPaymentMethodIndex = 0;
 
   createSpendingIncome(BuildContext context, String email) async {
+
     TransactionModel transactionModel = TransactionModel(
         key: "",
         // member_id: id,

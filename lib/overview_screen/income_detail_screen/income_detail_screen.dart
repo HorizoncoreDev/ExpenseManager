@@ -32,6 +32,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   IncomeDetailBloc incomeDetailBloc = IncomeDetailBloc();
   TextEditingController searchController = TextEditingController();
 
+  String currentUserEmail = "";
   String userEmail = "";
   String userKey = "";
   bool isSkippedUser = false;
@@ -78,6 +79,12 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
             .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
             .then((value) {
           if (value != null) {
+            currentUserEmail = value;
+          }
+          MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.userEmail)
+            .then((value) {
+          if (value != null) {
             userEmail = value;
           }
           MySharedPreferences.instance
@@ -90,6 +97,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
             }
             getIncomeTransactions("");
           });
+        });
         });
       }
     });
@@ -113,7 +121,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   getProfileData() async {
     try {
       ProfileModel? fetchedProfileData =
-          await databaseHelper.getProfileData(userEmail);
+          await databaseHelper.getProfileData(currentUserEmail);
       setState(() {
         currentBalance = int.parse(fetchedProfileData!.current_balance!);
         actualBudget = int.parse(fetchedProfileData.actual_budget!);
@@ -154,7 +162,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
     List<TransactionModel> incomeTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(value.toLowerCase(), userEmail,userKey,
+        .getTransactionList(value.toLowerCase(), currentUserEmail,userKey,
             AppConstanst.incomeTransaction, isSkippedUser)
         .then((value) async {
       incomeTransaction = value;
@@ -183,7 +191,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
           currentIncome = 0;
           setState(() {});
           await DatabaseHelper.instance
-              .getProfileData(userEmail)
+              .getProfileData(currentUserEmail)
               .then((profileData) async {
             profileData!.current_income = "0";
             await DatabaseHelper.instance.updateProfileData(profileData);
@@ -504,7 +512,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                       itemBuilder: (context, index1) {
                                         return InkWell(
                                           onTap: () {
-                                            Navigator.of(context,
+                                            if(userEmail==currentUserEmail) {
+                                              Navigator.of(context,
                                                     rootNavigator: true)
                                                 .push(
                                               MaterialPageRoute(
@@ -524,6 +533,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                                 }
                                               }
                                             });
+                                            }
                                           },
                                           child: Container(
                                             padding: const EdgeInsets.all(10),
@@ -1084,7 +1094,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 ? categoryList[selectedCategoryIndex].catId!
                 : -1,
             -1,
-            userEmail,userKey,
+            currentUserEmail,userKey,
             AppConstanst.incomeTransaction,
             value,
             isSkippedUser)

@@ -96,7 +96,7 @@ void main() async {
       .resolvePlatformSpecificImplementation<
       AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
-  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+  await fcm.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
     sound: true,
@@ -106,10 +106,7 @@ void main() async {
   // Stream listener
   // FirebaseMessaging.onMessageOpenedApp.listen(_handleClick);
   // FirebaseMessaging.onMessage.listen(_handleMessageNew);
-  FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
-    AppConstanst.notificationClicked = true;
-    Get.to(()=>const FamilyAccountScreen());
-  });
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   MySharedPreferences.instance
       .getStringValuesSF(SharedPreferencesKeys.userFcmToken)
@@ -132,6 +129,11 @@ void main() async {
   ));
 }
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // await Firebase.initializeApp();
+  AppConstanst.notificationClicked = true;
+  Get.to(() => const FamilyAccountScreen());
+}
 
 class MyApp extends StatefulWidget {
 
@@ -246,13 +248,14 @@ class _MyAppState extends State<MyApp> {
         .languageCode).then((value) {
           if(value!= null){
              langCode = value;
-             if (langCode.isNotEmpty)
+             if (langCode.isNotEmpty) {
                if (langCode == 'en') {
-               currentLocale = const Locale('en', 'US');
-             } else if (langCode == 'hi') {
-               currentLocale = const Locale('hi', 'IN');
-             } else if (langCode == 'gu') {
-               currentLocale = const Locale('gu', 'GJ');
+                 currentLocale = const Locale('en', 'US');
+               } else if (langCode == 'hi') {
+                 currentLocale = const Locale('hi', 'IN');
+               } else if (langCode == 'gu') {
+                 currentLocale = const Locale('gu', 'GJ');
+               }
              }
           }
     });

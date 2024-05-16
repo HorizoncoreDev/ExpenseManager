@@ -523,6 +523,12 @@ return completer.future;*/
       newPostRef.set(
         transactionModel.toMap(),
       );
+    }else{
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(transaction_table);
+      var newPostRef = reference.push();
+      transactionModel.key = newPostRef.key;
     }
     return await db.insert(transaction_table, transactionModel.toMap());
   }

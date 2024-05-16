@@ -118,6 +118,7 @@ abstract class LocaleKeys {
   static const userNotExist = 'userNotExist';
   static const alreadyExist = 'alreadyExist';
   static const alreadyHaveAccess = 'alreadyHaveAccess';
+  static const requestSentSuccessFully = 'requestSentSuccessFully';
   ///Category, subcategory and add category screen
   static const noCatFound = 'noCatFound';
   static const noSubCatFound = 'noSubCatFound';

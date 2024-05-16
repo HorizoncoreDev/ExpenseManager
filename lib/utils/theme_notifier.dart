@@ -11,9 +11,9 @@ class ThemeNotifier with ChangeNotifier {
     notifyListeners();
   }
 
-  ThemeData? _themeData;
+  ThemeData _themeData= ThemeData.dark();
 
-  ThemeData getTheme() => _themeData!;
+  ThemeData getTheme() => _themeData;
   final darkTheme = ThemeData(
       primarySwatch: Colors.blue,
       primaryColor: Colors.blue,

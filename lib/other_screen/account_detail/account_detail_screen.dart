@@ -746,6 +746,14 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
       MySharedPreferences.instance
           .addStringToSF(SharedPreferencesKeys.userEmail, "");
+     MySharedPreferences.instance
+          .addStringToSF(SharedPreferencesKeys.userName, "");
+     MySharedPreferences.instance
+          .addStringToSF(SharedPreferencesKeys.currentUserEmail, "");
+     MySharedPreferences.instance
+          .addStringToSF(SharedPreferencesKeys.currentUserName, "");
+     MySharedPreferences.instance
+          .addStringToSF(SharedPreferencesKeys.userFcmToken, "");
       MySharedPreferences.instance
           .addBoolToSF(SharedPreferencesKeys.isLogin, false);
 

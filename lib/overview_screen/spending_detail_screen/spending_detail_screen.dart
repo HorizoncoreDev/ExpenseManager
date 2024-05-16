@@ -30,6 +30,7 @@ class SpendingDetailScreen extends StatefulWidget {
 
 class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
   SpendingDetailBloc spendingDetailBloc = SpendingDetailBloc();
+  String currentUserEmail = "";
   String userEmail = "";
   String userKey = "";
   bool isSkippedUser = false;
@@ -71,6 +72,12 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
         .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
         .then((value) {
       if (value != null) {
+        currentUserEmail = value;
+      }
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
         userEmail = value;
       }
         MySharedPreferences.instance
@@ -88,7 +95,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
               }
             });
 
-        });
+        }); });
 
     });
     getCategories();
@@ -111,7 +118,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
   getProfileData() async {
     try {
       ProfileModel? fetchedProfileData =
-          await databaseHelper.getProfileData(userEmail);
+          await databaseHelper.getProfileData(currentUserEmail);
       setState(() {
         currentBalance = int.parse(fetchedProfileData!.current_balance!);
         actualBudget = int.parse(fetchedProfileData!.actual_budget!);
@@ -152,7 +159,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(category.toLowerCase(), userEmail, userKey,
+        .getTransactionList(category.toLowerCase(), currentUserEmail, userKey,
             AppConstanst.spendingTransaction, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
@@ -487,7 +494,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                       itemBuilder: (context, index1) {
                                         return InkWell(
                                           onTap: () {
-                                            Navigator.of(context,
+                                            if(userEmail==currentUserEmail) {
+                                              Navigator.of(context,
                                                     rootNavigator: true)
                                                 .push(
                                               MaterialPageRoute(
@@ -507,6 +515,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                                 }
                                               }
                                             });
+                                            }
                                           },
                                           child: Container(
                                             padding: const EdgeInsets.all(10),
@@ -1041,7 +1050,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                 ? categoryList[selectedCategoryIndex].catId!
                 : -1,
             -1,
-            userEmail,
+            currentUserEmail,
             userKey,
             AppConstanst.spendingTransaction,
             value,

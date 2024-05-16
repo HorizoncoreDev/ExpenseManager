@@ -125,6 +125,8 @@ Map<String, String> enUS = {
   'userNotExist':'User does not exist',
   'alreadyExist':'Request already exist',
   'alreadyHaveAccess':'You already have access',
+  'requestSentSuccessFully':'Request Sent Successfully',
+
 
   ///Category, subcategory and add category screen
   'noCatFound':'No categories found.',

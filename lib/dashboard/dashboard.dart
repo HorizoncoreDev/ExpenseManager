@@ -24,20 +24,17 @@ class _DashBoardState extends State<DashBoard> {
   GlobalKey<OverviewScreenState> overviewKey = GlobalKey<OverviewScreenState>();
   GlobalKey<StatisticsScreenState> overviewKey1 =
       GlobalKey<StatisticsScreenState>();
-  String? userEmail, currentUserEmail;
+  String userEmail="", currentUserEmail="";
 
   List<Widget> buildScreens() {
     return [
-      OverviewScreen(
-        key: overviewKey,
-        onAccountUpdate:updateBottomSheet
-      ),
+      OverviewScreen(key: overviewKey, onAccountUpdate: updateBottomSheet),
       SizedBox(),
       StatisticsScreen(key: overviewKey1),
     ];
   }
 
-  updateBottomSheet(){
+  updateBottomSheet() {
     MySharedPreferences.instance
         .getStringValuesSF(SharedPreferencesKeys.userEmail)
         .then((value) {
@@ -81,16 +78,18 @@ class _DashBoardState extends State<DashBoard> {
         .then((value) {
       if (value != null) {
         AppConstanst.currencySymbol = value;
-        print("CS --- ${ AppConstanst.currencySymbol}");
-      }});
+        print("CS --- ${AppConstanst.currencySymbol}");
+      }
+    });
 
     MySharedPreferences.instance
         .getStringValuesSF(SharedPreferencesKeys.currencyCode)
         .then((value) {
       if (value != null) {
         AppConstanst.currencyCode = value;
-        print("CS --- ${ AppConstanst.currencyCode}");
-      }});
+        print("CS --- ${AppConstanst.currencyCode}");
+      }
+    });
   }
 
   @override
@@ -134,40 +133,43 @@ class _DashBoardState extends State<DashBoard> {
         inactiveColorSecondary: Colors.white,
       ),
       PersistentBottomNavBarItem(
-          icon: userEmail == currentUserEmail
-              ? const Icon(Icons.add)
-              : SizedBox(),
+          icon: userEmail!.isNotEmpty
+              ? userEmail == currentUserEmail
+                  ? const Icon(Icons.add)
+                  : const SizedBox()
+              : const Icon(Icons.add),
           contentPadding: 0,
-          activeColorPrimary: userEmail == currentUserEmail
+          activeColorPrimary: userEmail!.isNotEmpty?userEmail == currentUserEmail
               ? Helper.getMiddleBottomNavBarItem(context)
-              : Colors.transparent,
+              : Colors.transparent:Helper.getMiddleBottomNavBarItem(context),
           activeColorSecondary: Helper.getTextColor(context),
           inactiveColorPrimary: Helper.getTextColor(context),
           inactiveColorSecondary: Helper.getTextColor(context),
           onPressed: (contet) {
-            Navigator.of(context, rootNavigator: true)
-                .push(
-              MaterialPageRoute(
-                  builder: (context) => AddSpendingScreen(
-                        transactionName: AppConstanst.selectedTabIndex == 0
-                            ? AppConstanst.spendingTransactionName
-                            : AppConstanst.incomeTransactionName,
-                      )),
-            )
-                .then((value) {
-              if (value != null) {
-                if (value) {
-                  overviewKey.currentState?.getTransactions();
-                  overviewKey.currentState?.getIncomeTransactions();
-                  overviewKey1.currentState?.getTransactions();
-                  overviewKey1.currentState?.getIncomeData();
-                  //getTransactions();
+            if (userEmail == currentUserEmail  || userEmail!.isEmpty) {
+              Navigator.of(context, rootNavigator: true)
+                  .push(
+                MaterialPageRoute(
+                    builder: (context) => AddSpendingScreen(
+                          transactionName: AppConstanst.selectedTabIndex == 0
+                              ? AppConstanst.spendingTransactionName
+                              : AppConstanst.incomeTransactionName,
+                        )),
+              )
+                  .then((value) {
+                if (value != null) {
+                  if (value) {
+                    overviewKey.currentState?.getTransactions();
+                    overviewKey.currentState?.getIncomeTransactions();
+                    overviewKey1.currentState?.getTransactions();
+                    overviewKey1.currentState?.getIncomeData();
+                    //getTransactions();
+                  }
                 }
-              }
-            });
+              });
+            }
           }),
       PersistentBottomNavBarItem(
-
         icon: Icon(Icons.search),
         title: (LocaleKeys.statistics.tr),
         activeColorPrimary:

@@ -110,6 +110,7 @@ Map<String, String> hiIN = {
   'userNotExist':'उपयोगकर्ता मौजूद नहीं है',
   'alreadyExist':'अनुरोध पहले से ही मौजूद है',
   'alreadyHaveAccess':'आपके पास पहले से ही पहुंच है',
+  'requestSentSuccessFully':'अनुरोध सफलतापूर्वक भेजा गया',
   'noCatFound':'कोई वर्ग नहीं मिला।',
   'noSubCatFound':'कोई उप-वर्ग नहीं मिला।',
   'name':'नाम',
