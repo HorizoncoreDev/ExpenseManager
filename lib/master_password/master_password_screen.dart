@@ -347,10 +347,8 @@ class MasterPasswordDialog {
 
       int? catIds = await DatabaseHelper().getCategoryID(categoryName, categoryType, transactionType);
       String? catIcon = await DatabaseHelper().getCategoryIcon(catIds, /*categoryName*/ categoryType, transactionType);
-      // int? catColorHex = await DatabaseHelper().getCategoryColor(/*catIds,*/ categoryName, categoryType, transactionType);
-      // Color catColor = catColorHex != null ? Color(catColorHex) : Colors.blueAccent;
-      print("Id is $catIds");
 
+      print("Id is $catIds");
 
       TransactionModel transactionModel = TransactionModel(
         // member_id: data[i][0],
