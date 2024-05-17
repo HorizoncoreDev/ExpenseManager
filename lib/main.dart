@@ -27,7 +27,7 @@ void main() async {
   bool isBudgetAdded = false;
   bool isSkippedUser = false;
   bool isLogin = false;
-
+  Locale currentLocale = Locale('en', 'US');
   MySharedPreferences.instance
       .getBoolValuesSF(SharedPreferencesKeys.isLogin)
       .then((value) {
@@ -47,6 +47,23 @@ void main() async {
       .then((value) {
     if (value != null) {
       isSkippedUser = value;
+    }
+  });
+  String langCode = "";
+  MySharedPreferences.instance.getStringValuesSF(SharedPreferencesKeys
+      .languageCode).then((value) {
+    if(value!= null){
+      langCode = value;
+      print(" Lang is $langCode");
+      if (langCode.isNotEmpty) {
+        if (langCode == 'en') {
+          currentLocale = const Locale('en', 'US');
+        } else if (langCode == 'hi') {
+          currentLocale = const Locale('hi', 'IN');
+        } else if (langCode == 'gu') {
+          currentLocale = const Locale('gu', 'GJ');
+        }
+      }
     }
   });
   Platform.isAndroid
@@ -125,6 +142,7 @@ void main() async {
       isBudgetAdded: isBudgetAdded,
       isSkippedUser: isSkippedUser,
       isLogin: isLogin,
+      locale: currentLocale,
     ),
   ));
 }
@@ -140,15 +158,19 @@ class MyApp extends StatefulWidget {
   bool isBudgetAdded;
   bool isSkippedUser;
   bool isLogin;
+  Locale? locale;
 
   MyApp(
       {super.key,
         required this.isBudgetAdded,
         required this.isSkippedUser,
-        required this.isLogin});
+        required this.isLogin,
+        required this.locale
+      });
 
   @override
-  State<MyApp> createState() => _MyAppState(isBudgetAdded: this.isBudgetAdded,isSkippedUser: this.isSkippedUser,isLogin: this.isLogin);
+  State<MyApp> createState() => _MyAppState(isBudgetAdded: this.isBudgetAdded,isSkippedUser: this.isSkippedUser,
+      isLogin: this.isLogin, locale: locale);
 }
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -167,19 +189,21 @@ class _MyAppState extends State<MyApp> {
   bool isBudgetAdded;
   bool isSkippedUser;
   bool isLogin;
-  Locale currentLocale = const Locale('en', 'US');
-
+  Locale? locale;
 
   _MyAppState(
       {
         required this.isBudgetAdded,
         required this.isSkippedUser,
-        required this.isLogin});
+        required this.isLogin,
+        required this.locale,
+      });
 
   @override
   void initState() {
     super.initState();
     setupInteractedMessage();
+
   }
 
   //when application is in foreground
@@ -241,25 +265,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
-    // _notificationService.initialize();
 
     User? user = FirebaseAuth.instance.currentUser;
-    String langCode = "";
-    MySharedPreferences.instance.getStringValuesSF(SharedPreferencesKeys
-        .languageCode).then((value) {
-          if(value!= null){
-             langCode = value;
-             if (langCode.isNotEmpty) {
-               if (langCode == 'en') {
-                 currentLocale = const Locale('en', 'US');
-               } else if (langCode == 'hi') {
-                 currentLocale = const Locale('hi', 'IN');
-               } else if (langCode == 'gu') {
-                 currentLocale = const Locale('gu', 'GJ');
-               }
-             }
-          }
-    });
+
     return GetMaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
@@ -268,14 +276,8 @@ class _MyAppState extends State<MyApp> {
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
         ],
-        // supportedLocales: const [
-        //   Locale('en', ''), // English
-        //   Locale('hi', ''), // Hindi
-        //   Locale('gu', ''), // Gujarati
-        //   // Add more locales as needed
-        // ],
         translations: TranslationService(),
-        locale: currentLocale,
+        locale: locale,
         home: AppConstanst.notificationClicked?
         const FamilyAccountScreen():isBudgetAdded
             ? isLogin

@@ -119,11 +119,11 @@ Future<void> createRequest(BuildContext context, ProfileModel profileModel,
       Map<dynamic, dynamic> values =
       dataSnapshot.value as Map<dynamic, dynamic>;
       values.forEach((key, values) {
-        if (values['receiver_email'] == receiverEmail &&
+        if (values['receiver_email'] == receiverEmail && values['requester_email'] == profileModel.email &&
             values['status'] == AppConstanst.pendingRequest) {
           requestExist = true;
           Helper.showToast(LocaleKeys.alreadyExist.tr);
-        }else if (values['receiver_email'] == receiverEmail &&
+        }else if (values['receiver_email'] == receiverEmail && values['requester_email'] == profileModel.email &&
             values['status'] == AppConstanst.acceptedRequest) {
           requestExist = true;
           Helper.showToast(LocaleKeys.alreadyHaveAccess.tr);

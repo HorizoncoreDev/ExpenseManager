@@ -57,7 +57,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
     MySharedPreferences.instance
@@ -177,8 +176,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                     width: 40,
                                     height: 20,
                                     padding: 1,
-                                    value:
-                                        _themeNotifier.getTheme().brightness ==
+                                    value: _themeNotifier.getTheme().brightness ==
                                             Brightness.dark,
                                     borderRadius: 30.0,
                                     toggleColor: Colors.black,
@@ -253,8 +251,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                                         LocaleKeys.currency.tr,
                                         style: TextStyle(
                                             fontSize: 16,
-                                            color:
-                                                Helper.getTextColor(context)),
+                                            color: Helper.getTextColor(context)),
                                       ),
                                     ),
                                     Text(

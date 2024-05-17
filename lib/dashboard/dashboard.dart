@@ -82,6 +82,15 @@ class _DashBoardState extends State<DashBoard> {
     });
 
     MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.languageCode)
+        .then((value) {
+      if (value != null) {
+        AppConstanst.languageCode = value;
+        print("CS --- ${AppConstanst.languageCode}");
+      }
+    });
+
+    MySharedPreferences.instance
         .getStringValuesSF(SharedPreferencesKeys.currencyCode)
         .then((value) {
       if (value != null) {

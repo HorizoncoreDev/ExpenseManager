@@ -40,6 +40,7 @@ abstract class AppConstanst {
 
   static String currencySymbol = "\u20B9";
   static String currencyCode = "INR";
+  static String languageCode = "en";
   // static const String currencySymbol = "\u20B9";
 }
 
