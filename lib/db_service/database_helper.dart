@@ -151,18 +151,6 @@ class DatabaseHelper {
    ''');
 
     await db.execute('''
-      CREATE TABLE $request_table(
-      ${RequestTableFields.id} $idType,
-      ${RequestTableFields.requester_email} $textType,
-      ${RequestTableFields.requester_name} $textType,
-      ${RequestTableFields.receiver_email} $textType,
-      ${RequestTableFields.receiver_name} $textType,
-      ${RequestTableFields.status} $integerType,
-      ${RequestTableFields.created_at} $textType
-      )
-   ''');
-
-    await db.execute('''
       CREATE TABLE $profile_table(
       ${ProfileTableFields.key} $keyType,
       ${ProfileTableFields.first_name} $textType,
@@ -185,36 +173,7 @@ class DatabaseHelper {
    ''');
   }
 
-  Future<void> insertRequestData(RequestModel requestModel) async {
-    Database db = await database;
 
-    await db.insert(request_table, requestModel.toMap());
-  }
-
-  Future<void> updateRequestData(RequestModel requestModel) async {
-    final db = await database;
-    await db.update(request_table, requestModel.toMap(),
-        where: '${RequestTableFields.receiver_email} = ?',
-        whereArgs: [requestModel.receiver_email]);
-  }
-
-  Future<void> deleteRequest(RequestModel requestModel) async {
-    Database db = await instance.database;
-    await db.delete(request_table,
-        where: '${RequestTableFields.receiver_email} = ?',
-        whereArgs: [requestModel.receiver_email]);
-  }
-
-  Future<List<RequestModel?>> getRequestData(String receiverEmail) async {
-    Database db = await database;
-
-    final List<Map<String, dynamic>> maps = await db.query(request_table,
-        where: '${RequestTableFields.receiver_email} = ?',
-        whereArgs: [receiverEmail],
-        orderBy: '${RequestTableFields.created_at} DESC');
-    return List.generate(
-        maps.length, (index) => RequestModel.fromMap(maps[index]));
-  }
 
   // Insert ProfileData
   Future<void> insertProfileData(

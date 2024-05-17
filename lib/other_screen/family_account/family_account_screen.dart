@@ -30,7 +30,7 @@ class FamilyAccountScreen extends StatefulWidget {
 class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
   FamilyAccountBloc familyAccountBloc = FamilyAccountBloc();
   final databaseHelper = DatabaseHelper.instance;
-  String userEmail = '',userName='', currentUserEmail = '';
+  String userEmail = '', userName = '', currentUserEmail = '';
   bool isLoading = true;
   ProfileModel? profileData;
   List<RequestModel?> requestList = [];
@@ -125,24 +125,25 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
         .getStringValuesSF(SharedPreferencesKeys.userName)
         .then((value) {
       if (value != null) {
-          userName = value;
-   MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-        .then((value) {
-      if (value != null) {
-          currentUserEmail = value;
+        userName = value;
         MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.userEmail)
+            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
             .then((value) {
           if (value != null) {
-            userEmail = value;
-            getProfileData();
+            currentUserEmail = value;
+            MySharedPreferences.instance
+                .getStringValuesSF(SharedPreferencesKeys.userEmail)
+                .then((value) {
+              if (value != null) {
+                userEmail = value;
+                getProfileData();
+              }
+            });
           }
-        }); }
         });
       }
     });
-   
+
     super.initState();
   }
 
@@ -191,7 +192,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                   decoration: const BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child:  Text(
+                  child: Text(
                     LocaleKeys.addAccount.tr,
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),
@@ -244,32 +245,27 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                           ),
                           10.heightBox,
                           InkWell(
-                            onTap: (){
+                            onTap: () {
                               setState(() {
                                 currentUserEmail = userEmail;
                               });
-                              MySharedPreferences.instance
-                                  .addStringToSF(
-                                  SharedPreferencesKeys
-                                      .currentUserEmail,
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.currentUserEmail,
                                   userEmail);
-                              MySharedPreferences.instance
-                                  .addStringToSF(
-                                  SharedPreferencesKeys
-                                      .currentUserName,
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.currentUserName,
                                   userName);
 
-                              MySharedPreferences.instance
-                                  .addStringToSF(
-                                  SharedPreferencesKeys
-                                      .currentUserKey,
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.currentUserKey,
                                   FirebaseAuth.instance.currentUser!.uid);
                             },
                             child: Container(
                               decoration: BoxDecoration(
                                 color: Helper.getCardColor(context),
                                 borderRadius: accessRequestList.isEmpty
-                                    ? const BorderRadius.all(Radius.circular(10))
+                                    ? const BorderRadius.all(
+                                        Radius.circular(10))
                                     : const BorderRadius.only(
                                         topLeft: Radius.circular(10),
                                         topRight: Radius.circular(10)),
@@ -281,7 +277,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 7, horizontal: 7),
                                     decoration: BoxDecoration(
-                                        color: Helper.getBackgroundColor(context),
+                                        color:
+                                            Helper.getBackgroundColor(context),
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(10))),
                                     child: Text(
@@ -306,16 +303,18 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  if(currentUserEmail == userEmail)
-                                  Expanded(child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: SvgPicture.asset(
-                                      'asset/images/ic_accept.svg',
-                                      color: Colors.green,
-                                      height: 24,
-                                      width: 24,
-                                    ),
-                                  ),)
+                                  if (currentUserEmail == userEmail)
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: SvgPicture.asset(
+                                          'asset/images/ic_accept.svg',
+                                          color: Colors.green,
+                                          height: 24,
+                                          width: 24,
+                                        ),
+                                      ),
+                                    )
                                 ],
                               ),
                             ),
@@ -342,8 +341,9 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                     return InkWell(
                                       onTap: () {
                                         setState(() {
-                                          currentUserEmail = accessRequestList[index]!
-                                              .receiver_email!;
+                                          currentUserEmail =
+                                              accessRequestList[index]!
+                                                  .receiver_email!;
                                         });
                                         MySharedPreferences.instance
                                             .addStringToSF(
@@ -358,23 +358,28 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                                 accessRequestList[index]!
                                                     .receiver_name);
 
-                                        final reference = FirebaseDatabase.instance
+                                        final reference = FirebaseDatabase
+                                            .instance
                                             .reference()
                                             .child(profile_table)
-                                            .orderByChild(ProfileTableFields.email)
+                                            .orderByChild(
+                                                ProfileTableFields.email)
                                             .equalTo(currentUserEmail);
 
                                         reference.onValue.listen((event) {
-                                          DataSnapshot dataSnapshot = event.snapshot;
+                                          DataSnapshot dataSnapshot =
+                                              event.snapshot;
                                           if (event.snapshot.exists) {
                                             Map<dynamic, dynamic> values =
-                                            dataSnapshot.value as Map<dynamic, dynamic>;
+                                                dataSnapshot.value
+                                                    as Map<dynamic, dynamic>;
                                             values.forEach((key, value) async {
                                               MySharedPreferences.instance
                                                   .addStringToSF(
-                                                  SharedPreferencesKeys
-                                                      .currentUserKey,
-                                                  value[ProfileTableFields.key]);
+                                                      SharedPreferencesKeys
+                                                          .currentUserKey,
+                                                      value[ProfileTableFields
+                                                          .key]);
                                             });
                                           }
                                         });
@@ -423,17 +428,51 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                                         FontWeight.bold),
                                               ),
                                             ),
-                                            if(currentUserEmail == accessRequestList[index]!
-                                                .receiver_email)
-                                              Expanded(child: Align(
-                                                alignment: Alignment.centerRight,
-                                                child: SvgPicture.asset(
-                                                  'asset/images/ic_accept.svg',
-                                                  color: Colors.green,
-                                                  height: 24,
-                                                  width: 24,
+                                            if (currentUserEmail ==
+                                                accessRequestList[index]!
+                                                    .receiver_email)
+                                              Expanded(
+                                                child: Align(
+                                                  alignment:
+                                                      Alignment.centerRight,
+                                                  child: SvgPicture.asset(
+                                                    'asset/images/ic_accept.svg',
+                                                    color: Colors.green,
+                                                    height: 24,
+                                                    width: 24,
+                                                  ),
                                                 ),
-                                              ),)
+                                              ),
+                                            10.widthBox,
+                                            InkWell(
+                                                onTap: () {
+                                                  if (currentUserEmail !=
+                                                      accessRequestList[index]!
+                                                          .requester_email){
+                                                    setState(() {
+                                                      currentUserEmail = userEmail;
+                                                    });
+                                                    MySharedPreferences.instance.addStringToSF(
+                                                        SharedPreferencesKeys.currentUserEmail,
+                                                        userEmail);
+                                                    MySharedPreferences.instance.addStringToSF(
+                                                        SharedPreferencesKeys.currentUserName,
+                                                        userName);
+
+                                                    MySharedPreferences.instance.addStringToSF(
+                                                        SharedPreferencesKeys.currentUserKey,
+                                                        FirebaseAuth.instance.currentUser!.uid);
+                                                  }
+
+                                                  _removeAccessRequest(
+                                                      accessRequestList[index]!);
+
+                                                },
+                                                child: const Icon(
+                                                  Icons.remove_circle_rounded,
+                                                  color: Colors.red,
+                                                  size: 30,
+                                                ))
                                           ],
                                         ),
                                       ),
@@ -586,48 +625,88 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
     final Map<String, Map> updates = {};
     updates['/$request_table/${requestModel.key}'] = requestModel.toMap();
     FirebaseDatabase.instance.ref().update(updates).then((value) {
-      sendNotification(requestModel, profileData!);
+      sendNotification(requestModel, profileData!,false);
       getRequestList();
     });
   }
 
   void sendNotification(
-      RequestModel requestModel, ProfileModel profileModel) async {
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(profile_table)
-        .orderByChild('email')
-        .equalTo(requestModel.requester_email);
+      RequestModel requestModel, ProfileModel profileModel,bool fromAccessRequest) async {
 
-    reference.once().then((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) async {
-          await http.post(
-            Uri.parse('https://fcm.googleapis.com/fcm/send'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization':
-                  'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
-            },
-            body: jsonEncode({
-              'to': value['fcm_token'],
-              'priority': 'high',
-              'notification': {
-                'title': 'Hello ${requestModel.requester_name},',
-                'body': requestModel.status == AppConstanst.acceptedRequest
-                    ? '${requestModel.receiver_name} has accepted your request'
-                    : requestModel.status == AppConstanst.rejectedRequest
-                        ? '${requestModel.receiver_name} has rejected your request'
-                        : '${requestModel.receiver_name} has removed your access',
+    if(fromAccessRequest){
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(profile_table)
+          .orderByChild('email')
+          .equalTo(requestModel.receiver_email);
+
+      reference.once().then((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+          dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            await http.post(
+              Uri.parse('https://fcm.googleapis.com/fcm/send'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Authorization':
+                'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
               },
-            }),
-          );
-        });
-      }
-    });
+              body: jsonEncode({
+                'to': value['fcm_token'],
+                'priority': 'high',
+                'notification': {
+                  'title': 'Hello ${requestModel.receiver_name},',
+                  'body': '${requestModel
+                      .requester_name} has deleted your account request'
+                      ,
+                },
+              }),
+            );
+          });
+        }
+      });
+    }
+    else {
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(profile_table)
+          .orderByChild('email')
+          .equalTo(requestModel.requester_email);
+
+      reference.once().then((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+          dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            await http.post(
+              Uri.parse('https://fcm.googleapis.com/fcm/send'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Authorization':
+                'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
+              },
+              body: jsonEncode({
+                'to': value['fcm_token'],
+                'priority': 'high',
+                'notification': {
+                  'title': 'Hello ${requestModel.requester_name},',
+                  'body': requestModel.status == AppConstanst.acceptedRequest
+                      ? '${requestModel
+                      .receiver_name} has accepted your request'
+                      : requestModel.status == AppConstanst.rejectedRequest
+                      ? '${requestModel
+                      .receiver_name} has rejected your request'
+                      : '${requestModel.receiver_name} has removed your access',
+                },
+              }),
+            );
+          });
+        }
+      });
+    }
   }
 
   _rejectRequest(RequestModel requestModel) {
@@ -636,17 +715,25 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
     final Map<String, Map> updates = {};
     updates['/$request_table/${requestModel.key}'] = requestModel.toMap();
     FirebaseDatabase.instance.ref().update(updates).then((value) {
-      sendNotification(requestModel, profileData!);
+      sendNotification(requestModel, profileData!,false);
       getRequestList();
     });
   }
 
   _removeRequest(RequestModel requestModel) {
-    requestModel.status = AppConstanst.removedRequest;
     final reference =
         FirebaseDatabase.instance.reference().child(request_table);
     reference.child(requestModel.key!).remove().then((value) {
-      sendNotification(requestModel, profileData!);
+      sendNotification(requestModel, profileData!,false);
+      getRequestList();
+    });
+  }
+
+  _removeAccessRequest(RequestModel requestModel) {
+    final reference =
+        FirebaseDatabase.instance.reference().child(request_table);
+    reference.child(requestModel.key!).remove().then((value) {
+      sendNotification(requestModel, profileData!,true);
       getRequestList();
     });
   }

@@ -98,7 +98,7 @@ class OverviewScreenState extends State<OverviewScreen> {
     super.initState();
   }
 
-  void checkRequests() {
+/*  void checkRequests() {
     final reference = FirebaseDatabase.instance
         .reference()
         .child(request_table)
@@ -161,7 +161,7 @@ class OverviewScreenState extends State<OverviewScreen> {
         });
       }
     });
-  }
+  }*/
 
   getProfileData() async {
     try {
@@ -502,7 +502,11 @@ class OverviewScreenState extends State<OverviewScreen> {
                                                       .then((value) {
                                                     if (value != null) {
                                                       userName = value;
-                                                      getTransactions();
+                                                      if(  AppConstanst.selectedTabIndex==0) {
+                                                        getTransactions();
+                                                      }else{
+                                                        getIncomeTransactions();
+                                                      }
                                                     }
                                                   }); }
                                               });

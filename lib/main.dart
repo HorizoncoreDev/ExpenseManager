@@ -189,7 +189,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _handleMessageNew(RemoteMessage message) {
-    print('object....generate');
     RemoteNotification? notification = message.notification;
     if (notification != null) {
       try {

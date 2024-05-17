@@ -5,6 +5,7 @@ import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
@@ -110,7 +111,7 @@ Future validateCode(BuildContext context, String verificationCode,
 Future<void> createRequest(BuildContext context, ProfileModel profileModel,
     String receiverEmail,String receiverName) async {
   final reference =
-  FirebaseDatabase.instance.reference().child(request_table);
+  FirebaseDatabase.instance.ref().child(request_table);
 
   bool requestExist=false;
   reference.once().then((event) {
@@ -119,11 +120,11 @@ Future<void> createRequest(BuildContext context, ProfileModel profileModel,
       Map<dynamic, dynamic> values =
       dataSnapshot.value as Map<dynamic, dynamic>;
       values.forEach((key, values) {
-        if (values['receiver_email'] == receiverEmail &&
+        if (values['receiver_email'] == receiverEmail && values['requester_email'] == profileModel.email &&
             values['status'] == AppConstanst.pendingRequest) {
           requestExist = true;
           Helper.showToast(LocaleKeys.alreadyExist.tr);
-        }else if (values['receiver_email'] == receiverEmail &&
+        }else if (values['receiver_email'] == receiverEmail && values['requester_email'] == profileModel.email &&
             values['status'] == AppConstanst.acceptedRequest) {
           requestExist = true;
           Helper.showToast(LocaleKeys.alreadyHaveAccess.tr);
@@ -148,7 +149,7 @@ Future<void> createRequest(BuildContext context, ProfileModel profileModel,
     }else{
       var newPostRef = reference.push();
       RequestModel data = RequestModel(
-        key: newPostRef.key,
+        key: FirebaseAuth.instance.currentUser!.uid,
         requester_email: profileModel.email,
         requester_name: profileModel.full_name,
         receiver_email: receiverEmail,
