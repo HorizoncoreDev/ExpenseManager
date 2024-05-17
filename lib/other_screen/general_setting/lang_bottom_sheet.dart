@@ -6,7 +6,6 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,8 +15,8 @@ class LanguageBottomSheetContent extends StatefulWidget {
       _LanguageBottomSheetContentState();
 }
 
-class _LanguageBottomSheetContentState extends State<LanguageBottomSheetContent> {
-
+class _LanguageBottomSheetContentState
+    extends State<LanguageBottomSheetContent> {
   List<LanguageCategory> languageTypes = [];
   final databaseHelper = DatabaseHelper.instance;
   String? language = "";
@@ -38,7 +37,7 @@ class _LanguageBottomSheetContentState extends State<LanguageBottomSheetContent>
   Future<void> getLanguageTypes() async {
     try {
       List<LanguageCategory> languageTypesList =
-      await databaseHelper.languageMethods();
+          await databaseHelper.languageMethods();
       setState(() {
         languageTypes = languageTypesList;
       });
@@ -49,8 +48,7 @@ class _LanguageBottomSheetContentState extends State<LanguageBottomSheetContent>
 
   @override
   Widget build(BuildContext context) {
-
-    return  Container(
+    return Container(
       height: MediaQuery.of(context).size.height * 0.35,
       child: Column(
         children: [
@@ -83,8 +81,7 @@ class _LanguageBottomSheetContentState extends State<LanguageBottomSheetContent>
             child: ListView.builder(
               itemCount: languageTypes.length,
               itemBuilder: (BuildContext context, int index) {
-                final LanguageCategory languageCategory =
-                languageTypes[index];
+                final LanguageCategory languageCategory = languageTypes[index];
                 print('object...list..$langCode');
                 return ListTile(
                   title: Text(languageCategory.name.toString()),
@@ -99,7 +96,6 @@ class _LanguageBottomSheetContentState extends State<LanguageBottomSheetContent>
                       ? const Icon(Icons.check)
                       : null,
                 );
-
               },
             ),
           ),
@@ -124,9 +120,10 @@ class _LanguageBottomSheetContentState extends State<LanguageBottomSheetContent>
                   Get.updateLocale(getLocale);
                   print("local gu is $getLocale");
                 }
-                MySharedPreferences.instance.getStringValuesSF(SharedPreferencesKeys.userEmail)
+                MySharedPreferences.instance
+                    .getStringValuesSF(SharedPreferencesKeys.userEmail)
                     .then((value) async {
-                  if(value!= null){
+                  if (value != null) {
                     userEmail = value;
                     await DatabaseHelper.instance
                         .getProfileData(userEmail)

@@ -21,12 +21,7 @@ class PaymentMethod {
   int? status;
   String? icon;
 
-  PaymentMethod({
-    this.id,
-    this.name,
-    this.status,
-    this.icon
-  });
+  PaymentMethod({this.id, this.name, this.status, this.icon});
 
   factory PaymentMethod.fromMap(Map<String, dynamic> map) {
     return PaymentMethod(

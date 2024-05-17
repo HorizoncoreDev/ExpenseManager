@@ -1,4 +1,3 @@
-
 const String currency_table = 'currency_table';
 
 class CurrencyFields {
@@ -8,14 +7,12 @@ class CurrencyFields {
     countryName,
     symbol,
     currencyCode,
-
   ];
 
   static const String id = 'id';
   static const String countryName = 'countryName';
   static const String symbol = 'symbol';
   static const String currencyCode = 'currencyCode';
-
 }
 
 class CurrencyCategory {
@@ -24,14 +21,12 @@ class CurrencyCategory {
   String? symbol;
   String? currencyCode;
 
-
-  CurrencyCategory(
-      {
-        this.id,
-        this.countryName,
-        this.symbol,
-        this.currencyCode,
-      });
+  CurrencyCategory({
+    this.id,
+    this.countryName,
+    this.symbol,
+    this.currencyCode,
+  });
 
   factory CurrencyCategory.fromMap(Map<String, dynamic> map) {
     return CurrencyCategory(

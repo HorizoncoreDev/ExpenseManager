@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import '../../utils/helper.dart';
 import '../../utils/my_shared_preferences.dart';
 
-
 class RestoreDialog {
-
   final List<Color> colors = [
     Colors.red,
     Colors.blue,
@@ -41,11 +39,14 @@ class RestoreDialog {
                     title: const Text('Drive'),
                     onTap: () async {
                       // Handle selection
-                      String? fileId = await MySharedPreferences.instance.getStringValuesSF("fileId");
+                      String? fileId = await MySharedPreferences.instance
+                          .getStringValuesSF("fileId");
                       if (fileId != null) {
-                        await MasterPasswordDialog().downloadCsvFileFromDrive(fileId);
+                        await MasterPasswordDialog()
+                            .downloadCsvFileFromDrive(fileId);
                       } else {
-                        Helper.showToast('File Id not found upload your file in drive');
+                        Helper.showToast(
+                            'File Id not found upload your file in drive');
                       }
                       Navigator.pop(context);
                     },

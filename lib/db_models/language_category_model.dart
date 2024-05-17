@@ -1,4 +1,3 @@
-
 const String language_table = 'language_table';
 
 class LanguageFields {
@@ -7,13 +6,11 @@ class LanguageFields {
     id,
     name,
     code,
-
   ];
 
   static const String id = 'id';
   static const String name = 'name';
   static const String code = 'code';
-
 }
 
 class LanguageCategory {
@@ -21,13 +18,11 @@ class LanguageCategory {
   String? name;
   String? code;
 
-
-  LanguageCategory(
-      {
-        this.id,
-        this.name,
-        this.code,
-      });
+  LanguageCategory({
+    this.id,
+    this.name,
+    this.code,
+  });
 
   factory LanguageCategory.fromMap(Map<String, dynamic> map) {
     return LanguageCategory(

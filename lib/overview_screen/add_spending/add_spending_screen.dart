@@ -4,16 +4,12 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:expense_manager/db_models/payment_method_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
-import 'package:expense_manager/overview_screen/add_spending/bloc/add_spending_event.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -196,7 +192,6 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   int selectedPaymentMethodIndex = 0;
 
   createSpendingIncome(BuildContext context, String email) async {
-
     TransactionModel transactionModel = TransactionModel(
         key: "",
         // member_id: id,
@@ -320,283 +315,279 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
 
   @override
   Widget build(BuildContext context) {
-   
-        return Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              backgroundColor: Helper.getBackgroundColor(context),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text(
-                      LocaleKeys.cancel.tr,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Helper.getTextColor(context), fontSize: 16),
-                    ),
-                  ),
-                  10.widthBox,
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 5),
-                          decoration: BoxDecoration(
-                              color: const Color(0xff22435b),
-                              borderRadius: BorderRadius.circular(25)),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton2<String>(
-                              dropdownElevation: 0,
-                              buttonDecoration: const BoxDecoration(
-                                  color: Colors.transparent),
-                              dropdownDecoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: const Color(0xff22435b)),
-                              items: dropdownItems
-                                  .map((item) => DropdownMenuItem<String>(
-                                        value: item,
-                                        child: Align(
-                                          alignment: Alignment.center,
-                                          child: Text(item,
-                                              textAlign: TextAlign.center,
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.white)),
-                                        ),
-                                      ))
-                                  .toList(),
-                              dropdownMaxHeight: 200,
-                              offset: const Offset(0, -1),
-                              value: selectedValue,
-                              onChanged: (value) {
-                                setState(() {
-                                  var val = value as String;
-                                  selectedValue = val;
-                                  if (selectedValue ==
-                                      AppConstanst.spendingTransactionName) {
-                                    getSpendingCategory();
-                                  } else {
-                                    getIncomeCategory();
-                                  }
-                                });
-                              },
-                              buttonPadding: EdgeInsets.zero,
-                              buttonHeight: 40,
-                              isExpanded: true,
-                              icon: const Icon(
-                                Icons.keyboard_arrow_down,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )),
-                    ),
-                  ),
-                  10.widthBox,
-                  InkWell(
-                    onTap: () async {
-                      if (amountController.text.isEmpty ||
-                          amountController.text == "0") {
-                        Helper.showToast(LocaleKeys.addAmount.tr);
-                      } else if (selectedValue ==
-                              AppConstanst.spendingTransactionName
-                          ? selectedSpendingIndex == -1
-                          : selectedIncomeIndex == -1) {
-                        Helper.showToast(LocaleKeys.addCategory.tr);
-                      } else if (selectedValue ==
-                              AppConstanst.spendingTransactionName
-                          ? (spendingSubCategories.isNotEmpty &&
-                              selectedSpendingSubIndex == -1)
-                          : (incomeSubCategories.isNotEmpty &&
-                              selectedIncomeSubIndex == -1)) {
-                        Helper.showToast(LocaleKeys.addSubCategory.tr);
-                      } else {
-                        //   Helper.showLoading(context);
-                        if (!isSkippedUser) {
-                          print("USER NOT SKIPPED $isSkippedUser");
-                          await databaseHelper
-                              .getProfileData(userEmail)
-                              .then((value) async {
-                            createSpendingIncome(context, value!.email!);
-                          });
-                        } else {
-                          print("USER SKIPPED $isSkippedUser");
-                          createSpendingIncome(context, "");
-                        }
-                      }
-                    },
-                    child: Text(
-                      LocaleKeys.done.tr,
-                      style: TextStyle(color: Colors.blue, fontSize: 16),
-                    ),
-                  ),
-                ],
+    return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Helper.getBackgroundColor(context),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  LocaleKeys.cancel.tr,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Helper.getTextColor(context), fontSize: 16),
+                ),
               ),
-            ),
-            body: Container(
-              width: double.infinity,
-              height: double.infinity,
-              color: Helper.getBackgroundColor(context),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Row(children: [
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Helper.getCardColor(context)),
-                        child: const Icon(
-                          Icons.currency_exchange,
-                          color: Colors.blue,
-                          size: 16,
-                        ),
-                      ),
-                      15.widthBox,
-                      Expanded(
-                          child: CustomBoxTextFormField(
-                              controller: amountController,
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(5),
-                                  bottomLeft: Radius.circular(5)),
-                              keyboardType: TextInputType.number,
-                              hintText: "0",
-                              hintFontSize: 20,
-                              hintColor: Colors.blue,
-                              fillColor: Helper.getCardColor(context),
-                              textAlign: TextAlign.end,
-                              borderColor: Colors.transparent,
-                              textStyle: const TextStyle(
-                                  color: Colors.blue, fontSize: 20),
-                              padding: 11,
-                              horizontalPadding: 5,
-                              validator: (value) {
-                                return null;
-                              })),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14.2, horizontal: 5),
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            border: Border(
-                              left: BorderSide(
-                                color: Helper.getCardColor(context),
-                              ),
-                            ),
-                            borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(5),
-                                bottomRight: Radius.circular(5))),
-                        child: Row(
-                          children: [
-                            5.widthBox,
-                            Text("${AppConstanst.currencySymbol}",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.blue)),
-                            5.widthBox,
-                          ],
-                        ),
-                      ),
-                    ]),
-                    10.heightBox,
-                    SizedBox(
-                      width: double.infinity,
-                      height: 30,
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: const ScrollPhysics(),
-                        itemCount: amount.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              if (amountController.text.isNotEmpty) {
-                                amountController.text =
-                                    (int.parse(amountController.text) +
-                                            int.parse(amount[index]))
-                                        .toString();
-                              } else {
-                                amountController.text = amount[index];
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                  color: Helper.getCardColor(context),
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(5))),
-                              child: Text(
-                                amount[index],
-                                style: TextStyle(
-                                    color: Helper.getTextColor(context),
-                                    fontSize: 14),
-                              ),
-                            ),
-                          );
-                        },
-                        separatorBuilder: (BuildContext context, int index) {
-                          return 10.widthBox;
-                        },
-                      ),
-                    ),
-                    20.heightBox,
-                    selectedValue == AppConstanst.spendingTransactionName
-                        ? Row(
-                            children: [
-                              Text(
-                                LocaleKeys.category.tr,
-                                style: TextStyle(
-                                    color: Helper.getTextColor(context),
-                                    fontSize: 14),
-                              ),
-                              10.widthBox,
-                              SvgPicture.asset(
-                                'asset/images/ic_categories.svg',
-                                color: Colors.blue,
-                                height: 18,
-                                width: 18,
-                              ),
-                              if (selectedItemList.isNotEmpty)
-                                Expanded(
-                                  child: InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        spendingSubCategories = [];
-                                        selectedSpendingSubIndex = -1;
-                                        selectedSpendingIndex = -1;
-                                        selectedItemList.clear();
-                                      });
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            selectedItemList[0].name.toString(),
-                                            textAlign: TextAlign.end,
-                                            style: TextStyle(
-                                                color: Helper.getTextColor(
-                                                    context),
-                                                fontSize: 14),
-                                          ),
-                                        ),
-                                        5.widthBox,
-                                        Icon(
-                                          Icons.highlight_remove,
-                                          color: Helper.getTextColor(context),
-                                          size: 18,
-                                        )
-                                      ],
+              10.widthBox,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 5),
+                      decoration: BoxDecoration(
+                          color: const Color(0xff22435b),
+                          borderRadius: BorderRadius.circular(25)),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          dropdownElevation: 0,
+                          buttonDecoration:
+                              const BoxDecoration(color: Colors.transparent),
+                          dropdownDecoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: const Color(0xff22435b)),
+                          items: dropdownItems
+                              .map((item) => DropdownMenuItem<String>(
+                                    value: item,
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(item,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.white)),
                                     ),
-                                  ),
+                                  ))
+                              .toList(),
+                          dropdownMaxHeight: 200,
+                          offset: const Offset(0, -1),
+                          value: selectedValue,
+                          onChanged: (value) {
+                            setState(() {
+                              var val = value as String;
+                              selectedValue = val;
+                              if (selectedValue ==
+                                  AppConstanst.spendingTransactionName) {
+                                getSpendingCategory();
+                              } else {
+                                getIncomeCategory();
+                              }
+                            });
+                          },
+                          buttonPadding: EdgeInsets.zero,
+                          buttonHeight: 40,
+                          isExpanded: true,
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )),
+                ),
+              ),
+              10.widthBox,
+              InkWell(
+                onTap: () async {
+                  if (amountController.text.isEmpty ||
+                      amountController.text == "0") {
+                    Helper.showToast(LocaleKeys.addAmount.tr);
+                  } else if (selectedValue ==
+                          AppConstanst.spendingTransactionName
+                      ? selectedSpendingIndex == -1
+                      : selectedIncomeIndex == -1) {
+                    Helper.showToast(LocaleKeys.addCategory.tr);
+                  } else if (selectedValue ==
+                          AppConstanst.spendingTransactionName
+                      ? (spendingSubCategories.isNotEmpty &&
+                          selectedSpendingSubIndex == -1)
+                      : (incomeSubCategories.isNotEmpty &&
+                          selectedIncomeSubIndex == -1)) {
+                    Helper.showToast(LocaleKeys.addSubCategory.tr);
+                  } else {
+                    //   Helper.showLoading(context);
+                    if (!isSkippedUser) {
+                      print("USER NOT SKIPPED $isSkippedUser");
+                      await databaseHelper
+                          .getProfileData(userEmail)
+                          .then((value) async {
+                        createSpendingIncome(context, value!.email!);
+                      });
+                    } else {
+                      print("USER SKIPPED $isSkippedUser");
+                      createSpendingIncome(context, "");
+                    }
+                  }
+                },
+                child: Text(
+                  LocaleKeys.done.tr,
+                  style: TextStyle(color: Colors.blue, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+        ),
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Helper.getBackgroundColor(context),
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Row(children: [
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Helper.getCardColor(context)),
+                    child: const Icon(
+                      Icons.currency_exchange,
+                      color: Colors.blue,
+                      size: 16,
+                    ),
+                  ),
+                  15.widthBox,
+                  Expanded(
+                      child: CustomBoxTextFormField(
+                          controller: amountController,
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(5),
+                              bottomLeft: Radius.circular(5)),
+                          keyboardType: TextInputType.number,
+                          hintText: "0",
+                          hintFontSize: 20,
+                          hintColor: Colors.blue,
+                          fillColor: Helper.getCardColor(context),
+                          textAlign: TextAlign.end,
+                          borderColor: Colors.transparent,
+                          textStyle:
+                              const TextStyle(color: Colors.blue, fontSize: 20),
+                          padding: 11,
+                          horizontalPadding: 5,
+                          validator: (value) {
+                            return null;
+                          })),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 14.2, horizontal: 5),
+                    decoration: BoxDecoration(
+                        color: Helper.getCardColor(context),
+                        border: Border(
+                          left: BorderSide(
+                            color: Helper.getCardColor(context),
+                          ),
+                        ),
+                        borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(5),
+                            bottomRight: Radius.circular(5))),
+                    child: Row(
+                      children: [
+                        5.widthBox,
+                        Text("${AppConstanst.currencySymbol}",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 16, color: Colors.blue)),
+                        5.widthBox,
+                      ],
+                    ),
+                  ),
+                ]),
+                10.heightBox,
+                SizedBox(
+                  width: double.infinity,
+                  height: 30,
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const ScrollPhysics(),
+                    itemCount: amount.length,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          if (amountController.text.isNotEmpty) {
+                            amountController.text =
+                                (int.parse(amountController.text) +
+                                        int.parse(amount[index]))
+                                    .toString();
+                          } else {
+                            amountController.text = amount[index];
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5))),
+                          child: Text(
+                            amount[index],
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
+                          ),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return 10.widthBox;
+                    },
+                  ),
+                ),
+                20.heightBox,
+                selectedValue == AppConstanst.spendingTransactionName
+                    ? Row(
+                        children: [
+                          Text(
+                            LocaleKeys.category.tr,
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
+                          ),
+                          10.widthBox,
+                          SvgPicture.asset(
+                            'asset/images/ic_categories.svg',
+                            color: Colors.blue,
+                            height: 18,
+                            width: 18,
+                          ),
+                          if (selectedItemList.isNotEmpty)
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    spendingSubCategories = [];
+                                    selectedSpendingSubIndex = -1;
+                                    selectedSpendingIndex = -1;
+                                    selectedItemList.clear();
+                                  });
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        selectedItemList[0].name.toString(),
+                                        textAlign: TextAlign.end,
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 14),
+                                      ),
+                                    ),
+                                    5.widthBox,
+                                    Icon(
+                                      Icons.highlight_remove,
+                                      color: Helper.getTextColor(context),
+                                      size: 18,
+                                    )
+                                  ],
                                 ),
-                              /*5.widthBox,
+                              ),
+                            ),
+                          /*5.widthBox,
                               if (selectedItemList.isNotEmpty)
                                 InkWell(
                                     onTap: () {
@@ -612,903 +603,869 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                       color: Colors.white,
                                       size: 18,
                                     )),*/
-                            ],
-                          )
-                        : Row(
-                            children: [
-                              Text(
-                                LocaleKeys.category.tr,
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Text(
+                            LocaleKeys.category.tr,
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
+                          ),
+                          10.widthBox,
+                          SvgPicture.asset(
+                            'asset/images/ic_categories.svg',
+                            color: Colors.blue,
+                            height: 18,
+                            width: 18,
+                          ),
+                          if (selectedIncomeItemList.isNotEmpty)
+                            Expanded(
+                              child: Text(
+                                selectedIncomeItemList[0].name.toString(),
+                                textAlign: TextAlign.end,
                                 style: TextStyle(
                                     color: Helper.getTextColor(context),
                                     fontSize: 14),
                               ),
-                              10.widthBox,
-                              SvgPicture.asset(
-                                'asset/images/ic_categories.svg',
-                                color: Colors.blue,
-                                height: 18,
-                                width: 18,
-                              ),
-                              if (selectedIncomeItemList.isNotEmpty)
-                                Expanded(
-                                  child: Text(
-                                    selectedIncomeItemList[0].name.toString(),
-                                    textAlign: TextAlign.end,
-                                    style: TextStyle(
-                                        color: Helper.getTextColor(context),
-                                        fontSize: 14),
+                            ),
+                          5.widthBox,
+                          if (selectedIncomeItemList.isNotEmpty)
+                            InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    incomeSubCategories = [];
+                                    selectedIncomeSubIndex = -1;
+                                    selectedIncomeIndex = -1;
+                                    selectedIncomeItemList.clear();
+                                  });
+                                },
+                                child: SizedBox(
+                                  width: 50,
+                                  child: Icon(
+                                    Icons.highlight_remove,
+                                    color: Helper.getTextColor(context),
+                                    size: 18,
+                                  ),
+                                )),
+                        ],
+                      ),
+                5.heightBox,
+                selectedValue == AppConstanst.spendingTransactionName
+                    ? Stack(
+                        children: [
+                          GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 6,
+                              crossAxisSpacing: 4.0,
+                              mainAxisSpacing: 4.0,
+                              childAspectRatio: 4 / 4,
+                            ),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: spendingSubCategories.isEmpty
+                                ? categories.length
+                                : selectedItemList.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              ExpenseCategory item =
+                                  spendingSubCategories.isEmpty
+                                      ? categories[index]
+                                      : selectedItemList[index];
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    selectedItemList = [];
+                                    spendingSubCategories = [];
+                                    selectedSpendingIndex = index;
+                                    selectedItemList.add(categories[index]);
+                                    getSpendingSubCategory();
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                      color: selectedSpendingIndex == index
+                                          ? spendingSubCategories.isNotEmpty
+                                              ? Helper.getCategoriesItemColors(
+                                                  context)
+                                              : Colors.blue
+                                          : Helper.getCategoriesItemColors(
+                                              context),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(5))),
+                                  child: Column(
+                                    children: [
+                                      5.heightBox,
+                                      SvgPicture.asset(
+                                        'asset/images/${item.icons}.svg',
+                                        color: selectedSpendingIndex == index
+                                            ? spendingSubCategories.isNotEmpty
+                                                ? item.color
+                                                : Colors.white
+                                            : item.color,
+                                        width: 24,
+                                        height: 24,
+                                      ),
+                                      5.heightBox,
+                                      Expanded(
+                                        child: Text(
+                                          item.name.toString(),
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              color:
+                                                  Helper.getTextColor(context),
+                                              fontSize: 10),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              5.widthBox,
-                              if (selectedIncomeItemList.isNotEmpty)
-                                InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        incomeSubCategories = [];
-                                        selectedIncomeSubIndex = -1;
-                                        selectedIncomeIndex = -1;
-                                        selectedIncomeItemList.clear();
-                                      });
-                                    },
-                                    child: SizedBox(
-                                      width: 50,
-                                      child: Icon(
-                                        Icons.highlight_remove,
-                                        color: Helper.getTextColor(context),
-                                        size: 18,
-                                      ),
-                                    )),
-                            ],
+                              );
+                            },
                           ),
-                    5.heightBox,
-                    selectedValue == AppConstanst.spendingTransactionName
-                        ? Stack(
+                          if (spendingSubCategories.isNotEmpty)
+                            Positioned(
+                                top: 0,
+                                bottom: 0,
+                                left: 0,
+                                right: MediaQuery.of(context).size.width / 1.8,
+                                child: const VerticalDivider(
+                                    color: Colors.blue, thickness: 3)),
+                          Row(
                             children: [
-                              GridView.builder(
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 6,
-                                  crossAxisSpacing: 4.0,
-                                  mainAxisSpacing: 4.0,
-                                  childAspectRatio: 4 / 4,
-                                ),
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: spendingSubCategories.isEmpty
-                                    ? categories.length
-                                    : selectedItemList.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  ExpenseCategory item =
-                                      spendingSubCategories.isEmpty
-                                          ? categories[index]
-                                          : selectedItemList[index];
-                                  return InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        selectedItemList = [];
-                                        spendingSubCategories = [];
-                                        selectedSpendingIndex = index;
-                                        selectedItemList.add(categories[index]);
-                                        getSpendingSubCategory();
-                                      });
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 5, horizontal: 5),
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                          color: selectedSpendingIndex == index
-                                              ? spendingSubCategories.isNotEmpty
-                                                  ? Helper
-                                                      .getCategoriesItemColors(
-                                                          context)
-                                                  : Colors.blue
-                                              : Helper.getCategoriesItemColors(
-                                                  context),
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(5))),
-                                      child: Column(
-                                        children: [
-                                          5.heightBox,
-                                          SvgPicture.asset(
-                                            'asset/images/${item.icons}.svg',
-                                            color:
-                                                selectedSpendingIndex == index
-                                                    ? spendingSubCategories
-                                                            .isNotEmpty
-                                                        ? item.color
-                                                        : Colors.white
-                                                    : item.color,
-                                            width: 24,
-                                            height: 24,
-                                          ),
-                                          5.heightBox,
-                                          Expanded(
-                                            child: Text(
-                                              item.name.toString(),
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color: Helper.getTextColor(
-                                                      context),
-                                                  fontSize: 10),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
                               if (spendingSubCategories.isNotEmpty)
-                                Positioned(
-                                    top: 0,
-                                    bottom: 0,
-                                    left: 0,
-                                    right:
-                                        MediaQuery.of(context).size.width / 1.8,
-                                    child: const VerticalDivider(
-                                        color: Colors.blue, thickness: 3)),
-                              Row(
-                                children: [
-                                  if (spendingSubCategories.isNotEmpty)
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width /
-                                          4.8,
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width / 4.8,
+                                ),
+                              if (spendingSubCategories.isNotEmpty)
+                                Expanded(
+                                  child: GridView.builder(
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 4.0,
+                                      mainAxisSpacing: 4.0,
+                                      childAspectRatio: 3.5 / 1,
                                     ),
-                                  if (spendingSubCategories.isNotEmpty)
-                                    Expanded(
-                                      child: GridView.builder(
-                                        gridDelegate:
-                                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 3,
-                                          crossAxisSpacing: 4.0,
-                                          mainAxisSpacing: 4.0,
-                                          childAspectRatio: 3.5 / 1,
-                                        ),
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: spendingSubCategories.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          ExpenseSubCategory item =
-                                              spendingSubCategories[index];
-                                          return InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                selectedSpendingSubIndex =
-                                                    index;
-                                              });
-                                            },
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 5,
-                                                      horizontal: 5),
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(
-                                                  color:
-                                                      selectedSpendingSubIndex ==
-                                                              index
-                                                          ? Colors.blue
-                                                          : Helper.getCardColor(
-                                                              context),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(5))),
-                                              child: Column(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      item.name!,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                          color: selectedSpendingSubIndex ==
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: spendingSubCategories.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      ExpenseSubCategory item =
+                                          spendingSubCategories[index];
+                                      return InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            selectedSpendingSubIndex = index;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 5, horizontal: 5),
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                              color: selectedSpendingSubIndex ==
+                                                      index
+                                                  ? Colors.blue
+                                                  : Helper.getCardColor(
+                                                      context),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(5))),
+                                          child: Column(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  item.name!,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      color:
+                                                          selectedSpendingSubIndex ==
                                                                   index
                                                               ? Colors.white
                                                               : Helper
                                                                   .getTextColor(
                                                                       context),
-                                                          fontSize: 12),
-                                                    ),
-                                                  ),
-                                                ],
+                                                      fontSize: 12),
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                ],
-                              )
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
                             ],
                           )
-                        : Stack(
-                            children: [
-                              GridView.builder(
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 6,
-                                  crossAxisSpacing: 4.0,
-                                  mainAxisSpacing: 4.0,
-                                  childAspectRatio: 4 / 4,
-                                ),
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: incomeSubCategories.isEmpty
-                                    ? incomeCategories.length
-                                    : selectedIncomeItemList.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  IncomeCategory item =
-                                      incomeSubCategories.isEmpty
-                                          ? incomeCategories[index]
-                                          : selectedIncomeItemList[index];
-                                  return InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        selectedIncomeItemList = [];
-                                        incomeSubCategories = [];
-                                        selectedIncomeIndex = index;
-                                        selectedIncomeItemList
-                                            .add(incomeCategories[index]);
-                                        getIncomeSubCategory();
-                                      });
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 5, horizontal: 5),
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                          color: selectedIncomeIndex == index
-                                              ? incomeSubCategories.isNotEmpty
-                                                  ? Helper.getCardColor(context)
-                                                  : Colors.blue
-                                              : Helper.getCardColor(context),
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(5))),
-                                      child: Column(
-                                        children: [
-                                          5.heightBox,
-                                          SvgPicture.asset(
-                                            'asset/images/${item.path}.svg',
-                                            color: selectedIncomeIndex == index
-                                                ? incomeSubCategories.isNotEmpty
-                                                    ? item.color
-                                                    : Colors.white
-                                                : item.color,
-                                            width: 24,
-                                            height: 24,
-                                          ),
-                                          5.heightBox,
-                                          Expanded(
-                                            child: Text(
-                                              item.name.toString(),
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color: selectedIncomeIndex ==
-                                                          index
+                        ],
+                      )
+                    : Stack(
+                        children: [
+                          GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 6,
+                              crossAxisSpacing: 4.0,
+                              mainAxisSpacing: 4.0,
+                              childAspectRatio: 4 / 4,
+                            ),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: incomeSubCategories.isEmpty
+                                ? incomeCategories.length
+                                : selectedIncomeItemList.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              IncomeCategory item = incomeSubCategories.isEmpty
+                                  ? incomeCategories[index]
+                                  : selectedIncomeItemList[index];
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    selectedIncomeItemList = [];
+                                    incomeSubCategories = [];
+                                    selectedIncomeIndex = index;
+                                    selectedIncomeItemList
+                                        .add(incomeCategories[index]);
+                                    getIncomeSubCategory();
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                      color: selectedIncomeIndex == index
+                                          ? incomeSubCategories.isNotEmpty
+                                              ? Helper.getCardColor(context)
+                                              : Colors.blue
+                                          : Helper.getCardColor(context),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(5))),
+                                  child: Column(
+                                    children: [
+                                      5.heightBox,
+                                      SvgPicture.asset(
+                                        'asset/images/${item.path}.svg',
+                                        color: selectedIncomeIndex == index
+                                            ? incomeSubCategories.isNotEmpty
+                                                ? item.color
+                                                : Colors.white
+                                            : item.color,
+                                        width: 24,
+                                        height: 24,
+                                      ),
+                                      5.heightBox,
+                                      Expanded(
+                                        child: Text(
+                                          item.name.toString(),
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              color:
+                                                  selectedIncomeIndex == index
                                                       ? Colors.white
                                                       : Helper.getTextColor(
                                                           context),
-                                                  fontSize: 10),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                              if (incomeSubCategories.isNotEmpty)
-                                Positioned(
-                                    top: 0,
-                                    bottom: 0,
-                                    left: 0,
-                                    right:
-                                        MediaQuery.of(context).size.width / 1.8,
-                                    child: const VerticalDivider(
-                                        color: Colors.blue, thickness: 3)),
-                              Row(
-                                children: [
-                                  if (incomeSubCategories.isNotEmpty)
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width /
-                                          4.8,
-                                    ),
-                                  if (incomeSubCategories.isNotEmpty)
-                                    Expanded(
-                                      child: GridView.builder(
-                                        gridDelegate:
-                                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 3,
-                                          crossAxisSpacing: 4.0,
-                                          mainAxisSpacing: 4.0,
-                                          childAspectRatio: 3.5 / 1,
-                                        ),
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: incomeSubCategories.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          IncomeSubCategory item =
-                                              incomeSubCategories[index];
-                                          return InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                selectedIncomeSubIndex = index;
-                                              });
-                                            },
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 5,
-                                                      horizontal: 5),
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(
-                                                  color:
-                                                      selectedIncomeSubIndex ==
-                                                              index
-                                                          ? Colors.blue
-                                                          : Helper.getCardColor(
-                                                              context),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(5))),
-                                              child: Column(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      item.name!,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                          color: Helper
-                                                              .getTextColor(
-                                                                  context),
-                                                          fontSize: 12),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                ],
-                              )
-                            ],
-                          ),
-                    20.heightBox,
-                    Row(children: [
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Helper.getCardColor(context)),
-                        child: const Icon(
-                          Icons.calendar_month_sharp,
-                          color: Colors.blue,
-                          size: 16,
-                        ),
-                      ),
-                      15.widthBox,
-                      InkWell(
-                        onTap: () {
-                          _decrementDate();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 5, horizontal: 5),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: Helper.getCardColor(context),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
-                          child: const Icon(
-                            Icons.arrow_back_ios_new_outlined,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ),
-                      5.widthBox,
-                      Expanded(
-                        child: InkWell(
-                          onTap: () async {
-                            DateTime? pickedDate = await showDatePicker(
-                                builder: (context, child) {
-                                  return Theme(
-                                    data: Theme.of(context).copyWith(
-                                      colorScheme: const ColorScheme.light(
-                                        primary: Colors.blue,
-                                        onPrimary: Colors.white,
-                                        onSurface: Colors.blue,
-                                      ),
-                                      textButtonTheme: TextButtonThemeData(
-                                        style: TextButton.styleFrom(
-                                          foregroundColor:
-                                              Colors.blue, // button text color
+                                              fontSize: 10),
                                         ),
                                       ),
-                                    ),
-                                    child: child!,
-                                  );
-                                },
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime.now());
-                            if (pickedDate != null &&
-                                pickedDate != selectedDate) {
-                              setState(() {
-                                selectedDate = pickedDate;
-                                forwardIconColor =
-                                    pickedDate.isBefore(DateTime.now())
-                                        ? Colors.blue
-                                        : Colors.grey;
-                              });
-                            } else if (pickedDate != null &&
-                                pickedDate == DateTime.now()) {
-                              // If user selects the current date, set forward icon color to grey
-                              setState(() {
-                                forwardIconColor = Colors.grey;
-                              });
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 7, horizontal: 5),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: Helper.getCardColor(context),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(5))),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  formattedDate(),
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context)),
-                                ),
-                                // 5.widthBox,
-                                // Text(
-                                //   formattedTime(),
-                                //   style: TextStyle(
-                                //       color: Helper.getTextColor(context)),
-                                // ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      5.widthBox,
-                      InkWell(
-                        onTap: () {
-                          DateFormat format = DateFormat("dd/MM/yyyy");
-                          String formattedDateTime =
-                              DateFormat('dd/MM/yyyy').format(DateTime.now());
-                          if (format
-                              .parse(formattedDateTime)
-                              .isAfter(format.parse(formattedDate()))) {
-                            _incrementDate();
-                          } else {
-                            // If the selected date is the current date, set forward icon color to grey
-                            setState(() {
-                              forwardIconColor = Colors.grey;
-                            });
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 5, horizontal: 5),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: Helper.getCardColor(context),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
-                          child: Icon(
-                            Icons.arrow_forward_ios_outlined,
-                            color: forwardIconColor,
-                          ),
-                        ),
-                      ),
-                    ]),
-                    10.heightBox,
-                    Stack(
-                      children: [
-                        Row(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                setState(() {
-                                  currPage = 1;
-                                });
-                              },
-                              child: Column(
-                                children: [
-                                  Text(
-                                    LocaleKeys.details.tr,
-                                    style: TextStyle(
-                                        color: currPage == 1
-                                            ? Colors.blue
-                                            : Colors.white,
-                                        fontSize: 14),
+                                    ],
                                   ),
-                                  currPage == 1
-                                      ? Container(
-                                          width: 55,
-                                          height: 2,
-                                          color: Colors.blue,
-                                        )
-                                      : Container()
-                                ],
-                              ),
+                                ),
+                              );
+                            },
+                          ),
+                          if (incomeSubCategories.isNotEmpty)
+                            Positioned(
+                                top: 0,
+                                bottom: 0,
+                                left: 0,
+                                right: MediaQuery.of(context).size.width / 1.8,
+                                child: const VerticalDivider(
+                                    color: Colors.blue, thickness: 3)),
+                          Row(
+                            children: [
+                              if (incomeSubCategories.isNotEmpty)
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width / 4.8,
+                                ),
+                              if (incomeSubCategories.isNotEmpty)
+                                Expanded(
+                                  child: GridView.builder(
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 4.0,
+                                      mainAxisSpacing: 4.0,
+                                      childAspectRatio: 3.5 / 1,
+                                    ),
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: incomeSubCategories.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      IncomeSubCategory item =
+                                          incomeSubCategories[index];
+                                      return InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            selectedIncomeSubIndex = index;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 5, horizontal: 5),
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                              color: selectedIncomeSubIndex ==
+                                                      index
+                                                  ? Colors.blue
+                                                  : Helper.getCardColor(
+                                                      context),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(5))),
+                                          child: Column(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  item.name!,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      color:
+                                                          Helper.getTextColor(
+                                                              context),
+                                                      fontSize: 12),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                            ],
+                          )
+                        ],
+                      ),
+                20.heightBox,
+                Row(children: [
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Helper.getCardColor(context)),
+                    child: const Icon(
+                      Icons.calendar_month_sharp,
+                      color: Colors.blue,
+                      size: 16,
+                    ),
+                  ),
+                  15.widthBox,
+                  InkWell(
+                    onTap: () {
+                      _decrementDate();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 5),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5))),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new_outlined,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                  5.widthBox,
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: const ColorScheme.light(
+                                    primary: Colors.blue,
+                                    onPrimary: Colors.white,
+                                    onSurface: Colors.blue,
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor:
+                                          Colors.blue, // button text color
+                                    ),
+                                  ),
+                                ),
+                                child: child!,
+                              );
+                            },
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime.now());
+                        if (pickedDate != null && pickedDate != selectedDate) {
+                          setState(() {
+                            selectedDate = pickedDate;
+                            forwardIconColor =
+                                pickedDate.isBefore(DateTime.now())
+                                    ? Colors.blue
+                                    : Colors.grey;
+                          });
+                        } else if (pickedDate != null &&
+                            pickedDate == DateTime.now()) {
+                          // If user selects the current date, set forward icon color to grey
+                          setState(() {
+                            forwardIconColor = Colors.grey;
+                          });
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 7, horizontal: 5),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(5))),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              formattedDate(),
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context)),
                             ),
+                            // 5.widthBox,
+                            // Text(
+                            //   formattedTime(),
+                            //   style: TextStyle(
+                            //       color: Helper.getTextColor(context)),
+                            // ),
                           ],
                         ),
-                        Positioned(
-                          bottom: -8,
-                          left: 0,
-                          right: 0,
-                          child: Divider(
-                            thickness: 2,
-                            color: Helper.getCardColor(context),
+                      ),
+                    ),
+                  ),
+                  5.widthBox,
+                  InkWell(
+                    onTap: () {
+                      DateFormat format = DateFormat("dd/MM/yyyy");
+                      String formattedDateTime =
+                          DateFormat('dd/MM/yyyy').format(DateTime.now());
+                      if (format
+                          .parse(formattedDateTime)
+                          .isAfter(format.parse(formattedDate()))) {
+                        _incrementDate();
+                      } else {
+                        // If the selected date is the current date, set forward icon color to grey
+                        setState(() {
+                          forwardIconColor = Colors.grey;
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 5),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5))),
+                      child: Icon(
+                        Icons.arrow_forward_ios_outlined,
+                        color: forwardIconColor,
+                      ),
+                    ),
+                  ),
+                ]),
+                10.heightBox,
+                Stack(
+                  children: [
+                    Row(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              currPage = 1;
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              Text(
+                                LocaleKeys.details.tr,
+                                style: TextStyle(
+                                    color: currPage == 1
+                                        ? Colors.blue
+                                        : Colors.white,
+                                    fontSize: 14),
+                              ),
+                              currPage == 1
+                                  ? Container(
+                                      width: 55,
+                                      height: 2,
+                                      color: Colors.blue,
+                                    )
+                                  : Container()
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    10.heightBox,
-                    currPage == 1 ? _detailsView(context) : 0.heightBox,
+                    Positioned(
+                      bottom: -8,
+                      left: 0,
+                      right: 0,
+                      child: Divider(
+                        thickness: 2,
+                        color: Helper.getCardColor(context),
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ));
-     
+                10.heightBox,
+                currPage == 1 ? _detailsView(context) : 0.heightBox,
+              ],
+            ),
+          ),
+        ));
   }
 
-  Widget _detailsView(BuildContext
-       context) {
+  Widget _detailsView(BuildContext context) {
     return Column(
-            children: [
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Helper.getCardColor(context)),
-                  child: const Icon(
-                    Icons.menu,
-                    color: Colors.blue,
-                    size: 16,
-                  ),
-                ),
-                15.widthBox,
-                Expanded(
-                    child: CustomBoxTextFormField(
-                        controller: descriptionController,
+      children: [
+        Row(children: [
+          Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+                shape: BoxShape.circle, color: Helper.getCardColor(context)),
+            child: const Icon(
+              Icons.menu,
+              color: Colors.blue,
+              size: 16,
+            ),
+          ),
+          15.widthBox,
+          Expanded(
+              child: CustomBoxTextFormField(
+                  controller: descriptionController,
+                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  keyboardType: TextInputType.text,
+                  hintText: LocaleKeys.enterDescription.tr,
+                  fillColor: Helper.getCardColor(context),
+                  borderColor: Colors.transparent,
+                  padding: 11,
+                  horizontalPadding: 5,
+                  textStyle: TextStyle(color: Helper.getTextColor(context)),
+                  validator: (value) {
+                    return null;
+                  })),
+        ]),
+        10.heightBox,
+        Row(children: [
+          Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+                shape: BoxShape.circle, color: Helper.getCardColor(context)),
+            child: const Icon(
+              Icons.menu,
+              color: Colors.blue,
+              size: 16,
+            ),
+          ),
+          15.widthBox,
+          SizedBox(
+            height: 60,
+            child: ListView.separated(
+              physics: const ScrollPhysics(),
+              itemCount: paymentMethods.length,
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedPaymentMethodIndex = index;
+                    });
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: selectedPaymentMethodIndex == index
+                            ? Colors.blue
+                            : Helper.getCategoriesItemColors(context),
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(5)),
-                        keyboardType: TextInputType.text,
-                        hintText: LocaleKeys.enterDescription.tr,
-                        fillColor: Helper.getCardColor(context),
-                        borderColor: Colors.transparent,
-                        padding: 11,
-                        horizontalPadding: 5,
-                        textStyle:
-                            TextStyle(color: Helper.getTextColor(context)),
-                        validator: (value) {
-                          return null;
-                        })),
-              ]),
-              10.heightBox,
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Helper.getCardColor(context)),
-                  child: const Icon(
-                    Icons.menu,
-                    color: Colors.blue,
-                    size: 16,
-                  ),
-                ),
-                15.widthBox,
-                SizedBox(
-                  height: 60,
-                  child: ListView.separated(
-                    physics: const ScrollPhysics(),
-                    itemCount: paymentMethods.length,
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                        onTap: () {
-                          setState(() {
-                            selectedPaymentMethodIndex = index;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 5, horizontal: 15),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: selectedPaymentMethodIndex == index
-                                  ? Colors.blue
-                                  : Helper.getCategoriesItemColors(context),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
-                          child: Column(
-                            children: [
-                              SvgPicture.asset(
-                                'asset/images/${paymentMethods[index].icon}.svg',
-                                color: selectedPaymentMethodIndex == index
-                                    ? Colors.white
-                                    : Colors.blue,
-                                width: 28,
-                                height: 28,
-                              ),
-                              5.heightBox,
-                              Text(
-                                paymentMethods[index].name!,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    color: Helper.getTextColor(context),
-                                    fontSize: 12),
-                              ),
-                            ],
-                          ),
+                            const BorderRadius.all(Radius.circular(5))),
+                    child: Column(
+                      children: [
+                        SvgPicture.asset(
+                          'asset/images/${paymentMethods[index].icon}.svg',
+                          color: selectedPaymentMethodIndex == index
+                              ? Colors.white
+                              : Colors.blue,
+                          width: 28,
+                          height: 28,
                         ),
-                      );
+                        5.heightBox,
+                        Text(
+                          paymentMethods[index].name!,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return 10.widthBox;
+              },
+            ),
+          ),
+        ]),
+        10.heightBox,
+        Row(children: [
+          Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+                shape: BoxShape.circle, color: Helper.getCardColor(context)),
+            child: const Icon(
+              Icons.menu,
+              color: Colors.blue,
+              size: 16,
+            ),
+          ),
+          15.widthBox,
+          Stack(
+            children: [
+              // Image or Camera Icon
+              image1 != null
+                  ? InkWell(
+                      onTap: () {
+                        _showImage(context, image1!);
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5),
+                        // Set the border radius here
+                        child: Image.file(
+                          image1!,
+                          fit: BoxFit.cover,
+                          height: 50,
+                          width: 50,
+                        ),
+                      ),
+                    )
+                  : InkWell(
+                      onTap: () {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                        _storagePermission(context, 1);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 15),
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          color: Colors.blueGrey,
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt_outlined,
+                          color: Colors.blue,
+                        ),
+                      )),
+
+              // Close Icon
+              if (image1 != null)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        image1 = null; // Remove the image
+                      });
                     },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return 10.widthBox;
-                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        // Change color to indicate wrong type
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 12,
+                      ),
+                    ),
                   ),
                 ),
-              ]),
-              10.heightBox,
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Helper.getCardColor(context)),
-                  child: const Icon(
-                    Icons.menu,
-                    color: Colors.blue,
-                    size: 16,
-                  ),
-                ),
-                15.widthBox,
-                Stack(
-                    children: [
-                      // Image or Camera Icon
-                     image1 != null
-                          ? InkWell(
-                        onTap: (){
-                          _showImage(context, image1!);
-                        },
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(5),
-                                // Set the border radius here
-                                child: Image.file(
-                                  image1!,
-                                  fit: BoxFit.cover,
-                                  height: 50,
-                                  width: 50,
-                                ),
-                              ),
-                          )
-                          :InkWell(
-                          onTap: () {
-                            FocusScope.of(context)
-                                .requestFocus(FocusNode());
-                            _storagePermission(context,1);
-                          },
-                          child:  Container(
-
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 15),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                color: Colors.blueGrey,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)),
-                              ),
-                              child: const Icon(
-                                Icons.camera_alt_outlined,
-                                color: Colors.blue,
-                              ),
-                          )),
-
-                      // Close Icon
-                      if (image1 != null)
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                image1 = null; // Remove the image
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                // Change color to indicate wrong type
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-
-                10.widthBox,
-                Stack(
-                    children: [
-                      // Image or Camera Icon
-                       image2 != null
-                          ? InkWell(
-                          onTap: (){
-                            _showImage(context, image2!);
-                          },
-                          child:ClipRRect(
-
-                              borderRadius: BorderRadius.circular(5),
-                              // Set the border radius here
-                              child: Image.file(
-                                image2!,
-                                fit: BoxFit.cover,
-                                height: 50,
-                                width: 50,
-                              ),
-                            ))
-                          : InkWell(
-                          onTap: () {
-                            FocusScope.of(context)
-                                .requestFocus(FocusNode());
-                            _storagePermission(context,2);
-                          },
-                          child:Container(
-
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 15),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                color: Colors.blueGrey,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)),
-                              ),
-                              child: const Icon(
-                                Icons.camera_alt_outlined,
-                                color: Colors.blue,
-                              ),
-                            )),
-
-                      // Close Icon
-                      if ( image2 != null)
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                image2 = null; // Remove the image
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                // Change color to indicate wrong type
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-
-                ),
-                10.widthBox,
-                 Stack(
-                    children: [
-                      // Image or Camera Icon
-                      image3 != null
-                          ? InkWell(
-                        onTap: (){
-                            _showImage(context, image3!);
-                        },
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(5),
-                                // Set the border radius here
-                                child: Image.file(
-                                  image3!,
-                                  fit: BoxFit.cover,
-                                  height: 50,
-                                  width: 50,
-                                ),
-                              ),
-                          )
-                          : InkWell(
-                          onTap: () {
-                            FocusScope.of(context)
-                                .requestFocus(FocusNode());
-                            _storagePermission(context,3);
-                          },
-                          child:Container(
-
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 15),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                color: Colors.blueGrey,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: const Icon(
-                                Icons.camera_alt_outlined,
-                                color: Colors.blue,
-                              ),
-                            )),
-                      // Close Icon
-                      if ( image3 != null)
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                image3 = null; // Remove the image
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                // Change color to indicate wrong type
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-
-              ]),
             ],
-          );
-        
+          ),
+          10.widthBox,
+          Stack(
+            children: [
+              // Image or Camera Icon
+              image2 != null
+                  ? InkWell(
+                      onTap: () {
+                        _showImage(context, image2!);
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5),
+                        // Set the border radius here
+                        child: Image.file(
+                          image2!,
+                          fit: BoxFit.cover,
+                          height: 50,
+                          width: 50,
+                        ),
+                      ))
+                  : InkWell(
+                      onTap: () {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                        _storagePermission(context, 2);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 15),
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          color: Colors.blueGrey,
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt_outlined,
+                          color: Colors.blue,
+                        ),
+                      )),
+
+              // Close Icon
+              if (image2 != null)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        image2 = null; // Remove the image
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        // Change color to indicate wrong type
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 12,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          10.widthBox,
+          Stack(
+            children: [
+              // Image or Camera Icon
+              image3 != null
+                  ? InkWell(
+                      onTap: () {
+                        _showImage(context, image3!);
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5),
+                        // Set the border radius here
+                        child: Image.file(
+                          image3!,
+                          fit: BoxFit.cover,
+                          height: 50,
+                          width: 50,
+                        ),
+                      ),
+                    )
+                  : InkWell(
+                      onTap: () {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                        _storagePermission(context, 3);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 15),
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          color: Colors.blueGrey,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt_outlined,
+                          color: Colors.blue,
+                        ),
+                      )),
+              // Close Icon
+              if (image3 != null)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        image3 = null; // Remove the image
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        // Change color to indicate wrong type
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 12,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ]),
+      ],
+    );
   }
 
-  _storagePermission(BuildContext context,int position) async {
+  _storagePermission(BuildContext context, int position) async {
     final deviceInfo = await DeviceInfoPlugin().androidInfo;
     final androidVersion =
         int.parse(deviceInfo.version.release.split('.').first);
     if (androidVersion >= 13) {
-      _shopImagePickerDialog(context,position);
+      _shopImagePickerDialog(context, position);
     } else {
-      _requestPermission(context,position);
+      _requestPermission(context, position);
     }
 
     return Colors.grey;
@@ -1517,7 +1474,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   /// Function: request for camera access permission
   /// @return widget
   /// */
-  _requestPermission(BuildContext context,int position) async {
+  _requestPermission(BuildContext context, int position) async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.storage,
     ].request();
@@ -1527,7 +1484,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
       case PermissionStatus.denied:
         break;
       case PermissionStatus.granted:
-        _shopImagePickerDialog(context,position);
+        _shopImagePickerDialog(context, position);
         break;
       default:
         return Colors.grey;
@@ -1537,7 +1494,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   /// Function: image pickee dialog view
   /// @return widget
   /// */
-  Future _shopImagePickerDialog(BuildContext context,int position) async {
+  Future _shopImagePickerDialog(BuildContext context, int position) async {
     await showDialog(
       context: context,
       builder: (cont) {
@@ -1643,9 +1600,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
       } else {
         image3 = tmpFile;
       }
-setState(() {
-
-});
+      setState(() {});
     } catch (e) {
       debugPrint('image-picker-error ${e.toString()}');
     }

@@ -1,8 +1,3 @@
-import 'dart:ui';
-
-import 'package:expense_manager/db_models/transaction_model.dart';
-
-
 class CommonCategoryModel {
   int? catId;
   String? catName;
@@ -21,7 +16,8 @@ class CommonCategoryModel {
       catId: json['catId'],
       catName: json['catName'],
       catType: json['catType'],
-      isSelected: json['isSelected'] ?? false, // Set isSelected from JSON or default to false
+      isSelected: json['isSelected'] ??
+          false, // Set isSelected from JSON or default to false
     );
   }
 
@@ -34,4 +30,3 @@ class CommonCategoryModel {
     };
   }
 }
-

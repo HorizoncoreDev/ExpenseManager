@@ -33,6 +33,7 @@ class TransactionFields {
 
   // static const String id = 'id';
   static const String key = 'key';
+
   // static const String member_id = 'member_id';
   static const String member_email = 'member_email';
   static const String amount = 'amount';

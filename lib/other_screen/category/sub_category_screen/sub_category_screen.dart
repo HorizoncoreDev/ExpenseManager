@@ -2,15 +2,12 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
-import '../../../db_models/income_sub_category.dart';
 import '../../../db_models/expense_sub_category.dart';
+import '../../../db_models/income_sub_category.dart';
 import '../../../db_service/database_helper.dart';
 import '../../../utils/views/custom_text_form_field.dart';
-import 'bloc/sub_category_bloc.dart';
-import 'bloc/sub_category_state.dart';
 
 class SubCategoryScreen extends StatefulWidget {
   final String categoryName;
@@ -28,8 +25,6 @@ class SubCategoryScreen extends StatefulWidget {
 }
 
 class _SubCategoryScreenState extends State<SubCategoryScreen> {
-  SubCategoryBloc subCategoryBloc = SubCategoryBloc();
-
   TextEditingController nameController = TextEditingController();
 
   DatabaseHelper helper = DatabaseHelper();
@@ -110,225 +105,208 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    subCategoryBloc.context = context;
-    return BlocConsumer<SubCategoryBloc, SubCategoryState>(
-      bloc: subCategoryBloc,
-      listener: (context, state) {},
-      builder: (context, state) {
-        if (state is SubCategoryInitial) {
-          return SafeArea(
-            child: Scaffold(
-              appBar: AppBar(
-                automaticallyImplyLeading: false,
-                backgroundColor: Helper.getBackgroundColor(context),
-                title: Row(
-                  children: [
-                    InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                          color: Helper.getTextColor(context),
-                          size: 20,
-                        )),
-                    RichText(
-                        text: TextSpan(
-                            text: widget.categoryName,
-                            style: TextStyle(
-                              fontSize: 22,
-                              color: Helper.getTextColor(context),
-                            ),
-                            children: [
-                          TextSpan(
-                            text: widget.currPage == 1
-                                ? '(${spendingSubCategories.length})'
-                                : '(${incomeSubCategories.length})',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Helper.getTextColor(context),
-                            ),
-                          ),
-                        ])),
-                  ],
-                ),
-                actions: [
-                  InkWell(
-                    onTap: () {
-                      _addSubCategoryDialogue(subCategoryBloc).then((value) {
-                        if (value != null && value) {
-                          if (widget.currPage == 1) {
-                            getSpendingSubCategory();
-                          } else {
-                            getIncomeSubCategory();
-                          }
-                        }
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Helper.getCardColor(context)),
-                      child: Icon(
-                        Icons.add,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Helper.getBackgroundColor(context),
+          title: Row(
+            children: [
+              InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Helper.getTextColor(context),
+                    size: 20,
+                  )),
+              RichText(
+                  text: TextSpan(
+                      text: widget.categoryName,
+                      style: TextStyle(
+                        fontSize: 22,
                         color: Helper.getTextColor(context),
-                        size: 22,
+                      ),
+                      children: [
+                    TextSpan(
+                      text: widget.currPage == 1
+                          ? '(${spendingSubCategories.length})'
+                          : '(${incomeSubCategories.length})',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Helper.getTextColor(context),
                       ),
                     ),
-                  ),
-                  10.widthBox,
-                ],
+                  ])),
+            ],
+          ),
+          actions: [
+            InkWell(
+              onTap: () {
+                _addSubCategoryDialogue(context).then((value) {
+                  if (value != null && value) {
+                    if (widget.currPage == 1) {
+                      getSpendingSubCategory();
+                    } else {
+                      getIncomeSubCategory();
+                    }
+                  }
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Helper.getCardColor(context)),
+                child: Icon(
+                  Icons.add,
+                  color: Helper.getTextColor(context),
+                  size: 22,
+                ),
               ),
-              body: widget.currPage == 1
-                  ? Container(
-                      color: Helper.getBackgroundColor(context),
-                      height: double.infinity,
-                      child: isLoading
-                          ? Center(child: CircularProgressIndicator())
-                          : spendingSubCategories.isEmpty
-                              ? Center(
-                                  child: Text(
-                                  LocaleKeys.noSubCatFound.tr,
-                                  style: TextStyle(
-                                    color: Helper.getTextColor(context),
-                                  ),
-                                ))
-                              : SingleChildScrollView(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
-                                      decoration: BoxDecoration(
-                                          color: Helper.getCardColor(context),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10))),
-                                      child: ListView.separated(
-                                        padding: EdgeInsets.zero,
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: spendingSubCategories.length,
-                                        itemBuilder: (context, index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 10,
-                                                right: 10,
-                                                top: 5,
-                                                bottom: 5),
-                                            child: Row(
-                                              children: [
-                                                10.widthBox,
-                                                Expanded(
-                                                  child: Text(
-                                                    spendingSubCategories[index]
-                                                        .name!,
-                                                    style: TextStyle(
-                                                        color:
-                                                            Helper.getTextColor(
-                                                                context),
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                        separatorBuilder:
-                                            (BuildContext context, int index) {
-                                          return const Divider(
-                                            thickness: 0.3,
-                                            color: Colors.grey,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                    )
-                  : Container(
-                      color: Helper.getBackgroundColor(context),
-                      height: double.infinity,
-                      child: isLoading
-                          ? Center(child: CircularProgressIndicator())
-                          : incomeSubCategories.isEmpty
-                              ? Center(
-                                  child: Text(
-                                  LocaleKeys.noSubCatFound.tr,
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context)),
-                                ))
-                              : SingleChildScrollView(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
-                                      decoration: BoxDecoration(
-                                          color: Helper.getCardColor(context),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10))),
-                                      child: ListView.separated(
-                                        padding: EdgeInsets.zero,
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: incomeSubCategories.length,
-                                        itemBuilder: (context, index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 10,
-                                                right: 10,
-                                                top: 5,
-                                                bottom: 5),
-                                            child: Row(
-                                              children: [
-                                                10.widthBox,
-                                                Expanded(
-                                                  child: Text(
-                                                    incomeSubCategories[index]
-                                                        .name!,
-                                                    style: TextStyle(
-                                                        color:
-                                                            Helper.getTextColor(
-                                                                context),
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                        separatorBuilder:
-                                            (BuildContext context, int index) {
-                                          return const Divider(
-                                            thickness: 0.3,
-                                            color: Colors.grey,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                    ),
             ),
-          );
-        }
-        return Container();
-      },
+            10.widthBox,
+          ],
+        ),
+        body: widget.currPage == 1
+            ? Container(
+                color: Helper.getBackgroundColor(context),
+                height: double.infinity,
+                child: isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : spendingSubCategories.isEmpty
+                        ? Center(
+                            child: Text(
+                            LocaleKeys.noSubCatFound.tr,
+                            style: TextStyle(
+                              color: Helper.getTextColor(context),
+                            ),
+                          ))
+                        : SingleChildScrollView(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                    color: Helper.getCardColor(context),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10))),
+                                child: ListView.separated(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: spendingSubCategories.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10,
+                                          right: 10,
+                                          top: 5,
+                                          bottom: 5),
+                                      child: Row(
+                                        children: [
+                                          10.widthBox,
+                                          Expanded(
+                                            child: Text(
+                                              spendingSubCategories[index]
+                                                  .name!,
+                                              style: TextStyle(
+                                                  color: Helper.getTextColor(
+                                                      context),
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  separatorBuilder:
+                                      (BuildContext context, int index) {
+                                    return const Divider(
+                                      thickness: 0.3,
+                                      color: Colors.grey,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+              )
+            : Container(
+                color: Helper.getBackgroundColor(context),
+                height: double.infinity,
+                child: isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : incomeSubCategories.isEmpty
+                        ? Center(
+                            child: Text(
+                            LocaleKeys.noSubCatFound.tr,
+                            style:
+                                TextStyle(color: Helper.getTextColor(context)),
+                          ))
+                        : SingleChildScrollView(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                    color: Helper.getCardColor(context),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10))),
+                                child: ListView.separated(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: incomeSubCategories.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10,
+                                          right: 10,
+                                          top: 5,
+                                          bottom: 5),
+                                      child: Row(
+                                        children: [
+                                          10.widthBox,
+                                          Expanded(
+                                            child: Text(
+                                              incomeSubCategories[index].name!,
+                                              style: TextStyle(
+                                                  color: Helper.getTextColor(
+                                                      context),
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  separatorBuilder:
+                                      (BuildContext context, int index) {
+                                    return const Divider(
+                                      thickness: 0.3,
+                                      color: Colors.grey,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+              ),
+      ),
     );
   }
 
-  Future _addSubCategoryDialogue(SubCategoryBloc subCategoryBloc) async {
+  Future _addSubCategoryDialogue(BuildContext context) async {
     await showDialog(
-      context: subCategoryBloc.context,
+      context: context,
       builder: (cont) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -349,7 +327,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
               children: [
                 10.heightBox,
                 Text(
-                 LocaleKeys.name.tr,
+                  LocaleKeys.name.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context), fontSize: 14),
                 ),
@@ -371,7 +349,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                     LocaleKeys.priority.tr,
+                      LocaleKeys.priority.tr,
                       style: TextStyle(
                           color: Helper.getTextColor(context), fontSize: 14),
                     ),
@@ -426,7 +404,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                       LocaleKeys.Low.tr,
+                        LocaleKeys.Low.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Helper.getTextColor(context), fontSize: 12),

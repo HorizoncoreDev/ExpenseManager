@@ -11,7 +11,7 @@ class ThemeNotifier with ChangeNotifier {
     notifyListeners();
   }
 
-  ThemeData _themeData= ThemeData.dark();
+  ThemeData _themeData = ThemeData.dark();
 
   ThemeData getTheme() => _themeData;
   final darkTheme = ThemeData(
@@ -23,7 +23,7 @@ class ThemeNotifier with ChangeNotifier {
       cardColor: const Color(0xff30302d),
       dividerColor: const Color(0xff30302d),
       canvasColor: Colors.blue,
-      disabledColor : Colors.amberAccent.shade100,
+      disabledColor: Colors.amberAccent.shade100,
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xff30302d),
         selectedItemColor: Colors.blue,

@@ -1,4 +1,3 @@
-import 'package:expense_manager/dashboard/dashboard.dart';
 import 'package:expense_manager/db_models/currency_category_model.dart';
 import 'package:expense_manager/db_models/language_category_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
@@ -12,13 +11,9 @@ import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:expense_manager/utils/theme_notifier.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-
-import 'bloc/general_setting_bloc.dart';
-import 'bloc/general_setting_state.dart';
 
 class GeneralSettingScreen extends StatefulWidget {
   const GeneralSettingScreen({super.key});
@@ -28,7 +23,6 @@ class GeneralSettingScreen extends StatefulWidget {
 }
 
 class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
-  GeneralSettingBloc generalSettingBloc = GeneralSettingBloc();
   late ThemeNotifier _themeNotifier;
 
   bool isNotificationStatus = false;
@@ -73,9 +67,9 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
     MySharedPreferences.instance
         .getStringValuesSF(SharedPreferencesKeys.currencyCode)
         .then((value) {
-          if(value != null){
-            cCode = value;
-          }
+      if (value != null) {
+        cCode = value;
+      }
     });
     getLanguageTypes();
     getCurrencyTypes();
@@ -107,303 +101,292 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    generalSettingBloc.context = context;
-    return BlocConsumer<GeneralSettingBloc, GeneralSettingState>(
-      bloc: generalSettingBloc,
-      listener: (context, state) {},
-      builder: (context, state) {
-        if (state is GeneralSettingInitial) {
-          return Scaffold(
-              appBar: AppBar(
-                titleSpacing: 0,
-                backgroundColor: Helper.getBackgroundColor(context),
-                leading: InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Icon(
-                      Icons.arrow_back_ios,
-                      color: Helper.getTextColor(context),
-                    )),
-                title: Text(
-                  LocaleKeys.generalSettings.tr,
+    return Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          backgroundColor: Helper.getBackgroundColor(context),
+          leading: InkWell(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Icon(
+                Icons.arrow_back_ios,
+                color: Helper.getTextColor(context),
+              )),
+          title: Text(
+            LocaleKeys.generalSettings.tr,
+            style: TextStyle(
+                color: Helper.getTextColor(context),
+                fontSize: 24,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Helper.getBackgroundColor(context),
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                10.heightBox,
+                Text(
+                  LocaleKeys.display.tr,
                   style: TextStyle(
+                      fontSize: 14,
                       color: Helper.getTextColor(context),
-                      fontSize: 24,
                       fontWeight: FontWeight.bold),
                 ),
-              ),
-              body: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Helper.getBackgroundColor(context),
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: SingleChildScrollView(
+                5.heightBox,
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                      color: Helper.getCardColor(context),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      10.heightBox,
-                      Text(
-                        LocaleKeys.display.tr,
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Helper.getTextColor(context),
-                            fontWeight: FontWeight.bold),
-                      ),
-                      5.heightBox,
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10))),
-                        child: Column(
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 15, right: 5, top: 3, bottom: 3),
+                        child: Row(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 15, right: 5, top: 3, bottom: 3),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      LocaleKeys.darkMode.tr,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Helper.getTextColor(context)),
-                                    ),
-                                  ),
-                                  FlutterSwitch(
-                                    width: 40,
-                                    height: 20,
-                                    padding: 1,
-                                    value: _themeNotifier.getTheme().brightness ==
-                                            Brightness.dark,
-                                    borderRadius: 30.0,
-                                    toggleColor: Colors.black,
-                                    toggleSize: 15,
-                                    switchBorder: Border.all(
-                                      color: Colors.black,
-                                      width: 2.0,
-                                    ),
-                                    activeColor: Colors.green,
-                                    inactiveColor: Colors.grey,
-                                    onToggle: (val) {
-                                      setState(() {
-                                        if (val) {
-                                          _themeNotifier.setDarkMode();
-                                        } else {
-                                          _themeNotifier.setLightMode();
-                                        }
-                                      });
-                                    },
-                                  ),
-                                ],
+                            Expanded(
+                              child: Text(
+                                LocaleKeys.darkMode.tr,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Helper.getTextColor(context)),
                               ),
                             ),
-                            const Divider(
-                              thickness: 1,
-                              color: Colors.black12,
-                            ),
-                            Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 15, right: 5, top: 3, bottom: 3),
-                                child: InkWell(
-                                  onTap: () {
-                                    languageBottomSheet();
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          LocaleKeys.language.tr,
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              color:
-                                                  Helper.getTextColor(context)),
-                                        ),
-                                      ),
-                                      Text(
-                                        language!,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color:
-                                                Helper.getTextColor(context)),
-                                      ),
-                                      5.widthBox,
-                                    ],
-                                  ),
-                                )),
-                            const Divider(
-                              thickness: 1,
-                              color: Colors.black12,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 15, right: 5, top: 3, bottom: 3),
-                              child: InkWell(
-                                onTap: () {
-                                  currencyBottomSheet();
-                                },
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        LocaleKeys.currency.tr,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Helper.getTextColor(context)),
-                                      ),
-                                    ),
-                                    Text(
-                                      codeFromBottomSheet.isEmpty ? AppConstanst.currencyCode: codeFromBottomSheet,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Helper.getTextColor(context)),
-                                    ),
-                                    5.widthBox,
-                                  ],
-                                ),
+                            FlutterSwitch(
+                              width: 40,
+                              height: 20,
+                              padding: 1,
+                              value: _themeNotifier.getTheme().brightness ==
+                                  Brightness.dark,
+                              borderRadius: 30.0,
+                              toggleColor: Colors.black,
+                              toggleSize: 15,
+                              switchBorder: Border.all(
+                                color: Colors.black,
+                                width: 2.0,
                               ),
+                              activeColor: Colors.green,
+                              inactiveColor: Colors.grey,
+                              onToggle: (val) {
+                                setState(() {
+                                  if (val) {
+                                    _themeNotifier.setDarkMode();
+                                  } else {
+                                    _themeNotifier.setLightMode();
+                                  }
+                                });
+                              },
                             ),
                           ],
                         ),
                       ),
-                      20.heightBox,
-                      Container(
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10))),
-                        child: Theme(
-                          data: Theme.of(context)
-                              .copyWith(dividerColor: Colors.transparent),
-                          child: ExpansionTile(
-                            title: Text(
-                              LocaleKeys.backUp.tr,
-                              style: TextStyle(
-                                  color: Helper.getTextColor(context),
-                                  fontSize: 16),
-                            ),
-                            trailing: Icon(
-                              !_backUpTileExpanded
-                                  ? Icons.keyboard_arrow_down
-                                  : Icons.keyboard_arrow_up_rounded,
-                              color: Helper.getTextColor(context),
-                            ),
-                            onExpansionChanged: (bool expanded) {
-                              setState(() {
-                                _backUpTileExpanded = expanded;
-                              });
+                      const Divider(
+                        thickness: 1,
+                        color: Colors.black12,
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.only(
+                              left: 15, right: 5, top: 3, bottom: 3),
+                          child: InkWell(
+                            onTap: () {
+                              languageBottomSheet();
                             },
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    LocaleKeys.language.tr,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Helper.getTextColor(context)),
+                                  ),
+                                ),
+                                Text(
+                                  language!,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Helper.getTextColor(context)),
+                                ),
+                                5.widthBox,
+                              ],
+                            ),
+                          )),
+                      const Divider(
+                        thickness: 1,
+                        color: Colors.black12,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 15, right: 5, top: 3, bottom: 3),
+                        child: InkWell(
+                          onTap: () {
+                            currencyBottomSheet();
+                          },
+                          child: Row(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 16.0),
-                                child: Column(
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        MasterPasswordDialog()
-                                            .showMasterPasswordDialog(
-                                                context: context,
-                                                export: true,
-                                                backupType: "CSV");
-                                      },
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                              height: 38,
-                                              width: 38,
-                                              padding: const EdgeInsets.all(6),
-                                              decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.grey.shade800),
-                                              child: Image.asset(
-                                                ImageConstanst.icCSV,
-                                                color: Colors.blue,
-                                              )),
-                                          10.widthBox,
-                                          Text(
-                                            LocaleKeys.csvFile.tr,
-                                            style: TextStyle(
-                                                color: Helper.getTextColor(
-                                                    context),
-                                                fontSize: 15),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    14.heightBox,
-                                    InkWell(
-                                      onTap: () {
-                                        MasterPasswordDialog()
-                                            .showMasterPasswordDialog(
-                                                context: context,
-                                                export: true,
-                                                backupType: "DRIVE");
-                                      },
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            child: Image.asset(
-                                              ImageConstanst.isDrive,
-                                              color: Colors.blue,
-                                            ),
-                                            padding: const EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Colors.grey.shade800),
-                                            height: 38,
-                                            width: 38,
-                                          ),
-                                          10.widthBox,
-                                          Text(LocaleKeys.gDrive.tr,
-                                              style: TextStyle(
-                                                  color: Helper.getTextColor(
-                                                      context),
-                                                  fontSize: 15))
-                                        ],
-                                      ),
-                                    ),
-                                    14.heightBox,
-                                    InkWell(
-                                      onTap: () {
-                                        MasterPasswordDialog()
-                                            .showMasterPasswordDialog(
-                                                context: context,
-                                                export: true,
-                                                backupType: "DB");
-                                      },
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            child: Image.asset(
-                                                ImageConstanst.isDb,
-                                                color: Colors.blue),
-                                            height: 38,
-                                            width: 38,
-                                            padding: const EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Colors.grey.shade800),
-                                          ),
-                                          10.widthBox,
-                                          Text(LocaleKeys.dbFile.tr,
-                                              style: TextStyle(
-                                                  color: Helper.getTextColor(
-                                                      context),
-                                                  fontSize: 15))
-                                        ],
-                                      ),
-                                    ),
-                                    14.heightBox
-                                  ],
+                              Expanded(
+                                child: Text(
+                                  LocaleKeys.currency.tr,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Helper.getTextColor(context)),
                                 ),
                               ),
+                              Text(
+                                codeFromBottomSheet.isEmpty
+                                    ? AppConstanst.currencyCode
+                                    : codeFromBottomSheet,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Helper.getTextColor(context)),
+                              ),
+                              5.widthBox,
                             ],
                           ),
                         ),
                       ),
-                      /*     InkWell(
+                    ],
+                  ),
+                ),
+                20.heightBox,
+                Container(
+                  decoration: BoxDecoration(
+                      color: Helper.getCardColor(context),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
+                  child: Theme(
+                    data: Theme.of(context)
+                        .copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      title: Text(
+                        LocaleKeys.backUp.tr,
+                        style: TextStyle(
+                            color: Helper.getTextColor(context), fontSize: 16),
+                      ),
+                      trailing: Icon(
+                        !_backUpTileExpanded
+                            ? Icons.keyboard_arrow_down
+                            : Icons.keyboard_arrow_up_rounded,
+                        color: Helper.getTextColor(context),
+                      ),
+                      onExpansionChanged: (bool expanded) {
+                        setState(() {
+                          _backUpTileExpanded = expanded;
+                        });
+                      },
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  MasterPasswordDialog()
+                                      .showMasterPasswordDialog(
+                                          context: context,
+                                          export: true,
+                                          backupType: "CSV");
+                                },
+                                child: Row(
+                                  children: [
+                                    Container(
+                                        height: 38,
+                                        width: 38,
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.grey.shade800),
+                                        child: Image.asset(
+                                          ImageConstanst.icCSV,
+                                          color: Colors.blue,
+                                        )),
+                                    10.widthBox,
+                                    Text(
+                                      LocaleKeys.csvFile.tr,
+                                      style: TextStyle(
+                                          color: Helper.getTextColor(context),
+                                          fontSize: 15),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              14.heightBox,
+                              InkWell(
+                                onTap: () {
+                                  MasterPasswordDialog()
+                                      .showMasterPasswordDialog(
+                                          context: context,
+                                          export: true,
+                                          backupType: "DRIVE");
+                                },
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      child: Image.asset(
+                                        ImageConstanst.isDrive,
+                                        color: Colors.blue,
+                                      ),
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.grey.shade800),
+                                      height: 38,
+                                      width: 38,
+                                    ),
+                                    10.widthBox,
+                                    Text(LocaleKeys.gDrive.tr,
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 15))
+                                  ],
+                                ),
+                              ),
+                              14.heightBox,
+                              InkWell(
+                                onTap: () {
+                                  MasterPasswordDialog()
+                                      .showMasterPasswordDialog(
+                                          context: context,
+                                          export: true,
+                                          backupType: "DB");
+                                },
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      child: Image.asset(ImageConstanst.isDb,
+                                          color: Colors.blue),
+                                      height: 38,
+                                      width: 38,
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.grey.shade800),
+                                    ),
+                                    10.widthBox,
+                                    Text(LocaleKeys.dbFile.tr,
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 15))
+                                  ],
+                                ),
+                              ),
+                              14.heightBox
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                /*     InkWell(
                         onTap: (){
                           MyDialog().showMasterPasswordDialog( context: context, export: true);
                         },
@@ -435,45 +418,45 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                           ),
                         ),
                       ),*/
-                      20.heightBox,
-                      InkWell(
-                        onTap: () {
-                          MasterPasswordDialog().showMasterPasswordDialog(
-                              context: context, export: false, backupType: "");
-                          print("backup");
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                              color: Helper.getCardColor(context),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10))),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 15, right: 5, top: 3, bottom: 3),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    LocaleKeys.restore.tr,
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        color: Helper.getTextColor(context)),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 5.0),
-                                  child: Icon(
-                                    Icons.arrow_forward_ios_outlined,
-                                    size: 16,
-                                  ),
-                                )
-                              ],
+                20.heightBox,
+                InkWell(
+                  onTap: () {
+                    MasterPasswordDialog().showMasterPasswordDialog(
+                        context: context, export: false, backupType: "");
+                    print("backup");
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                        color: Helper.getCardColor(context),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10))),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 15, right: 5, top: 3, bottom: 3),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              LocaleKeys.restore.tr,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Helper.getTextColor(context)),
                             ),
                           ),
-                        ),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 5.0),
+                            child: Icon(
+                              Icons.arrow_forward_ios_outlined,
+                              size: 16,
+                            ),
+                          )
+                        ],
                       ),
-                      /*  ListView.builder(
+                    ),
+                  ),
+                ),
+                /*  ListView.builder(
                         itemCount: data.length > 1 ? data.length - 1 : 0,
                         // Adjusted for skipping the header row
                         itemBuilder: (context, index) {
@@ -522,14 +505,10 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                           );
                         },
                       ),*/
-                    ],
-                  ),
-                ),
-              ));
-        }
-        return Container();
-      },
-    );
+              ],
+            ),
+          ),
+        ));
   }
 
   void languageBottomSheet() {
@@ -545,7 +524,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
-        return CurrencyBottomSheet(setData : _setDataFromBottomSheet);
+        return CurrencyBottomSheet(setData: _setDataFromBottomSheet);
       },
     );
   }

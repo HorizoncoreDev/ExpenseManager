@@ -1,8 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:expense_manager/dashboard/dashboard.dart';
 import 'package:expense_manager/db_models/language_category_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
-import 'package:expense_manager/intro_screen/bloc/bloc.dart';
 import 'package:expense_manager/sign_in/sign_in_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -10,7 +8,6 @@ import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 import '../utils/global.dart';
 
@@ -22,7 +19,6 @@ class IntroScreen extends StatefulWidget {
 }
 
 class _IntroScreenState extends State<IntroScreen> {
-  IntroBloc introBloc = IntroBloc();
   List<LanguageCategory> languageTypes = [];
   final databaseHelper = DatabaseHelper.instance;
   LanguageCategory? language;
@@ -92,7 +88,6 @@ class _IntroScreenState extends State<IntroScreen> {
 
   @override
   Widget build(BuildContext context) {
-    introBloc.context = context;
     return Scaffold(
         body: Container(
       width: double.infinity,
@@ -214,18 +209,15 @@ class _IntroScreenState extends State<IntroScreen> {
                                   SharedPreferencesKeys.languageCode,
                                   language!.code);
                               Locale getLocale;
-                              if(language!.code == "en"){
+                              if (language!.code == "en") {
                                 getLocale = const Locale('en', 'US');
                                 Get.updateLocale(getLocale);
                                 print("local en is $getLocale");
-                              }
-                              else if(language!.code == "hi"){
+                              } else if (language!.code == "hi") {
                                 getLocale = const Locale('hi', 'IN');
                                 Get.updateLocale(getLocale);
                                 print("local hi is $getLocale");
-
-                              }
-                              else if(language!.code == "gu"){
+                              } else if (language!.code == "gu") {
                                 getLocale = const Locale('gu', 'GJ');
                                 Get.updateLocale(getLocale);
                                 print("local gu is $getLocale");

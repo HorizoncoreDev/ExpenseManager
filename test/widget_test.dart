@@ -35,7 +35,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Scroll to make the widget visible
-    await tester.drag(find.byType(SingleChildScrollView), const Offset(0.0, -300.0));
+    await tester.drag(
+        find.byType(SingleChildScrollView), const Offset(0.0, -300.0));
     await tester.pump();
 
     expect(find.text('Start'), findsOneWidget);
@@ -47,5 +48,4 @@ void main() {
       print('Tapped on the widget with text "Start"');
     }
   });
-
 }

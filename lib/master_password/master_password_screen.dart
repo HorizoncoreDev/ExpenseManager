@@ -1,25 +1,27 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:csv/csv.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/drive_upload_import/drive_service.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
+import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/views/custom_text_form_field.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MasterPasswordDialog {
-  TextEditingController generateMasterPasswordController = TextEditingController();
+  TextEditingController generateMasterPasswordController =
+      TextEditingController();
   TextEditingController masterPasswordController = TextEditingController();
   String encodedPassword = "";
   String decodedPassword = "";
@@ -29,15 +31,20 @@ class MasterPasswordDialog {
   List<List<dynamic>> data = [];
   int catType = 1;
   bool isSkippedUser = false;
+
   // FirebaseAuth? _firebaseAuth;
   String email = "";
   final _driveService = DriveService();
   String? fileId;
   String fileName = "";
 
-  Future<void> showMasterPasswordDialog({required BuildContext context, required bool export, required String backupType}) async {
-    MySharedPreferences.instance.getBoolValuesSF(
-        SharedPreferencesKeys.isMasterPasswordGenerated).then((value) {
+  Future<void> showMasterPasswordDialog(
+      {required BuildContext context,
+      required bool export,
+      required String backupType}) async {
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isMasterPasswordGenerated)
+        .then((value) {
       if (value != null) isMPGenerate = value;
     });
 
@@ -62,10 +69,10 @@ class MasterPasswordDialog {
         .onValue
         .listen((event) async {
       DataSnapshot dataSnapshot = event.snapshot;
-      Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic,
-          dynamic>;
+      Map<dynamic, dynamic> values =
+          dataSnapshot.value as Map<dynamic, dynamic>;
       getMasterPassword = values['master_password'];
-      if(getMasterPassword.isNotEmpty){
+      if (getMasterPassword.isNotEmpty) {
         isMPGenerate = true;
       }
     });
@@ -73,8 +80,8 @@ class MasterPasswordDialog {
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: (BuildContext context,
-              void Function(void Function()) setState) {
+          builder:
+              (BuildContext context, void Function(void Function()) setState) {
             return AlertDialog(
               title: Text(LocaleKeys.masterPassword.tr),
               content: SingleChildScrollView(
@@ -104,11 +111,11 @@ class MasterPasswordDialog {
                         return null;
                       },
                     ),
-                    if (isMPGenerate)...[
+                    if (isMPGenerate) ...[
                       10.heightBox,
                       InkWell(
                         onTap: () async {
-                        /*  try {
+                          /*  try {
                             await _firebaseAuth!.sendPasswordResetEmail(email: email);
                           } on FirebaseAuthException catch (err) {
                             throw Exception(err.message.toString());
@@ -133,7 +140,7 @@ class MasterPasswordDialog {
                       },
                       child: Text(LocaleKeys.close.tr),
                     ),
-                    if(isMPGenerate && getMasterPassword.isNotEmpty)
+                    if (isMPGenerate && getMasterPassword.isNotEmpty)
                       TextButton(
                         onPressed: () async {
                           FirebaseDatabase.instance
@@ -143,50 +150,51 @@ class MasterPasswordDialog {
                               .onValue
                               .listen((event) async {
                             DataSnapshot dataSnapshot = event.snapshot;
-                            Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+                            Map<dynamic, dynamic> values =
+                                dataSnapshot.value as Map<dynamic, dynamic>;
                             print("value is ${values['master_password']}");
-                            getMasterPassword = await decryptData(values['master_password']);
+                            getMasterPassword =
+                                await decryptData(values['master_password']);
                             print("value is $getMasterPassword");
                             if (masterPasswordController.text.isEmpty) {
                               Helper.showToast(LocaleKeys.enterPassword.tr);
-                            } else
-                            if (masterPasswordController.text.length < 8) {
-                              Helper.showToast(
-                                  LocaleKeys.eightCharacterPw.tr);
+                            } else if (masterPasswordController.text.length <
+                                8) {
+                              Helper.showToast(LocaleKeys.eightCharacterPw.tr);
                             } else if (masterPasswordController.text !=
                                 getMasterPassword) {
                               print("value iss $getMasterPassword");
-                              print("value isss ${masterPasswordController
-                                  .text}");
+                              print(
+                                  "value isss ${masterPasswordController.text}");
                               Helper.showToast(LocaleKeys.wrongPassword.tr);
                             } else if (masterPasswordController.text ==
                                 getMasterPassword) {
                               Helper.showToast(
                                   LocaleKeys.submitSuccessfully.tr);
-                              if(export){
+                              if (export) {
                                 Navigator.pop(context);
-                                if(backupType == "CSV"){
+                                if (backupType == "CSV") {
                                   exportCSVFile();
-                                }
-                                else if(backupType == "DRIVE"){
+                                } else if (backupType == "DRIVE") {
                                   exportFileOnDrive(context);
+                                } else if (backupType == "DB") {
+                                } else {
+                                  Helper.showToast(
+                                      LocaleKeys.selectBackupType.tr);
                                 }
-                                else if(backupType == "DB"){
-
-                                }
-                                else{
-                                  Helper.showToast(LocaleKeys.selectBackupType.tr);
-                                }
-                              }
-                              else {
-                                FilePickerResult? result = await FilePicker.platform.pickFiles(
+                              } else {
+                                FilePickerResult? result =
+                                    await FilePicker.platform.pickFiles(
                                   type: FileType.custom,
                                   allowedExtensions: ['csv'],
                                 );
                                 if (result != null) {
                                   PlatformFile file = result.files.first;
-                                  String? rawData = await File(file.path!).readAsString();
-                                  List<List<dynamic>> listData = const CsvToListConverter().convert(rawData!);
+                                  String? rawData =
+                                      await File(file.path!).readAsString();
+                                  List<List<dynamic>> listData =
+                                      const CsvToListConverter()
+                                          .convert(rawData!);
                                   setState(() {
                                     data = listData;
                                   });
@@ -202,7 +210,7 @@ class MasterPasswordDialog {
                         },
                         child: Text(LocaleKeys.submit.tr),
                       ),
-                    if(!isMPGenerate )
+                    if (!isMPGenerate)
                       TextButton(
                         onPressed: () {
                           createMP(context, setState);
@@ -295,7 +303,8 @@ class MasterPasswordDialog {
   }
 
   ///upload file in drive
-  Future<String?> uploadDrive(BuildContext context, String filePath, String fileName) async {
+  Future<String?> uploadDrive(
+      BuildContext context, String filePath, String fileName) async {
     final bool exists = await File(filePath).exists();
     if (!exists) {
       Helper.showToast('${LocaleKeys.fileNotExist.tr}: $filePath');
@@ -315,12 +324,13 @@ class MasterPasswordDialog {
   }
 
   ///download file from drive
-  Future<void> downloadCsvFileFromDrive(String fileId) async  {
+  Future<void> downloadCsvFileFromDrive(String fileId) async {
     String dir = (await getExternalStorageDirectory())!.path;
 
     String downloadedFilePath = '$dir/downloaded_file.csv';
 
-    String? filePath = await _driveService.downloadFile(fileId, downloadedFilePath);
+    String? filePath =
+        await _driveService.downloadFile(fileId, downloadedFilePath);
 
     if (filePath != null) {
       Helper.showToast('${LocaleKeys.fileDownloadAt.tr}: $filePath');
@@ -329,12 +339,9 @@ class MasterPasswordDialog {
     }
   }
 
-
-
   void addDataIntoTransactionTable(BuildContext context) async {
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(transaction_table);
+    final reference =
+        FirebaseDatabase.instance.reference().child(transaction_table);
     var newPostRef = reference.push();
     for (int i = 1; i < data.length; i++) {
       /// Start from index 1 to skip the header row
@@ -345,12 +352,13 @@ class MasterPasswordDialog {
       int amount = data[i][1];
       String email = data[i][0].toString();
 
-      int? catIds = await DatabaseHelper().getCategoryID(categoryName, categoryType, transactionType);
-      String? catIcon = await DatabaseHelper().getCategoryIcon(catIds, /*categoryName*/ categoryType, transactionType);
+      int? catIds = await DatabaseHelper()
+          .getCategoryID(categoryName, categoryType, transactionType);
+      String? catIcon = await DatabaseHelper().getCategoryIcon(
+          catIds, /*categoryName*/ categoryType, transactionType);
       // int? catColorHex = await DatabaseHelper().getCategoryColor(/*catIds,*/ categoryName, categoryType, transactionType);
       // Color catColor = catColorHex != null ? Color(catColorHex) : Colors.blueAccent;
       print("Id is $catIds");
-
 
       TransactionModel transactionModel = TransactionModel(
         // member_id: data[i][0],
@@ -358,17 +366,22 @@ class MasterPasswordDialog {
         member_email: email,
         amount: amount,
         expense_cat_id: categoryType == 0 && transactionType == 1 ? catIds : -1,
-        sub_expense_cat_id: categoryType == 1 && transactionType == 1 ? catIds : -1,
+        sub_expense_cat_id:
+            categoryType == 1 && transactionType == 1 ? catIds : -1,
         income_cat_id: categoryType == 0 && transactionType == 2 ? catIds : -1,
-        sub_income_cat_id: categoryType == 1 && transactionType == 2 ? catIds : -1,
+        sub_income_cat_id:
+            categoryType == 1 && transactionType == 2 ? catIds : -1,
         cat_name: categoryName,
         cat_type: categoryType,
         cat_color: Colors.blueAccent,
         cat_icon: catIcon ?? "ic_card",
-        payment_method_id: data[i][4] == "Cash" ? 1
-            : data[i][4] == "Online" ? 2
-            : data[i][4] == "Card" ? 3
-            : 1,
+        payment_method_id: data[i][4] == "Cash"
+            ? 1
+            : data[i][4] == "Online"
+                ? 2
+                : data[i][4] == "Card"
+                    ? 3
+                    : 1,
         payment_method_name: data[i][4],
         status: 1,
         transaction_date: data[i][5].toString(),
@@ -382,55 +395,52 @@ class MasterPasswordDialog {
         last_updated: DateTime.now().toString(),
       );
 
-      await DatabaseHelper().insertTransactionData(transactionModel,isSkippedUser).then((value) async {
+      await DatabaseHelper()
+          .insertTransactionData(transactionModel, isSkippedUser)
+          .then((value) async {
         if (value != null) {
-            if (isSkippedUser) {
-              if (transactionType == AppConstanst.spendingTransaction) {
-                MySharedPreferences.instance
-                    .getStringValuesSF(
-                    SharedPreferencesKeys.skippedUserCurrentBalance)
-                    .then((value) {
-                  if (value != null) {
-                    String updateBalance =
-                    (int.parse(value) - amount)
-                        .toString();
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.skippedUserCurrentBalance,
-                        updateBalance);
-                  }
-                });
-              } else {
-                MySharedPreferences.instance
-                    .getStringValuesSF(
-                    SharedPreferencesKeys.skippedUserCurrentIncome)
-                    .then((value) {
-                  if (value != null) {
-                    String updateBalance =
-                    (int.parse(value) + amount)
-                        .toString();
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.skippedUserCurrentIncome,
-                        updateBalance);
-                  }
-                });
-              }
-            } else {
-              await DatabaseHelper.instance.getProfileData(email)
-                  .then((profileData) async {
-                if (transactionType == AppConstanst.spendingTransaction) {
-                  profileData!.current_balance =
-                      (int.parse(profileData.current_balance!) -
-                          amount)
-                          .toString();
-                } else {
-                  profileData!.current_income =
-                      (int.parse(profileData.current_income!) +
-                          amount)
-                          .toString();
+          if (isSkippedUser) {
+            if (transactionType == AppConstanst.spendingTransaction) {
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                      SharedPreferencesKeys.skippedUserCurrentBalance)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance = (int.parse(value) - amount).toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentBalance,
+                      updateBalance);
                 }
-                await DatabaseHelper.instance.updateProfileData(profileData);
+              });
+            } else {
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                      SharedPreferencesKeys.skippedUserCurrentIncome)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance = (int.parse(value) + amount).toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentIncome,
+                      updateBalance);
+                }
               });
             }
+          } else {
+            await DatabaseHelper.instance
+                .getProfileData(email)
+                .then((profileData) async {
+              if (transactionType == AppConstanst.spendingTransaction) {
+                profileData!.current_balance =
+                    (int.parse(profileData.current_balance!) - amount)
+                        .toString();
+              } else {
+                profileData!.current_income =
+                    (int.parse(profileData.current_income!) + amount)
+                        .toString();
+              }
+              await DatabaseHelper.instance.updateProfileData(profileData);
+            });
+          }
           // }
         }
       });
@@ -438,7 +448,8 @@ class MasterPasswordDialog {
     }
   }
 
-  void createMP(BuildContext context, void Function(void Function() p1) setState) {
+  void createMP(
+      BuildContext context, void Function(void Function() p1) setState) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -459,8 +470,7 @@ class MasterPasswordDialog {
                   obscureText: true,
                   keyboardType: TextInputType.text,
                   hintText: LocaleKeys.createMPW.tr,
-                  fillColor: Helper.getCardColor(
-                      context),
+                  fillColor: Helper.getCardColor(context),
                   borderColor: Colors.transparent,
                   textStyle: TextStyle(
                     color: Helper.getTextColor(context),
@@ -486,29 +496,21 @@ class MasterPasswordDialog {
                 ),
                 TextButton(
                   onPressed: () async {
-                    if (generateMasterPasswordController
-                        .text.isEmpty) {
-                      Helper.showToast(
-                          LocaleKeys.enterPassword.tr);
-                    } else
-                    if (generateMasterPasswordController
-                        .text.length < 8) {
-                      Helper.showToast(
-                          LocaleKeys.eightCharacterPw.tr);
+                    if (generateMasterPasswordController.text.isEmpty) {
+                      Helper.showToast(LocaleKeys.enterPassword.tr);
+                    } else if (generateMasterPasswordController.text.length <
+                        8) {
+                      Helper.showToast(LocaleKeys.eightCharacterPw.tr);
                     } else {
                       await generatingPassword();
-                      Helper.showToast(
-                          LocaleKeys.passwordGenerate.tr);
-                      MySharedPreferences.instance
-                          .addBoolToSF(
-                          SharedPreferencesKeys
-                              .isMasterPasswordGenerated,
+                      Helper.showToast(LocaleKeys.passwordGenerate.tr);
+                      MySharedPreferences.instance.addBoolToSF(
+                          SharedPreferencesKeys.isMasterPasswordGenerated,
                           true);
                       Navigator.pop(context);
                       MySharedPreferences.instance
                           .getBoolValuesSF(
-                          SharedPreferencesKeys
-                              .isMasterPasswordGenerated)
+                              SharedPreferencesKeys.isMasterPasswordGenerated)
                           .then((value) {
                         if (value != null) {
                           setState(() {

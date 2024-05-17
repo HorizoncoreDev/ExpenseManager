@@ -11,14 +11,11 @@ import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import 'add_account_screen.dart';
-import 'bloc/family_account_bloc.dart';
-import 'bloc/family_account_state.dart';
 
 class FamilyAccountScreen extends StatefulWidget {
   const FamilyAccountScreen({super.key});
@@ -28,7 +25,6 @@ class FamilyAccountScreen extends StatefulWidget {
 }
 
 class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
-  FamilyAccountBloc familyAccountBloc = FamilyAccountBloc();
   final databaseHelper = DatabaseHelper.instance;
   String userEmail = '', userName = '', currentUserEmail = '';
   bool isLoading = true;
@@ -149,164 +145,392 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    familyAccountBloc.context = context;
-    return BlocConsumer<FamilyAccountBloc, FamilyAccountState>(
-      bloc: familyAccountBloc,
-      listener: (context, state) {},
-      builder: (context, state) {
-        if (state is FamilyAccountInitial) {
-          return Scaffold(
-              appBar: AppBar(
-                titleSpacing: 15,
-                automaticallyImplyLeading: false,
-                backgroundColor: Helper.getBackgroundColor(context),
-                title: Row(
+    return Scaffold(
+        appBar: AppBar(
+          titleSpacing: 15,
+          automaticallyImplyLeading: false,
+          backgroundColor: Helper.getBackgroundColor(context),
+          title: Row(
+            children: [
+              InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Helper.getTextColor(context),
+                  )),
+              Text(LocaleKeys.myAccount.tr,
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Helper.getTextColor(context),
+                  )),
+            ],
+          ),
+        ),
+        bottomNavigationBar: InkWell(
+          onTap: () {
+            MyDialog().showAddAccountDialog(
+                context: context, profileModel: profileData!);
+          },
+          child: Container(
+            width: double.infinity,
+            height: 50,
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            child: Text(
+              LocaleKeys.addAccount.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
+          ),
+        ),
+        body: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.blue,
+                ),
+              )
+            : Container(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                width: double.infinity,
+                color: Helper.getBackgroundColor(context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                          color: Helper.getTextColor(context),
-                        )),
-                    Text(LocaleKeys.myAccount.tr,
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: Helper.getTextColor(context),
-                        )),
-                  ],
-                ),
-              ),
-              bottomNavigationBar: InkWell(
-                onTap: () {
-                  MyDialog().showAddAccountDialog(
-                      context: context, profileModel: profileData!);
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Text(
-                    LocaleKeys.addAccount.tr,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-              ),
-              body: isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.blue,
-                      ),
-                    )
-                  : Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      width: double.infinity,
-                      color: Helper.getBackgroundColor(context),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          10.heightBox,
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  accessRequestList.isNotEmpty
-                                      ? "${LocaleKeys.currently.tr} ${1 + accessRequestList.length} ${LocaleKeys.members.tr}"
-                                      : LocaleKeys.currentlyMember.tr,
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context)),
+                    10.heightBox,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            accessRequestList.isNotEmpty
+                                ? "${LocaleKeys.currently.tr} ${1 + accessRequestList.length} ${LocaleKeys.members.tr}"
+                                : LocaleKeys.currentlyMember.tr,
+                            style:
+                                TextStyle(color: Helper.getTextColor(context)),
+                          ),
+                        ),
+                        RichText(
+                            text: TextSpan(
+                                text: '${LocaleKeys.code.tr}: ',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.blue,
+                                ),
+                                children: [
+                              TextSpan(
+                                text: profileData != null
+                                    ? profileData!.user_code
+                                    : '',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.blue,
                                 ),
                               ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: '${LocaleKeys.code.tr}: ',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.blue,
-                                      ),
-                                      children: [
-                                    TextSpan(
-                                      text: profileData != null
-                                          ? profileData!.user_code
-                                          : '',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ])),
-                            ],
-                          ),
-                          10.heightBox,
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                currentUserEmail = userEmail;
-                              });
-                              MySharedPreferences.instance.addStringToSF(
-                                  SharedPreferencesKeys.currentUserEmail,
-                                  userEmail);
-                              MySharedPreferences.instance.addStringToSF(
-                                  SharedPreferencesKeys.currentUserName,
-                                  userName);
+                            ])),
+                      ],
+                    ),
+                    10.heightBox,
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          currentUserEmail = userEmail;
+                        });
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.currentUserEmail, userEmail);
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.currentUserName, userName);
 
-                              MySharedPreferences.instance.addStringToSF(
-                                  SharedPreferencesKeys.currentUserKey,
-                                  FirebaseAuth.instance.currentUser!.uid);
-                            },
-                            child: Container(
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.currentUserKey,
+                            FirebaseAuth.instance.currentUser!.uid);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
+                          borderRadius: accessRequestList.isEmpty
+                              ? const BorderRadius.all(Radius.circular(10))
+                              : const BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  topRight: Radius.circular(10)),
+                        ),
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 7, horizontal: 7),
                               decoration: BoxDecoration(
-                                color: Helper.getCardColor(context),
-                                borderRadius: accessRequestList.isEmpty
-                                    ? const BorderRadius.all(
-                                        Radius.circular(10))
-                                    : const BorderRadius.only(
-                                        topLeft: Radius.circular(10),
-                                        topRight: Radius.circular(10)),
+                                  color: Helper.getBackgroundColor(context),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10))),
+                              child: Text(
+                                profileData != null
+                                    ? Helper.getShortName(
+                                        profileData!.first_name!,
+                                        profileData!.last_name!)
+                                    : 'AB',
+                                style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
                               ),
-                              padding: const EdgeInsets.all(10),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 7, horizontal: 7),
-                                    decoration: BoxDecoration(
-                                        color:
-                                            Helper.getBackgroundColor(context),
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10))),
-                                    child: Text(
-                                      profileData != null
-                                          ? Helper.getShortName(
-                                              profileData!.first_name!,
-                                              profileData!.last_name!)
-                                          : 'AB',
-                                      style: const TextStyle(
-                                          color: Colors.blue,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
+                            ),
+                            20.widthBox,
+                            Text(
+                              profileData != null
+                                  ? profileData!.full_name!
+                                  : '',
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            if (currentUserEmail == userEmail)
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: SvgPicture.asset(
+                                    'asset/images/ic_accept.svg',
+                                    color: Colors.green,
+                                    height: 24,
+                                    width: 24,
+                                  ),
+                                ),
+                              )
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (accessRequestList.isNotEmpty)
+                      const Divider(
+                        thickness: 1,
+                        height: 1,
+                        color: Colors.black12,
+                      ),
+                    if (accessRequestList.isNotEmpty)
+                      Flexible(
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
+                              borderRadius: const BorderRadius.only(
+                                  bottomLeft: Radius.circular(10),
+                                  bottomRight: Radius.circular(10))),
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            physics: const ScrollPhysics(),
+                            itemCount: accessRequestList.length,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    currentUserEmail = accessRequestList[index]!
+                                        .receiver_email!;
+                                  });
+                                  MySharedPreferences.instance.addStringToSF(
+                                      SharedPreferencesKeys.currentUserEmail,
+                                      accessRequestList[index]!.receiver_email);
+                                  MySharedPreferences.instance.addStringToSF(
+                                      SharedPreferencesKeys.currentUserName,
+                                      accessRequestList[index]!.receiver_name);
+
+                                  final reference = FirebaseDatabase.instance
+                                      .reference()
+                                      .child(profile_table)
+                                      .orderByChild(ProfileTableFields.email)
+                                      .equalTo(currentUserEmail);
+
+                                  reference.onValue.listen((event) {
+                                    DataSnapshot dataSnapshot = event.snapshot;
+                                    if (event.snapshot.exists) {
+                                      Map<dynamic, dynamic> values =
+                                          dataSnapshot.value
+                                              as Map<dynamic, dynamic>;
+                                      values.forEach((key, value) async {
+                                        MySharedPreferences.instance
+                                            .addStringToSF(
+                                                SharedPreferencesKeys
+                                                    .currentUserKey,
+                                                value[ProfileTableFields.key]);
+                                      });
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 7, horizontal: 7),
+                                        decoration: BoxDecoration(
+                                            color: Helper.getBackgroundColor(
+                                                context),
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(10))),
+                                        child: Text(
+                                          Helper.getShortName(
+                                              accessRequestList[index]!
+                                                  .receiver_name!
+                                                  .split(' ')[0],
+                                              accessRequestList[index]!
+                                                  .receiver_name!
+                                                  .split(' ')[1]),
+                                          style: const TextStyle(
+                                              color: Colors.blue,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      20.widthBox,
+                                      Expanded(
+                                        child: Text(
+                                          accessRequestList[index]!
+                                              .receiver_name!,
+                                          style: TextStyle(
+                                              color:
+                                                  Helper.getTextColor(context),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      if (currentUserEmail ==
+                                          accessRequestList[index]!
+                                              .receiver_email)
+                                        Expanded(
+                                          child: Align(
+                                            alignment: Alignment.centerRight,
+                                            child: SvgPicture.asset(
+                                              'asset/images/ic_accept.svg',
+                                              color: Colors.green,
+                                              height: 24,
+                                              width: 24,
+                                            ),
+                                          ),
+                                        ),
+                                      10.widthBox,
+                                      InkWell(
+                                        onTap: () {
+                                          if (currentUserEmail !=
+                                              accessRequestList[index]!
+                                                  .requester_email) {
+                                            setState(() {
+                                              currentUserEmail = userEmail;
+                                            });
+                                            MySharedPreferences.instance
+                                                .addStringToSF(
+                                                    SharedPreferencesKeys
+                                                        .currentUserEmail,
+                                                    userEmail);
+                                            MySharedPreferences.instance
+                                                .addStringToSF(
+                                                    SharedPreferencesKeys
+                                                        .currentUserName,
+                                                    userName);
+
+                                            MySharedPreferences.instance
+                                                .addStringToSF(
+                                                    SharedPreferencesKeys
+                                                        .currentUserKey,
+                                                    FirebaseAuth.instance
+                                                        .currentUser!.uid);
+                                          }
+
+                                          _removeAccessRequest(
+                                              accessRequestList[index]!);
+                                        },
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 30,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return const Divider(
+                                thickness: 1,
+                                height: 1,
+                                color: Colors.black12,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    15.heightBox,
+                    if (requestList.isNotEmpty)
+                      Row(
+                        children: [
+                          Text(
+                            '${LocaleKeys.requests.tr}(${requestList.length})',
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 18),
+                          ),
+                        ],
+                      ),
+                    if (requestList.isNotEmpty) 5.heightBox,
+                    if (requestList.isNotEmpty)
+                      Flexible(
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Helper.getCardColor(context),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10))),
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            physics: const ScrollPhysics(),
+                            itemCount: requestList.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                padding: const EdgeInsets.all(10),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 7, horizontal: 7),
+                                      decoration: BoxDecoration(
+                                          color: Helper.getBackgroundColor(
+                                              context),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(10))),
+                                      child: Text(
+                                        Helper.getShortName(
+                                            requestList[index]!
+                                                .requester_name!
+                                                .split(' ')[0],
+                                            requestList[index]!
+                                                .requester_name!
+                                                .split(' ')[1]),
+                                        style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
                                     ),
-                                  ),
-                                  20.widthBox,
-                                  Text(
-                                    profileData != null
-                                        ? profileData!.full_name!
-                                        : '',
-                                    style: TextStyle(
-                                        color: Helper.getTextColor(context),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  if (currentUserEmail == userEmail)
+                                    20.widthBox,
                                     Expanded(
-                                      child: Align(
-                                        alignment: Alignment.centerRight,
+                                      child: Text(
+                                        requestList[index]!.requester_name!,
+                                        style: TextStyle(
+                                            color: Helper.getTextColor(context),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    if (requestList[index]!.status ==
+                                        AppConstanst.pendingRequest)
+                                      InkWell(
+                                        onTap: () {
+                                          _acceptRequest(requestList[index]!);
+                                        },
                                         child: SvgPicture.asset(
                                           'asset/images/ic_accept.svg',
                                           color: Colors.green,
@@ -314,319 +538,49 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                           width: 24,
                                         ),
                                       ),
-                                    )
-                                ],
-                              ),
-                            ),
+                                    if (requestList[index]!.status ==
+                                        AppConstanst.pendingRequest)
+                                      8.widthBox,
+                                    if (requestList[index]!.status ==
+                                        AppConstanst.pendingRequest)
+                                      InkWell(
+                                          onTap: () {
+                                            _rejectRequest(requestList[index]!);
+                                          },
+                                          child: SvgPicture.asset(
+                                            'asset/images/ic_reject.svg',
+                                            height: 24,
+                                            width: 24,
+                                          )),
+                                    if (requestList[index]!.status ==
+                                        AppConstanst.acceptedRequest)
+                                      InkWell(
+                                          onTap: () {
+                                            _removeRequest(requestList[index]!);
+                                          },
+                                          child: const Icon(
+                                            Icons.remove_circle_rounded,
+                                            color: Colors.red,
+                                            size: 30,
+                                          ))
+                                  ],
+                                ),
+                              );
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return const Divider(
+                                thickness: 1,
+                                height: 1,
+                                color: Colors.black12,
+                              );
+                            },
                           ),
-                          if (accessRequestList.isNotEmpty)
-                            const Divider(
-                              thickness: 1,
-                              height: 1,
-                              color: Colors.black12,
-                            ),
-                          if (accessRequestList.isNotEmpty)
-                            Flexible(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Helper.getCardColor(context),
-                                    borderRadius: const BorderRadius.only(
-                                        bottomLeft: Radius.circular(10),
-                                        bottomRight: Radius.circular(10))),
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const ScrollPhysics(),
-                                  itemCount: accessRequestList.length,
-                                  itemBuilder: (context, index) {
-                                    return InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          currentUserEmail =
-                                              accessRequestList[index]!
-                                                  .receiver_email!;
-                                        });
-                                        MySharedPreferences.instance
-                                            .addStringToSF(
-                                                SharedPreferencesKeys
-                                                    .currentUserEmail,
-                                                accessRequestList[index]!
-                                                    .receiver_email);
-                                        MySharedPreferences.instance
-                                            .addStringToSF(
-                                                SharedPreferencesKeys
-                                                    .currentUserName,
-                                                accessRequestList[index]!
-                                                    .receiver_name);
-
-                                        final reference = FirebaseDatabase
-                                            .instance
-                                            .reference()
-                                            .child(profile_table)
-                                            .orderByChild(
-                                                ProfileTableFields.email)
-                                            .equalTo(currentUserEmail);
-
-                                        reference.onValue.listen((event) {
-                                          DataSnapshot dataSnapshot =
-                                              event.snapshot;
-                                          if (event.snapshot.exists) {
-                                            Map<dynamic, dynamic> values =
-                                                dataSnapshot.value
-                                                    as Map<dynamic, dynamic>;
-                                            values.forEach((key, value) async {
-                                              MySharedPreferences.instance
-                                                  .addStringToSF(
-                                                      SharedPreferencesKeys
-                                                          .currentUserKey,
-                                                      value[ProfileTableFields
-                                                          .key]);
-                                            });
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 7,
-                                                      horizontal: 7),
-                                              decoration: BoxDecoration(
-                                                  color:
-                                                      Helper.getBackgroundColor(
-                                                          context),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(10))),
-                                              child: Text(
-                                                Helper.getShortName(
-                                                    accessRequestList[index]!
-                                                        .receiver_name!
-                                                        .split(' ')[0],
-                                                    accessRequestList[index]!
-                                                        .receiver_name!
-                                                        .split(' ')[1]),
-                                                style: const TextStyle(
-                                                    color: Colors.blue,
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                            20.widthBox,
-                                            Expanded(
-                                              child: Text(
-                                                accessRequestList[index]!
-                                                    .receiver_name!,
-                                                style: TextStyle(
-                                                    color: Helper.getTextColor(
-                                                        context),
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                            if (currentUserEmail ==
-                                                accessRequestList[index]!
-                                                    .receiver_email)
-                                              Expanded(
-                                                child: Align(
-                                                  alignment:
-                                                      Alignment.centerRight,
-                                                  child: SvgPicture.asset(
-                                                    'asset/images/ic_accept.svg',
-                                                    color: Colors.green,
-                                                    height: 24,
-                                                    width: 24,
-                                                  ),
-                                                ),
-                                              ),
-                                            10.widthBox,
-                                            InkWell(
-                                              onTap: () {
-                                                if (currentUserEmail !=
-                                                    accessRequestList[index]!
-                                                        .requester_email) {
-                                                  setState(() {
-                                                    currentUserEmail =
-                                                        userEmail;
-                                                  });
-                                                  MySharedPreferences.instance
-                                                      .addStringToSF(
-                                                          SharedPreferencesKeys
-                                                              .currentUserEmail,
-                                                          userEmail);
-                                                  MySharedPreferences.instance
-                                                      .addStringToSF(
-                                                          SharedPreferencesKeys
-                                                              .currentUserName,
-                                                          userName);
-
-                                                  MySharedPreferences.instance
-                                                      .addStringToSF(
-                                                          SharedPreferencesKeys
-                                                              .currentUserKey,
-                                                          FirebaseAuth
-                                                              .instance
-                                                              .currentUser!
-                                                              .uid);
-                                                }
-
-                                                _removeAccessRequest(
-                                                    accessRequestList[index]!);
-                                              },
-                                              child: const Icon(
-                                                Icons.delete,
-                                                color: Colors.red,
-                                                size: 30,
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  separatorBuilder:
-                                      (BuildContext context, int index) {
-                                    return const Divider(
-                                      thickness: 1,
-                                      height: 1,
-                                      color: Colors.black12,
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          15.heightBox,
-                          if (requestList.isNotEmpty)
-                            Row(
-                              children: [
-                                Text(
-                                  '${LocaleKeys.requests.tr}(${requestList.length})',
-                                  style: TextStyle(
-                                      color: Helper.getTextColor(context),
-                                      fontSize: 18),
-                                ),
-                              ],
-                            ),
-                          if (requestList.isNotEmpty) 5.heightBox,
-                          if (requestList.isNotEmpty)
-                            Flexible(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Helper.getCardColor(context),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(10))),
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const ScrollPhysics(),
-                                  itemCount: requestList.length,
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      padding: const EdgeInsets.all(10),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 7, horizontal: 7),
-                                            decoration: BoxDecoration(
-                                                color:
-                                                    Helper.getBackgroundColor(
-                                                        context),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                        Radius.circular(10))),
-                                            child: Text(
-                                              Helper.getShortName(
-                                                  requestList[index]!
-                                                      .requester_name!
-                                                      .split(' ')[0],
-                                                  requestList[index]!
-                                                      .requester_name!
-                                                      .split(' ')[1]),
-                                              style: const TextStyle(
-                                                  color: Colors.blue,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          20.widthBox,
-                                          Expanded(
-                                            child: Text(
-                                              requestList[index]!
-                                                  .requester_name!,
-                                              style: TextStyle(
-                                                  color: Helper.getTextColor(
-                                                      context),
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          if (requestList[index]!.status ==
-                                              AppConstanst.pendingRequest)
-                                            InkWell(
-                                              onTap: () {
-                                                _acceptRequest(
-                                                    requestList[index]!);
-                                              },
-                                              child: SvgPicture.asset(
-                                                'asset/images/ic_accept.svg',
-                                                color: Colors.green,
-                                                height: 24,
-                                                width: 24,
-                                              ),
-                                            ),
-                                          if (requestList[index]!.status ==
-                                              AppConstanst.pendingRequest)
-                                            8.widthBox,
-                                          if (requestList[index]!.status ==
-                                              AppConstanst.pendingRequest)
-                                            InkWell(
-                                                onTap: () {
-                                                  _rejectRequest(
-                                                      requestList[index]!);
-                                                },
-                                                child: SvgPicture.asset(
-                                                  'asset/images/ic_reject.svg',
-                                                  height: 24,
-                                                  width: 24,
-                                                )),
-                                          if (requestList[index]!.status ==
-                                              AppConstanst.acceptedRequest)
-                                            InkWell(
-                                                onTap: () {
-                                                  _removeRequest(
-                                                      requestList[index]!);
-                                                },
-                                                child: const Icon(
-                                                  Icons.remove_circle_rounded,
-                                                  color: Colors.red,
-                                                  size: 30,
-                                                ))
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                  separatorBuilder:
-                                      (BuildContext context, int index) {
-                                    return const Divider(
-                                      thickness: 1,
-                                      height: 1,
-                                      color: Colors.black12,
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                        ],
+                        ),
                       ),
-                    ));
-        }
-        return Container();
-      },
-    );
+                  ],
+                ),
+              ));
   }
 
   _acceptRequest(RequestModel requestModel) {

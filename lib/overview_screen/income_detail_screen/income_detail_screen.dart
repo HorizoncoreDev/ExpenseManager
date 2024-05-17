@@ -11,7 +11,6 @@ import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -19,8 +18,6 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import '../../utils/views/custom_text_form_field.dart';
 import '../edit_spending/edit_spending_screen.dart';
-import 'bloc/income_detail_bloc.dart';
-import 'bloc/income_detail_state.dart';
 
 class IncomeDetailScreen extends StatefulWidget {
   const IncomeDetailScreen({super.key});
@@ -30,7 +27,6 @@ class IncomeDetailScreen extends StatefulWidget {
 }
 
 class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
-  IncomeDetailBloc incomeDetailBloc = IncomeDetailBloc();
   TextEditingController searchController = TextEditingController();
 
   String currentUserEmail = "";
@@ -83,22 +79,20 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
             currentUserEmail = value;
           }
           MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.userEmail)
-            .then((value) {
-          if (value != null) {
-            userEmail = value;
-          }
-          MySharedPreferences.instance
-              .getStringValuesSF(
-              SharedPreferencesKeys
-                  .currentUserKey)
+              .getStringValuesSF(SharedPreferencesKeys.userEmail)
               .then((value) {
             if (value != null) {
-              userKey = value;
+              userEmail = value;
             }
-            getIncomeTransactions("");
+            MySharedPreferences.instance
+                .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
+                .then((value) {
+              if (value != null) {
+                userKey = value;
+              }
+              getIncomeTransactions("");
+            });
           });
-        });
         });
       }
     });
@@ -121,9 +115,9 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
 
   getProfileData() async {
     try {
-      if(currentUserEmail==userEmail) {
+      if (currentUserEmail == userEmail) {
         ProfileModel? fetchedProfileData =
-        await databaseHelper.getProfileData(currentUserEmail);
+            await databaseHelper.getProfileData(currentUserEmail);
         setState(() {
           currentBalance = int.parse(fetchedProfileData!.current_balance!);
           actualBudget = int.parse(fetchedProfileData.actual_budget!);
@@ -132,7 +126,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
               ? (currentIncome / actualBudget) * 100
               : 100;
         });
-      }else{
+      } else {
         final reference = FirebaseDatabase.instance
             .reference()
             .child(profile_table)
@@ -143,7 +137,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
           DataSnapshot dataSnapshot = event.snapshot;
           if (event.snapshot.exists) {
             Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
+                dataSnapshot.value as Map<dynamic, dynamic>;
             values.forEach((key, value) async {
               var profileModel = ProfileModel.fromMap(value);
               currentBalance = int.parse(profileModel.current_balance!);
@@ -160,7 +154,6 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
       print('Error fetching Profile Data: $error');
     }
   }
-
 
   getIncomeTransactions(String value) async {
     date = DateFormat('MM/yyyy').format(DateTime.now());
@@ -189,7 +182,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
     List<TransactionModel> incomeTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(value.toLowerCase(), currentUserEmail,userKey,
+        .getTransactionList(value.toLowerCase(), currentUserEmail, userKey,
             AppConstanst.incomeTransaction, isSkippedUser)
         .then((value) async {
       incomeTransaction = value;
@@ -260,7 +253,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
         double percentage = totalMonthlyIncomeAmount > 0
             ? (totalMonthlyIncomeAmount / actualBudget) * 100
             : 100;
-         incomePercentage = totalMonthlyIncomeAmount > 0 ? 100 - percentage : 0;
+        incomePercentage = totalMonthlyIncomeAmount > 0 ? 100 - percentage : 0;
         setState(() {});
       }
     });
@@ -268,487 +261,447 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    incomeDetailBloc.context = context;
-
-    return BlocConsumer<IncomeDetailBloc, IncomeDetailState>(
-      bloc: incomeDetailBloc,
-      listener: (context, state) {},
-      builder: (context, state) {
-        if (state is IncomeDetailInitial) {
-          return SafeArea(
-            child: Scaffold(
-              appBar: AppBar(
-                automaticallyImplyLeading: false,
-                backgroundColor: Helper.getBackgroundColor(context),
-                title: Row(
-                  children: [
-                    InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                          color: Helper.getTextColor(context),
-                          size: 20,
-                        )),
-                    10.widthBox,
-                    Text(date,
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: Helper.getTextColor(context),
-                        )),
-                    Text(" /${AppConstanst.currencySymbol}$actualBudget",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Helper.getTextColor(context),
-                        )),
-                  ],
-                ),
-                actions: [
-                  InkWell(
-                    onTap: () {
-                      showModalBottomSheet<void>(
-                          context: context,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(10),
-                            ),
-                          ),
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          isScrollControlled: true,
-                          builder: (BuildContext context) {
-                            return StatefulBuilder(
-                                builder: (context, setState) {
-                              return WillPopScope(
-                                  onWillPop: () async {
-                                    return true;
-                                  },
-                                  child: Padding(
-                                      padding:
-                                          MediaQuery.of(context).viewInsets,
-                                      child: _bottomSheetView(
-                                          incomeDetailBloc, setState)));
-                            });
-                          });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Helper.getCardColor(context)),
-                      child: Icon(
-                        Icons.filter_alt_rounded,
-                        color: Helper.getTextColor(context),
-                        size: 20,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Helper.getBackgroundColor(context),
+          title: Row(
+            children: [
+              InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Helper.getTextColor(context),
+                    size: 20,
+                  )),
+              10.widthBox,
+              Text(date,
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Helper.getTextColor(context),
+                  )),
+              Text(" /${AppConstanst.currencySymbol}$actualBudget",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Helper.getTextColor(context),
+                  )),
+            ],
+          ),
+          actions: [
+            InkWell(
+              onTap: () {
+                showModalBottomSheet<void>(
+                    context: context,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(10),
                       ),
                     ),
-                  ),
-                  10.widthBox,
-                ],
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    isScrollControlled: true,
+                    builder: (BuildContext context) {
+                      return StatefulBuilder(builder: (context, setState) {
+                        return WillPopScope(
+                            onWillPop: () async {
+                              return true;
+                            },
+                            child: Padding(
+                                padding: MediaQuery.of(context).viewInsets,
+                                child: _bottomSheetView(setState)));
+                      });
+                    });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Helper.getCardColor(context)),
+                child: Icon(
+                  Icons.filter_alt_rounded,
+                  color: Helper.getTextColor(context),
+                  size: 20,
+                ),
               ),
-              body: Container(
-                color: Helper.getBackgroundColor(context),
-                height: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: SingleChildScrollView(
-                    child: Column(
+            ),
+            10.widthBox,
+          ],
+        ),
+        body: Container(
+          color: Helper.getBackgroundColor(context),
+          height: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                    decoration: BoxDecoration(
+                        color: Helper.getCardColor(context),
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 15),
-                          decoration: BoxDecoration(
-                              color: Helper.getCardColor(context),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CircularPercentIndicator(
-                                radius: 25.0,
-                                lineWidth: 5.0,
-                                percent: incomePercentage / 100,
-                                center: Text(
-                                  "${incomePercentage.toPrecision(2)}%",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                progressColor: Colors.pinkAccent,
-                                backgroundColor: Colors.yellow,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(5),
-                                        decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.pinkAccent),
-                                      ),
-                                      5.widthBox,
-                                      Text(
-                                        LocaleKeys.collected.tr,
-                                        style: TextStyle(
-                                            color: Helper.getTextColor(context),
-                                            fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                  Text(
-                                    "${AppConstanst.currencySymbol}$totalMonthlyIncomeAmount",
-                                    style: TextStyle(
-                                        color: Helper.getTextColor(context),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(5),
-                                        decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.yellow),
-                                      ),
-                                      5.widthBox,
-                                      Text(
-                                        LocaleKeys.missing.tr,
-                                        style: TextStyle(
-                                            color: Helper.getTextColor(context),
-                                            fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                  Text(
-                                    "${AppConstanst.currencySymbol}${actualBudget - totalMonthlyIncomeAmount}",
-                                    style: TextStyle(
-                                        color: Helper.getTextColor(context),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              )
-                            ],
+                        CircularPercentIndicator(
+                          radius: 25.0,
+                          lineWidth: 5.0,
+                          percent: incomePercentage / 100,
+                          center: Text(
+                            "${incomePercentage.toPrecision(2)}%",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
                           ),
+                          progressColor: Colors.pinkAccent,
+                          backgroundColor: Colors.yellow,
                         ),
-                        20.heightBox,
-                        CustomBoxTextFormField(
-                            controller: searchController,
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5)),
-                            keyboardType: TextInputType.text,
-                            hintText: LocaleKeys.notesCategories.tr,
-                            fillColor: Helper.getCardColor(context),
-                            borderColor: Colors.transparent,
-                            padding: 10,
-                            horizontalPadding: 5,
-                            textStyle:
-                                TextStyle(color: Helper.getTextColor(context)),
-                            suffixIcon: searchController.text.isNotEmpty
-                                ? InkWell(
-                                    onTap: () {
-                                      searchController.clear();
-                                      if (showYear != LocaleKeys.selectYear.tr &&
-                                          selectedMonths.isNotEmpty) {
-                                        getFilteredData("");
-                                      }
-                                      getIncomeTransactions("");
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(right: 10),
-                                      child: Icon(
-                                        Icons.close,
-                                        size: 22,
-                                        color: Helper.getTextColor(context),
-                                      ),
-                                    ),
-                                  )
-                                : const Padding(
-                                    padding: EdgeInsets.only(right: 10),
-                                    child: Icon(
-                                      Icons.search,
-                                      size: 22,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                            onChanged: (value) {
-                              if (value.isNotEmpty) {
-                                if (showYear != LocaleKeys.selectYear.tr &&
-                                    selectedMonths.isNotEmpty) {
-                                  getFilteredData(value);
-                                } else {
-                                  getIncomeTransactions(value);
-                                }
-                              } else {
-                                dateWiseTransaction =
-                                    originalDateWiseTransaction;
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.pinkAccent),
+                                ),
+                                5.widthBox,
+                                Text(
+                                  LocaleKeys.collected.tr,
+                                  style: TextStyle(
+                                      color: Helper.getTextColor(context),
+                                      fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              "${AppConstanst.currencySymbol}$totalMonthlyIncomeAmount",
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.yellow),
+                                ),
+                                5.widthBox,
+                                Text(
+                                  LocaleKeys.missing.tr,
+                                  style: TextStyle(
+                                      color: Helper.getTextColor(context),
+                                      fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              "${AppConstanst.currencySymbol}${actualBudget - totalMonthlyIncomeAmount}",
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  20.heightBox,
+                  CustomBoxTextFormField(
+                      controller: searchController,
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                      keyboardType: TextInputType.text,
+                      hintText: LocaleKeys.notesCategories.tr,
+                      fillColor: Helper.getCardColor(context),
+                      borderColor: Colors.transparent,
+                      padding: 10,
+                      horizontalPadding: 5,
+                      textStyle: TextStyle(color: Helper.getTextColor(context)),
+                      suffixIcon: searchController.text.isNotEmpty
+                          ? InkWell(
+                              onTap: () {
+                                searchController.clear();
                                 if (showYear != LocaleKeys.selectYear.tr &&
                                     selectedMonths.isNotEmpty) {
                                   getFilteredData("");
-                                } else {
-                                  getIncomeTransactions("");
                                 }
-                              }
-                            },
-                            validator: (value) {
-                              return null;
-                            }),
-                        if (dateWiseTransaction.isNotEmpty) 20.heightBox,
-                        if (dateWiseTransaction.isNotEmpty)
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const ScrollPhysics(),
-                            itemCount: dateWiseTransaction.length,
-                            itemBuilder: (context, index) {
-                              return Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "${dateWiseTransaction[index].transactionDay}, ${dateWiseTransaction[index].transactionDate}",
-                                        style: const TextStyle(
-                                            color: Colors.grey, fontSize: 14),
-                                      ),
-                                      Text(
-                                        "+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactionTotal}",
-                                        style: const TextStyle(
-                                            color: Colors.green, fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                  15.heightBox,
-                                  if (dateWiseTransaction[index]
-                                      .transactions!
-                                      .isNotEmpty)
-                                    ListView.separated(
-                                      shrinkWrap: true,
-                                      physics: const ScrollPhysics(),
-                                      itemCount: dateWiseTransaction[index]
-                                          .transactions!
-                                          .length,
-                                      itemBuilder: (context, index1) {
-                                        return InkWell(
-                                          onTap: () {
-                                            if(userEmail==currentUserEmail) {
-                                              Navigator.of(context,
-                                                    rootNavigator: true)
-                                                .push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      EditSpendingScreen(
-                                                        transactionModel:
-                                                            dateWiseTransaction[
-                                                                        index]
-                                                                    .transactions![
-                                                                index1],
-                                                      )),
-                                            )
-                                                .then((value) {
-                                              if (value != null) {
-                                                if (value) {
-                                                  getIncomeTransactions("");
-                                                }
-                                              }
-                                            });
+                                getIncomeTransactions("");
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 22,
+                                  color: Helper.getTextColor(context),
+                                ),
+                              ),
+                            )
+                          : const Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Icon(
+                                Icons.search,
+                                size: 22,
+                                color: Colors.grey,
+                              ),
+                            ),
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          if (showYear != LocaleKeys.selectYear.tr &&
+                              selectedMonths.isNotEmpty) {
+                            getFilteredData(value);
+                          } else {
+                            getIncomeTransactions(value);
+                          }
+                        } else {
+                          dateWiseTransaction = originalDateWiseTransaction;
+                          if (showYear != LocaleKeys.selectYear.tr &&
+                              selectedMonths.isNotEmpty) {
+                            getFilteredData("");
+                          } else {
+                            getIncomeTransactions("");
+                          }
+                        }
+                      },
+                      validator: (value) {
+                        return null;
+                      }),
+                  if (dateWiseTransaction.isNotEmpty) 20.heightBox,
+                  if (dateWiseTransaction.isNotEmpty)
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const ScrollPhysics(),
+                      itemCount: dateWiseTransaction.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "${dateWiseTransaction[index].transactionDay}, ${dateWiseTransaction[index].transactionDate}",
+                                  style: const TextStyle(
+                                      color: Colors.grey, fontSize: 14),
+                                ),
+                                Text(
+                                  "+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactionTotal}",
+                                  style: const TextStyle(
+                                      color: Colors.green, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                            15.heightBox,
+                            if (dateWiseTransaction[index]
+                                .transactions!
+                                .isNotEmpty)
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const ScrollPhysics(),
+                                itemCount: dateWiseTransaction[index]
+                                    .transactions!
+                                    .length,
+                                itemBuilder: (context, index1) {
+                                  return InkWell(
+                                    onTap: () {
+                                      if (userEmail == currentUserEmail) {
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditSpendingScreen(
+                                                    transactionModel:
+                                                        dateWiseTransaction[
+                                                                    index]
+                                                                .transactions![
+                                                            index1],
+                                                  )),
+                                        )
+                                            .then((value) {
+                                          if (value != null) {
+                                            if (value) {
+                                              getIncomeTransactions("");
                                             }
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                                color: Helper.getCardColor(
-                                                    context),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                        Radius.circular(10))),
-                                            child: Row(
+                                          }
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                          color: Helper.getCardColor(context),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(10))),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(5),
+                                            decoration: const BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10))),
+                                            child: SvgPicture.asset(
+                                              'asset/images/${dateWiseTransaction[index].transactions![index1].cat_icon}.svg',
+                                              color: dateWiseTransaction[index]
+                                                  .transactions![index1]
+                                                  .cat_color,
+                                              width: 24,
+                                              height: 24,
+                                            ),
+                                          ),
+                                          15.widthBox,
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.all(5),
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                          color: Colors.black,
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          10))),
-                                                  child: SvgPicture.asset(
-                                                    'asset/images/${dateWiseTransaction[index].transactions![index1].cat_icon}.svg',
-                                                    color: dateWiseTransaction[
-                                                            index]
-                                                        .transactions![index1]
-                                                        .cat_color,
-                                                    width: 24,
-                                                    height: 24,
-                                                  ),
+                                                Text(
+                                                  dateWiseTransaction[index]
+                                                      .transactions![index1]
+                                                      .cat_name!,
+                                                  style: TextStyle(
+                                                      color:
+                                                          Helper.getTextColor(
+                                                              context),
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
                                                 ),
-                                                15.widthBox,
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        dateWiseTransaction[
-                                                                index]
-                                                            .transactions![
-                                                                index1]
-                                                            .cat_name!,
-                                                        style: TextStyle(
-                                                            color: Helper
-                                                                .getTextColor(
-                                                                    context),
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      Text(
-                                                        dateWiseTransaction[
-                                                                index]
-                                                            .transactions![
-                                                                index1]
-                                                            .description!,
-                                                        style: TextStyle(
-                                                          color: Helper
-                                                              .getTextColor(
-                                                                  context),
-                                                          fontSize: 14,
-                                                        ),
-                                                      )
-                                                    ],
+                                                Text(
+                                                  dateWiseTransaction[index]
+                                                      .transactions![index1]
+                                                      .description!,
+                                                  style: TextStyle(
+                                                    color: Helper.getTextColor(
+                                                        context),
+                                                    fontSize: 14,
                                                   ),
-                                                ),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.end,
-                                                  children: [
-                                                    Text(
-                                                      "+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactions![index1].amount!}",
-                                                      style: TextStyle(
-                                                          color: Helper
-                                                              .getTextColor(
-                                                                  context),
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                    Text(
-                                                      dateWiseTransaction[index]
-                                                                  .transactions![
-                                                                      index1]
-                                                                  .payment_method_id ==
-                                                              AppConstanst
-                                                                  .cashPaymentType
-                                                          ? 'Cash'
-                                                          : '',
-                                                      style: TextStyle(
-                                                        color:
-                                                            Helper.getTextColor(
-                                                                context),
-                                                        fontSize: 14,
-                                                      ),
-                                                    )
-                                                  ],
                                                 )
                                               ],
                                             ),
                                           ),
-                                        );
-                                      },
-                                      separatorBuilder:
-                                          (BuildContext context, int index) {
-                                        return 10.heightBox;
-                                      },
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                "+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactions![index1].amount!}",
+                                                style: TextStyle(
+                                                    color: Helper.getTextColor(
+                                                        context),
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              Text(
+                                                dateWiseTransaction[index]
+                                                            .transactions![
+                                                                index1]
+                                                            .payment_method_id ==
+                                                        AppConstanst
+                                                            .cashPaymentType
+                                                    ? 'Cash'
+                                                    : '',
+                                                style: TextStyle(
+                                                  color: Helper.getTextColor(
+                                                      context),
+                                                  fontSize: 14,
+                                                ),
+                                              )
+                                            ],
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                ],
-                              );
-                            },
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return 10.heightBox;
-                            },
-                          ),
-                        if (dateWiseTransaction.isEmpty) 20.heightBox,
-                        if (dateWiseTransaction.isEmpty)
-                          Container(
-                              decoration: BoxDecoration(
-                                  color: Helper.getCardColor(context),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10))),
-                              child: Column(
-                                children: [
-                                  20.heightBox,
-                                  Icon(
-                                    Icons.account_balance_wallet,
-                                    color: Helper.getTextColor(context),
-                                    size: 80,
-                                  ),
-                                  10.heightBox,
-                                  Text(
-                                    LocaleKeys.dontHaveIncome.tr,
-                                    style: TextStyle(
-                                        color: Helper.getTextColor(context)),
-                                  ),
-                                  20.heightBox,
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 35),
-                                    child: InkWell(
-                                      onTap: () {
-                                        /*Navigator.push(
+                                  );
+                                },
+                                separatorBuilder:
+                                    (BuildContext context, int index) {
+                                  return 10.heightBox;
+                                },
+                              ),
+                          ],
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return 10.heightBox;
+                      },
+                    ),
+                  if (dateWiseTransaction.isEmpty) 20.heightBox,
+                  if (dateWiseTransaction.isEmpty)
+                    Container(
+                        decoration: BoxDecoration(
+                            color: Helper.getCardColor(context),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10))),
+                        child: Column(
+                          children: [
+                            20.heightBox,
+                            Icon(
+                              Icons.account_balance_wallet,
+                              color: Helper.getTextColor(context),
+                              size: 80,
+                            ),
+                            10.heightBox,
+                            Text(
+                              LocaleKeys.dontHaveIncome.tr,
+                              style: TextStyle(
+                                  color: Helper.getTextColor(context)),
+                            ),
+                            20.heightBox,
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 35),
+                              child: InkWell(
+                                onTap: () {
+                                  /*Navigator.push(
                                         context,
                                         MaterialPageRoute(builder: (context) => const AddSpendingScreen()),
                                       );*/
-                                      },
-                                      child: Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 15, horizontal: 15),
-                                        alignment: Alignment.center,
-                                        decoration: const BoxDecoration(
-                                            color: Colors.blue,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10))),
-
-                                        child:  Text(
-                                          LocaleKeys.addIncome.tr,
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14),
-                                        ),
-                                      ),
-                                    ),
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 15, horizontal: 15),
+                                  alignment: Alignment.center,
+                                  decoration: const BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  child: Text(
+                                    LocaleKeys.addIncome.tr,
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 14),
                                   ),
-                                  15.heightBox,
-                                ],
-                              )),
-                      ],
-                    ),
-                  ),
-                ),
+                                ),
+                              ),
+                            ),
+                            15.heightBox,
+                          ],
+                        )),
+                ],
               ),
             ),
-          );
-        }
-        return Container();
-      },
+          ),
+        ),
+      ),
     );
   }
 
-  _bottomSheetView(IncomeDetailBloc incomeDetailBloc, StateSetter setState) {
+  _bottomSheetView(StateSetter setState) {
     return Container(
         padding: const EdgeInsets.only(bottom: 10),
         color: Helper.getBackgroundColor(context),
@@ -789,12 +742,12 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                               selectedMonths.isNotEmpty) {
                             Navigator.pop(context);
                             getFilteredData("");
-
-                          } if(showYear == LocaleKeys.selectYear.tr ||
-                              selectedMonths.isEmpty){
+                          }
+                          if (showYear == LocaleKeys.selectYear.tr ||
+                              selectedMonths.isEmpty) {
                             Navigator.pop(context);
                             getIncomeTransactions("");
-                          }else if (showYear == LocaleKeys.selectYear.tr ||
+                          } else if (showYear == LocaleKeys.selectYear.tr ||
                               selectedMonths.isEmpty) {
                             Helper.showToast(
                                 LocaleKeys.selectMonthOrYearText.tr);
@@ -816,7 +769,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                         }
                       },
                       child: Text(
-                       LocaleKeys.done.tr,
+                        LocaleKeys.done.tr,
                         style: TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
@@ -1121,7 +1074,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 ? categoryList[selectedCategoryIndex].catId!
                 : -1,
             -1,
-            currentUserEmail,userKey,
+            currentUserEmail,
+            userKey,
             AppConstanst.incomeTransaction,
             value,
             isSkippedUser)

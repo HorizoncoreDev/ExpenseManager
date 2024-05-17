@@ -8,14 +8,12 @@ import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 import '../utils/global.dart';
 import 'account_detail/account_detail_screen.dart';
-import 'bloc/other_bloc.dart';
-import 'bloc/other_state.dart';
 import 'category/category_screen.dart';
 import 'general_setting/general_setting_screen.dart';
 import 'my_library/my_library_screen.dart';
@@ -28,8 +26,6 @@ class OtherScreen extends StatefulWidget {
 }
 
 class _OtherScreenState extends State<OtherScreen> {
-  OtherBloc otherBloc = OtherBloc();
-
   List<GridItem> gridItemList = [
     // GridItem(iconData: Icons.account_circle, text: 'My family'),
     GridItem(iconData: Icons.settings, text: 'Category'),
@@ -44,7 +40,6 @@ class _OtherScreenState extends State<OtherScreen> {
   String shortName = "";
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-
 
   @override
   void initState() {
@@ -71,14 +66,14 @@ class _OtherScreenState extends State<OtherScreen> {
   Future<void> getProfileData() async {
     try {
       ProfileModel? fetchedProfileData =
-      await databaseHelper.getProfileData(userEmail);
+          await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
         firstNameController.text = profileData!.first_name!;
         lastNameController.text = profileData!.last_name!;
-      }
-      );
-     shortName= Helper.getShortName(profileData!.first_name!, profileData!.last_name!);
+      });
+      shortName = Helper.getShortName(
+          profileData!.first_name!, profileData!.last_name!);
     } catch (error) {
       print('Error fetching Profile Data: $error');
       /* setState(() {
@@ -87,433 +82,407 @@ class _OtherScreenState extends State<OtherScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    otherBloc.context = context;
-    return BlocConsumer<OtherBloc, OtherState>(
-      bloc: otherBloc,
-      listener: (context, state) {},
-      builder: (context, state) {
-        if (state is OtherInitial) {
-          return SafeArea(
-            child: Scaffold(
-              body: Container(
-                  color: Helper.getBackgroundColor(context),
-                  height: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          10.heightBox,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                LocaleKeys.other.tr,
-                                style: TextStyle(
-                                    color: Helper.getTextColor(context),
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              // if (!isSkippedUser)
-                              InkWell(
-                                onTap: () {
-                                  if (isSkippedUser) {
-                                   /* MySharedPreferences.instance.addBoolToSF(
+    return SafeArea(
+      child: Scaffold(
+        body: Container(
+            color: Helper.getBackgroundColor(context),
+            height: double.infinity,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    10.heightBox,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          LocaleKeys.other.tr,
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        // if (!isSkippedUser)
+                        InkWell(
+                          onTap: () {
+                            if (isSkippedUser) {
+                              /* MySharedPreferences.instance.addBoolToSF(
                                         SharedPreferencesKeys.isSkippedUser,
                                         false);*/
-                                    AppConstanst.signInClicked++;
-                                    Helper.showToast(
-                                        LocaleKeys.proceedSignIn.tr);
-                                    Navigator.of(context, rootNavigator: true)
-                                        .push(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                          const SignInScreen()),
-                                    );
-                                  }
-                                  else {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                          const AccountDetailScreen()),
-                                    );
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Helper.getCardColor(context)),
-                                  child: Text(
-                                    shortName == "" ? "AB" : shortName
-                                        .characters.toString(),
-                                    style: const TextStyle(
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                          15.heightBox,
-                          Text(
-                            LocaleKeys.manage.tr,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Helper.getTextColor(context),
-                                fontWeight: FontWeight.bold),
-                          ),
-                          10.heightBox,
-                          Container(
-                            padding: const EdgeInsets.all(20),
+                              AppConstanst.signInClicked++;
+                              Helper.showToast(LocaleKeys.proceedSignIn.tr);
+                              Navigator.of(context, rootNavigator: true).push(
+                                MaterialPageRoute(
+                                    builder: (context) => const SignInScreen()),
+                              );
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AccountDetailScreen()),
+                              );
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                                color: Helper.getCardColor(context),
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(10))),
-                            child: Row(
-                              children: [
-                                if(!isSkippedUser)
-                                 InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const FamilyAccountScreen()),
-                                    );
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8, horizontal: 8),
-                                        decoration:  BoxDecoration(
-                                            color: Colors.grey.shade800,
-                                            borderRadius: const BorderRadius.all(
-                                                Radius.circular(10))),
-                                        // alignment: Alignment.center,
-                                        child: const Icon(
-                                          Icons.account_circle,
-                                          color: Colors.blue,
-                                        ),
-                                      ),
-                                      5.heightBox,
-                                      Text(
-                                        LocaleKeys.myAccount.tr,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Helper.getTextColor(context),
-                                          fontSize: 12.0,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if(!isSkippedUser)
-                                20.widthBox,
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                          const CategoryScreen()),
-                                    );
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8, horizontal: 8),
-                                        decoration:  BoxDecoration(
-                                            color: Colors.grey.shade800,
-                                            borderRadius: const BorderRadius.all(
-                                                Radius.circular(10))),
-                                        // alignment: Alignment.center,
-                                        child:SvgPicture.asset(
-                                          'asset/images/ic_categories.svg',
-                                          color: Colors.blue,
-                                          height: 24,
-                                          width: 24,
-                                        ),
-                                      ),
-                                      5.heightBox,
-                                      Text(
-                                        LocaleKeys.category.tr,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Helper.getTextColor(context),
-                                          fontSize: 12.0,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                20.widthBox,
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                          const MyLibraryScreen()),
-                                    );
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8, horizontal: 8),
-                                        decoration:  BoxDecoration(
-                                            color: Colors.grey.shade800,
-                                            borderRadius: const BorderRadius.all(
-                                                Radius.circular(10))),
-                                        // alignment: Alignment.center,
-                                        child: SvgPicture.asset(
-                                          'asset/images/ic_library.svg',
-                                          color: Colors.blue,
-                                          height: 24,
-                                          width: 24,
-                                        ),
-                                      ),
-                                      5.heightBox,
-                                      Text(
-                                        LocaleKeys.myLibrary.tr,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Helper.getTextColor(context),
-                                          fontSize: 12.0,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                shape: BoxShape.circle,
+                                color: Helper.getCardColor(context)),
+                            child: Text(
+                              shortName == ""
+                                  ? "AB"
+                                  : shortName.characters.toString(),
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
                             ),
                           ),
-                          15.heightBox,
-                          Text(
-                            LocaleKeys.app.tr,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Helper.getTextColor(context),
-                                fontWeight: FontWeight.bold),
-                          ),
-                          10.heightBox,
-                          Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                                color: Helper.getCardColor(context),
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(10))),
+                        )
+                      ],
+                    ),
+                    15.heightBox,
+                    Text(
+                      LocaleKeys.manage.tr,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Helper.getTextColor(context),
+                          fontWeight: FontWeight.bold),
+                    ),
+                    10.heightBox,
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10))),
+                      child: Row(
+                        children: [
+                          if (!isSkippedUser)
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const FamilyAccountScreen()),
+                                );
+                              },
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 8),
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey.shade800,
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(10))),
+                                    // alignment: Alignment.center,
+                                    child: const Icon(
+                                      Icons.account_circle,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                  5.heightBox,
+                                  Text(
+                                    LocaleKeys.myAccount.tr,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Helper.getTextColor(context),
+                                      fontSize: 12.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (!isSkippedUser) 20.widthBox,
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const CategoryScreen()),
+                              );
+                            },
                             child: Column(
                               children: [
-                                Padding(
+                                Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                            const GeneralSettingScreen()),
-                                      );
-                                    },
-                                    child: Row(
-                                      children: [
-                                        15.widthBox,
-                                        Container(
-                                          padding: const EdgeInsets.all(6),
-                                          decoration:  BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.grey.shade800),
-                                          child: const Icon(
-                                            Icons.settings,
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                                        15.widthBox,
-                                        Expanded(
-                                          child: Text(
-                                            LocaleKeys.generalSettings.tr,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                color: Helper.getTextColor(
-                                                    context)),
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.arrow_forward_ios_rounded,
-                                          color: Helper.getTextColor(context),
-                                          size: 16,
-                                        )
-                                      ],
-                                    ),
+                                      vertical: 8, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey.shade800,
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(10))),
+                                  // alignment: Alignment.center,
+                                  child: SvgPicture.asset(
+                                    'asset/images/ic_categories.svg',
+                                    color: Colors.blue,
+                                    height: 24,
+                                    width: 24,
                                   ),
                                 ),
-                                const Divider(
-                                  thickness: 0.2,
-                                  color: Colors.grey,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: InkWell(
-                                    onTap: () {
-                                      requestContactPermission();
-
-                                    },
-                                    child: Row(
-                                      children: [
-                                        15.widthBox,
-                                        Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration:  BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.grey.shade800),
-                                          child: SvgPicture.asset(
-                                            'asset/images/ic_invite.svg',
-                                            color: Colors.blue,
-                                            height: 20,
-                                            width: 20,
-                                          ),
-                                        ),
-                                        15.widthBox,
-                                        Expanded(
-                                          child: Text(
-                                            LocaleKeys.inviteFriends.tr,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                color:
-                                                Helper.getTextColor(context)),
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.arrow_forward_ios_rounded,
-                                          color: Helper.getTextColor(context),
-                                          size: 16,
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const Divider(
-                                  thickness: 0.2,
-                                  color: Colors.grey,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: InkWell(
-                                    onTap: () {
-                                      _rateAppDialogue(otherBloc);
-                                    },
-                                    child: Row(
-                                      children: [
-                                        15.widthBox,
-                                        Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration:  BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.grey.shade800),
-                                          child: SvgPicture.asset(
-                                            'asset/images/ic_rate.svg',
-                                            color: Colors.blue,
-                                            height: 20,
-                                            width: 20,
-                                          ),
-                                        ),
-                                        15.widthBox,
-                                        Expanded(
-                                          child: Text(
-                                            LocaleKeys.rateApp.tr,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                color: Helper.getTextColor(
-                                                    context)),
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.arrow_forward_ios_rounded,
-                                          color: Helper.getTextColor(context),
-                                          size: 16,
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const Divider(
-                                  thickness: 0.2,
-                                  color: Colors.grey,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: Row(
-                                    children: [
-                                      15.widthBox,
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration:  BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.grey.shade800),
-                                        child: SvgPicture.asset(
-                                          'asset/images/ic_version.svg',
-                                          color: Colors.blue,
-                                          height: 22,
-                                          width: 22,
-                                        ),
-                                      ),
-                                      15.widthBox,
-                                      Expanded(
-                                        child: Text(
-                                          LocaleKeys.version.tr,
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              color:
-                                              Helper.getTextColor(context)),
-                                        ),
-                                      ),
-                                      Text(
-                                        "1.0.0",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color:
-                                            Helper.getTextColor(context)),
-                                      ),
-                                    ],
+                                5.heightBox,
+                                Text(
+                                  LocaleKeys.category.tr,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 12.0,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          10.heightBox
+                          20.widthBox,
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const MyLibraryScreen()),
+                              );
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey.shade800,
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(10))),
+                                  // alignment: Alignment.center,
+                                  child: SvgPicture.asset(
+                                    'asset/images/ic_library.svg',
+                                    color: Colors.blue,
+                                    height: 24,
+                                    width: 24,
+                                  ),
+                                ),
+                                5.heightBox,
+                                Text(
+                                  LocaleKeys.myLibrary.tr,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Helper.getTextColor(context),
+                                    fontSize: 12.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  )),
-            ),
-          );
-        }
-        return Container();
-      },
+                    15.heightBox,
+                    Text(
+                      LocaleKeys.app.tr,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Helper.getTextColor(context),
+                          fontWeight: FontWeight.bold),
+                    ),
+                    10.heightBox,
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                          color: Helper.getCardColor(context),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10))),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const GeneralSettingScreen()),
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  15.widthBox,
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.grey.shade800),
+                                    child: const Icon(
+                                      Icons.settings,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                  15.widthBox,
+                                  Expanded(
+                                    child: Text(
+                                      LocaleKeys.generalSettings.tr,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Helper.getTextColor(context)),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: Helper.getTextColor(context),
+                                    size: 16,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          const Divider(
+                            thickness: 0.2,
+                            color: Colors.grey,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: InkWell(
+                              onTap: () {
+                                requestContactPermission();
+                              },
+                              child: Row(
+                                children: [
+                                  15.widthBox,
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.grey.shade800),
+                                    child: SvgPicture.asset(
+                                      'asset/images/ic_invite.svg',
+                                      color: Colors.blue,
+                                      height: 20,
+                                      width: 20,
+                                    ),
+                                  ),
+                                  15.widthBox,
+                                  Expanded(
+                                    child: Text(
+                                      LocaleKeys.inviteFriends.tr,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Helper.getTextColor(context)),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: Helper.getTextColor(context),
+                                    size: 16,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          const Divider(
+                            thickness: 0.2,
+                            color: Colors.grey,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: InkWell(
+                              onTap: () {
+                                _rateAppDialogue(context);
+                              },
+                              child: Row(
+                                children: [
+                                  15.widthBox,
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.grey.shade800),
+                                    child: SvgPicture.asset(
+                                      'asset/images/ic_rate.svg',
+                                      color: Colors.blue,
+                                      height: 20,
+                                      width: 20,
+                                    ),
+                                  ),
+                                  15.widthBox,
+                                  Expanded(
+                                    child: Text(
+                                      LocaleKeys.rateApp.tr,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Helper.getTextColor(context)),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: Helper.getTextColor(context),
+                                    size: 16,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          const Divider(
+                            thickness: 0.2,
+                            color: Colors.grey,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Row(
+                              children: [
+                                15.widthBox,
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.grey.shade800),
+                                  child: SvgPicture.asset(
+                                    'asset/images/ic_version.svg',
+                                    color: Colors.blue,
+                                    height: 22,
+                                    width: 22,
+                                  ),
+                                ),
+                                15.widthBox,
+                                Expanded(
+                                  child: Text(
+                                    LocaleKeys.version.tr,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Helper.getTextColor(context)),
+                                  ),
+                                ),
+                                Text(
+                                  "1.0.0",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Helper.getTextColor(context)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    10.heightBox
+                  ],
+                ),
+              ),
+            )),
+      ),
     );
   }
 
-  Future _rateAppDialogue(OtherBloc otherBloc) async {
-
+  Future _rateAppDialogue(BuildContext context) async {
     await showDialog(
-      context: otherBloc.context,
+      context: context,
       builder: (cont) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -523,7 +492,7 @@ class _OtherScreenState extends State<OtherScreen> {
           titlePadding: EdgeInsets.zero,
           actionsPadding: EdgeInsets.zero,
           contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           insetPadding: const EdgeInsets.all(15),
           backgroundColor: Helper.getCardColor(context),
           content: SizedBox(
@@ -580,38 +549,38 @@ class _OtherScreenState extends State<OtherScreen> {
                     ),
                     Expanded(
                         child: Column(
-                          children: [
-                            const Icon(
-                              Icons.account_circle,
-                              color: Colors.grey,
-                              size: 50,
-                            ),
-                            Text(
-                              LocaleKeys.like.tr,
-                              style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        )),
+                      children: [
+                        const Icon(
+                          Icons.account_circle,
+                          color: Colors.grey,
+                          size: 50,
+                        ),
+                        Text(
+                          LocaleKeys.like.tr,
+                          style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    )),
                     Expanded(
                         child: Column(
-                          children: [
-                            const Icon(
-                              Icons.account_circle,
-                              color: Colors.grey,
-                              size: 50,
-                            ),
-                            Text(
-                             LocaleKeys.likeSoMuch.tr,
-                              style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        )),
+                      children: [
+                        const Icon(
+                          Icons.account_circle,
+                          color: Colors.grey,
+                          size: 50,
+                        ),
+                        Text(
+                          LocaleKeys.likeSoMuch.tr,
+                          style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    )),
                   ],
                 ),
                 30.heightBox,
@@ -623,21 +592,21 @@ class _OtherScreenState extends State<OtherScreen> {
                           color: Helper.getTextColor(context),
                         ),
                         children: [
-                          TextSpan(
-                            text: LocaleKeys.stars.tr,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          TextSpan(
-                            text: LocaleKeys.appStoreText.tr,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Helper.getTextColor(context),
-                            ),
-                          ),
-                        ])),
+                      TextSpan(
+                        text: LocaleKeys.stars.tr,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      TextSpan(
+                        text: LocaleKeys.appStoreText.tr,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Helper.getTextColor(context),
+                        ),
+                      ),
+                    ])),
                 30.heightBox,
                 InkWell(
                   onTap: () {},
@@ -673,23 +642,20 @@ class _OtherScreenState extends State<OtherScreen> {
   }
 
   Future<void> requestContactPermission() async {
-      PermissionStatus status = await Permission.contacts.status;
-      if(!status.isGranted){
-        status = await Permission.contacts.request();
-      }
-      if (status.isGranted) {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context)=> const InviteFriendsScreen()));
-      }
-      else if(status.isPermanentlyDenied){
-        openAppSettings();
-        Helper.showToast(LocaleKeys.permissionDenied.tr);
-      }
-      else{
-        Helper.showToast(LocaleKeys.allowContactAccess.tr);
-      }
+    PermissionStatus status = await Permission.contacts.status;
+    if (!status.isGranted) {
+      status = await Permission.contacts.request();
+    }
+    if (status.isGranted) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const InviteFriendsScreen()));
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+      Helper.showToast(LocaleKeys.permissionDenied.tr);
+    } else {
+      Helper.showToast(LocaleKeys.allowContactAccess.tr);
+    }
   }
-
 }
 
 class GridItem {
@@ -698,4 +664,3 @@ class GridItem {
 
   GridItem({required this.iconData, required this.text});
 }
-

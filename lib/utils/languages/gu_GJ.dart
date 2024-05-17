@@ -5,15 +5,20 @@ Map<String, String> guGJ = {
   'selectLanguage': 'ભાષા પસંદ કરો',
   'start': 'શરૂ',
   'plSelectLang': 'કૃપા કરીને આગળ વધતા પહેલા એક ભાષા પસંદ કરો.',
+
   ///Sign in screen
-  'loginText': 'એકાઉન્ટ્સ અને અનેક ડિવાઇસમાં ડેટા સીંક કરવા માટે લોગઇન કરો અને અમારા ઘણા રોમંચક ફિચર્સનો આનંદ માણો',
+  'loginText':
+      'એકાઉન્ટ્સ અને અનેક ડિવાઇસમાં ડેટા સીંક કરવા માટે લોગઇન કરો અને અમારા ઘણા રોમંચક ફિચર્સનો આનંદ માણો',
   'signIn': 'Google સાથે સાઇન ઇન કરો',
   'skip': 'સ્કિપ',
+
   ///Budget screen
   'hello': 'હેલો',
   'monthlyBudget': 'માસિક બજેટ',
   'enterBudgetText': 'તમારો બજેટ દાખલ કરો',
-  'budgetStaticText': 'નિરાવરણીય ખર્ચ કરવાથી જુવાની રોકાણ કરો. માસ માટે બજેટ બનાવો અને તેને પાછા લાવવા માટે પ્રયાસ કરો તાકી તમારા આર્થિક લક્ષ્યો મેળવી શકો.',
+  'budgetStaticText':
+      'નિરાવરણીય ખર્ચ કરવાથી જુવાની રોકાણ કરો. માસ માટે બજેટ બનાવો અને તેને પાછા લાવવા માટે પ્રયાસ કરો તાકી તમારા આર્થિક લક્ષ્યો મેળવી શકો.',
+
   ///Overview Screen
   'today': 'આજે',
   'spending': 'ખર્ચ',
@@ -36,6 +41,7 @@ Map<String, String> guGJ = {
   'moreThenTarget': 'લક્ષ્ય કરતાં વધુ',
   'lessThenTarget': 'લક્ષ્ય કરતાં ઓછું',
   'dontHaveIncome': "તમારી પાસે હજી આવેદન છે નહીં",
+
   ///Statistics screen
   'selectYear': 'વર્ષ પસંદ કરો',
   'selectMonth': 'મહિનો પસંદ કરો',
@@ -55,12 +61,14 @@ Map<String, String> guGJ = {
   'statistics': 'આંકડાશાસ્ત્ર',
   'clearFilter': 'ફિલ્ટર સાફ કરો',
   'filter': 'ફિલ્ટર',
-  'selectMonthOrYearText': 'દયાળુ કરો કે તમે માહિતી મેળવવા માટે વર્ષ અને મહિનો પસંદ કરો',
+  'selectMonthOrYearText':
+      'દયાળુ કરો કે તમે માહિતી મેળવવા માટે વર્ષ અને મહિનો પસંદ કરો',
   'done': 'કર્યું',
   'year': 'વર્ષ',
   'category': 'વર્ગ',
   'yesterday': 'ગઇકાલે',
   'monthFilterText': 'મહિના(એક કે તેની ફિલ્ટર કરી શકાય છે)',
+
   ///Add Spending Screen & Edit spending
   'spendingSuccessfully': 'ખર્ચ સફળતાપૂર્વક ઉમેરી ગઈ છે',
   'spendingUpdateSuccessfully': 'ખર્ચ સફળતાપૂર્વક સુધાર્યું ગયું છે',
@@ -75,6 +83,7 @@ Map<String, String> guGJ = {
   'camera': 'કેમેરા',
   'gallery': 'ગૅલરી',
   'copy': 'કૉપી',
+
   ///Spending Details screen & income details screen & Search screen
   "notesCategories": 'નોંધો, વર્ગો',
   "collected": 'એકત્ર',
@@ -83,6 +92,7 @@ Map<String, String> guGJ = {
   "searchBy": 'વર્ગ, નોંધ દ્વારા શોધો',
   "recordNotFound": 'રેકોર્ડ મળ્યું નથી',
   "noNote": 'કોઈ નોંધ નથી',
+
   ///Other Screen
   'categorySmall': 'વર્ગ',
   'myLibrary': 'મારા લાયબ્રેરી',
@@ -103,9 +113,11 @@ Map<String, String> guGJ = {
   'leaveReviewText': 'કૃપા કરીને સમીક્ષા છોડો',
   'stars': '5 તારા ',
   'appStoreText': 'આ એપના માટે એપસ્ટોર પર?',
-  'greatRewardText': 'તમારી 5 તારાવાળી સમીક્ષા અમારા માટે મોટું પ્રશંસાપત્ર છે!',
+  'greatRewardText':
+      'તમારી 5 તારાવાળી સમીક્ષા અમારા માટે મોટું પ્રશંસાપત્ર છે!',
   'permissionDenied': 'પરવાનગી સ્થાયીકૃત કરવામાં આવી છે',
   'allowContactAccess': 'કૃપા કરીને સંપર્કને ઍક્સેસ આપો!!',
+
   ///My account
   'addAccount': 'એકાઉન્ટ ઉમેરો',
   'currently': 'હાલમાં',
@@ -119,7 +131,8 @@ Map<String, String> guGJ = {
   'userNotExist': 'વપરાશકર્તા અસ્તિત્વમાં નથી',
   'alreadyExist': 'અનુરોધ પહેલાથી અસ્તિત્વમાં છે',
   'alreadyHaveAccess': 'તમારો પહેલાથી પહોંચ છે',
-  'requestSentSuccessFully':'વિનંતી સફળતાપૂર્વક મોકલવામાં આવી',
+  'requestSentSuccessFully': 'વિનંતી સફળતાપૂર્વક મોકલવામાં આવી',
+
   ///Category, subcategory and add category screen
   'noCatFound': 'કોઈ વર્ગો મળ્યા નથી.',
   'noSubCatFound': 'કોઈ ઉપ-વર્ગો મળ્યા નથી.',
@@ -131,9 +144,11 @@ Map<String, String> guGJ = {
   'back': 'પાછળ',
   'color': 'રંગ',
   'icon': 'આઈકોન',
+
   ///My library screen and invite friends screen
   "haveNotLibrary": "તમારું કોઈ લાયબ્રેરી નથી",
   "invite": "મોકલો",
+
   ///General settings
   'display': 'પ્રદર્શન',
   'darkMode': 'ઘેરી મોડ',
@@ -164,6 +179,7 @@ Map<String, String> guGJ = {
   'generatePW': 'પાસવર્ડ ઉત્પાદિત કરો',
   'createMPW': 'માસ્ટર પાસવર્ડ બનાવો',
   'passwordGenerate': 'પાસવર્ડ સફળતાપૂર્વક ઉત્પાદિત થઈ છે',
+
   ///Account details & Edit Account
   'female': 'સ્ત્રી',
   'male': 'પુરુષ',
@@ -185,7 +201,7 @@ Map<String, String> guGJ = {
   'enterLastName': 'છેલ્લું નામ દાખલ કરો',
   'enterEmail': 'ઇમેઇલ દાખલ કરો',
 
-  'overview' : 'ઝાંખી',
+  'overview': 'ઝાંખી',
 
   'monday': 'સોમવાર',
   'tuesday': 'મંગળવાર',
@@ -194,8 +210,4 @@ Map<String, String> guGJ = {
   'friday': 'શુક્રવાર',
   'saturday': 'શનિવાર',
   'sunday': 'રવિવાર',
-
-
-
-
 };
