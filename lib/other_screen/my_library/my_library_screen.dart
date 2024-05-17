@@ -21,8 +21,7 @@ class MyLibraryScreen extends StatefulWidget {
 
 class _MyLibraryScreenState extends State<MyLibraryScreen> {
   MyLibraryBloc myLibraryBloc = MyLibraryBloc();
-  final List<String> imageList = [
-  ];
+  final List<String> imageList = [];
   List<TransactionModel> spendingTransaction = [];
   List<TransactionModel> incomeTransaction = [];
   String userEmail = "";
@@ -141,7 +140,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
               ),
 
               body: imageList.isEmpty ?
-              Expanded(
+              Center(
                 child: Align(
                   alignment: Alignment.center,
                   child: Text(

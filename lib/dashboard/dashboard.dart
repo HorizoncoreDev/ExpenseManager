@@ -5,7 +5,6 @@ import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
-
 import '../overview_screen/add_spending/add_spending_screen.dart';
 import '../overview_screen/overview_screen.dart';
 import '../statistics/statistics_screen.dart';
@@ -79,6 +78,15 @@ class _DashBoardState extends State<DashBoard> {
       if (value != null) {
         AppConstanst.currencySymbol = value;
         print("CS --- ${AppConstanst.currencySymbol}");
+      }
+    });
+
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.languageCode)
+        .then((value) {
+      if (value != null) {
+        AppConstanst.languageCode = value;
+        print("CS --- ${AppConstanst.languageCode}");
       }
     });
 

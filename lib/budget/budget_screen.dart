@@ -5,18 +5,15 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../dashboard/dashboard.dart';
-import '../db_models/profile_model.dart';
 import '../utils/global.dart';
 import '../utils/views/custom_text_form_field.dart';
 import 'bloc/budget_bloc.dart';
-import 'bloc/budget_event.dart';
 import 'bloc/budget_state.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -95,9 +92,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
       bloc: budgetBloc,
       listener: (context, state) {},
       builder: (context, state) {
-        /* if(state is BudgetDoneErrorState){
-          Helper.showToast('Enter your budget');
-        }*/
         if (state is BudgetInitial) {
           return SafeArea(
             child: Scaffold(
@@ -316,7 +310,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   ),
                                 ),
                               )
-
                             ),
                           ]),
                         ),
