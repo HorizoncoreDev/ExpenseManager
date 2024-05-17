@@ -10,7 +10,7 @@ class RequestTableFields {
     receiver_email,
     receiver_name,
     status,
-   created_at
+    created_at
   ];
 
   static const String id = 'id';
@@ -21,7 +21,6 @@ class RequestTableFields {
   static const String receiver_name = 'receiver_name';
   static const String status = 'status';
   static const String created_at = 'created_at';
-
 }
 
 class RequestModel {
@@ -60,13 +59,13 @@ class RequestModel {
 
   static RequestModel fromJson(Map<String, Object?> json) => RequestModel(
         id: json[RequestTableFields.id] as int,
-    requester_email: json[RequestTableFields.requester_email] as String,
-    key: json[RequestTableFields.key] as String,
-    requester_name: json[RequestTableFields.requester_name] as String,
-    receiver_email: json[RequestTableFields.receiver_email] as String,
-    receiver_name: json[RequestTableFields.receiver_name] as String,
-    status: json[RequestTableFields.status] as int,
-    created_at: json[RequestTableFields.created_at] as String,
+        requester_email: json[RequestTableFields.requester_email] as String,
+        key: json[RequestTableFields.key] as String,
+        requester_name: json[RequestTableFields.requester_name] as String,
+        receiver_email: json[RequestTableFields.receiver_email] as String,
+        receiver_name: json[RequestTableFields.receiver_name] as String,
+        status: json[RequestTableFields.status] as int,
+        created_at: json[RequestTableFields.created_at] as String,
       );
 
   Map<String, dynamic> toMap() {
@@ -81,6 +80,4 @@ class RequestModel {
       'created_at': created_at,
     };
   }
-
-
 }

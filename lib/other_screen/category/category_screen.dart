@@ -2,19 +2,14 @@ import 'package:expense_manager/other_screen/category/sub_category_screen/sub_ca
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../db_models/expense_category_model.dart';
 import '../../db_models/income_category.dart';
-import '../../db_models/expense_sub_category.dart';
 import '../../db_service/database_helper.dart';
 import 'add_category/add_category_screen.dart';
-import 'bloc/category_bloc.dart';
-import 'bloc/category_state.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -24,7 +19,6 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
-  CategoryBloc categoryBloc = CategoryBloc();
   int currPage = 1;
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
@@ -35,7 +29,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
   Future<void> getSpendingCategorys() async {
     try {
       // Simulating asynchronous database fetching
-      List<ExpenseCategory> fetchedCategories = await databaseHelper.categorys();
+      List<ExpenseCategory> fetchedCategories =
+          await databaseHelper.categorys();
 
       setState(() {
         // Update the state with the fetched categories.
@@ -49,7 +44,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
       });
     }
   }
-
 
   List<IncomeCategory> incomeCategories = [];
 
@@ -81,173 +75,157 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    categoryBloc.context = context;
-    return BlocConsumer<CategoryBloc, CategoryState>(
-      bloc: categoryBloc,
-      listener: (context, state) {},
-      builder: (context, state) {
-        if (state is CategoryInitial) {
-          return Scaffold(
-              appBar: AppBar(
-                automaticallyImplyLeading: false,
-                backgroundColor: Helper.getBackgroundColor(context),
-                title: Row(
-                  children: [
-                    InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                          color: Helper.getTextColor(context),
-                          size: 20,
-                        )),
-                    10.widthBox,
-                    Text(LocaleKeys.category.tr,
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: Helper.getTextColor(context),
-                        )),
-                  ],
+    return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Helper.getBackgroundColor(context),
+          title: Row(
+            children: [
+              InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Helper.getTextColor(context),
+                    size: 20,
+                  )),
+              10.widthBox,
+              Text(LocaleKeys.category.tr,
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Helper.getTextColor(context),
+                  )),
+            ],
+          ),
+          actions: [
+            InkWell(
+              onTap: () {
+                if (currPage == 1) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AddCategoryScreen(
+                                currPage: 1,
+                              ))).then((value) {
+                    if (value) {
+                      getSpendingCategorys();
+                    }
+                  });
+                } else {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AddCategoryScreen(
+                                currPage: 2,
+                              ))).then((value) {
+                    if (value) {
+                      getIncomeCategorys();
+                    }
+                  });
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Helper.getCardColor(context)),
+                child: Icon(
+                  Icons.add,
+                  color: Helper.getTextColor(context),
+                  size: 22,
                 ),
-                actions: [
-                  InkWell(
-                    onTap: () {
-                      if (currPage == 1) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const AddCategoryScreen(
-                                      currPage: 1,
-                                    ))).then((value) {
-                          if (value) {
-                            getSpendingCategorys();
-                          }
-                        });
-                      } else {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const AddCategoryScreen(
-                                      currPage: 2,
-                                    ))).then((value) {
-                          if (value) {
-                            getIncomeCategorys();
-                          }
-                        });
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Helper.getCardColor(context)),
-                      child: Icon(
-                        Icons.add,
-                        color: Helper.getTextColor(context),
-                        size: 22,
-                      ),
-                    ),
-                  ),
-                  10.widthBox,
-                ],
               ),
-              body: Container(
-                width: double.maxFinite,
-                height: double.maxFinite,
-                color: Helper.getBackgroundColor(context),
-                child: Column(
-                  children: [
-                    20.heightBox,
-                    Container(
-                        width: MediaQuery.of(context).size.width / 1.5,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: Helper.getCardColor(context),
+            ),
+            10.widthBox,
+          ],
+        ),
+        body: Container(
+          width: double.maxFinite,
+          height: double.maxFinite,
+          color: Helper.getBackgroundColor(context),
+          child: Column(
+            children: [
+              20.heightBox,
+              Container(
+                  width: MediaQuery.of(context).size.width / 1.5,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Helper.getCardColor(context),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              currPage = 1;
+                            });
+                          },
+                          child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(30),
+                                      bottomLeft: Radius.circular(30)),
+                                  color: currPage == 1
+                                      ? Colors.blue
+                                      : Helper.getCardColor(context)),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  LocaleKeys.spending.tr,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: currPage == 1
+                                        ? Colors.white
+                                        : Helper.getTextColor(context),
+                                  ),
+                                ),
+                              )),
                         ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    currPage = 1;
-                                  });
-                                },
-                                child: Container(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 8),
-                                    decoration: BoxDecoration(
-                                        borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(30),
-                                            bottomLeft: Radius.circular(30)),
-                                        color: currPage == 1
-                                            ? Colors.blue
-                                            : Helper.getCardColor(context)),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                       LocaleKeys.spending.tr,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: currPage == 1
-                                              ? Colors.white
-                                              : Helper.getTextColor(context),
-                                        ),
-                                      ),
-                                    )),
-                              ),
-                            ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    currPage = 2;
-                                    getIncomeCategorys();
-                                  });
-                                },
-                                child: Container(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 8),
-                                    decoration: BoxDecoration(
-                                        borderRadius: const BorderRadius.only(
-                                            topRight: Radius.circular(30),
-                                            bottomRight: Radius.circular(30)),
-                                        color: currPage == 2
-                                            ? Colors.blue
-                                            : Helper.getCardColor(context)),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        LocaleKeys.income.tr,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: currPage == 2
-                                              ? Colors.white
-                                              : Helper.getTextColor(context),
-                                        ),
-                                      ),
-                                    )),
-                              ),
-                            ),
-                          ],
-                        )),
-                    currPage == 1
-                        ? Expanded(child: _happeningView(categoryBloc))
-                        : 0.heightBox,
-                    currPage == 2
-                        ? Expanded(child: _finishedView(categoryBloc))
-                        : 0.heightBox,
-                  ],
-                ),
-              ));
-        }
-        return Container();
-      },
-    );
+                      ),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              currPage = 2;
+                              getIncomeCategorys();
+                            });
+                          },
+                          child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(30),
+                                      bottomRight: Radius.circular(30)),
+                                  color: currPage == 2
+                                      ? Colors.blue
+                                      : Helper.getCardColor(context)),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  LocaleKeys.income.tr,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: currPage == 2
+                                        ? Colors.white
+                                        : Helper.getTextColor(context),
+                                  ),
+                                ),
+                              )),
+                        ),
+                      ),
+                    ],
+                  )),
+              currPage == 1 ? Expanded(child: _happeningView()) : 0.heightBox,
+              currPage == 2 ? Expanded(child: _finishedView()) : 0.heightBox,
+            ],
+          ),
+        ));
   }
 
-  Widget _happeningView(CategoryBloc categoryBloc) {
+  Widget _happeningView() {
     return isLoading
         ? Center(child: CircularProgressIndicator())
         : categories.isEmpty
@@ -539,7 +517,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               );
   }
 
-  Widget _finishedView(CategoryBloc categoryBloc) {
+  Widget _finishedView() {
     return isIncomeLoading
         ? Center(child: CircularProgressIndicator())
         : incomeCategories.isEmpty
@@ -617,8 +595,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                    //         Text("dfg",
-                                    // style: TextStyle(color: Colors.white),),
+                                            //         Text("dfg",
+                                            // style: TextStyle(color: Colors.white),),
                                           ],
                                         ),
                                       ),

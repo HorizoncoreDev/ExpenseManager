@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 extension NumExtension on num {
   Widget get widthBox => SizedBox(
         width: toDouble(),
@@ -9,7 +8,7 @@ extension NumExtension on num {
   Widget get heightBox => SizedBox(
         height: toDouble(),
       );
-  /*void addCsvDataToDatabase() {
+/*void addCsvDataToDatabase() {
     for (int i = 1; i < data.length; i++) {
       // Start from index 1 to skip the header row
       ToDoModel todoModel = ToDoModel(
@@ -23,10 +22,4 @@ extension NumExtension on num {
       DatabaseHelper.addTask(todoModel);
     }
   }*/
-
 }
-
-
-
-
-

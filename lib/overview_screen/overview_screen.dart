@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
@@ -12,19 +10,14 @@ import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-import '../db_models/request_model.dart';
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
 import '../statistics/search/search_screen.dart';
 import 'add_spending/add_spending_screen.dart';
-import 'bloc/overview_bloc.dart';
-import 'bloc/overview_state.dart';
 import 'edit_spending/edit_spending_screen.dart';
 import 'income_detail_screen/income_detail_screen.dart';
 
@@ -38,7 +31,6 @@ class OverviewScreen extends StatefulWidget {
 }
 
 class OverviewScreenState extends State<OverviewScreen> {
-  OverviewBloc overviewBloc = OverviewBloc();
   List<DateWiseTransactionModel> dateWiseSpendingTransaction = [];
   List<DateWiseTransactionModel> dateWiseIncomeTransaction = [];
   String currentUserEmail = "";
@@ -79,13 +71,15 @@ class OverviewScreenState extends State<OverviewScreen> {
                     if (value != null) {
                       currentUserKey = value;
                       MySharedPreferences.instance
-                          .getStringValuesSF(SharedPreferencesKeys.currentUserName)
+                          .getStringValuesSF(
+                              SharedPreferencesKeys.currentUserName)
                           .then((value) {
                         if (value != null) {
                           userName = value;
                           getTransactions();
                         }
-                      }); }
+                      });
+                    }
                   });
                 }
               });
@@ -165,9 +159,9 @@ class OverviewScreenState extends State<OverviewScreen> {
 
   getProfileData() async {
     try {
-      if(currentUserEmail==userEmail) {
+      if (currentUserEmail == userEmail) {
         ProfileModel? fetchedProfileData =
-        await databaseHelper.getProfileData(currentUserEmail);
+            await databaseHelper.getProfileData(currentUserEmail);
         setState(() {
           profileModel = fetchedProfileData!;
           currentBalance = int.parse(profileModel.current_balance!);
@@ -175,7 +169,7 @@ class OverviewScreenState extends State<OverviewScreen> {
           actualBudget = int.parse(profileModel.actual_budget!);
           //checkRequests();
         });
-      }else{
+      } else {
         final reference = FirebaseDatabase.instance
             .reference()
             .child(profile_table)
@@ -186,7 +180,7 @@ class OverviewScreenState extends State<OverviewScreen> {
           DataSnapshot dataSnapshot = event.snapshot;
           if (event.snapshot.exists) {
             Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
+                dataSnapshot.value as Map<dynamic, dynamic>;
             values.forEach((key, value) async {
               profileModel = ProfileModel.fromMap(value);
               currentBalance = int.parse(profileModel.current_balance!);
@@ -224,8 +218,8 @@ class OverviewScreenState extends State<OverviewScreen> {
     spendingTransaction = [];
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(
-        AppConstanst.spendingTransaction, currentUserEmail,currentUserKey, isSkippedUser)
+        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,
+            currentUserEmail, currentUserKey, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -264,7 +258,7 @@ class OverviewScreenState extends State<OverviewScreen> {
           setState(() {
             loading = false;
           });
-          if(currentUserEmail==userEmail) {
+          if (currentUserEmail == userEmail) {
             await DatabaseHelper.instance
                 .getProfileData(currentUserEmail)
                 .then((profileData) async {
@@ -284,8 +278,8 @@ class OverviewScreenState extends State<OverviewScreen> {
               totalAmount = totalAmount + t.amount!;
             } else {
               DateWiseTransactionModel? found =
-              dateWiseSpendingTransaction.firstWhereOrNull((element) =>
-              element.transactionDate!.split(' ')[0] == date);
+                  dateWiseSpendingTransaction.firstWhereOrNull((element) =>
+                      element.transactionDate!.split(' ')[0] == date);
               if (found == null) {
                 continue;
               } else {
@@ -322,16 +316,15 @@ class OverviewScreenState extends State<OverviewScreen> {
           actualBudget = int.parse(value);
         }
       });
-    }
-    else {
+    } else {
       getProfileData();
     }
 
     List<TransactionModel> incomeTransaction = [];
     dateWiseIncomeTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(
-        AppConstanst.incomeTransaction, currentUserEmail,currentUserKey, isSkippedUser)
+        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction,
+            currentUserEmail, currentUserKey, isSkippedUser)
         .then((value) async {
       incomeTransaction = value;
       List<String> dates = [];
@@ -358,7 +351,7 @@ class OverviewScreenState extends State<OverviewScreen> {
         } else {
           currentIncome = 0;
           setState(() {});
-          if(userEmail == currentUserEmail) {
+          if (userEmail == currentUserEmail) {
             await DatabaseHelper.instance
                 .getProfileData(currentUserEmail)
                 .then((profileData) async {
@@ -378,8 +371,8 @@ class OverviewScreenState extends State<OverviewScreen> {
               totalAmount = totalAmount + t.amount!;
             } else {
               DateWiseTransactionModel? found =
-              dateWiseIncomeTransaction.firstWhereOrNull((element) =>
-              element.transactionDate!.split(' ')[0] == date);
+                  dateWiseIncomeTransaction.firstWhereOrNull((element) =>
+                      element.transactionDate!.split(' ')[0] == date);
               if (found == null) {
                 continue;
               } else {
@@ -396,187 +389,169 @@ class OverviewScreenState extends State<OverviewScreen> {
         setState(() {});
       }
     });
-
   }
 
   @override
   Widget build(BuildContext context) {
-    overviewBloc.context = context;
-    return BlocConsumer<OverviewBloc, OverviewState>(
-      bloc: overviewBloc,
-      listener: (context, state) {},
-      builder: (context, state) {
-        if (state is OverviewInitial) {
-          return PopScope(
-            canPop: true,
-            child: SafeArea(
-              child: DefaultTabController(
-                length: 2,
-                child: Scaffold(
-                  body: Container(
-                      color: Helper.getBackgroundColor(context),
-                      height: double.infinity,
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 250,
-                            decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.only(
-                                    bottomRight: Radius.circular(50))),
-                          ),
-                          Column(
+    return PopScope(
+      canPop: true,
+      child: SafeArea(
+        child: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            body: Container(
+                color: Helper.getBackgroundColor(context),
+                height: double.infinity,
+                child: Stack(
+                  children: [
+                    Container(
+                      height: 250,
+                      decoration: const BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.only(
+                              bottomRight: Radius.circular(50))),
+                    ),
+                    Column(
+                      children: [
+                        20.heightBox,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Row(
                             children: [
-                              20.heightBox,
-                              Padding(
-                                padding:
-                                const EdgeInsets.symmetric(horizontal: 20),
-                                child: Row(
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "${userName ?? LocaleKeys.guest.tr}: ${AppConstanst.currencySymbol}${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 20),
-                                          ),
-                                          Text(
-                                            "${LocaleKeys.today.tr}, ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 13),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    InkWell(
-                                        onTap: () {
-                                          Navigator.of(context,
-                                              rootNavigator: true)
-                                              .push(
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                const SearchScreen()),
-                                          );
-                                        },
-                                        child: const Icon(
-                                          Icons.search,
+                                    Text(
+                                      "${userName ?? LocaleKeys.guest.tr}: ${AppConstanst.currencySymbol}${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
+                                      style: const TextStyle(
                                           color: Colors.white,
-                                          size: 28,
-                                        )),
-                                    10.widthBox,
-                                    InkWell(
-                                      onTap: () {
-                                        Navigator.of(context,
-                                            rootNavigator: true)
-                                            .push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                              const OtherScreen()),
-                                        )
-                                            .then((value) {
-                                          widget.onAccountUpdate();
-                                          MySharedPreferences.instance
-                                              .getStringValuesSF(
-                                              SharedPreferencesKeys
-                                                  .currentUserKey)
-                                              .then((value) {
-                                            if (value != null) {
-                                              currentUserKey = value;
-                                              MySharedPreferences.instance
-                                                  .getStringValuesSF(
-                                                  SharedPreferencesKeys
-                                                      .currentUserEmail)
-                                                  .then((value) {
-                                                if (value != null) {
-                                                  currentUserEmail = value;
-                                                  MySharedPreferences.instance
-                                                      .getStringValuesSF(
-                                                      SharedPreferencesKeys
-                                                          .currentUserName)
-                                                      .then((value) {
-                                                    if (value != null) {
-                                                      userName = value;
-                                                      if(  AppConstanst.selectedTabIndex==0) {
-                                                        getTransactions();
-                                                      }else{
-                                                        getIncomeTransactions();
-                                                      }
-                                                    }
-                                                  }); }
-                                              });
-                                            }
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                          padding: const EdgeInsets.all(5),
-                                          decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.white),
-                                          child: const Icon(
-                                            Icons.family_restroom,
-                                            color: Colors.blue,
-                                            size: 28,
-                                          )),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
                                     ),
+                                    Text(
+                                      "${LocaleKeys.today.tr}, ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 13),
+                                    )
                                   ],
                                 ),
                               ),
-                              TabBar(
-                                labelColor: Colors.white,
-                                unselectedLabelColor: Colors.white60,
-                                indicatorColor: Colors.white,
-                                dividerColor: Colors.transparent,
-                                padding: EdgeInsets.zero,
-                                indicatorPadding: EdgeInsets.zero,
-                                labelPadding: EdgeInsets.zero,
-                                tabs:  [
-                                  Tab(child: Text(LocaleKeys.spending.tr)),
-                                  Tab(child: Text(LocaleKeys.income.tr)),
-                                ],
-                                onTap: (index) {
-                                  setState(() {
-                                    loading = true;
+                              InkWell(
+                                  onTap: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .push(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const SearchScreen()),
+                                    );
+                                  },
+                                  child: const Icon(
+                                    Icons.search,
+                                    color: Colors.white,
+                                    size: 28,
+                                  )),
+                              10.widthBox,
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context, rootNavigator: true)
+                                      .push(
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const OtherScreen()),
+                                  )
+                                      .then((value) {
+                                    widget.onAccountUpdate();
+                                    MySharedPreferences.instance
+                                        .getStringValuesSF(SharedPreferencesKeys
+                                            .currentUserKey)
+                                        .then((value) {
+                                      if (value != null) {
+                                        currentUserKey = value;
+                                        MySharedPreferences.instance
+                                            .getStringValuesSF(
+                                                SharedPreferencesKeys
+                                                    .currentUserEmail)
+                                            .then((value) {
+                                          if (value != null) {
+                                            currentUserEmail = value;
+                                            MySharedPreferences.instance
+                                                .getStringValuesSF(
+                                                    SharedPreferencesKeys
+                                                        .currentUserName)
+                                                .then((value) {
+                                              if (value != null) {
+                                                userName = value;
+                                                if (AppConstanst
+                                                        .selectedTabIndex ==
+                                                    0) {
+                                                  getTransactions();
+                                                } else {
+                                                  getIncomeTransactions();
+                                                }
+                                              }
+                                            });
+                                          }
+                                        });
+                                      }
+                                    });
                                   });
-                                  AppConstanst.selectedTabIndex = index;
-                                  if (index == 0) {
-                                    getTransactions();
-                                  } else {
-                                    getIncomeTransactions();
-                                  }
                                 },
+                                child: Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white),
+                                    child: const Icon(
+                                      Icons.family_restroom,
+                                      color: Colors.blue,
+                                      size: 28,
+                                    )),
                               ),
-                              Expanded(
-                                child: TabBarView(
-                                    physics:
-                                    const NeverScrollableScrollPhysics(),
-                                    children: [
-                                      _spendingView(overviewBloc),
-                                      _incomeView(overviewBloc)
-                                    ]),
-                              ),
-                              30.heightBox,
                             ],
                           ),
-                        ],
-                      )),
-                ),
-              ),
-            ),
-          );
-        }
-        return Container();
-      },
+                        ),
+                        TabBar(
+                          labelColor: Colors.white,
+                          unselectedLabelColor: Colors.white60,
+                          indicatorColor: Colors.white,
+                          dividerColor: Colors.transparent,
+                          padding: EdgeInsets.zero,
+                          indicatorPadding: EdgeInsets.zero,
+                          labelPadding: EdgeInsets.zero,
+                          tabs: [
+                            Tab(child: Text(LocaleKeys.spending.tr)),
+                            Tab(child: Text(LocaleKeys.income.tr)),
+                          ],
+                          onTap: (index) {
+                            setState(() {
+                              loading = true;
+                            });
+                            AppConstanst.selectedTabIndex = index;
+                            if (index == 0) {
+                              getTransactions();
+                            } else {
+                              getIncomeTransactions();
+                            }
+                          },
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                              physics: const NeverScrollableScrollPhysics(),
+                              children: [_spendingView(), _incomeView()]),
+                        ),
+                        30.heightBox,
+                      ],
+                    ),
+                  ],
+                )),
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _spendingView(OverviewBloc overviewBloc) {
+  Widget _spendingView() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: SingleChildScrollView(
@@ -589,7 +564,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                      const BorderRadius.all(Radius.circular(10))),
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -625,7 +600,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 ),
                                 5.widthBox,
                                 Text(
-                                 LocaleKeys.spent.tr,
+                                  LocaleKeys.spent.tr,
                                   style: TextStyle(
                                       color: Helper.getTextColor(context),
                                       fontSize: 12),
@@ -702,7 +677,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                         Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute(
                               builder: (context) =>
-                              const SpendingDetailScreen()),
+                                  const SpendingDetailScreen()),
                         );
                       },
                       child: Container(
@@ -768,8 +743,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 .length,
                             itemBuilder: (context, index1) {
                               final transaction =
-                              dateWiseSpendingTransaction[index]
-                                  .transactions![index1];
+                                  dateWiseSpendingTransaction[index]
+                                      .transactions![index1];
                               return AbsorbPointer(
                                 absorbing: userEmail != currentUserEmail,
                                 child: Dismissible(
@@ -791,21 +766,21 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       context: context,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
-                                          title:  Text(LocaleKeys.confirm.tr),
-                                          content:  Text(
+                                          title: Text(LocaleKeys.confirm.tr),
+                                          content: Text(
                                               LocaleKeys.deleteTransaction.tr),
                                           actions: <Widget>[
                                             TextButton(
                                               onPressed: () =>
                                                   Navigator.of(context)
                                                       .pop(false),
-                                              child:  Text(LocaleKeys.cancel.tr),
+                                              child: Text(LocaleKeys.cancel.tr),
                                             ),
                                             TextButton(
                                               onPressed: () {
                                                 Navigator.of(context).pop(true);
                                               },
-                                              child:  Text(LocaleKeys.delete.tr),
+                                              child: Text(LocaleKeys.delete.tr),
                                             ),
                                           ],
                                         );
@@ -818,8 +793,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           .transactions!
                                           .removeAt(index1);
                                     });
-                                    await databaseHelper.deleteTransactionFromDB(
-                                        transaction, isSkippedUser);
+                                    await databaseHelper
+                                        .deleteTransactionFromDB(
+                                            transaction, isSkippedUser);
 
                                     setState(() {
                                       currentBalance =
@@ -839,12 +815,14 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   child: InkWell(
                                     onTap: () {
                                       if (userEmail == currentUserEmail) {
-                                        Navigator.of(context, rootNavigator: true)
+                                        Navigator.of(context,
+                                                rootNavigator: true)
                                             .push(
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   EditSpendingScreen(
-                                                    transactionModel: transaction,
+                                                    transactionModel:
+                                                        transaction,
                                                   )),
                                         )
                                             .then((value) {
@@ -883,7 +861,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   transaction.cat_name!,
@@ -907,7 +885,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           ),
                                           Column(
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.end,
+                                                CrossAxisAlignment.end,
                                             children: [
                                               Text(
                                                 "-${AppConstanst.currencySymbol}${transaction.amount!}",
@@ -919,7 +897,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                                 ),
                                               ),
                                               Text(
-                                                transaction.payment_method_name!,
+                                                transaction
+                                                    .payment_method_name!,
                                                 style: TextStyle(
                                                   color: Helper.getTextColor(
                                                       context),
@@ -956,7 +935,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                      const BorderRadius.all(Radius.circular(10))),
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Column(
                     children: [
                       20.heightBox,
@@ -980,9 +959,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   .push(
                                 MaterialPageRoute(
                                     builder: (context) => AddSpendingScreen(
-                                      transactionName: AppConstanst
-                                          .spendingTransactionName,
-                                    )),
+                                          transactionName: AppConstanst
+                                              .spendingTransactionName,
+                                        )),
                               )
                                   .then((value) {
                                 if (value != null) {
@@ -1000,7 +979,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                               decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
+                                      BorderRadius.all(Radius.circular(10))),
                               child: Text(
                                 LocaleKeys.addSpending.tr,
                                 style: TextStyle(
@@ -1018,7 +997,7 @@ class OverviewScreenState extends State<OverviewScreen> {
     );
   }
 
-  Widget _incomeView(OverviewBloc overviewBloc) {
+  Widget _incomeView() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: SingleChildScrollView(
@@ -1031,7 +1010,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                      const BorderRadius.all(Radius.circular(10))),
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -1150,7 +1129,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                 physics: const ScrollPhysics(),
                 itemCount: dateWiseIncomeTransaction.length,
                 itemBuilder: (context, index) {
-                  if(dateWiseIncomeTransaction.isNotEmpty) {
+                  if (dateWiseIncomeTransaction.isNotEmpty) {
                     if (dateWiseIncomeTransaction[index]
                         .transactions!
                         .isNotEmpty) {
@@ -1160,16 +1139,12 @@ class OverviewScreenState extends State<OverviewScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "${dateWiseIncomeTransaction[index]
-                                    .transactionDay}, ${dateWiseIncomeTransaction[index]
-                                    .transactionDate}",
+                                "${dateWiseIncomeTransaction[index].transactionDay}, ${dateWiseIncomeTransaction[index].transactionDate}",
                                 style: const TextStyle(
                                     color: Colors.grey, fontSize: 14),
                               ),
                               Text(
-                                "+${AppConstanst
-                                    .currencySymbol}${dateWiseIncomeTransaction[index]
-                                    .transactionTotal}",
+                                "+${AppConstanst.currencySymbol}${dateWiseIncomeTransaction[index].transactionTotal}",
                                 style: const TextStyle(
                                     color: Colors.green, fontSize: 14),
                               ),
@@ -1187,8 +1162,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   .length,
                               itemBuilder: (context, index1) {
                                 final transaction =
-                                dateWiseIncomeTransaction[index]
-                                    .transactions![index1];
+                                    dateWiseIncomeTransaction[index]
+                                        .transactions![index1];
                                 return AbsorbPointer(
                                   absorbing: userEmail != currentUserEmail,
                                   child: Dismissible(
@@ -1209,23 +1184,22 @@ class OverviewScreenState extends State<OverviewScreen> {
                                         builder: (BuildContext context) {
                                           return AlertDialog(
                                             title: Text(LocaleKeys.confirm.tr),
-                                            content: Text(
-                                                LocaleKeys.deleteTransaction
-                                                    .tr),
+                                            content: Text(LocaleKeys
+                                                .deleteTransaction.tr),
                                             actions: <Widget>[
                                               TextButton(
                                                 onPressed: () =>
                                                     Navigator.of(context)
                                                         .pop(false),
-                                                child: Text(
-                                                    LocaleKeys.cancel.tr),
+                                                child:
+                                                    Text(LocaleKeys.cancel.tr),
                                               ),
                                               TextButton(
                                                 onPressed: () =>
-                                                    Navigator.of(context).pop(
-                                                        true),
-                                                child: Text(
-                                                    LocaleKeys.delete.tr),
+                                                    Navigator.of(context)
+                                                        .pop(true),
+                                                child:
+                                                    Text(LocaleKeys.delete.tr),
                                               ),
                                             ],
                                           );
@@ -1240,7 +1214,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       });
                                       await databaseHelper
                                           .deleteTransactionFromDB(
-                                          transaction, isSkippedUser);
+                                              transaction, isSkippedUser);
 
                                       setState(() {
                                         currentIncome =
@@ -1257,16 +1231,16 @@ class OverviewScreenState extends State<OverviewScreen> {
                                         getIncomeTransactions();
                                       });
                                     },
-
                                     child: InkWell(
                                       onTap: () {
-                                        Navigator.of(
-                                            context, rootNavigator: true)
+                                        Navigator.of(context,
+                                                rootNavigator: true)
                                             .push(
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   EditSpendingScreen(
-                                                    transactionModel: transaction,
+                                                    transactionModel:
+                                                        transaction,
                                                   )),
                                         )
                                             .then((value) {
@@ -1294,8 +1268,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                                     Radius.circular(10)),
                                               ),
                                               child: SvgPicture.asset(
-                                                'asset/images/${transaction
-                                                    .cat_icon}.svg',
+                                                'asset/images/${transaction.cat_icon}.svg',
                                                 color: transaction.cat_color,
                                                 width: 24,
                                                 height: 24,
@@ -1305,25 +1278,25 @@ class OverviewScreenState extends State<OverviewScreen> {
                                             Expanded(
                                               child: Column(
                                                 crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
                                                     transaction.cat_name!,
                                                     style: TextStyle(
-                                                      color: Helper
-                                                          .getTextColor(
-                                                          context),
+                                                      color:
+                                                          Helper.getTextColor(
+                                                              context),
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight
-                                                          .bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                   Text(
                                                     transaction.description!,
                                                     style: TextStyle(
-                                                      color: Helper
-                                                          .getTextColor(
-                                                          context),
+                                                      color:
+                                                          Helper.getTextColor(
+                                                              context),
                                                       fontSize: 14,
                                                     ),
                                                   ),
@@ -1332,12 +1305,10 @@ class OverviewScreenState extends State<OverviewScreen> {
                                             ),
                                             Column(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.end,
+                                                  CrossAxisAlignment.end,
                                               children: [
                                                 Text(
-                                                  "+${AppConstanst
-                                                      .currencySymbol}${transaction
-                                                      .amount!}",
+                                                  "+${AppConstanst.currencySymbol}${transaction.amount!}",
                                                   style: TextStyle(
                                                     color: Helper.getTextColor(
                                                         context),
@@ -1385,7 +1356,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                      const BorderRadius.all(Radius.circular(10))),
+                          const BorderRadius.all(Radius.circular(10))),
                   child: Column(
                     children: [
                       20.heightBox,
@@ -1396,7 +1367,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                       ),
                       10.heightBox,
                       Text(
-                       LocaleKeys.dontHaveIncome.tr,
+                        LocaleKeys.dontHaveIncome.tr,
                         style: TextStyle(color: Helper.getTextColor(context)),
                       ),
                       20.heightBox,
@@ -1409,9 +1380,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   .push(
                                 MaterialPageRoute(
                                     builder: (context) => AddSpendingScreen(
-                                      transactionName:
-                                      AppConstanst.incomeTransactionName,
-                                    )),
+                                          transactionName: AppConstanst
+                                              .incomeTransactionName,
+                                        )),
                               )
                                   .then((value) {
                                 if (value != null) {
@@ -1429,11 +1400,11 @@ class OverviewScreenState extends State<OverviewScreen> {
                               decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
+                                      BorderRadius.all(Radius.circular(10))),
                               child: Text(
                                 LocaleKeys.addIncome.tr,
-                                style:
-                                TextStyle(color: Colors.white, fontSize: 14),
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14),
                               ),
                             ),
                           ),
@@ -1449,9 +1420,9 @@ class OverviewScreenState extends State<OverviewScreen> {
 
   List<PieChartSectionData> showingSpendingSections() {
     double spendingPercentage =
-    currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
+        currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
     double remainingPercentage =
-    currentBalance > 0 ? 100 - spendingPercentage : 0;
+        currentBalance > 0 ? 100 - spendingPercentage : 0;
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;
@@ -1493,7 +1464,7 @@ class OverviewScreenState extends State<OverviewScreen> {
         ? (currentIncome / actualBudget) * 100
         : 100;
     double remainingPercentage =
-    currentIncome > 0 ? 100 - incomePercentage : 100;
+        currentIncome > 0 ? 100 - incomePercentage : 100;
     return List.generate(2, (i) {
       const fontSize = 12.0;
       const radius = 40.0;

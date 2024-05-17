@@ -5,18 +5,16 @@ import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
 import '../../db_models/transaction_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../overview_screen/add_spending/DateWiseTransactionModel.dart';
 import '../../overview_screen/edit_spending/edit_spending_screen.dart';
 import '../../utils/global.dart';
 import '../../utils/views/custom_text_form_field.dart';
-import 'bloc/search_bloc.dart';
-import 'bloc/search_state.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -26,7 +24,6 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  SearchBloc searchBloc = SearchBloc();
   String currentUserEmail = "";
   String userEmail = "";
   String userKey = "";
@@ -73,23 +70,23 @@ class _SearchScreenState extends State<SearchScreen> {
             .then((value) {
           if (value != null) {
             currentUserEmail = value;
-          } MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.userEmail)
-            .then((value) {
-          if (value != null) {
-            userEmail = value;
           }
           MySharedPreferences.instance
-              .getStringValuesSF(
-              SharedPreferencesKeys
-                  .currentUserKey)
+              .getStringValuesSF(SharedPreferencesKeys.userEmail)
               .then((value) {
             if (value != null) {
-              userKey = value;}
-          getTransactions("");
+              userEmail = value;
+            }
+            MySharedPreferences.instance
+                .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
+                .then((value) {
+              if (value != null) {
+                userKey = value;
+              }
+              getTransactions("");
+            });
+          });
         });
-            });
-            });
       }
     });
     getCategories();
@@ -134,8 +131,15 @@ class _SearchScreenState extends State<SearchScreen> {
     dateWiseTransaction = [];
 
     await DatabaseHelper.instance
-        .fetchAllDataForYearMonthsAndCategory(showYear, selectedMonths,
-            expenseCatId, incomeCatId, currentUserEmail,userKey, value,isSkippedUser)
+        .fetchAllDataForYearMonthsAndCategory(
+            showYear,
+            selectedMonths,
+            expenseCatId,
+            incomeCatId,
+            currentUserEmail,
+            userKey,
+            value,
+            isSkippedUser)
         .then((value) {
       spendingTransaction = value;
       List<String> dates = [];
@@ -183,75 +187,68 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    searchBloc.context = context;
-    return BlocConsumer<SearchBloc, SearchState>(
-      bloc: searchBloc,
-      listener: (context, state) {},
-      builder: (context, state) {
-        if (state is SearchInitial) {
-          return Scaffold(
-              appBar: AppBar(
-                automaticallyImplyLeading: false,
-                backgroundColor: Helper.getBackgroundColor(context),
-                title: Row(
-                  children: [
-                    InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                          color: Helper.getTextColor(context),
-                          size: 20,
-                        )),
-                    Text(LocaleKeys.search.tr,
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: Helper.getTextColor(context),
-                        )),
-                  ],
-                ),
-                actions: [
-                  InkWell(
-                    onTap: () {
-                      showModalBottomSheet<void>(
-                          context: context,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(10),
-                            ),
-                          ),
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          isScrollControlled: true,
-                          builder: (BuildContext context) {
-                            return StatefulBuilder(
-                              builder: (context, setState) {
-                                return WillPopScope(
-                                    onWillPop: () async {
-                                      return true;
-                                    },
-                                    child: Padding(
-                                        padding:
-                                            MediaQuery.of(context).viewInsets,
-                                        child: _bottomSheetView(setState)));
-                              },
-                            );
-                          });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Helper.getCardColor(context)),
-                      child: Icon(
-                        Icons.filter_alt_rounded,
-                        color: Helper.getTextColor(context),
-                        size: 20,
+    return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Helper.getBackgroundColor(context),
+          title: Row(
+            children: [
+              InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Helper.getTextColor(context),
+                    size: 20,
+                  )),
+              Text(LocaleKeys.search.tr,
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Helper.getTextColor(context),
+                  )),
+            ],
+          ),
+          actions: [
+            InkWell(
+              onTap: () {
+                showModalBottomSheet<void>(
+                    context: context,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(10),
                       ),
                     ),
-                  ),
-                  10.widthBox,
-                  /*  Padding(
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    isScrollControlled: true,
+                    builder: (BuildContext context) {
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return WillPopScope(
+                              onWillPop: () async {
+                                return true;
+                              },
+                              child: Padding(
+                                  padding: MediaQuery.of(context).viewInsets,
+                                  child: _bottomSheetView(setState)));
+                        },
+                      );
+                    });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Helper.getCardColor(context)),
+                child: Icon(
+                  Icons.filter_alt_rounded,
+                  color: Helper.getTextColor(context),
+                  size: 20,
+                ),
+              ),
+            ),
+            10.widthBox,
+            /*  Padding(
                     padding: const EdgeInsets.only(right: 15),
                     child: Container(
                       padding: const EdgeInsets.all(8),
@@ -264,100 +261,93 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                   )*/
-                ],
-              ),
-              body: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Helper.getBackgroundColor(context),
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    10.heightBox,
-                    CustomBoxTextFormField(
-                        controller: searchController,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                        keyboardType: TextInputType.text,
-                        hintText: LocaleKeys.searchBy.tr,
-                        fillColor: Helper.getCardColor(context),
-                        borderColor: Colors.transparent,
-                        padding: 10,
-                        textStyle:
-                            TextStyle(color: Helper.getTextColor(context)),
-                        horizontalPadding: 5,
-                        suffixIcon: searchController.text.isNotEmpty
-                            ? InkWell(
-                                onTap: () {
-                                  searchController.clear();
-                                  if (showYear != LocaleKeys.selectYear.tr &&
-                                      selectedMonths.isNotEmpty) {
-                                    getFilteredData("");
-                                  } else {
-                                    getTransactions("");
-                                  }
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: Icon(
-                                    Icons.close,
-                                    size: 22,
-                                    color: Helper.getTextColor(context),
-                                  ),
-                                ),
-                              )
-                            : const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(
-                                  Icons.search,
-                                  size: 22,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                        onChanged: (value) {
-                          if (value.isNotEmpty) {
-                            if (showYear != LocaleKeys.selectYear.tr &&
-                                selectedMonths.isNotEmpty) {
-                              getFilteredData(value);
-                            } else {
-                              getTransactions(value);
-                            }
-                          } else {
-                            dateWiseTransaction = originalDateWiseTransaction;
+          ],
+        ),
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Helper.getBackgroundColor(context),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              10.heightBox,
+              CustomBoxTextFormField(
+                  controller: searchController,
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  keyboardType: TextInputType.text,
+                  hintText: LocaleKeys.searchBy.tr,
+                  fillColor: Helper.getCardColor(context),
+                  borderColor: Colors.transparent,
+                  padding: 10,
+                  textStyle: TextStyle(color: Helper.getTextColor(context)),
+                  horizontalPadding: 5,
+                  suffixIcon: searchController.text.isNotEmpty
+                      ? InkWell(
+                          onTap: () {
+                            searchController.clear();
                             if (showYear != LocaleKeys.selectYear.tr &&
                                 selectedMonths.isNotEmpty) {
                               getFilteredData("");
                             } else {
                               getTransactions("");
                             }
-                          }
-                        },
-                        validator: (value) {
-                          return null;
-                        }),
-                    if (dateWiseTransaction.isNotEmpty) 15.heightBox,
-                    if (dateWiseTransaction.isNotEmpty) _transactionView(),
-                    if (dateWiseTransaction.isEmpty)
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            LocaleKeys.recordNotFound.tr,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 18),
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.close,
+                              size: 22,
+                              color: Helper.getTextColor(context),
+                            ),
+                          ),
+                        )
+                      : const Padding(
+                          padding: EdgeInsets.only(right: 10),
+                          child: Icon(
+                            Icons.search,
+                            size: 22,
+                            color: Colors.grey,
                           ),
                         ),
-                      ),
-                  ],
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      if (showYear != LocaleKeys.selectYear.tr &&
+                          selectedMonths.isNotEmpty) {
+                        getFilteredData(value);
+                      } else {
+                        getTransactions(value);
+                      }
+                    } else {
+                      dateWiseTransaction = originalDateWiseTransaction;
+                      if (showYear != LocaleKeys.selectYear.tr &&
+                          selectedMonths.isNotEmpty) {
+                        getFilteredData("");
+                      } else {
+                        getTransactions("");
+                      }
+                    }
+                  },
+                  validator: (value) {
+                    return null;
+                  }),
+              if (dateWiseTransaction.isNotEmpty) 15.heightBox,
+              if (dateWiseTransaction.isNotEmpty) _transactionView(),
+              if (dateWiseTransaction.isEmpty)
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      LocaleKeys.recordNotFound.tr,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Helper.getTextColor(context), fontSize: 18),
+                    ),
+                  ),
                 ),
-              ));
-        }
-        return Container();
-      },
-    );
+            ],
+          ),
+        ));
   }
 
   getTransactions(String category) async {
@@ -365,8 +355,8 @@ class _SearchScreenState extends State<SearchScreen> {
     dateWiseTransaction = [];
 
     await DatabaseHelper.instance
-        .getTransactionList(
-            category.toLowerCase(), currentUserEmail,userKey, -1, isSkippedUser)
+        .getTransactionList(category.toLowerCase(), currentUserEmail, userKey,
+            -1, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -425,7 +415,6 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-
   Widget _transactionView() {
     return Flexible(
       child: ListView.separated(
@@ -446,7 +435,11 @@ class _SearchScreenState extends State<SearchScreen> {
                     dateWiseTransaction[index].transactionTotal! < 0
                         ? "-${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactionTotal.toString().replaceAll("-", '')}"
                         : '+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactionTotal}',
-                    style: TextStyle(color: dateWiseTransaction[index].transactionTotal! < 0?Colors.pink:Colors.green, fontSize: 14),
+                    style: TextStyle(
+                        color: dateWiseTransaction[index].transactionTotal! < 0
+                            ? Colors.pink
+                            : Colors.green,
+                        fontSize: 14),
                   ),
                 ],
               ),
@@ -458,22 +451,24 @@ class _SearchScreenState extends State<SearchScreen> {
                   itemCount: dateWiseTransaction[index].transactions!.length,
                   itemBuilder: (context, index1) {
                     return InkWell(
-                      onTap: (){
-                        if(userEmail==currentUserEmail) {
+                      onTap: () {
+                        if (userEmail == currentUserEmail) {
                           Navigator.of(context, rootNavigator: true)
-                            .push(
-                          MaterialPageRoute(
-                              builder: (context) => EditSpendingScreen(
-                                transactionModel: dateWiseTransaction[index].transactions![index1],
-                              )),
-                        )
-                            .then((value) {
-                          if (value != null) {
-                            if (value) {
-                              getTransactions("");
+                              .push(
+                            MaterialPageRoute(
+                                builder: (context) => EditSpendingScreen(
+                                      transactionModel:
+                                          dateWiseTransaction[index]
+                                              .transactions![index1],
+                                    )),
+                          )
+                              .then((value) {
+                            if (value != null) {
+                              if (value) {
+                                getTransactions("");
+                              }
                             }
-                          }
-                        });
+                          });
                         }
                       },
                       child: Container(
@@ -546,9 +541,11 @@ class _SearchScreenState extends State<SearchScreen> {
                                       : "+${AppConstanst.currencySymbol}${dateWiseTransaction[index].transactions![index1].amount!}",
                                   style: TextStyle(
                                       color: dateWiseTransaction[index]
-                                          .transactions![index1]
-                                          .transaction_type ==
-                                          AppConstanst.spendingTransaction ? Colors.red : Colors.green,
+                                                  .transactions![index1]
+                                                  .transaction_type ==
+                                              AppConstanst.spendingTransaction
+                                          ? Colors.red
+                                          : Colors.green,
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -606,7 +603,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     Expanded(
                       child: Text(
-                       LocaleKeys.filter.tr,
+                        LocaleKeys.filter.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Helper.getTextColor(context),

@@ -86,27 +86,25 @@ class ProfileModel {
 
   factory ProfileModel.fromMap(Map<dynamic, dynamic> map) {
     return ProfileModel(
-      // id: map['id'],
-      key: map['key'],
-      first_name: map['first_name'],
-      last_name: map['last_name'],
-      email: map['email'],
-      user_code: map['user_code'],
-      full_name: map['full_name'],
-      dob: map['dob'],
-      profile_image: map['profile_image'],
-      mobile_number: map['mobile_number'],
-      gender: map['gender'],
-      current_balance: map['current_balance'],
-      current_income: map['current_income'],
-      actual_budget: map['actual_budget'],
-      fcm_token: map['fcm_token'],
+        // id: map['id'],
+        key: map['key'],
+        first_name: map['first_name'],
+        last_name: map['last_name'],
+        email: map['email'],
+        user_code: map['user_code'],
+        full_name: map['full_name'],
+        dob: map['dob'],
+        profile_image: map['profile_image'],
+        mobile_number: map['mobile_number'],
+        gender: map['gender'],
+        current_balance: map['current_balance'],
+        current_income: map['current_income'],
+        actual_budget: map['actual_budget'],
+        fcm_token: map['fcm_token'],
         lang_code: map['lang_code'],
         currency_code: map['currency_code'],
-        currency_symbol: map['currency_symbol']
-    );
+        currency_symbol: map['currency_symbol']);
   }
-
 
   static ProfileModel fromJson(Map<String, Object?> json) => ProfileModel(
         // id: json[ProfileTableFields.id] as int,
@@ -114,19 +112,19 @@ class ProfileModel {
         first_name: json[ProfileTableFields.first_name] as String,
         last_name: json[ProfileTableFields.last_name] as String,
         email: json[ProfileTableFields.email] as String,
-    user_code: json[ProfileTableFields.user_code] as String,
+        user_code: json[ProfileTableFields.user_code] as String,
         full_name: json[ProfileTableFields.full_name] as String,
         dob: json[ProfileTableFields.dob] as String,
         profile_image: json[ProfileTableFields.profile_image] as String,
         mobile_number: json[ProfileTableFields.mobile_number] as String,
         gender: json[ProfileTableFields.gender] as String,
         current_balance: json[ProfileTableFields.current_balance] as String,
-    current_income: json[ProfileTableFields.current_income] as String,
-    actual_budget: json[ProfileTableFields.actual_budget] as String,
-    fcm_token: json[ProfileTableFields.fcm_token] as String,
-    lang_code: json[ProfileTableFields.lang_code] as String,
-    currency_code: json[ProfileTableFields.currency_code] as String,
-    currency_symbol: json[ProfileTableFields.currency_symbol] as String,
+        current_income: json[ProfileTableFields.current_income] as String,
+        actual_budget: json[ProfileTableFields.actual_budget] as String,
+        fcm_token: json[ProfileTableFields.fcm_token] as String,
+        lang_code: json[ProfileTableFields.lang_code] as String,
+        currency_code: json[ProfileTableFields.currency_code] as String,
+        currency_symbol: json[ProfileTableFields.currency_symbol] as String,
       );
 
   Map<String, dynamic> toMap() {

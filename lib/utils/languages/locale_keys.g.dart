@@ -4,15 +4,18 @@ abstract class LocaleKeys {
   static const selectLanguage = 'selectLanguage';
   static const start = 'start';
   static const plSelectLang = 'plSelectLang';
+
   ///Sign in screen
   static const loginText = 'loginText';
   static const signIn = 'signIn';
   static const skip = 'skip';
+
   ///Budget screen
   static const hello = 'hello';
   static const monthlyBudget = 'monthlyBudget';
   static const enterBudgetText = 'enterBudgetText';
   static const budgetStaticText = 'budgetStaticText';
+
   ///Overview Screen
   static const today = 'today';
   static const spending = 'spending';
@@ -35,6 +38,7 @@ abstract class LocaleKeys {
   static const moreThenTarget = 'moreThenTarget';
   static const lessThenTarget = 'lessThenTarget';
   static const dontHaveIncome = "dontHaveIncome";
+
   ///Statistics screen
   static const selectYear = 'selectYear';
   static const selectMonth = 'selectMonth';
@@ -60,6 +64,7 @@ abstract class LocaleKeys {
   static const category = 'category';
   static const yesterday = 'yesterday';
   static const monthFilterText = 'monthFilterText';
+
   ///Add Spending Screen & Edit spending
   static const spendingSuccessfully = 'spendingSuccessfully';
   static const spendingUpdateSuccessfully = 'spendingUpdateSuccessfully';
@@ -74,6 +79,7 @@ abstract class LocaleKeys {
   static const camera = 'camera';
   static const gallery = 'gallery';
   static const copy = 'copy';
+
   ///Spending Details screen & income details screen & Search screen
   static const notesCategories = 'notesCategories';
   static const collected = 'collected';
@@ -82,6 +88,7 @@ abstract class LocaleKeys {
   static const searchBy = 'searchBy';
   static const recordNotFound = 'recordNotFound';
   static const noNote = 'noNote';
+
   ///Other Screen
   static const categorySmall = 'categorySmall';
   static const myLibrary = 'myLibrary';
@@ -105,6 +112,7 @@ abstract class LocaleKeys {
   static const greatRewardText = 'greatRewardText';
   static const permissionDenied = 'permissionDenied';
   static const allowContactAccess = 'allowContactAccess';
+
   ///My account
   static const addAccount = 'addAccount';
   static const currently = 'currently';
@@ -119,6 +127,7 @@ abstract class LocaleKeys {
   static const alreadyExist = 'alreadyExist';
   static const alreadyHaveAccess = 'alreadyHaveAccess';
   static const requestSentSuccessFully = 'requestSentSuccessFully';
+
   ///Category, subcategory and add category screen
   static const noCatFound = 'noCatFound';
   static const noSubCatFound = 'noSubCatFound';
@@ -130,9 +139,11 @@ abstract class LocaleKeys {
   static const back = 'back';
   static const color = 'color';
   static const icon = 'icon';
+
   ///My library screen and invite friends screen
   static const haveNotLibrary = 'haveNotLibrary';
   static const invite = 'invite';
+
   ///General settings
   static const display = 'display';
   static const darkMode = 'darkMode';
@@ -163,6 +174,7 @@ abstract class LocaleKeys {
   static const generatePW = 'generatePW';
   static const createMPW = 'createMPW';
   static const passwordGenerate = 'passwordGenerate';
+
   ///Account details & Edit Account
   static const female = 'female';
   static const male = 'male';
@@ -183,14 +195,15 @@ abstract class LocaleKeys {
   static const enterName = 'enterName';
   static const enterLastName = 'enterLastName';
   static const enterEmail = 'enterEmail';
+
   ///Overview
   static const overview = 'overview';
 
-  static const monday ='Monday';
-  static const tuesday ='Tuesday';
+  static const monday = 'Monday';
+  static const tuesday = 'Tuesday';
   static const wednesday = 'Wednesday';
   static const thursday = 'Thursday';
-  static const friday ='Friday';
-  static const saturday ='Saturday';
+  static const friday = 'Friday';
+  static const saturday = 'Saturday';
   static const sunday = 'Sunday';
 }

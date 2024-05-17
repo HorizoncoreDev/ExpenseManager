@@ -9,15 +9,12 @@ import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../overview_screen/add_spending/DateWiseTransactionModel.dart';
-import 'bloc/statistics_bloc.dart';
-import 'bloc/statistics_state.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -27,7 +24,6 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class StatisticsScreenState extends State<StatisticsScreen> {
-  StatisticsBloc statisticsBloc = StatisticsBloc();
   String spendingShowYear = LocaleKeys.selectYear.tr;
   String spendingShowMonth = LocaleKeys.selectMonth.tr;
   DateTime _spendingSelectedYear = DateTime.now();
@@ -132,8 +128,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   getTransactions() async {
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(
-            AppConstanst.spendingTransaction, currentUserEmail,currentUserKey, isSkippedUser)
+        .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,
+            currentUserEmail, currentUserKey, isSkippedUser)
         .then((value) {
       parseSpendingList(value);
     });
@@ -191,8 +187,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   getIncomeData() async {
     dateWiseIncomeTransaction = [];
     await DatabaseHelper.instance
-        .fetchDataForCurrentMonth(
-            AppConstanst.incomeTransaction, currentUserEmail,currentUserKey, isSkippedUser)
+        .fetchDataForCurrentMonth(AppConstanst.incomeTransaction,
+            currentUserEmail, currentUserKey, isSkippedUser)
         .then((value) {
       parseIncomeList(value);
     });
@@ -296,7 +292,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               currentUserEmail,
               currentUserKey,
               AppConstanst.incomeTransaction,
-              "",isSkippedUser)
+              "",
+              isSkippedUser)
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
@@ -321,7 +318,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               currentUserEmail,
               currentUserKey,
               AppConstanst.spendingTransaction,
-              "",isSkippedUser)
+              "",
+              isSkippedUser)
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
@@ -337,83 +335,73 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    statisticsBloc.context = context;
-    return BlocConsumer<StatisticsBloc, StatisticsState>(
-      bloc: statisticsBloc,
-      listener: (context, state) {},
-      builder: (context, state) {
-        if (state is StatisticsInitial) {
-          return Scaffold(
-              appBar: AppBar(
-                titleSpacing: 15,
-                backgroundColor: Helper.getBackgroundColor(context),
-                title: Text(LocaleKeys.statistics.tr,
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Helper.getTextColor(context),
-                    )),
-                actions: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SearchScreen()),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Helper.getCardColor(context)),
-                      child: Icon(
-                        Icons.search,
-                        color: Helper.getTextColor(context),
-                        size: 20,
+    return Scaffold(
+        appBar: AppBar(
+          titleSpacing: 15,
+          backgroundColor: Helper.getBackgroundColor(context),
+          title: Text(LocaleKeys.statistics.tr,
+              style: TextStyle(
+                fontSize: 22,
+                color: Helper.getTextColor(context),
+              )),
+          actions: [
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SearchScreen()),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Helper.getCardColor(context)),
+                child: Icon(
+                  Icons.search,
+                  color: Helper.getTextColor(context),
+                  size: 20,
+                ),
+              ),
+            ),
+            10.widthBox,
+            InkWell(
+              onTap: () {
+                showModalBottomSheet<void>(
+                    context: context,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(10),
                       ),
                     ),
-                  ),
-                  10.widthBox,
-                  InkWell(
-                    onTap: () {
-                      showModalBottomSheet<void>(
-                          context: context,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(10),
-                            ),
-                          ),
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          isScrollControlled: true,
-                          builder: (BuildContext context) {
-                            return StatefulBuilder(
-                                builder: (context, setState) {
-                              return WillPopScope(
-                                  onWillPop: () async {
-                                    return true;
-                                  },
-                                  child: Padding(
-                                      padding:
-                                          MediaQuery.of(context).viewInsets,
-                                      child: _bottomSheetView(
-                                          statisticsBloc, setState)));
-                            });
-                          });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Helper.getCardColor(context)),
-                      child: Icon(
-                        Icons.filter_alt_rounded,
-                        color: Helper.getTextColor(context),
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                  10.widthBox,
-                  /*  Padding(
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    isScrollControlled: true,
+                    builder: (BuildContext context) {
+                      return StatefulBuilder(builder: (context, setState) {
+                        return WillPopScope(
+                            onWillPop: () async {
+                              return true;
+                            },
+                            child: Padding(
+                                padding: MediaQuery.of(context).viewInsets,
+                                child: _bottomSheetView(setState)));
+                      });
+                    });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Helper.getCardColor(context)),
+                child: Icon(
+                  Icons.filter_alt_rounded,
+                  color: Helper.getTextColor(context),
+                  size: 20,
+                ),
+              ),
+            ),
+            10.widthBox,
+            /*  Padding(
                     padding: const EdgeInsets.only(right: 15),
                     child: InkWell(
                       onTap: () {
@@ -434,119 +422,115 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                     ),
                   )*/
-                ],
-              ),
-              body: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Helper.getBackgroundColor(context),
-                child: Column(
-                  children: [
-                    20.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 10),
-                      child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Helper.getCardColor(context),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      currPage = 1;
-                                    });
-                                    if (spendingShowYear != LocaleKeys.selectYear.tr &&
-                                        spendingShowMonth != LocaleKeys.selectMonth.tr) {
-                                      getFilteredData();
-                                    } else {
-                                      getTransactions();
-                                    }
-                                  },
-                                  child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8),
-                                      decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(30),
-                                              bottomLeft: Radius.circular(30)),
-                                          color: currPage == 1
-                                              ? Colors.blue
-                                              : Helper.getCardColor(context)),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          LocaleKeys.spending.tr,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: currPage == 1
-                                                ? Colors.white
-                                                : Helper.getTextColor(context),
-                                          ),
-                                        ),
-                                      )),
-                                ),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      currPage = 2;
-                                    });
-
-                                    if (incomeShowYear != LocaleKeys.selectYear.tr && incomeShowMonth != LocaleKeys.selectMonth.tr) {
-                                      getFilteredData();
-                                    } else {
-                                      getIncomeData();
-                                    }
-                                  },
-                                  child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8),
-                                      decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.only(
-                                              topRight: Radius.circular(30),
-                                              bottomRight: Radius.circular(30)),
-                                          color: currPage == 2
-                                              ? Colors.blue
-                                              : Helper.getCardColor(context)),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          LocaleKeys.income.tr,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: currPage == 2
-                                                ? Colors.white
-                                                : Helper.getTextColor(context),
-                                          ),
-                                        ),
-                                      )),
-                                ),
-                              ),
-                            ],
-                          )),
+          ],
+        ),
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Helper.getBackgroundColor(context),
+          child: Column(
+            children: [
+              20.heightBox,
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      color: Helper.getCardColor(context),
                     ),
-                    currPage == 1
-                        ? Expanded(child: _spendingView(statisticsBloc))
-                        : 0.heightBox,
-                    currPage == 2
-                        ? Expanded(child: _incomeView(statisticsBloc))
-                        : 0.heightBox,
-                    10.heightBox
-                  ],
-                ),
-              ));
-        }
-        return Container();
-      },
-    );
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                currPage = 1;
+                              });
+                              if (spendingShowYear !=
+                                      LocaleKeys.selectYear.tr &&
+                                  spendingShowMonth !=
+                                      LocaleKeys.selectMonth.tr) {
+                                getFilteredData();
+                              } else {
+                                getTransactions();
+                              }
+                            },
+                            child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(30),
+                                        bottomLeft: Radius.circular(30)),
+                                    color: currPage == 1
+                                        ? Colors.blue
+                                        : Helper.getCardColor(context)),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    LocaleKeys.spending.tr,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: currPage == 1
+                                          ? Colors.white
+                                          : Helper.getTextColor(context),
+                                    ),
+                                  ),
+                                )),
+                          ),
+                        ),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                currPage = 2;
+                              });
+
+                              if (incomeShowYear != LocaleKeys.selectYear.tr &&
+                                  incomeShowMonth !=
+                                      LocaleKeys.selectMonth.tr) {
+                                getFilteredData();
+                              } else {
+                                getIncomeData();
+                              }
+                            },
+                            child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.only(
+                                        topRight: Radius.circular(30),
+                                        bottomRight: Radius.circular(30)),
+                                    color: currPage == 2
+                                        ? Colors.blue
+                                        : Helper.getCardColor(context)),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    LocaleKeys.income.tr,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: currPage == 2
+                                          ? Colors.white
+                                          : Helper.getTextColor(context),
+                                    ),
+                                  ),
+                                )),
+                          ),
+                        ),
+                      ],
+                    )),
+              ),
+              currPage == 1 ? Expanded(child: _spendingView()) : 0.heightBox,
+              currPage == 2 ? Expanded(child: _incomeView()) : 0.heightBox,
+              10.heightBox
+            ],
+          ),
+        ));
   }
 
-  Widget _spendingView(StatisticsBloc statisticsBloc) {
+  Widget _spendingView() {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -768,7 +752,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Widget _incomeView(StatisticsBloc statisticsBloc) {
+  Widget _incomeView() {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -988,7 +972,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  _bottomSheetView(StatisticsBloc statisticsBloc, StateSetter setState) {
+  _bottomSheetView(StateSetter setState) {
     return Container(
         padding: const EdgeInsets.only(bottom: 10),
         color: Helper.getBackgroundColor(context),
@@ -1031,10 +1015,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           } else {
                             isSpendingFilterCleared = false;
 
-                            if (spendingShowYear != LocaleKeys.selectYear.tr && spendingShowMonth != LocaleKeys.selectMonth.tr) {
+                            if (spendingShowYear != LocaleKeys.selectYear.tr &&
+                                spendingShowMonth !=
+                                    LocaleKeys.selectMonth.tr) {
                               Navigator.pop(context);
                               getFilteredData();
-                            } else if (spendingShowYear == LocaleKeys.selectYear.tr || spendingShowMonth == LocaleKeys.selectMonth.tr) {
+                            } else if (spendingShowYear ==
+                                    LocaleKeys.selectYear.tr ||
+                                spendingShowMonth ==
+                                    LocaleKeys.selectMonth.tr) {
                               Helper.showToast(
                                   LocaleKeys.selectMonthOrYearText.tr);
                             } else {
@@ -1049,12 +1038,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           } else {
                             isIncomeFilterCleared = false;
 
-                            if (incomeShowYear != LocaleKeys.selectYear.tr && incomeShowMonth != LocaleKeys.selectMonth.tr) {
+                            if (incomeShowYear != LocaleKeys.selectYear.tr &&
+                                incomeShowMonth != LocaleKeys.selectMonth.tr) {
                               Navigator.pop(context);
                               getFilteredData();
-                            } else if (incomeShowYear == LocaleKeys.selectYear.tr || incomeShowMonth == LocaleKeys.selectMonth.tr) {
+                            } else if (incomeShowYear ==
+                                    LocaleKeys.selectYear.tr ||
+                                incomeShowMonth == LocaleKeys.selectMonth.tr) {
                               Helper.showToast(
-                                 LocaleKeys.selectMonthOrYearText.tr);
+                                  LocaleKeys.selectMonthOrYearText.tr);
                             } else {
                               Navigator.pop(context);
                               getTransactions();
@@ -1363,7 +1355,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, setState1) {
           return AlertDialog(
-            title:  Text(LocaleKeys.selectMonth.tr),
+            title: Text(LocaleKeys.selectMonth.tr),
             contentPadding:
                 const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
             content: SizedBox(

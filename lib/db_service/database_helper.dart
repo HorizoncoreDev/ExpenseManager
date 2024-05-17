@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:expense_manager/db_models/currency_category_model.dart';
 import 'package:expense_manager/db_models/language_category_model.dart';
-import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/statistics/statistics_screen.dart';
 import 'package:expense_manager/utils/global.dart';
@@ -172,8 +171,6 @@ class DatabaseHelper {
       )
    ''');
   }
-
-
 
   // Insert ProfileData
   Future<void> insertProfileData(
@@ -485,10 +482,9 @@ return completer.future;*/
       newPostRef.set(
         transactionModel.toMap(),
       );
-    }else{
-      final reference = FirebaseDatabase.instance
-          .reference()
-          .child(transaction_table);
+    } else {
+      final reference =
+          FirebaseDatabase.instance.reference().child(transaction_table);
       var newPostRef = reference.push();
       transactionModel.key = newPostRef.key;
     }
@@ -591,7 +587,6 @@ return completer.future;*/
         }
         completer.complete(transactions);
       }).onError((error) {
-
         completer.completeError(error);
       });
 
@@ -864,17 +859,16 @@ return completer.future;*/
   }
 
   Future<List<TransactionModel>> fetchDataForYearMonthAndCategory(
-    String year,
-    String monthName,
-    int expenseCatId,
-    int incomeCatId,
-    String email,
-    String key,
-    int transactionType,
-    String category,
-      bool isSkippedUser
-  ) async {
-    if(isSkippedUser) {
+      String year,
+      String monthName,
+      int expenseCatId,
+      int incomeCatId,
+      String email,
+      String key,
+      int transactionType,
+      String category,
+      bool isSkippedUser) async {
+    if (isSkippedUser) {
       Database db = await database;
 
       String query = '''SELECT * FROM $transaction_table WHERE ''';
@@ -885,9 +879,7 @@ return completer.future;*/
       }
 
       query +=
-      ' AND SUBSTR(${TransactionFields
-          .transaction_date}, 7, 4) = ? AND ${TransactionFields
-          .member_email} = ? AND ${TransactionFields.transaction_type} = ?';
+          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
 
       List<dynamic> whereArgs = [
         if (selectedMonthNumber != null)
@@ -905,17 +897,14 @@ return completer.future;*/
         whereArgs.add(expenseCatId);
       } else if (expenseCatId != -1 && incomeCatId != -1) {
         query +=
-        ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields
-            .income_cat_id} = ?';
+            ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
         whereArgs.add(expenseCatId);
         whereArgs.add(incomeCatId);
       }
 
       if (category.isNotEmpty) {
         query +=
-        ' AND (${TransactionFields
-            .cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields
-            .description} LIKE ? COLLATE NOCASE)';
+            ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
         whereArgs.add('%$category%');
         whereArgs.add('%$category%');
       }
@@ -935,9 +924,9 @@ return completer.future;*/
         print('Error fetching data: $e');
         return [];
       }
-    }else{
+    } else {
       Completer<List<TransactionModel>> completer =
-      Completer<List<TransactionModel>>();
+          Completer<List<TransactionModel>>();
       List<TransactionModel> transactions = [];
       final reference = await FirebaseDatabase.instance
           .reference()
@@ -952,9 +941,10 @@ return completer.future;*/
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-          dataSnapshot.value as Map<dynamic, dynamic>;
+              dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
-            if (selectedMonthNumber == value['transaction_date'].substring(3, 5) &&
+            if (selectedMonthNumber ==
+                    value['transaction_date'].substring(3, 5) &&
                 value[TransactionFields.transaction_date].substring(6, 10) ==
                     year &&
                 value[TransactionFields.transaction_type] == transactionType &&
@@ -977,7 +967,7 @@ return completer.future;*/
           });
           // Sort transactions by transaction date in descending order
           transactions.sort(
-                  (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
+              (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
         }
         completer.complete(transactions);
       }).catchError((error) {
@@ -1087,7 +1077,7 @@ return completer.future;*/
     }
   }
 
-/// Insert Income Sub Category
+  /// Insert Income Sub Category
   Future<void> insertIncomeSubCategory(
       int categoryId, IncomeSubCategory incomeSubCategory) async {
     incomeSubCategory.categoryId = categoryId;
@@ -1095,7 +1085,7 @@ return completer.future;*/
     await db.insert(income_sub_category_table, incomeSubCategory.toMap());
   }
 
-/// Update Income Sub Category
+  /// Update Income Sub Category
   Future<void> updateIncomeSubCategory(
       IncomeSubCategory incomeSubCategory) async {
     var db = await database;
@@ -1104,7 +1094,7 @@ return completer.future;*/
         whereArgs: [incomeSubCategory.id]);
   }
 
-/// A method that retrieves all the income sub category from the income sub table.
+  /// A method that retrieves all the income sub category from the income sub table.
   Future<List<IncomeSubCategory>> getIncomeSubCategory(int categoryId) async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -1116,7 +1106,7 @@ return completer.future;*/
         maps.length, (index) => IncomeSubCategory.fromMap(maps[index]));
   }
 
-/// Insert Spending Sub Category
+  /// Insert Spending Sub Category
   Future<void> insertSpendingSubCategory(
       int categoryId, ExpenseSubCategory spendingSubCategory) async {
     spendingSubCategory.categoryId = categoryId;
@@ -1139,7 +1129,7 @@ return completer.future;*/
     return affectedRows;
   }
 
-/// Update Spending Sub Category
+  /// Update Spending Sub Category
   Future<void> updateSpendingSubCategory(
       ExpenseSubCategory spendingSubCategory) async {
     var db = await database;
@@ -1148,7 +1138,7 @@ return completer.future;*/
         whereArgs: [spendingSubCategory.id]);
   }
 
-/// A method that retrieves all the spending sub category from the spending sub table.
+  /// A method that retrieves all the spending sub category from the spending sub table.
   Future<List<ExpenseSubCategory>> getSpendingSubCategory(
       int categoryId) async {
     Database db = await database;

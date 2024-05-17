@@ -10,8 +10,6 @@ class TranslationService extends Translations {
   static final fallBackLocale = Get.locale;
 
   @override
-  Map<String, Map<String, String>> get keys => {
-    'en_US' : enUS, 'gu_GJ' : guGJ, 'hi_IN' : hiIN
-  };
-
+  Map<String, Map<String, String>> get keys =>
+      {'en_US': enUS, 'gu_GJ': guGJ, 'hi_IN': hiIN};
 }

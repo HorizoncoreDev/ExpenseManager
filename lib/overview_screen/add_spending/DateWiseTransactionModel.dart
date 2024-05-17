@@ -1,7 +1,4 @@
-import 'dart:ui';
-
 import 'package:expense_manager/db_models/transaction_model.dart';
-
 
 class DateWiseTransactionModel {
   String? transactionDate;
@@ -31,7 +28,8 @@ class DateWiseTransactionModel {
       'transactionDate': transactionDate,
       'transactionTotal': transactionTotal,
       'transactionDay': transactionDay,
-      'transactions': transactions?.map((transaction) => transaction.toJson()).toList(),
+      'transactions':
+          transactions?.map((transaction) => transaction.toJson()).toList(),
     };
   }
 }

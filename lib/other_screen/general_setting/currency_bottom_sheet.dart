@@ -12,7 +12,6 @@ import 'package:get/get.dart';
 class CurrencyBottomSheet extends StatefulWidget {
   final Function(String) setData; // Callback function to set data in the screen
 
-
   CurrencyBottomSheet({super.key, required this.setData});
 
   @override
@@ -35,7 +34,7 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
     MySharedPreferences.instance
         .getStringValuesSF(SharedPreferencesKeys.currencyCode)
         .then((value) {
-      if(value != null){
+      if (value != null) {
         cCode = value;
       }
     });
@@ -45,7 +44,7 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
   Future<void> getCurrencyTypes() async {
     try {
       List<CurrencyCategory> currencyTypeList =
-      await databaseHelper.currencyMethods();
+          await databaseHelper.currencyMethods();
       setState(() {
         currencyTypes = currencyTypeList;
       });
@@ -89,10 +88,10 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
             child: ListView.builder(
               itemCount: currencyTypes.length,
               itemBuilder: (BuildContext context, int index) {
-                final CurrencyCategory currencyCategory =
-                currencyTypes[index];
-                AppConstanst.setCurrency = AppConstanst.currencyCode ==
-                    currencyCategory.currencyCode;;
+                final CurrencyCategory currencyCategory = currencyTypes[index];
+                AppConstanst.setCurrency =
+                    AppConstanst.currencyCode == currencyCategory.currencyCode;
+                ;
                 return ListTile(
                   title: Text(currencyCategory.currencyCode.toString()),
                   onTap: () {
@@ -100,7 +99,7 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
                       cCode = currencyCategory.currencyCode!;
                       cSymbol = currencyCategory.symbol!;
                       AppConstanst.currencyCode =
-                      currencyCategory.currencyCode!;
+                          currencyCategory.currencyCode!;
                       AppConstanst.currencySymbol = currencyCategory.symbol!;
                     });
                   },
@@ -115,18 +114,18 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
             padding: const EdgeInsets.all(8.0),
             child: InkWell(
               onTap: () {
-
                 widget.setData(cCode);
                 Navigator.of(context).pop();
                 setState(() {
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.currencySymbol, cSymbol);
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.currencyCode, cCode);
+                  MySharedPreferences.instance
+                      .addStringToSF(SharedPreferencesKeys.currencyCode, cCode);
                 });
-                MySharedPreferences.instance.getStringValuesSF(SharedPreferencesKeys.userEmail)
+                MySharedPreferences.instance
+                    .getStringValuesSF(SharedPreferencesKeys.userEmail)
                     .then((value) async {
-                  if(value!= null){
+                  if (value != null) {
                     userEmail = value;
                     await DatabaseHelper.instance
                         .getProfileData(userEmail)
