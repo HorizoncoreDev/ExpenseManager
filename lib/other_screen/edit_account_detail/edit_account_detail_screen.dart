@@ -102,7 +102,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         dob: dateOfBirth == null ? "Select DOB" : dateOfBirth!,
         gender: selectedValue,
         current_balance: currentBalance,
-        current_income: currentIncome,
+        current_income:currentIncome,
         actual_budget: actualBudget,
         user_code: userCode,
         full_name: "${firstNameController.text} ${lastNameController.text}",
