@@ -395,157 +395,155 @@ class OverviewScreenState extends State<OverviewScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: true,
-      child: SafeArea(
-        child: DefaultTabController(
-          length: 2,
-          child: Scaffold(
-            body: Container(
-                color: Helper.getBackgroundColor(context),
-                height: double.infinity,
-                child: Stack(
-                  children: [
-                    Container(
-                      height: 250,
-                      decoration: const BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.only(
-                              bottomRight: Radius.circular(50))),
-                    ),
-                    Column(
-                      children: [
-                        20.heightBox,
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "${userName ?? LocaleKeys.guest.tr}: ${AppConstanst.currencySymbol}${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20),
-                                    ),
-                                    Text(
-                                      "${LocaleKeys.today.tr}, ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 13),
-                                    )
-                                  ],
-                                ),
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          body: Container(
+              color: Helper.getBackgroundColor(context),
+              height: double.infinity,
+              child: Stack(
+                children: [
+                  Container(
+                    height: 250,
+                    decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(50))),
+                  ),
+                  Column(
+                    children: [
+                      20.heightBox,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "${userName ?? LocaleKeys.guest.tr}: ${AppConstanst.currencySymbol}${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20),
+                                  ),
+                                  Text(
+                                    "${LocaleKeys.today.tr}, ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 13),
+                                  )
+                                ],
                               ),
-                              InkWell(
-                                  onTap: () {
-                                    Navigator.of(context, rootNavigator: true)
-                                        .push(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const SearchScreen()),
-                                    );
-                                  },
-                                  child: const Icon(
-                                    Icons.search,
-                                    color: Colors.white,
-                                    size: 28,
-                                  )),
-                              10.widthBox,
-                              InkWell(
+                            ),
+                            InkWell(
                                 onTap: () {
                                   Navigator.of(context, rootNavigator: true)
                                       .push(
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const OtherScreen()),
-                                  )
-                                      .then((value) {
-                                    widget.onAccountUpdate();
-                                    MySharedPreferences.instance
-                                        .getStringValuesSF(SharedPreferencesKeys
-                                            .currentUserKey)
-                                        .then((value) {
-                                      if (value != null) {
-                                        currentUserKey = value;
-                                        MySharedPreferences.instance
-                                            .getStringValuesSF(
-                                                SharedPreferencesKeys
-                                                    .currentUserEmail)
-                                            .then((value) {
-                                          if (value != null) {
-                                            currentUserEmail = value;
-                                            MySharedPreferences.instance
-                                                .getStringValuesSF(
-                                                    SharedPreferencesKeys
-                                                        .currentUserName)
-                                                .then((value) {
-                                              if (value != null) {
-                                                userName = value;
-                                                if (AppConstanst
-                                                        .selectedTabIndex ==
-                                                    0) {
-                                                  getTransactions();
-                                                } else {
-                                                  getIncomeTransactions();
-                                                }
-                                              }
-                                            });
-                                          }
-                                        });
-                                      }
-                                    });
-                                  });
+                                            const SearchScreen()),
+                                  );
                                 },
-                                child: Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.white),
-                                    child: const Icon(
-                                      Icons.family_restroom,
-                                      color: Colors.blue,
-                                      size: 28,
-                                    )),
-                              ),
-                            ],
-                          ),
-                        ),
-                        TabBar(
-                          labelColor: Colors.white,
-                          unselectedLabelColor: Colors.white60,
-                          indicatorColor: Colors.white,
-                          dividerColor: Colors.transparent,
-                          padding: EdgeInsets.zero,
-                          indicatorPadding: EdgeInsets.zero,
-                          labelPadding: EdgeInsets.zero,
-                          tabs: [
-                            Tab(child: Text(LocaleKeys.spending.tr)),
-                            Tab(child: Text(LocaleKeys.income.tr)),
+                                child: const Icon(
+                                  Icons.search,
+                                  color: Colors.white,
+                                  size: 28,
+                                )),
+                            10.widthBox,
+                            InkWell(
+                              onTap: () {
+                                Navigator.of(context, rootNavigator: true)
+                                    .push(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const OtherScreen()),
+                                )
+                                    .then((value) {
+                                  widget.onAccountUpdate();
+                                  MySharedPreferences.instance
+                                      .getStringValuesSF(SharedPreferencesKeys
+                                          .currentUserKey)
+                                      .then((value) {
+                                    if (value != null) {
+                                      currentUserKey = value;
+                                      MySharedPreferences.instance
+                                          .getStringValuesSF(
+                                              SharedPreferencesKeys
+                                                  .currentUserEmail)
+                                          .then((value) {
+                                        if (value != null) {
+                                          currentUserEmail = value;
+                                          MySharedPreferences.instance
+                                              .getStringValuesSF(
+                                                  SharedPreferencesKeys
+                                                      .currentUserName)
+                                              .then((value) {
+                                            if (value != null) {
+                                              userName = value;
+                                              if (AppConstanst
+                                                      .selectedTabIndex ==
+                                                  0) {
+                                                getTransactions();
+                                              } else {
+                                                getIncomeTransactions();
+                                              }
+                                            }
+                                          });
+                                        }
+                                      });
+                                    }
+                                  });
+                                });
+                              },
+                              child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white),
+                                  child: const Icon(
+                                    Icons.family_restroom,
+                                    color: Colors.blue,
+                                    size: 28,
+                                  )),
+                            ),
                           ],
-                          onTap: (index) {
-                            setState(() {
-                              loading = true;
-                            });
-                            AppConstanst.selectedTabIndex = index;
-                            if (index == 0) {
-                              getTransactions();
-                            } else {
-                              getIncomeTransactions();
-                            }
-                          },
                         ),
-                        Expanded(
-                          child: TabBarView(
-                              physics: const NeverScrollableScrollPhysics(),
-                              children: [_spendingView(), _incomeView()]),
-                        ),
-                        30.heightBox,
-                      ],
-                    ),
-                  ],
-                )),
-          ),
+                      ),
+                      TabBar(
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Colors.white60,
+                        indicatorColor: Colors.white,
+                        dividerColor: Colors.transparent,
+                        padding: EdgeInsets.zero,
+                        indicatorPadding: EdgeInsets.zero,
+                        labelPadding: EdgeInsets.zero,
+                        tabs: [
+                          Tab(child: Text(LocaleKeys.spending.tr)),
+                          Tab(child: Text(LocaleKeys.income.tr)),
+                        ],
+                        onTap: (index) {
+                          setState(() {
+                            loading = true;
+                          });
+                          AppConstanst.selectedTabIndex = index;
+                          if (index == 0) {
+                            getTransactions();
+                          } else {
+                            getIncomeTransactions();
+                          }
+                        },
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: [_spendingView(), _incomeView()]),
+                      ),
+                      30.heightBox,
+                    ],
+                  ),
+                ],
+              )),
         ),
       ),
     );

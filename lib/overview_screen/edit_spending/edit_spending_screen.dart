@@ -536,51 +536,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                                 fontSize: 14, color: Colors.white)),
-                      ) /*DropdownButtonHideUnderline(
-                            child: DropdownButton2<String>(
-                              dropdownElevation: 0,
-                              buttonDecoration: const BoxDecoration(
-                                  color: Colors.transparent),
-                              dropdownDecoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: const Color(0xff22435b)),
-                              items: dropdownItems
-                                  .map((item) => DropdownMenuItem<String>(
-                                        value: item,
-                                        child: Align(
-                                          alignment: Alignment.center,
-                                          child: Text(item,
-                                              textAlign: TextAlign.center,
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.white)),
-                                        ),
-                                      ))
-                                  .toList(),
-                              dropdownMaxHeight: 200,
-                              offset: const Offset(0, -1),
-                              value: selectedValue,
-                              onChanged: (value) {
-                                setState(() {
-                                  var val = value as String;
-                                  selectedValue = val;
-                                  if (selectedValue ==
-                                      AppConstanst.spendingTransactionName) {
-                                    getSpendingCategory();
-                                  } else {
-                                    getIncomeCategory();
-                                  }
-                                });
-                              },
-                              buttonPadding: EdgeInsets.zero,
-                              buttonHeight: 40,
-                              isExpanded: true,
-                              icon: const Icon(
-                                Icons.keyboard_arrow_down,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )*/
+                      )
                       ),
                 ),
               ),
