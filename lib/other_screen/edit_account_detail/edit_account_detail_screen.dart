@@ -385,12 +385,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                               Expanded(
                                   child: DropdownButtonHideUnderline(
                                 child: DropdownButton2(
-                                  dropdownElevation: 2,
-                                  buttonDecoration: BoxDecoration(
-                                      color: Helper.getCardColor(context)),
-                                  dropdownDecoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Helper.getCardColor(context)),
                                   customButton: Container(
                                       color: Helper.getCardColor(context),
                                       padding: const EdgeInsets.symmetric(
@@ -429,8 +423,11 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                                         context))),
                                           ))
                                       .toList(),
-                                  dropdownMaxHeight: 200,
-                                  offset: const Offset(0, -1),
+                                  dropdownStyleData: DropdownStyleData(
+                                      decoration: BoxDecoration(
+                                          color: Helper.getCardColor(context),
+                                          borderRadius:
+                                              BorderRadius.circular(8))),
                                   value: selectedValue,
                                   onChanged: (value) {
                                     setState(() {
@@ -438,14 +435,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                       selectedValue = val;
                                     });
                                   },
-                                  iconSize: 28,
-                                  buttonPadding: EdgeInsets.zero,
-                                  buttonHeight: 40,
                                   isExpanded: true,
-                                  icon: const Icon(
-                                    Icons.keyboard_arrow_down,
-                                    color: Colors.grey,
-                                  ),
                                 ),
                               )),
                             ],

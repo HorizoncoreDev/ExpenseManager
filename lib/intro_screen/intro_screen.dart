@@ -183,12 +183,11 @@ class _IntroScreenState extends State<IntroScreen> {
                     Expanded(
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton2<LanguageCategory>(
-                          dropdownElevation: 2,
-                          buttonDecoration:
-                              const BoxDecoration(color: Colors.transparent),
-                          dropdownDecoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: const Color(0xff22435b)),
+                          dropdownStyleData: DropdownStyleData(
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
+                                  borderRadius:
+                                  BorderRadius.circular(8))),
                           items: languageTypes
                               .map<DropdownMenuItem<LanguageCategory>>(
                                   (LanguageCategory value) {
@@ -198,8 +197,6 @@ class _IntroScreenState extends State<IntroScreen> {
                             );
                           }).toList(),
                           hint: Text(LocaleKeys.selectLanguage.tr),
-                          dropdownMaxHeight: 200,
-                          offset: const Offset(0, -1),
                           value: language,
                           onChanged: (value) {
                             setState(() {
@@ -230,15 +227,13 @@ class _IntroScreenState extends State<IntroScreen> {
                               languageDropdownOpen = isOpen;
                             });
                           },
-                          buttonPadding: EdgeInsets.zero,
-                          buttonHeight: 40,
                           isExpanded: true,
-                          icon: Icon(
+                          iconStyleData: IconStyleData(icon:Icon(
                             !languageDropdownOpen
                                 ? Icons.keyboard_arrow_down
                                 : Icons.keyboard_arrow_up,
                             color: Colors.white,
-                          ),
+                          ) ),
                         ),
                       ),
                     ),

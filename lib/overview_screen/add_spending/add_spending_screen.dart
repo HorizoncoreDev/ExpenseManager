@@ -344,12 +344,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           borderRadius: BorderRadius.circular(25)),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton2<String>(
-                          dropdownElevation: 0,
-                          buttonDecoration:
-                              const BoxDecoration(color: Colors.transparent),
-                          dropdownDecoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: const Color(0xff22435b)),
+
                           items: dropdownItems
                               .map((item) => DropdownMenuItem<String>(
                                     value: item,
@@ -363,8 +358,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                     ),
                                   ))
                               .toList(),
-                          dropdownMaxHeight: 200,
-                          offset: const Offset(0, -1),
+
+                          dropdownStyleData: DropdownStyleData(
+                              decoration: BoxDecoration(
+                                  color: Helper.getCardColor(context),
+                                  borderRadius:
+                                  BorderRadius.circular(8))),
                           value: selectedValue,
                           onChanged: (value) {
                             setState(() {
@@ -378,12 +377,13 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               }
                             });
                           },
-                          buttonPadding: EdgeInsets.zero,
-                          buttonHeight: 40,
                           isExpanded: true,
-                          icon: const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.white,
+                          iconStyleData: const IconStyleData(
+                            icon: Icon(
+                              Icons.keyboard_arrow_down,
+                              color: Colors.white,
+                            ),
+
                           ),
                         ),
                       )),

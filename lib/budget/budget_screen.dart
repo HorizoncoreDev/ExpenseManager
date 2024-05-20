@@ -237,7 +237,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               })),
                       Container(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 14.2, horizontal: 5),
+                              vertical: 3, horizontal: 5),
                           decoration: BoxDecoration(
                               color: Helper.getCardColor(context),
                               border: Border(
@@ -250,14 +250,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   bottomRight: Radius.circular(5))),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton2<CurrencyCategory>(
-                              dropdownElevation: 0,
-                              buttonDecoration: const BoxDecoration(
-                                color: Colors.transparent,
-                              ),
-                              dropdownDecoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: const Color(0xff22435b),
-                              ),
+                              dropdownStyleData: DropdownStyleData(
+                                  decoration: BoxDecoration(
+                                      color: Helper.getCardColor(context),
+                                      borderRadius:
+                                      BorderRadius.circular(8))),
                               items: currencyTypes
                                   .map<DropdownMenuItem<CurrencyCategory>>(
                                       (CurrencyCategory value) {
@@ -267,7 +264,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 );
                               }).toList(),
                               hint: const Text("₹"),
-                              offset: const Offset(0, 0),
                               value: currency,
                               onChanged: (value) {
                                 setState(() {
@@ -288,15 +284,14 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   currencyDropdownOpen = isOpen;
                                 });
                               },
-                              buttonPadding: EdgeInsets.zero,
-                              buttonHeight: 25,
+                              iconStyleData: IconStyleData(
                               icon: Icon(
                                 !currencyDropdownOpen
                                     ? Icons.keyboard_arrow_down
                                     : Icons.keyboard_arrow_up,
                                 color: Colors.white,
                               ),
-                            ),
+                            )),
                           )),
                     ]),
                   ),

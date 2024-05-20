@@ -32,7 +32,7 @@ class Helper {
 
   static Color getBackgroundColor(BuildContext context) {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
-    return themeNotifier.getTheme().backgroundColor;
+    return themeNotifier.getTheme().dialogBackgroundColor;
   }
 
   static Color getTextColor(BuildContext context) {
@@ -206,6 +206,8 @@ class Helper {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
     return themeNotifier.getTheme().bottomNavigationBarTheme;
   }
+
+
 
   static Color getMiddleBottomNavBarItem(BuildContext context) {
     ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);

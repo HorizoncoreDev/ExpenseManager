@@ -18,12 +18,12 @@ class MyDialog {
       required,
       required ProfileModel profileModel}) {
     var otpTextStyles = [
-      Theme.of(context).textTheme.headline3?.copyWith(color: Colors.blue),
-      Theme.of(context).textTheme.headline3?.copyWith(color: Colors.blue),
-      Theme.of(context).textTheme.headline3?.copyWith(color: Colors.blue),
-      Theme.of(context).textTheme.headline3?.copyWith(color: Colors.blue),
-      Theme.of(context).textTheme.headline3?.copyWith(color: Colors.blue),
-      Theme.of(context).textTheme.headline3?.copyWith(color: Colors.blue),
+      Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.blue),
+      Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.blue),
+      Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.blue),
+      Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.blue),
+      Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.blue),
+      Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.blue),
     ];
 
     showDialog(
