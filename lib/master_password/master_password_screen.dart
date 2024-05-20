@@ -34,12 +34,34 @@ class MasterPasswordDialog {
   final _driveService = DriveService();
   String? fileId;
   String fileName = "";
+  String userEmail = "", currentUserEmail = "";
+  List<TransactionModel> transactions = [];
 
   Future<void> showMasterPasswordDialog({required BuildContext context, required bool export, required String backupType}) async {
     MySharedPreferences.instance.getBoolValuesSF(
         SharedPreferencesKeys.isMasterPasswordGenerated).then((value) {
       if (value != null) isMPGenerate = value;
     });
+
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+            .then((value) async {
+          if (value != null) {
+            currentUserEmail = value;
+            if (currentUserEmail != userEmail) {
+              await DatabaseHelper.getFirebaseTasks(
+                  userEmail, currentUserEmail);
+            }
+          }
+        });
+      }
+    });
+
 
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
@@ -133,7 +155,7 @@ class MasterPasswordDialog {
                       },
                       child: Text(LocaleKeys.close.tr),
                     ),
-                    if(isMPGenerate && getMasterPassword.isNotEmpty)
+                    if(isMPGenerate)
                       TextButton(
                         onPressed: () async {
                           FirebaseDatabase.instance

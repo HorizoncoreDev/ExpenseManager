@@ -1,11 +1,9 @@
-import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../overview_screen/add_spending/add_spending_screen.dart';
 import '../overview_screen/overview_screen.dart';
 import '../statistics/statistics_screen.dart';
@@ -157,6 +155,7 @@ class _DashBoardState extends State<DashBoard> {
         bottomNavigationBar: BottomAppBar(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           height: 60,
+
           color:  Helper.getBottomNavigationColor(context).backgroundColor!,
           shape: const CircularNotchedRectangle(),
           notchMargin: 5,
@@ -194,7 +193,6 @@ class _DashBoardState extends State<DashBoard> {
               Expanded(
                 child: InkWell(
                   onTap: (){
-
                     currentPage =2;
                     _jumpToPage(currentPage);
                   },
