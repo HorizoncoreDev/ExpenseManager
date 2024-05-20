@@ -20,31 +20,6 @@ import '../db_models/income_category.dart';
 import '../db_service/database_helper.dart';
 
 class Helper {
-  static void showToast(String message) {
-    Fluttertoast.showToast(
-        msg: message,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        textColor: Colors.white,
-        fontSize: 14.0);
-  }
-
-  static Color getBackgroundColor(BuildContext context) {
-    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
-    return themeNotifier.getTheme().dialogBackgroundColor;
-  }
-
-  static Color getTextColor(BuildContext context) {
-    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
-    return themeNotifier.getTheme().hintColor;
-  }
-
-  static Color getCategoriesItemColors(BuildContext context) {
-    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
-    return themeNotifier.getTheme().dividerColor;
-  }
-
   static Future<void> addCurrencyAndLanguages() async {
     final databaseHelper = DatabaseHelper.instance;
     List<CurrencyCategory> currencyTypes = [];
@@ -191,107 +166,29 @@ class Helper {
     await databaseHelper.insertAllPaymentMethods(paymentMethods);
   }
 
-  static Color getCardColor(BuildContext context) {
-    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
-    return themeNotifier.getTheme().cardColor;
+  static copyText(BuildContext context, String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    showToast('Text copied to clipboard');
   }
 
-  static Color getChartColor(BuildContext context) {
-    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
-    return themeNotifier.getTheme().disabledColor;
-  }
+  static Future<String> generateAnotherUniqueCode(
+      Completer<String> completer) async {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+    String code = '';
 
-  static BottomNavigationBarThemeData getBottomNavigationColor(
-      BuildContext context) {
-    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
-    return themeNotifier.getTheme().bottomNavigationBarTheme;
-  }
-
-
-
-  static Color getMiddleBottomNavBarItem(BuildContext context) {
-    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
-    return themeNotifier.getTheme().canvasColor;
-  }
-
-  static void showLoading(BuildContext context) {
-    AlertDialog alert = AlertDialog(
-      content: Row(
-        children: [
-          CircularProgressIndicator(),
-          Container(
-              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
-        ],
-      ),
-    );
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-
-  static void hideLoading(context) {
-    //Get.back();
-    Navigator.pop(context);
-  }
-
-  static String getWeekdayName(int weekday) {
-    switch (weekday) {
-      case 1:
-        return LocaleKeys.monday.tr;
-      case 2:
-        return LocaleKeys.tuesday.tr;
-      case 3:
-        return LocaleKeys.wednesday.tr;
-      case 4:
-        return LocaleKeys.thursday.tr;
-      case 5:
-        return LocaleKeys.friday.tr;
-      case 6:
-        return LocaleKeys.saturday.tr;
-      case 7:
-        return LocaleKeys.sunday.tr;
-      default:
-        return '';
+    for (int i = 0; i < 6; i++) {
+      code += chars[random.nextInt(chars.length)];
     }
-  }
+    await DatabaseHelper.instance.getProfileDataUserCode(code).then((value) {
+      if (value != null) {
+        generateAnotherUniqueCode(completer);
+      } else {
+        completer.complete(code);
+      }
+    });
 
-  static bool isToday(DateTime date) {
-    DateTime now = DateTime.now();
-    return date.year == now.year &&
-        date.month == now.month &&
-        date.day == now.day;
-  }
-
-  static bool isYesterday(DateTime date) {
-    DateTime now = DateTime.now();
-    DateTime yesterday = DateTime(now.year, now.month, now.day - 1);
-    return date.year == yesterday.year &&
-        date.month == yesterday.month &&
-        date.day == yesterday.day;
-  }
-
-  static String getTransactionDay(String date) {
-    var transactionDay = "";
-    DateFormat format = DateFormat("dd/MM/yyyy");
-    DateTime parsedDate = format.parse(date);
-    if (isToday(parsedDate)) {
-      transactionDay = LocaleKeys.today.tr;
-    } else if (isYesterday(parsedDate)) {
-      transactionDay = LocaleKeys.yesterday.tr;
-    } else {
-      transactionDay = Helper.getWeekdayName(parsedDate.weekday);
-    }
-    return transactionDay;
-  }
-
-  static bool isAfterDay(String date) {
-    DateFormat format = DateFormat("dd/MM/yyyy");
-    DateTime parsedDate = format.parse(date);
-    return parsedDate.isAfter(parsedDate);
+    return completer.future;
   }
 
   static Future<String> generateUniqueCode() async {
@@ -317,29 +214,35 @@ class Helper {
     return completer.future;
   }
 
-  static Future<String> generateAnotherUniqueCode(
-      Completer<String> completer) async {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final random = Random();
-    String code = '';
-
-    for (int i = 0; i < 6; i++) {
-      code += chars[random.nextInt(chars.length)];
-    }
-    await DatabaseHelper.instance.getProfileDataUserCode(code).then((value) {
-      if (value != null) {
-        generateAnotherUniqueCode(completer);
-      } else {
-        completer.complete(code);
-      }
-    });
-
-    return completer.future;
+  static Color getBackgroundColor(BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().dialogBackgroundColor;
   }
 
-  static copyText(BuildContext context, String text) {
-    Clipboard.setData(ClipboardData(text: text));
-    showToast('Text copied to clipboard');
+  static BottomNavigationBarThemeData getBottomNavigationColor(
+      BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().bottomNavigationBarTheme;
+  }
+
+  static Color getCardColor(BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().cardColor;
+  }
+
+  static Color getCategoriesItemColors(BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().dividerColor;
+  }
+
+  static Color getChartColor(BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().disabledColor;
+  }
+
+  static Color getMiddleBottomNavBarItem(BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().canvasColor;
   }
 
   static String getShortName(String name, String name1) {
@@ -350,5 +253,100 @@ class Helper {
     String secondChar = secondStr.substring(0, 1);
 
     return firstChar + secondChar;
+  }
+
+  static Color getTextColor(BuildContext context) {
+    ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
+    return themeNotifier.getTheme().hintColor;
+  }
+
+  static String getTransactionDay(String date) {
+    var transactionDay = "";
+    DateFormat format = DateFormat("dd/MM/yyyy");
+    DateTime parsedDate = format.parse(date);
+    if (isToday(parsedDate)) {
+      transactionDay = LocaleKeys.today.tr;
+    } else if (isYesterday(parsedDate)) {
+      transactionDay = LocaleKeys.yesterday.tr;
+    } else {
+      transactionDay = Helper.getWeekdayName(parsedDate.weekday);
+    }
+    return transactionDay;
+  }
+
+  static String getWeekdayName(int weekday) {
+    switch (weekday) {
+      case 1:
+        return LocaleKeys.monday.tr;
+      case 2:
+        return LocaleKeys.tuesday.tr;
+      case 3:
+        return LocaleKeys.wednesday.tr;
+      case 4:
+        return LocaleKeys.thursday.tr;
+      case 5:
+        return LocaleKeys.friday.tr;
+      case 6:
+        return LocaleKeys.saturday.tr;
+      case 7:
+        return LocaleKeys.sunday.tr;
+      default:
+        return '';
+    }
+  }
+
+  static void hideLoading(context) {
+    //Get.back();
+    Navigator.pop(context);
+  }
+
+  static bool isAfterDay(String date) {
+    DateFormat format = DateFormat("dd/MM/yyyy");
+    DateTime parsedDate = format.parse(date);
+    return parsedDate.isAfter(parsedDate);
+  }
+
+  static bool isToday(DateTime date) {
+    DateTime now = DateTime.now();
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
+  }
+
+  static bool isYesterday(DateTime date) {
+    DateTime now = DateTime.now();
+    DateTime yesterday = DateTime(now.year, now.month, now.day - 1);
+    return date.year == yesterday.year &&
+        date.month == yesterday.month &&
+        date.day == yesterday.day;
+  }
+
+  static void showLoading(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  static void showToast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        textColor: Colors.white,
+        fontSize: 14.0);
   }
 }

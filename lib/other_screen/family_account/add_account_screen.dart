@@ -13,6 +13,100 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class MyDialog {
+  Future<void> createRequest(BuildContext context, ProfileModel profileModel,
+      String receiverEmail, String receiverName) async {
+    final reference = FirebaseDatabase.instance.ref().child(request_table);
+
+    bool requestExist = false;
+    reference.once().then((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (dataSnapshot.exists) {
+        Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, values) {
+          if (values['receiver_email'] == receiverEmail &&
+              values['requester_email'] == profileModel.email &&
+              values['status'] == AppConstanst.pendingRequest) {
+            requestExist = true;
+            Helper.showToast(LocaleKeys.alreadyExist.tr);
+          } else if (values['receiver_email'] == receiverEmail &&
+              values['requester_email'] == profileModel.email &&
+              values['status'] == AppConstanst.acceptedRequest) {
+            requestExist = true;
+            Helper.showToast(LocaleKeys.alreadyHaveAccess.tr);
+          }
+          if (!requestExist) {
+            var newPostRef = reference.push();
+            RequestModel data = RequestModel(
+              key: newPostRef.key,
+              requester_email: profileModel.email,
+              requester_name: profileModel.full_name,
+              receiver_email: receiverEmail,
+              receiver_name: receiverName,
+              status: 1,
+              created_at: DateTime.now().toString(),
+            );
+
+            newPostRef.set(data.toMap());
+            sendRequestNotification(data, profileModel);
+            Helper.showToast(LocaleKeys.requestSentSuccessFully.tr);
+          }
+        });
+      } else {
+        var newPostRef = reference.push();
+        RequestModel data = RequestModel(
+          key: FirebaseAuth.instance.currentUser!.uid,
+          requester_email: profileModel.email,
+          requester_name: profileModel.full_name,
+          receiver_email: receiverEmail,
+          receiver_name: receiverName,
+          status: 1,
+          created_at: DateTime.now().toString(),
+        );
+
+        newPostRef.set(data.toMap());
+        sendRequestNotification(data, profileModel);
+        Helper.showToast(LocaleKeys.requestSentSuccessFully.tr);
+      }
+    });
+  }
+
+  void sendRequestNotification(
+      RequestModel requesterModel, ProfileModel profileModel) async {
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(profile_table)
+        .orderByChild('email')
+        .equalTo(requesterModel.receiver_email);
+
+    reference.onValue.listen((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+          await http.post(
+            Uri.parse('https://fcm.googleapis.com/fcm/send'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization':
+                  'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
+            },
+            body: jsonEncode({
+              'to': value['fcm_token'],
+              'priority': 'high',
+              'notification': {
+                'title': 'Hello ${requesterModel.receiver_name},',
+                'body':
+                    'You have a new request from ${requesterModel.requester_name}',
+              },
+            }),
+          );
+        });
+      }
+    });
+  }
+
   void showAddAccountDialog(
       {required BuildContext context,
       required,
@@ -105,100 +199,6 @@ class MyDialog {
       });
       if (!profileExist) {
         Helper.showToast(LocaleKeys.userNotExist.tr);
-      }
-    });
-  }
-
-  Future<void> createRequest(BuildContext context, ProfileModel profileModel,
-      String receiverEmail, String receiverName) async {
-    final reference = FirebaseDatabase.instance.ref().child(request_table);
-
-    bool requestExist = false;
-    reference.once().then((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (dataSnapshot.exists) {
-        Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, values) {
-          if (values['receiver_email'] == receiverEmail &&
-              values['requester_email'] == profileModel.email &&
-              values['status'] == AppConstanst.pendingRequest) {
-            requestExist = true;
-            Helper.showToast(LocaleKeys.alreadyExist.tr);
-          } else if (values['receiver_email'] == receiverEmail &&
-              values['requester_email'] == profileModel.email &&
-              values['status'] == AppConstanst.acceptedRequest) {
-            requestExist = true;
-            Helper.showToast(LocaleKeys.alreadyHaveAccess.tr);
-          }
-          if (!requestExist) {
-            var newPostRef = reference.push();
-            RequestModel data = RequestModel(
-              key: newPostRef.key,
-              requester_email: profileModel.email,
-              requester_name: profileModel.full_name,
-              receiver_email: receiverEmail,
-              receiver_name: receiverName,
-              status: 1,
-              created_at: DateTime.now().toString(),
-            );
-
-            newPostRef.set(data.toMap());
-            sendRequestNotification(data, profileModel);
-            Helper.showToast(LocaleKeys.requestSentSuccessFully.tr);
-          }
-        });
-      } else {
-        var newPostRef = reference.push();
-        RequestModel data = RequestModel(
-          key: FirebaseAuth.instance.currentUser!.uid,
-          requester_email: profileModel.email,
-          requester_name: profileModel.full_name,
-          receiver_email: receiverEmail,
-          receiver_name: receiverName,
-          status: 1,
-          created_at: DateTime.now().toString(),
-        );
-
-        newPostRef.set(data.toMap());
-        sendRequestNotification(data, profileModel);
-        Helper.showToast(LocaleKeys.requestSentSuccessFully.tr);
-      }
-    });
-  }
-
-  void sendRequestNotification(
-      RequestModel requesterModel, ProfileModel profileModel) async {
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(profile_table)
-        .orderByChild('email')
-        .equalTo(requesterModel.receiver_email);
-
-    reference.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) async {
-          await http.post(
-            Uri.parse('https://fcm.googleapis.com/fcm/send'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization':
-                  'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
-            },
-            body: jsonEncode({
-              'to': value['fcm_token'],
-              'priority': 'high',
-              'notification': {
-                'title': 'Hello ${requesterModel.receiver_name},',
-                'body':
-                    'You have a new request from ${requesterModel.requester_name}',
-              },
-            }),
-          );
-        });
       }
     });
   }

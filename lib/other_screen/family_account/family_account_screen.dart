@@ -32,117 +32,6 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
   List<RequestModel?> requestList = [];
   List<RequestModel?> accessRequestList = [];
 
-  Future<void> getProfileData() async {
-    try {
-      ProfileModel? fetchedProfileData =
-          await databaseHelper.getProfileData(userEmail);
-      setState(() {
-        profileData = fetchedProfileData;
-
-        getRequestList();
-      });
-    } catch (error) {
-      Helper.hideLoading(context);
-      print('Error fetching Profile Data: $error');
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> getRequestList() async {
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(request_table)
-        .orderByChild('receiver_email')
-        .equalTo(profileData!.email);
-
-    reference.onValue.listen((event) {
-      requestList = [];
-      requestList.clear();
-      isLoading = false;
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) async {
-          if (value['status'] != AppConstanst.rejectedRequest) {
-            RequestModel requestModel = RequestModel(
-                key: key,
-                requester_email: value['requester_email'],
-                requester_name: value['requester_name'],
-                receiver_email: value['receiver_email'],
-                receiver_name: value['receiver_name'],
-                status: value['status'],
-                created_at: value['created_at']);
-            requestList.add(requestModel);
-          }
-        });
-      }
-      setState(() {});
-    });
-
-    final accessReference = FirebaseDatabase.instance
-        .reference()
-        .child(request_table)
-        .orderByChild('requester_email')
-        .equalTo(profileData!.email);
-
-    accessReference.onValue.listen((event) {
-      accessRequestList = [];
-      accessRequestList.clear();
-      isLoading = false;
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) {
-          if (value['status'] == AppConstanst.acceptedRequest) {
-            RequestModel requestModel = RequestModel(
-                key: key,
-                requester_email: value['requester_email'],
-                requester_name: value['requester_name'],
-                receiver_email: value['receiver_email'],
-                receiver_name: value['receiver_name'],
-                status: value['status'],
-                created_at: value['created_at']);
-            accessRequestList.add(requestModel);
-          }
-        });
-      }
-      setState(() {});
-    });
-  }
-
-  @override
-  void initState() {
-    AppConstanst.notificationClicked = false;
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userName)
-        .then((value) {
-      if (value != null) {
-        userName = value;
-        MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-            .then((value) {
-          if (value != null) {
-            currentUserEmail = value;
-            MySharedPreferences.instance
-                .getStringValuesSF(SharedPreferencesKeys.userEmail)
-                .then((value) {
-              if (value != null) {
-                userEmail = value;
-                getProfileData();
-              }
-            });
-          }
-        });
-      }
-    });
-
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -583,15 +472,115 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
               ));
   }
 
-  _acceptRequest(RequestModel requestModel) {
-    requestModel.status = AppConstanst.acceptedRequest;
+  Future<void> getProfileData() async {
+    try {
+      ProfileModel? fetchedProfileData =
+          await databaseHelper.getProfileData(userEmail);
+      setState(() {
+        profileData = fetchedProfileData;
 
-    final Map<String, Map> updates = {};
-    updates['/$request_table/${requestModel.key}'] = requestModel.toMap();
-    FirebaseDatabase.instance.ref().update(updates).then((value) {
-      sendNotification(requestModel, profileData!, false);
-      getRequestList();
+        getRequestList();
+      });
+    } catch (error) {
+      Helper.hideLoading(context);
+      print('Error fetching Profile Data: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> getRequestList() async {
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(request_table)
+        .orderByChild('receiver_email')
+        .equalTo(profileData!.email);
+
+    reference.onValue.listen((event) {
+      requestList = [];
+      requestList.clear();
+      isLoading = false;
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+          if (value['status'] != AppConstanst.rejectedRequest) {
+            RequestModel requestModel = RequestModel(
+                key: key,
+                requester_email: value['requester_email'],
+                requester_name: value['requester_name'],
+                receiver_email: value['receiver_email'],
+                receiver_name: value['receiver_name'],
+                status: value['status'],
+                created_at: value['created_at']);
+            requestList.add(requestModel);
+          }
+        });
+      }
+      setState(() {});
     });
+
+    final accessReference = FirebaseDatabase.instance
+        .reference()
+        .child(request_table)
+        .orderByChild('requester_email')
+        .equalTo(profileData!.email);
+
+    accessReference.onValue.listen((event) {
+      accessRequestList = [];
+      accessRequestList.clear();
+      isLoading = false;
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) {
+          if (value['status'] == AppConstanst.acceptedRequest) {
+            RequestModel requestModel = RequestModel(
+                key: key,
+                requester_email: value['requester_email'],
+                requester_name: value['requester_name'],
+                receiver_email: value['receiver_email'],
+                receiver_name: value['receiver_name'],
+                status: value['status'],
+                created_at: value['created_at']);
+            accessRequestList.add(requestModel);
+          }
+        });
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  void initState() {
+    AppConstanst.notificationClicked = false;
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userName)
+        .then((value) {
+      if (value != null) {
+        userName = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+            .then((value) {
+          if (value != null) {
+            currentUserEmail = value;
+            MySharedPreferences.instance
+                .getStringValuesSF(SharedPreferencesKeys.userEmail)
+                .then((value) {
+              if (value != null) {
+                userEmail = value;
+                getProfileData();
+              }
+            });
+          }
+        });
+      }
+    });
+
+    super.initState();
   }
 
   void sendNotification(RequestModel requestModel, ProfileModel profileModel,
@@ -668,6 +657,17 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
     }
   }
 
+  _acceptRequest(RequestModel requestModel) {
+    requestModel.status = AppConstanst.acceptedRequest;
+
+    final Map<String, Map> updates = {};
+    updates['/$request_table/${requestModel.key}'] = requestModel.toMap();
+    FirebaseDatabase.instance.ref().update(updates).then((value) {
+      sendNotification(requestModel, profileData!, false);
+      getRequestList();
+    });
+  }
+
   _rejectRequest(RequestModel requestModel) {
     requestModel.status = AppConstanst.rejectedRequest;
 
@@ -679,20 +679,20 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
     });
   }
 
-  _removeRequest(RequestModel requestModel) {
-    final reference =
-        FirebaseDatabase.instance.reference().child(request_table);
-    reference.child(requestModel.key!).remove().then((value) {
-      sendNotification(requestModel, profileData!, false);
-      getRequestList();
-    });
-  }
-
   _removeAccessRequest(RequestModel requestModel) {
     final reference =
         FirebaseDatabase.instance.reference().child(request_table);
     reference.child(requestModel.key!).remove().then((value) {
       sendNotification(requestModel, profileData!, true);
+      getRequestList();
+    });
+  }
+
+  _removeRequest(RequestModel requestModel) {
+    final reference =
+        FirebaseDatabase.instance.reference().child(request_table);
+    reference.child(requestModel.key!).remove().then((value) {
+      sendNotification(requestModel, profileData!, false);
       getRequestList();
     });
   }

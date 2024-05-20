@@ -1,20 +1,5 @@
 const String currency_table = 'currency_table';
 
-class CurrencyFields {
-  static final List<String> values = [
-    /// Add all fields
-    id,
-    countryName,
-    symbol,
-    currencyCode,
-  ];
-
-  static const String id = 'id';
-  static const String countryName = 'countryName';
-  static const String symbol = 'symbol';
-  static const String currencyCode = 'currencyCode';
-}
-
 class CurrencyCategory {
   int? id;
   String? countryName;
@@ -45,4 +30,19 @@ class CurrencyCategory {
       'currencyCode': currencyCode,
     };
   }
+}
+
+class CurrencyFields {
+  static final List<String> values = [
+    /// Add all fields
+    id,
+    countryName,
+    symbol,
+    currencyCode,
+  ];
+
+  static const String id = 'id';
+  static const String countryName = 'countryName';
+  static const String symbol = 'symbol';
+  static const String currencyCode = 'currencyCode';
 }

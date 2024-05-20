@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 extension NumExtension on num {
-  Widget get widthBox => SizedBox(
-        width: toDouble(),
-      );
-
   Widget get heightBox => SizedBox(
         height: toDouble(),
+      );
+
+  Widget get widthBox => SizedBox(
+        width: toDouble(),
       );
 /*void addCsvDataToDatabase() {
     for (int i = 1; i < data.length; i++) {

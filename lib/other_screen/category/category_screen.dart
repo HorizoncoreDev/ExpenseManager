@@ -26,52 +26,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   bool isLoading = true;
   bool isIncomeLoading = true;
 
-  Future<void> getSpendingCategorys() async {
-    try {
-      // Simulating asynchronous database fetching
-      List<ExpenseCategory> fetchedCategories =
-          await databaseHelper.categorys();
-
-      setState(() {
-        // Update the state with the fetched categories.
-        categories = fetchedCategories;
-        isLoading = false; // Set loading state to false when data is fetched
-      });
-    } catch (error) {
-      print('Error fetching categories: $error');
-      setState(() {
-        isLoading = false; // Set loading state to false on error
-      });
-    }
-  }
-
   List<IncomeCategory> incomeCategories = [];
-
-  Future<void> getIncomeCategorys() async {
-    try {
-      // Simulating asynchronous database fetching
-      List<IncomeCategory> fetchedIncomeCategories =
-          await databaseHelper.getIncomeCategory();
-      setState(() {
-        // Update the state with the fetched categories.
-        incomeCategories = fetchedIncomeCategories;
-        isIncomeLoading =
-            false; // Set loading state to false when data is fetched
-      });
-    } catch (error) {
-      print('Error fetching categories: $error');
-      setState(() {
-        isIncomeLoading = false; // Set loading state to false on error
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // Fetch categories when the widget is first initialized.
-    getSpendingCategorys();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,15 +180,58 @@ class _CategoryScreenState extends State<CategoryScreen> {
         ));
   }
 
-  Widget _happeningView() {
-    return isLoading
+  Future<void> getIncomeCategorys() async {
+    try {
+      // Simulating asynchronous database fetching
+      List<IncomeCategory> fetchedIncomeCategories =
+          await databaseHelper.getIncomeCategory();
+      setState(() {
+        // Update the state with the fetched categories.
+        incomeCategories = fetchedIncomeCategories;
+        isIncomeLoading =
+            false; // Set loading state to false when data is fetched
+      });
+    } catch (error) {
+      print('Error fetching categories: $error');
+      setState(() {
+        isIncomeLoading = false; // Set loading state to false on error
+      });
+    }
+  }
+
+  Future<void> getSpendingCategorys() async {
+    try {
+      // Simulating asynchronous database fetching
+      List<ExpenseCategory> fetchedCategories =
+          await databaseHelper.categorys();
+
+      setState(() {
+        // Update the state with the fetched categories.
+        categories = fetchedCategories;
+        isLoading = false; // Set loading state to false when data is fetched
+      });
+    } catch (error) {
+      print('Error fetching categories: $error');
+      setState(() {
+        isLoading = false; // Set loading state to false on error
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch categories when the widget is first initialized.
+    getSpendingCategorys();
+  }
+
+  Widget _finishedView() {
+    return isIncomeLoading
         ? Center(child: CircularProgressIndicator())
-        : categories.isEmpty
+        : incomeCategories.isEmpty
             ? Center(
-                child: Text(
-                LocaleKeys.noCatFound.tr,
-                style: TextStyle(color: Helper.getTextColor(context)),
-              ))
+                child: Text(LocaleKeys.noCatFound.tr,
+                    style: TextStyle(color: Helper.getTextColor(context))))
             : SingleChildScrollView(
                 child: Column(
                   children: [
@@ -250,7 +248,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: categories.length,
+                            itemCount: incomeCategories.length,
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding: const EdgeInsets.only(
@@ -263,10 +261,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                             builder: (context) =>
                                                 SubCategoryScreen(
                                                   categoryName:
-                                                      categories[index].name!,
+                                                      incomeCategories[index]
+                                                          .name!,
                                                   categoryId:
-                                                      categories[index].id!,
-                                                  currPage: 1,
+                                                      incomeCategories[index]
+                                                          .id!,
+                                                  currPage: 2,
                                                 )));
                                   },
                                   child: Row(
@@ -281,8 +281,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10))),
                                         child: SvgPicture.asset(
-                                          'asset/images/${categories[index].icons}.svg',
-                                          color: categories[index].color,
+                                          'asset/images/${incomeCategories[index].path}.svg',
+                                          color: incomeCategories[index].color,
                                           width: 24,
                                           height: 24,
                                         ),
@@ -294,15 +294,17 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              categories[index].name.toString(),
+                                              incomeCategories[index]
+                                                  .name
+                                                  .toString(),
                                               style: TextStyle(
                                                   color: Helper.getTextColor(
                                                       context),
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                            /*Text("",
-                                            style: TextStyle(color: Colors.white),),*/
+                                            //         Text("dfg",
+                                            // style: TextStyle(color: Colors.white),),
                                           ],
                                         ),
                                       ),
@@ -517,13 +519,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
               );
   }
 
-  Widget _finishedView() {
-    return isIncomeLoading
+  Widget _happeningView() {
+    return isLoading
         ? Center(child: CircularProgressIndicator())
-        : incomeCategories.isEmpty
+        : categories.isEmpty
             ? Center(
-                child: Text(LocaleKeys.noCatFound.tr,
-                    style: TextStyle(color: Helper.getTextColor(context))))
+                child: Text(
+                LocaleKeys.noCatFound.tr,
+                style: TextStyle(color: Helper.getTextColor(context)),
+              ))
             : SingleChildScrollView(
                 child: Column(
                   children: [
@@ -540,7 +544,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: incomeCategories.length,
+                            itemCount: categories.length,
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding: const EdgeInsets.only(
@@ -553,12 +557,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                             builder: (context) =>
                                                 SubCategoryScreen(
                                                   categoryName:
-                                                      incomeCategories[index]
-                                                          .name!,
+                                                      categories[index].name!,
                                                   categoryId:
-                                                      incomeCategories[index]
-                                                          .id!,
-                                                  currPage: 2,
+                                                      categories[index].id!,
+                                                  currPage: 1,
                                                 )));
                                   },
                                   child: Row(
@@ -573,8 +575,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10))),
                                         child: SvgPicture.asset(
-                                          'asset/images/${incomeCategories[index].path}.svg',
-                                          color: incomeCategories[index].color,
+                                          'asset/images/${categories[index].icons}.svg',
+                                          color: categories[index].color,
                                           width: 24,
                                           height: 24,
                                         ),
@@ -586,17 +588,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              incomeCategories[index]
-                                                  .name
-                                                  .toString(),
+                                              categories[index].name.toString(),
                                               style: TextStyle(
                                                   color: Helper.getTextColor(
                                                       context),
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                            //         Text("dfg",
-                                            // style: TextStyle(color: Colors.white),),
+                                            /*Text("",
+                                            style: TextStyle(color: Colors.white),),*/
                                           ],
                                         ),
                                       ),

@@ -6,13 +6,44 @@ import 'auth_service.dart';
 import 'drive_client.dart';
 
 class DriveService {
-  final _authService = AuthService();
   static final _instance = DriveService._();
-
-  DriveService._();
+  final _authService = AuthService();
 
   factory DriveService() {
     return _instance;
+  }
+
+  DriveService._();
+
+  /// download the file from the google drive
+  /// @params [fileId] google drive id for the uploaded file
+  /// @params [filePath] file path to copy the downloaded file
+  /// returns download file path on success, else null
+  Future<String?> downloadFile(String fileId, String filePath) async {
+    // 1. sign in with Google to get auth headers
+    final headers = await _authService.googleSignIn();
+    if (headers == null) return null;
+
+    // 2. create auth http client & pass it to drive API
+    final client = DriveClient(headers);
+    final drive = ga.DriveApi(client);
+
+    // 3. download file from the google drive
+    final res = await drive.files.get(
+      fileId,
+      downloadOptions: ga.DownloadOptions.fullMedia,
+    ) as ga.Media;
+
+    // 4. convert downloaded file stream to bytes
+    final bytesArray = await res.stream.toList();
+    List<int> bytes = [];
+    for (var arr in bytesArray) {
+      bytes.addAll(arr);
+    }
+
+    // 5. write file bytes to disk
+    await File(filePath).writeAsBytes(bytes);
+    return filePath;
   }
 
   /// upload file in the google drive
@@ -47,37 +78,6 @@ class DriveService {
       );
       return res.id;
     }
-  }
-
-  /// download the file from the google drive
-  /// @params [fileId] google drive id for the uploaded file
-  /// @params [filePath] file path to copy the downloaded file
-  /// returns download file path on success, else null
-  Future<String?> downloadFile(String fileId, String filePath) async {
-    // 1. sign in with Google to get auth headers
-    final headers = await _authService.googleSignIn();
-    if (headers == null) return null;
-
-    // 2. create auth http client & pass it to drive API
-    final client = DriveClient(headers);
-    final drive = ga.DriveApi(client);
-
-    // 3. download file from the google drive
-    final res = await drive.files.get(
-      fileId,
-      downloadOptions: ga.DownloadOptions.fullMedia,
-    ) as ga.Media;
-
-    // 4. convert downloaded file stream to bytes
-    final bytesArray = await res.stream.toList();
-    List<int> bytes = [];
-    for (var arr in bytesArray) {
-      bytes.addAll(arr);
-    }
-
-    // 5. write file bytes to disk
-    await File(filePath).writeAsBytes(bytes);
-    return filePath;
   }
 
   /// returns file id for existing file,

@@ -28,9 +28,68 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
   final databaseHelper = DatabaseHelper();
 
   @override
-  void initState() {
-    getTransaction();
-    super.initState();
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Helper.getBackgroundColor(context),
+          title: Row(
+            children: [
+              InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Helper.getTextColor(context),
+                    size: 20,
+                  )),
+              10.widthBox,
+              Text(LocaleKeys.myLibrary.tr,
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Helper.getTextColor(context),
+                  )),
+            ],
+          ),
+        ),
+        body: imageList.isEmpty
+            ? Center(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    LocaleKeys.haveNotLibrary.tr,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Helper.getTextColor(context), fontSize: 18),
+                  ),
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // 2 columns in the grid
+                      crossAxisSpacing: 8.0, // Spacing between columns
+                      mainAxisSpacing: 8.0, // Spacing between rows
+                      childAspectRatio: 1.2),
+                  itemCount: imageList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      onTap: () {
+                        showImage(index, context);
+                      },
+                      child: Image.file(
+                        File(imageList[index]),
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  },
+                ),
+              ),
+      ),
+    );
   }
 
   getTransaction() async {
@@ -97,68 +156,9 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Helper.getBackgroundColor(context),
-          title: Row(
-            children: [
-              InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    color: Helper.getTextColor(context),
-                    size: 20,
-                  )),
-              10.widthBox,
-              Text(LocaleKeys.myLibrary.tr,
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: Helper.getTextColor(context),
-                  )),
-            ],
-          ),
-        ),
-        body: imageList.isEmpty
-            ? Center(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    LocaleKeys.haveNotLibrary.tr,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Helper.getTextColor(context), fontSize: 18),
-                  ),
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // 2 columns in the grid
-                      crossAxisSpacing: 8.0, // Spacing between columns
-                      mainAxisSpacing: 8.0, // Spacing between rows
-                      childAspectRatio: 1.2),
-                  itemCount: imageList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      onTap: () {
-                        showImage(index, context);
-                      },
-                      child: Image.file(
-                        File(imageList[index]),
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  },
-                ),
-              ),
-      ),
-    );
+  void initState() {
+    getTransaction();
+    super.initState();
   }
 
   void showImage(int index, BuildContext context) {

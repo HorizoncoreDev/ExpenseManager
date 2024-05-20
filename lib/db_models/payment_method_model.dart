@@ -1,20 +1,5 @@
 const String payment_method_table = 'payment_method_table';
 
-class PaymentMethodFields {
-  static final List<String> values = [
-    /// Add all fields
-    id,
-    name,
-    icon,
-    status
-  ];
-
-  static const String id = 'id';
-  static const String name = 'name';
-  static const String icon = 'icon';
-  static const String status = 'status';
-}
-
 class PaymentMethod {
   int? id;
   String? name;
@@ -40,4 +25,19 @@ class PaymentMethod {
       'icon': icon,
     };
   }
+}
+
+class PaymentMethodFields {
+  static final List<String> values = [
+    /// Add all fields
+    id,
+    name,
+    icon,
+    status
+  ];
+
+  static const String id = 'id';
+  static const String name = 'name';
+  static const String icon = 'icon';
+  static const String status = 'status';
 }

@@ -18,6 +18,13 @@ import 'category/category_screen.dart';
 import 'general_setting/general_setting_screen.dart';
 import 'my_library/my_library_screen.dart';
 
+class GridItem {
+  final IconData iconData;
+  final String text;
+
+  GridItem({required this.iconData, required this.text});
+}
+
 class OtherScreen extends StatefulWidget {
   const OtherScreen({super.key});
 
@@ -40,47 +47,6 @@ class _OtherScreenState extends State<OtherScreen> {
   String shortName = "";
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-
-  @override
-  void initState() {
-    MySharedPreferences.instance
-        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-        .then((value) {
-      if (value != null) {
-        setState(() {
-          isSkippedUser = value;
-        });
-      }
-    });
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
-        .then((value) {
-      if (value != null) {
-        userEmail = value;
-        getProfileData();
-      }
-    }); // TODO: implement initState
-    super.initState();
-  }
-
-  Future<void> getProfileData() async {
-    try {
-      ProfileModel? fetchedProfileData =
-          await databaseHelper.getProfileData(userEmail);
-      setState(() {
-        profileData = fetchedProfileData;
-        firstNameController.text = profileData!.first_name!;
-        lastNameController.text = profileData!.last_name!;
-      });
-      shortName = Helper.getShortName(
-          profileData!.first_name!, profileData!.last_name!);
-    } catch (error) {
-      print('Error fetching Profile Data: $error');
-      /* setState(() {
-        isLoading = false;
-      });*/
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -480,6 +446,63 @@ class _OtherScreenState extends State<OtherScreen> {
     );
   }
 
+  Future<void> getProfileData() async {
+    try {
+      ProfileModel? fetchedProfileData =
+          await databaseHelper.getProfileData(userEmail);
+      setState(() {
+        profileData = fetchedProfileData;
+        firstNameController.text = profileData!.first_name!;
+        lastNameController.text = profileData!.last_name!;
+      });
+      shortName = Helper.getShortName(
+          profileData!.first_name!, profileData!.last_name!);
+    } catch (error) {
+      print('Error fetching Profile Data: $error');
+      /* setState(() {
+        isLoading = false;
+      });*/
+    }
+  }
+
+  @override
+  void initState() {
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
+        setState(() {
+          isSkippedUser = value;
+        });
+      }
+    });
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        getProfileData();
+      }
+    }); // TODO: implement initState
+    super.initState();
+  }
+
+  Future<void> requestContactPermission() async {
+    PermissionStatus status = await Permission.contacts.status;
+    if (!status.isGranted) {
+      status = await Permission.contacts.request();
+    }
+    if (status.isGranted) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const InviteFriendsScreen()));
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+      Helper.showToast(LocaleKeys.permissionDenied.tr);
+    } else {
+      Helper.showToast(LocaleKeys.allowContactAccess.tr);
+    }
+  }
+
   Future _rateAppDialogue(BuildContext context) async {
     await showDialog(
       context: context,
@@ -640,27 +663,4 @@ class _OtherScreenState extends State<OtherScreen> {
       },
     );
   }
-
-  Future<void> requestContactPermission() async {
-    PermissionStatus status = await Permission.contacts.status;
-    if (!status.isGranted) {
-      status = await Permission.contacts.request();
-    }
-    if (status.isGranted) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const InviteFriendsScreen()));
-    } else if (status.isPermanentlyDenied) {
-      openAppSettings();
-      Helper.showToast(LocaleKeys.permissionDenied.tr);
-    } else {
-      Helper.showToast(LocaleKeys.allowContactAccess.tr);
-    }
-  }
-}
-
-class GridItem {
-  final IconData iconData;
-  final String text;
-
-  GridItem({required this.iconData, required this.text});
 }

@@ -43,43 +43,6 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   String userEmail = '';
 
-  Future<void> getProfileData() async {
-    try {
-      ProfileModel? fetchedProfileData =
-          await databaseHelper.getProfileData(userEmail);
-      setState(() {
-        profileData = fetchedProfileData;
-        fullName = "${profileData!.first_name!} ${profileData!.last_name!}";
-        email = profileData!.email!;
-        userCode = profileData!.user_code!;
-
-        dob = profileData!.dob!;
-        selectedValue =
-            profileData!.gender == "" ? 'Female' : profileData!.gender!;
-        isLoading = false;
-      });
-    } catch (error) {
-      Helper.hideLoading(context);
-      print('Error fetching Profile Data: $error');
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
-        .then((value) {
-      if (value != null) {
-        userEmail = value;
-        getProfileData();
-      }
-    });
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -459,6 +422,175 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     );
   }
 
+  Future<void> clearData() async {
+    await databaseHelper.clearTransactionTable();
+    MySharedPreferences.instance
+        .addStringToSF(SharedPreferencesKeys.userEmail, "");
+    MySharedPreferences.instance
+        .addBoolToSF(SharedPreferencesKeys.isBudgetAdded, false);
+    MySharedPreferences.instance
+        .addBoolToSF(SharedPreferencesKeys.isLogin, false);
+    Navigator.of(context, rootNavigator: true)
+        .push(MaterialPageRoute(builder: (context) => const BudgetScreen()));
+  }
+
+  Future<void> deleteAccount() async {
+    await databaseHelper.clearAllTables();
+    Navigator.of(context, rootNavigator: true)
+        .push(MaterialPageRoute(builder: (context) => const SignInScreen()));
+  }
+
+  Future<void> getProfileData() async {
+    try {
+      ProfileModel? fetchedProfileData =
+          await databaseHelper.getProfileData(userEmail);
+      setState(() {
+        profileData = fetchedProfileData;
+        fullName = "${profileData!.first_name!} ${profileData!.last_name!}";
+        email = profileData!.email!;
+        userCode = profileData!.user_code!;
+
+        dob = profileData!.dob!;
+        selectedValue =
+            profileData!.gender == "" ? 'Female' : profileData!.gender!;
+        isLoading = false;
+      });
+    } catch (error) {
+      Helper.hideLoading(context);
+      print('Error fetching Profile Data: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        getProfileData();
+      }
+    });
+    super.initState();
+  }
+
+  signOut() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    try {
+      await FirebaseAuth.instance.signOut();
+      await googleSignIn.signOut();
+
+      MySharedPreferences.instance
+          .addStringToSF(SharedPreferencesKeys.userEmail, "");
+      MySharedPreferences.instance
+          .addStringToSF(SharedPreferencesKeys.userName, "");
+      MySharedPreferences.instance
+          .addStringToSF(SharedPreferencesKeys.currentUserEmail, "");
+      MySharedPreferences.instance
+          .addStringToSF(SharedPreferencesKeys.currentUserName, "");
+      MySharedPreferences.instance
+          .addStringToSF(SharedPreferencesKeys.userFcmToken, "");
+      MySharedPreferences.instance
+          .addBoolToSF(SharedPreferencesKeys.isLogin, false);
+
+      Get.offAll(SignInScreen());
+      /* Navigator.of(context, rootNavigator: true)
+          .push(MaterialPageRoute(builder: (context) => const SignInScreen()));*/
+    } catch (e) {
+      Helper.showToast('Error signing out. Try again.');
+    }
+  }
+
+  Future _clearDataDialogue(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (cont) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          alignment: Alignment.center,
+          titlePadding: EdgeInsets.zero,
+          actionsPadding: EdgeInsets.zero,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 15,
+          ),
+          insetPadding: const EdgeInsets.all(15),
+          backgroundColor: Helper.getCardColor(context),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pop(cont);
+                    },
+                    child:
+                        Icon(Icons.close, color: Helper.getTextColor(context)),
+                  ),
+                ),
+                10.heightBox,
+                Text(
+                  LocaleKeys.sureToClear.tr,
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    color: Helper.getTextColor(context),
+                    fontSize: 20,
+                  ),
+                ),
+                20.heightBox,
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(cont);
+                        },
+                        child: Text(
+                          LocaleKeys.no.tr,
+                          style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      20.widthBox,
+                      InkWell(
+                        onTap: () {
+                          clearData();
+                          Navigator.pop(cont);
+                        },
+                        child: Text(
+                          LocaleKeys.yes.tr,
+                          style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future _deleteAccountDialogue(BuildContext context) async {
     await showDialog(
       context: context,
@@ -629,137 +761,5 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
         );
       },
     );
-  }
-
-  Future _clearDataDialogue(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (cont) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          alignment: Alignment.center,
-          titlePadding: EdgeInsets.zero,
-          actionsPadding: EdgeInsets.zero,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 15,
-          ),
-          insetPadding: const EdgeInsets.all(15),
-          backgroundColor: Helper.getCardColor(context),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.pop(cont);
-                    },
-                    child:
-                        Icon(Icons.close, color: Helper.getTextColor(context)),
-                  ),
-                ),
-                10.heightBox,
-                Text(
-                  LocaleKeys.sureToClear.tr,
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                    color: Helper.getTextColor(context),
-                    fontSize: 20,
-                  ),
-                ),
-                20.heightBox,
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(cont);
-                        },
-                        child: Text(
-                          LocaleKeys.no.tr,
-                          style: TextStyle(
-                            color: Helper.getTextColor(context),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      20.widthBox,
-                      InkWell(
-                        onTap: () {
-                          clearData();
-                          Navigator.pop(cont);
-                        },
-                        child: Text(
-                          LocaleKeys.yes.tr,
-                          style: TextStyle(
-                            color: Helper.getTextColor(context),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  signOut() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    try {
-      await FirebaseAuth.instance.signOut();
-      await googleSignIn.signOut();
-
-      MySharedPreferences.instance
-          .addStringToSF(SharedPreferencesKeys.userEmail, "");
-      MySharedPreferences.instance
-          .addStringToSF(SharedPreferencesKeys.userName, "");
-      MySharedPreferences.instance
-          .addStringToSF(SharedPreferencesKeys.currentUserEmail, "");
-      MySharedPreferences.instance
-          .addStringToSF(SharedPreferencesKeys.currentUserName, "");
-      MySharedPreferences.instance
-          .addStringToSF(SharedPreferencesKeys.userFcmToken, "");
-      MySharedPreferences.instance
-          .addBoolToSF(SharedPreferencesKeys.isLogin, false);
-
-      Get.offAll(SignInScreen());
-      /* Navigator.of(context, rootNavigator: true)
-          .push(MaterialPageRoute(builder: (context) => const SignInScreen()));*/
-    } catch (e) {
-      Helper.showToast('Error signing out. Try again.');
-    }
-  }
-
-  Future<void> clearData() async {
-    await databaseHelper.clearTransactionTable();
-    MySharedPreferences.instance
-        .addStringToSF(SharedPreferencesKeys.userEmail, "");
-    MySharedPreferences.instance
-        .addBoolToSF(SharedPreferencesKeys.isBudgetAdded, false);
-    MySharedPreferences.instance
-        .addBoolToSF(SharedPreferencesKeys.isLogin, false);
-    Navigator.of(context, rootNavigator: true)
-        .push(MaterialPageRoute(builder: (context) => const BudgetScreen()));
-  }
-
-  Future<void> deleteAccount() async {
-    await databaseHelper.clearAllTables();
-    Navigator.of(context, rootNavigator: true)
-        .push(MaterialPageRoute(builder: (context) => const SignInScreen()));
   }
 }

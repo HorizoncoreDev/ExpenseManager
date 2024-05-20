@@ -33,75 +33,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
   List<ExpenseSubCategory> spendingSubCategories = [];
   bool isLoading = true;
 
-  Future<void> getSpendingSubCategory() async {
-    isLoading = true;
-    try {
-      List<ExpenseSubCategory> fetchedSpendingSubCategories =
-          await databaseHelper.getSpendingSubCategory(widget.categoryId);
-      setState(() {
-        spendingSubCategories = fetchedSpendingSubCategories;
-        isLoading = false; // Set loading state to false when data is fetched
-      });
-    } catch (error) {
-      //print('Error fetching sub categories: $error');
-      setState(() {
-        isLoading = false; // Set loading state to false on error
-      });
-    }
-  }
-
-  Future<void> _addSpendingSubCategory() async {
-    final name = nameController.text;
-
-    await databaseHelper.insertSpendingSubCategory(
-      widget.categoryId,
-      ExpenseSubCategory(
-          name: name, categoryId: widget.categoryId, priority: ""),
-    );
-    getSpendingSubCategory();
-    //Navigator.pop(context);
-  }
-
   List<IncomeSubCategory> incomeSubCategories = [];
-
-  Future<void> getIncomeSubCategory() async {
-    isLoading = true;
-    try {
-      List<IncomeSubCategory> fetchedIncomeSubCategories =
-          await databaseHelper.getIncomeSubCategory(widget.categoryId);
-      setState(() {
-        incomeSubCategories = fetchedIncomeSubCategories;
-        isLoading = false; // Set loading state to false when data is fetched
-      });
-    } catch (error) {
-      //print('Error fetching sub categories: $error');
-      setState(() {
-        isLoading = false; // Set loading state to false on error
-      });
-    }
-  }
-
-  Future<void> _addIncomeSubCategory() async {
-    final name = nameController.text;
-
-    await databaseHelper.insertIncomeSubCategory(
-      widget.categoryId,
-      IncomeSubCategory(
-          name: name, categoryId: widget.categoryId, priority: ""),
-    );
-    getIncomeSubCategory();
-    //Navigator.pop(context);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.currPage == 1) {
-      getSpendingSubCategory();
-    } else {
-      getIncomeSubCategory();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -302,6 +234,74 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
               ),
       ),
     );
+  }
+
+  Future<void> getIncomeSubCategory() async {
+    isLoading = true;
+    try {
+      List<IncomeSubCategory> fetchedIncomeSubCategories =
+          await databaseHelper.getIncomeSubCategory(widget.categoryId);
+      setState(() {
+        incomeSubCategories = fetchedIncomeSubCategories;
+        isLoading = false; // Set loading state to false when data is fetched
+      });
+    } catch (error) {
+      //print('Error fetching sub categories: $error');
+      setState(() {
+        isLoading = false; // Set loading state to false on error
+      });
+    }
+  }
+
+  Future<void> getSpendingSubCategory() async {
+    isLoading = true;
+    try {
+      List<ExpenseSubCategory> fetchedSpendingSubCategories =
+          await databaseHelper.getSpendingSubCategory(widget.categoryId);
+      setState(() {
+        spendingSubCategories = fetchedSpendingSubCategories;
+        isLoading = false; // Set loading state to false when data is fetched
+      });
+    } catch (error) {
+      //print('Error fetching sub categories: $error');
+      setState(() {
+        isLoading = false; // Set loading state to false on error
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.currPage == 1) {
+      getSpendingSubCategory();
+    } else {
+      getIncomeSubCategory();
+    }
+  }
+
+  Future<void> _addIncomeSubCategory() async {
+    final name = nameController.text;
+
+    await databaseHelper.insertIncomeSubCategory(
+      widget.categoryId,
+      IncomeSubCategory(
+          name: name, categoryId: widget.categoryId, priority: ""),
+    );
+    getIncomeSubCategory();
+    //Navigator.pop(context);
+  }
+
+  Future<void> _addSpendingSubCategory() async {
+    final name = nameController.text;
+
+    await databaseHelper.insertSpendingSubCategory(
+      widget.categoryId,
+      ExpenseSubCategory(
+          name: name, categoryId: widget.categoryId, priority: ""),
+    );
+    getSpendingSubCategory();
+    //Navigator.pop(context);
   }
 
   Future _addSubCategoryDialogue(BuildContext context) async {

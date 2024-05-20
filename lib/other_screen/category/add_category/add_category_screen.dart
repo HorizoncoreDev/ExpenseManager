@@ -62,32 +62,6 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   String iconSelected = '';
   Color? isSelectedColor;
 
-  Future<void> _onSave() async {
-    final name = nameController.text;
-
-    // Add save code here
-    await databaseHelper.insertCategory(
-      ExpenseCategory(name: name, color: isSelectedColor!, icons: iconSelected),
-    );
-
-    Navigator.pop(context, true);
-  }
-
-  Future<void> _onIncomeSave() async {
-    final name = nameController.text;
-
-    await databaseHelper.insertIncomeCategory(
-      IncomeCategory(
-          name: name,
-          parentId: 1,
-          path: iconSelected,
-          status: 1,
-          color: isSelectedColor!),
-    );
-
-    Navigator.pop(context, true);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -270,5 +244,31 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
             ],
           ),
         ));
+  }
+
+  Future<void> _onIncomeSave() async {
+    final name = nameController.text;
+
+    await databaseHelper.insertIncomeCategory(
+      IncomeCategory(
+          name: name,
+          parentId: 1,
+          path: iconSelected,
+          status: 1,
+          color: isSelectedColor!),
+    );
+
+    Navigator.pop(context, true);
+  }
+
+  Future<void> _onSave() async {
+    final name = nameController.text;
+
+    // Add save code here
+    await databaseHelper.insertCategory(
+      ExpenseCategory(name: name, color: isSelectedColor!, icons: iconSelected),
+    );
+
+    Navigator.pop(context, true);
   }
 }

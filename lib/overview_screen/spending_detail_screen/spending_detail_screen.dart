@@ -64,187 +64,6 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
   bool isFilterCleared = false;
 
   @override
-  void initState() {
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-        .then((value) {
-      if (value != null) {
-        currentUserEmail = value;
-      }
-      MySharedPreferences.instance
-          .getStringValuesSF(SharedPreferencesKeys.userEmail)
-          .then((value) {
-        if (value != null) {
-          userEmail = value;
-        }
-        MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
-            .then((value) {
-          if (value != null) {
-            userKey = value;
-          }
-          MySharedPreferences.instance
-              .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-              .then((value) async {
-            if (value != null) {
-              isSkippedUser = value;
-              getTransactions("");
-            }
-          });
-        });
-      });
-    });
-    getCategories();
-    super.initState();
-  }
-
-  getCategories() async {
-    await DatabaseHelper.instance.categorys().then((value) {
-      if (value.isNotEmpty) {
-        for (var s in value) {
-          categoryList.add(CommonCategoryModel(
-              catId: s.id,
-              catName: s.name,
-              catType: AppConstanst.spendingTransaction));
-        }
-      }
-    });
-  }
-
-  getProfileData() async {
-    try {
-      if (currentUserEmail == userEmail) {
-        ProfileModel? fetchedProfileData =
-            await databaseHelper.getProfileData(currentUserEmail);
-        setState(() {
-          currentBalance = int.parse(fetchedProfileData!.current_balance!);
-          actualBudget = int.parse(fetchedProfileData!.actual_budget!);
-          double percentage =
-              currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
-          spendingPercentage = currentBalance > 0 ? 100 - percentage : 0;
-        });
-      } else {
-        final reference = FirebaseDatabase.instance
-            .reference()
-            .child(profile_table)
-            .orderByChild(ProfileTableFields.email)
-            .equalTo(currentUserEmail);
-
-        reference.onValue.listen((event) {
-          DataSnapshot dataSnapshot = event.snapshot;
-          if (event.snapshot.exists) {
-            Map<dynamic, dynamic> values =
-                dataSnapshot.value as Map<dynamic, dynamic>;
-            values.forEach((key, value) async {
-              var profileModel = ProfileModel.fromMap(value);
-              currentBalance = int.parse(profileModel.current_balance!);
-              actualBudget = int.parse(profileModel.actual_budget!);
-              double percentage = currentBalance > 0
-                  ? (currentBalance / actualBudget) * 100
-                  : 100;
-              spendingPercentage = currentBalance > 0 ? 100 - percentage : 0;
-            });
-          }
-        });
-      }
-    } catch (error) {
-      print('Error fetching Profile Data: $error');
-    }
-  }
-
-  getTransactions(String category) async {
-    date = DateFormat('MM/yyyy').format(DateTime.now());
-
-    // showYear = DateFormat('yyyy').format(DateTime.now());
-    //showMonth = DateFormat('MMMM').format(DateTime.now());
-
-    if (isSkippedUser) {
-      MySharedPreferences.instance
-          .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentBalance)
-          .then((value) {
-        if (value != null) {
-          currentBalance = int.parse(value);
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
-              .then((value) {
-            if (value != null) {
-              actualBudget = int.parse(value);
-            }
-          });
-        }
-      });
-    } else {
-      getProfileData();
-    }
-
-    List<TransactionModel> spendingTransaction = [];
-    dateWiseTransaction = [];
-    await DatabaseHelper.instance
-        .getTransactionList(category.toLowerCase(), currentUserEmail, userKey,
-            AppConstanst.spendingTransaction, isSkippedUser)
-        .then((value) async {
-      spendingTransaction = value;
-      List<String> dates = [];
-      DateTime now = DateTime.now();
-      String currentMonthName = DateFormat('MMMM').format(now);
-
-      for (var t in spendingTransaction) {
-        DateFormat format = DateFormat("dd/MM/yyyy");
-        DateTime parsedDate = format.parse(t.transaction_date!);
-        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
-        if (transactionMonthName == currentMonthName) {
-          if (!dates.contains(t.transaction_date!.split(' ')[0])) {
-            dates.add(t.transaction_date!.split(' ')[0]);
-          }
-        }
-      }
-
-      dates.sort((a, b) => b.compareTo(a));
-      totalMonthlySpentAmount = 0;
-      for (var date in dates) {
-        int totalAmount = 0;
-        List<TransactionModel> newTransaction = [];
-        for (var t in spendingTransaction) {
-          if (date == t.transaction_date!.split(' ')[0]) {
-            newTransaction.add(t);
-            totalAmount = totalAmount + t.amount!;
-          } else {
-            DateWiseTransactionModel? found =
-                dateWiseTransaction.firstWhereOrNull((element) =>
-                    element.transactionDate!.split(' ')[0] == date);
-            if (found == null) {
-              continue;
-            } else {
-              break;
-            }
-          }
-        }
-        dateWiseTransaction.add(DateWiseTransactionModel(
-            transactionDate: date,
-            transactionTotal: totalAmount,
-            transactionDay: Helper.getTransactionDay(date),
-            transactions: newTransaction));
-        originalDateWiseTransaction.add(DateWiseTransactionModel(
-            transactionDate: date,
-            transactionTotal: totalAmount,
-            transactionDay: Helper.getTransactionDay(date),
-            transactions: newTransaction));
-        totalMonthlySpentAmount = totalMonthlySpentAmount + totalAmount;
-      }
-
-      if (dateWiseTransaction.isNotEmpty) {
-        var dates = dateWiseTransaction[0].transactionDate!.split('/');
-        date = '${dates[1]}/${dates[2]}';
-      }
-      double percentage = totalMonthlySpentAmount > 0
-          ? (totalMonthlySpentAmount / actualBudget) * 100
-          : 100;
-      spendingPercentage = totalMonthlySpentAmount > 0 ? 100 - percentage : 0;
-      setState(() {});
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -687,6 +506,371 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
     );
   }
 
+  void clearSelection(StateSetter setState) {
+    setState(() {
+      isFilterCleared = true;
+      for (var month in monthList) {
+        month.isSelected = false;
+      }
+      for (var item in categoryList) {
+        item.isSelected = false;
+      }
+      selectedMonths.clear();
+      showMonth = LocaleKeys.selectMonth.tr;
+      showYear = LocaleKeys.selectYear.tr;
+      selectedCategoryIndex = -1;
+      selectedCategory = '';
+    });
+  }
+
+  getCategories() async {
+    await DatabaseHelper.instance.categorys().then((value) {
+      if (value.isNotEmpty) {
+        for (var s in value) {
+          categoryList.add(CommonCategoryModel(
+              catId: s.id,
+              catName: s.name,
+              catType: AppConstanst.spendingTransaction));
+        }
+      }
+    });
+  }
+
+  getFilteredData(String value) async {
+    List<TransactionModel> spendingTransaction = [];
+    dateWiseTransaction = [];
+    await DatabaseHelper.instance
+        .fetchDataForYearMonthsAndCategory(
+            showYear,
+            selectedMonths,
+            selectedCategoryIndex != -1
+                ? categoryList[selectedCategoryIndex].catId!
+                : -1,
+            -1,
+            currentUserEmail,
+            userKey,
+            AppConstanst.spendingTransaction,
+            value,
+            isSkippedUser)
+        .then((value) {
+      spendingTransaction = value;
+      List<String> dates = [];
+      for (var t in spendingTransaction) {
+        if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+          dates.add(t.transaction_date!.split(' ')[0]);
+        }
+      }
+      dates.sort((a, b) => b.compareTo(a));
+      totalMonthlySpentAmount = 0;
+      for (var date in dates) {
+        int totalAmount = 0;
+        List<TransactionModel> newTransaction = [];
+        for (var t in spendingTransaction) {
+          if (date == t.transaction_date!.split(' ')[0]) {
+            newTransaction.add(t);
+            totalAmount = totalAmount + t.amount!;
+          } else {
+            DateWiseTransactionModel? found =
+                dateWiseTransaction.firstWhereOrNull((element) =>
+                    element.transactionDate!.split(' ')[0] == date);
+            if (found == null) {
+              continue;
+            } else {
+              break;
+            }
+          }
+        }
+        dateWiseTransaction.add(DateWiseTransactionModel(
+            transactionDate: date,
+            transactionTotal: totalAmount,
+            transactionDay: Helper.getTransactionDay(date),
+            transactions: newTransaction));
+        totalMonthlySpentAmount = totalMonthlySpentAmount + totalAmount;
+      }
+      if (dateWiseTransaction.isNotEmpty) {
+        var dates = dateWiseTransaction[0].transactionDate!.split('/');
+        date = '${dates[1]}/${dates[2]}';
+      }
+      spendingPercentage = totalMonthlySpentAmount > 0
+          ? (totalMonthlySpentAmount / actualBudget) * 100
+          : 100;
+      setState(() {});
+    });
+  }
+
+  getProfileData() async {
+    /* try {
+      if (currentUserEmail == userEmail) {
+        ProfileModel? fetchedProfileData =
+            await databaseHelper.getProfileData(currentUserEmail);
+        setState(() {
+          currentBalance = int.parse(fetchedProfileData!.current_balance!);
+          actualBudget = int.parse(fetchedProfileData!.actual_budget!);
+          double percentage =
+              currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
+          spendingPercentage = currentBalance > 0 ? 100 - percentage : 0;
+        });
+      } else {*/
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(profile_table)
+        .orderByChild(ProfileTableFields.email)
+        .equalTo(currentUserEmail);
+
+    reference.onValue.listen((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+          var profileModel = ProfileModel.fromMap(value);
+          currentBalance = int.parse(profileModel.current_balance!);
+          actualBudget = int.parse(profileModel.actual_budget!);
+          double percentage =
+              currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
+          spendingPercentage = currentBalance > 0 ? 100 - percentage : 0;
+        });
+      }
+    });
+    /*}
+    } catch (error) {
+      print('Error fetching Profile Data: $error');
+    }*/
+  }
+
+  getTransactions(String category) async {
+    date = DateFormat('MM/yyyy').format(DateTime.now());
+
+    // showYear = DateFormat('yyyy').format(DateTime.now());
+    //showMonth = DateFormat('MMMM').format(DateTime.now());
+
+    if (isSkippedUser) {
+      MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentBalance)
+          .then((value) {
+        if (value != null) {
+          currentBalance = int.parse(value);
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.skippedUserActualBudget)
+              .then((value) {
+            if (value != null) {
+              actualBudget = int.parse(value);
+            }
+          });
+        }
+      });
+    } else {
+      getProfileData();
+    }
+
+    List<TransactionModel> spendingTransaction = [];
+    dateWiseTransaction = [];
+    await DatabaseHelper.instance
+        .getTransactionList(category.toLowerCase(), currentUserEmail, userKey,
+            AppConstanst.spendingTransaction, isSkippedUser)
+        .then((value) async {
+      spendingTransaction = value;
+      List<String> dates = [];
+      DateTime now = DateTime.now();
+      String currentMonthName = DateFormat('MMMM').format(now);
+
+      for (var t in spendingTransaction) {
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(t.transaction_date!);
+        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+        if (transactionMonthName == currentMonthName) {
+          if (!dates.contains(t.transaction_date!.split(' ')[0])) {
+            dates.add(t.transaction_date!.split(' ')[0]);
+          }
+        }
+      }
+
+      dates.sort((a, b) => b.compareTo(a));
+      totalMonthlySpentAmount = 0;
+      for (var date in dates) {
+        int totalAmount = 0;
+        List<TransactionModel> newTransaction = [];
+        for (var t in spendingTransaction) {
+          if (date == t.transaction_date!.split(' ')[0]) {
+            newTransaction.add(t);
+            totalAmount = totalAmount + t.amount!;
+          } else {
+            DateWiseTransactionModel? found =
+                dateWiseTransaction.firstWhereOrNull((element) =>
+                    element.transactionDate!.split(' ')[0] == date);
+            if (found == null) {
+              continue;
+            } else {
+              break;
+            }
+          }
+        }
+        dateWiseTransaction.add(DateWiseTransactionModel(
+            transactionDate: date,
+            transactionTotal: totalAmount,
+            transactionDay: Helper.getTransactionDay(date),
+            transactions: newTransaction));
+        originalDateWiseTransaction.add(DateWiseTransactionModel(
+            transactionDate: date,
+            transactionTotal: totalAmount,
+            transactionDay: Helper.getTransactionDay(date),
+            transactions: newTransaction));
+        totalMonthlySpentAmount = totalMonthlySpentAmount + totalAmount;
+      }
+
+      if (dateWiseTransaction.isNotEmpty) {
+        var dates = dateWiseTransaction[0].transactionDate!.split('/');
+        date = '${dates[1]}/${dates[2]}';
+      }
+      double percentage = totalMonthlySpentAmount > 0
+          ? (totalMonthlySpentAmount / actualBudget) * 100
+          : 100;
+      spendingPercentage = totalMonthlySpentAmount > 0 ? 100 - percentage : 0;
+      setState(() {});
+    });
+  }
+
+  @override
+  void initState() {
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+        .then((value) {
+      if (value != null) {
+        currentUserEmail = value;
+      }
+      MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.userEmail)
+          .then((value) {
+        if (value != null) {
+          userEmail = value;
+        }
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
+            .then((value) {
+          if (value != null) {
+            userKey = value;
+          }
+          MySharedPreferences.instance
+              .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+              .then((value) async {
+            if (value != null) {
+              isSkippedUser = value;
+              getTransactions("");
+            }
+          });
+        });
+      });
+    });
+    getCategories();
+    super.initState();
+  }
+
+  selectMonth(context, StateSetter setState) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState1) {
+          return AlertDialog(
+            title: Text(LocaleKeys.selectMonth.tr),
+            contentPadding:
+                const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 10.0,
+                      mainAxisSpacing: 10.0,
+                      childAspectRatio: 2.2 / 1,
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: monthList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          setState1(() {
+                            monthList[index].isSelected = true;
+                            for (int i = 0; i < monthList.length; i++) {
+                              if (i != index) {
+                                monthList[i].isSelected = false;
+                              }
+                            }
+                          });
+                          setState(() {
+                            List<String> showMonthList = [];
+                            selectedMonths = monthList
+                                .where((month) => month.isSelected)
+                                .toList();
+                            for (var i in selectedMonths) {
+                              showMonthList.add(i.text);
+                            }
+                            showMonth = showMonthList.join(", ");
+                            Navigator.pop(context);
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              color: monthList[index].isSelected
+                                  ? Colors.blue
+                                  : Colors.transparent,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5))),
+                          child: Text(
+                            monthList[index].text,
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 14),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  selectYear(context, StateSetter setState) async {
+    print("Calling date picker");
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(LocaleKeys.selectYear.tr),
+          content: SizedBox(
+            width: 300,
+            height: 300,
+            child: YearPicker(
+              firstDate: DateTime(DateTime.now().year - 10, 1),
+              lastDate: DateTime.now(),
+              //lastDate: DateTime(2025),
+              initialDate: DateTime.now(),
+              selectedDate: _selectedYear,
+              onChanged: (DateTime dateTime) {
+                setState(() {
+                  _selectedYear = dateTime;
+                  showYear = "${dateTime.year}";
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   _bottomSheetView(StateSetter setState) {
     return Container(
         padding: const EdgeInsets.only(bottom: 10),
@@ -900,190 +1084,5 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
             ],
           ),
         ));
-  }
-
-  void clearSelection(StateSetter setState) {
-    setState(() {
-      isFilterCleared = true;
-      for (var month in monthList) {
-        month.isSelected = false;
-      }
-      for (var item in categoryList) {
-        item.isSelected = false;
-      }
-      selectedMonths.clear();
-      showMonth = LocaleKeys.selectMonth.tr;
-      showYear = LocaleKeys.selectYear.tr;
-      selectedCategoryIndex = -1;
-      selectedCategory = '';
-    });
-  }
-
-  selectYear(context, StateSetter setState) async {
-    print("Calling date picker");
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(LocaleKeys.selectYear.tr),
-          content: SizedBox(
-            width: 300,
-            height: 300,
-            child: YearPicker(
-              firstDate: DateTime(DateTime.now().year - 10, 1),
-              lastDate: DateTime.now(),
-              //lastDate: DateTime(2025),
-              initialDate: DateTime.now(),
-              selectedDate: _selectedYear,
-              onChanged: (DateTime dateTime) {
-                setState(() {
-                  _selectedYear = dateTime;
-                  showYear = "${dateTime.year}";
-                });
-                Navigator.pop(context);
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  selectMonth(context, StateSetter setState) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setState1) {
-          return AlertDialog(
-            title: Text(LocaleKeys.selectMonth.tr),
-            contentPadding:
-                const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 10.0,
-                      mainAxisSpacing: 10.0,
-                      childAspectRatio: 2.2 / 1,
-                    ),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: monthList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return InkWell(
-                        onTap: () {
-                          setState1(() {
-                            monthList[index].isSelected = true;
-                            for (int i = 0; i < monthList.length; i++) {
-                              if (i != index) {
-                                monthList[i].isSelected = false;
-                              }
-                            }
-                          });
-                          setState(() {
-                            List<String> showMonthList = [];
-                            selectedMonths = monthList
-                                .where((month) => month.isSelected)
-                                .toList();
-                            for (var i in selectedMonths) {
-                              showMonthList.add(i.text);
-                            }
-                            showMonth = showMonthList.join(", ");
-                            Navigator.pop(context);
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: monthList[index].isSelected
-                                  ? Colors.blue
-                                  : Colors.transparent,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
-                          child: Text(
-                            monthList[index].text,
-                            style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 14),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-      },
-    );
-  }
-
-  getFilteredData(String value) async {
-    List<TransactionModel> spendingTransaction = [];
-    dateWiseTransaction = [];
-    await DatabaseHelper.instance
-        .fetchDataForYearMonthsAndCategory(
-            showYear,
-            selectedMonths,
-            selectedCategoryIndex != -1
-                ? categoryList[selectedCategoryIndex].catId!
-                : -1,
-            -1,
-            currentUserEmail,
-            userKey,
-            AppConstanst.spendingTransaction,
-            value,
-            isSkippedUser)
-        .then((value) {
-      spendingTransaction = value;
-      List<String> dates = [];
-      for (var t in spendingTransaction) {
-        if (!dates.contains(t.transaction_date!.split(' ')[0])) {
-          dates.add(t.transaction_date!.split(' ')[0]);
-        }
-      }
-      dates.sort((a, b) => b.compareTo(a));
-      totalMonthlySpentAmount = 0;
-      for (var date in dates) {
-        int totalAmount = 0;
-        List<TransactionModel> newTransaction = [];
-        for (var t in spendingTransaction) {
-          if (date == t.transaction_date!.split(' ')[0]) {
-            newTransaction.add(t);
-            totalAmount = totalAmount + t.amount!;
-          } else {
-            DateWiseTransactionModel? found =
-                dateWiseTransaction.firstWhereOrNull((element) =>
-                    element.transactionDate!.split(' ')[0] == date);
-            if (found == null) {
-              continue;
-            } else {
-              break;
-            }
-          }
-        }
-        dateWiseTransaction.add(DateWiseTransactionModel(
-            transactionDate: date,
-            transactionTotal: totalAmount,
-            transactionDay: Helper.getTransactionDay(date),
-            transactions: newTransaction));
-        totalMonthlySpentAmount = totalMonthlySpentAmount + totalAmount;
-      }
-      if (dateWiseTransaction.isNotEmpty) {
-        var dates = dateWiseTransaction[0].transactionDate!.split('/');
-        date = '${dates[1]}/${dates[2]}';
-      }
-      spendingPercentage = totalMonthlySpentAmount > 0
-          ? (totalMonthlySpentAmount / actualBudget) * 100
-          : 100;
-      setState(() {});
-    });
   }
 }

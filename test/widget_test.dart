@@ -7,13 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
-class MockThemeNotifier extends Mock implements ThemeNotifier {
-  @override
-  ThemeData getTheme() {
-    return ThemeData.dark();
-  }
-}
-
 void main() {
   setUp(() async {
     // Mock Firebase.initializeApp
@@ -48,4 +41,11 @@ void main() {
       print('Tapped on the widget with text "Start"');
     }
   });
+}
+
+class MockThemeNotifier extends Mock implements ThemeNotifier {
+  @override
+  ThemeData getTheme() {
+    return ThemeData.dark();
+  }
 }

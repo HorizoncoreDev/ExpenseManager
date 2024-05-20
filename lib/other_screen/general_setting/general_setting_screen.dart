@@ -43,62 +43,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
 
   String codeFromBottomSheet = "";
 
-  void _setDataFromBottomSheet(String data) {
-    setState(() {
-      codeFromBottomSheet = data;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.languageCode)
-        .then((value) {
-      if (value == "en") {
-        language = 'English';
-      } else if (value == "hi") {
-        language = "Hindi";
-      } else if (value == "gu") {
-        language = "Gujarati";
-      }
-    });
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.currencyCode)
-        .then((value) {
-      if (value != null) {
-        cCode = value;
-      }
-    });
-    getLanguageTypes();
-    getCurrencyTypes();
-  }
-
-  Future<void> getLanguageTypes() async {
-    try {
-      List<LanguageCategory> languageTypesList =
-          await databaseHelper.languageMethods();
-      setState(() {
-        languageTypes = languageTypesList;
-      });
-    } catch (e) {
-      Helper.showToast(e.toString());
-    }
-  }
-
-  Future<void> getCurrencyTypes() async {
-    try {
-      List<CurrencyCategory> currencyTypeList =
-          await databaseHelper.currencyMethods();
-      setState(() {
-        currencyTypes = currencyTypeList;
-      });
-    } catch (e) {
-      Helper.showToast(e.toString());
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -511,6 +455,65 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
         ));
   }
 
+  void currencyBottomSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return CurrencyBottomSheet(setData: _setDataFromBottomSheet);
+      },
+    );
+  }
+
+  Future<void> getCurrencyTypes() async {
+    try {
+      List<CurrencyCategory> currencyTypeList =
+          await databaseHelper.currencyMethods();
+      setState(() {
+        currencyTypes = currencyTypeList;
+      });
+    } catch (e) {
+      Helper.showToast(e.toString());
+    }
+  }
+
+  Future<void> getLanguageTypes() async {
+    try {
+      List<LanguageCategory> languageTypesList =
+          await databaseHelper.languageMethods();
+      setState(() {
+        languageTypes = languageTypesList;
+      });
+    } catch (e) {
+      Helper.showToast(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.languageCode)
+        .then((value) {
+      if (value == "en") {
+        language = 'English';
+      } else if (value == "hi") {
+        language = "Hindi";
+      } else if (value == "gu") {
+        language = "Gujarati";
+      }
+    });
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.currencyCode)
+        .then((value) {
+      if (value != null) {
+        cCode = value;
+      }
+    });
+    getLanguageTypes();
+    getCurrencyTypes();
+  }
+
   void languageBottomSheet() {
     showModalBottomSheet<void>(
       context: context,
@@ -520,12 +523,9 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
     );
   }
 
-  void currencyBottomSheet() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return CurrencyBottomSheet(setData: _setDataFromBottomSheet);
-      },
-    );
+  void _setDataFromBottomSheet(String data) {
+    setState(() {
+      codeFromBottomSheet = data;
+    });
   }
 }

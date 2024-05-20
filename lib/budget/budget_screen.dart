@@ -34,53 +34,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
   bool currencyDropdownOpen = false;
 
   @override
-  void initState() {
-    super.initState();
-    _focus.addListener(_onFocusChange);
-    MySharedPreferences.instance
-        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-        .then((value) {
-      if (value != null) {
-        isSkippedUser = value;
-        getCurrencyTypes();
-      }
-    });
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
-        .then((value) {
-      if (value != null) {
-        userEmail = value;
-        getCurrencyTypes();
-      }
-    });
-  }
-
-  Future<void> getCurrencyTypes() async {
-    try {
-      List<CurrencyCategory> currencyTypeList =
-          await databaseHelper.currencyMethods();
-      setState(() {
-        currencyTypes = currencyTypeList;
-      });
-    } catch (e) {
-      Helper.showToast(e.toString());
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    budgetController.dispose();
-    _focus
-      ..removeListener(_onFocusChange)
-      ..dispose();
-  }
-
-  void _onFocusChange() {
-    setState(() {});
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -250,48 +203,49 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   bottomRight: Radius.circular(5))),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton2<CurrencyCategory>(
-                              dropdownStyleData: DropdownStyleData(
-                                  decoration: BoxDecoration(
-                                      color: Helper.getCardColor(context),
-                                      borderRadius:
-                                      BorderRadius.circular(8))),
-                              items: currencyTypes
-                                  .map<DropdownMenuItem<CurrencyCategory>>(
-                                      (CurrencyCategory value) {
-                                return DropdownMenuItem<CurrencyCategory>(
-                                  value: value,
-                                  child: Text(value.symbol!),
-                                );
-                              }).toList(),
-                              hint: const Text("₹"),
-                              value: currency,
-                              onChanged: (value) {
-                                setState(() {
-                                  currency = value;
-                                  currencyCode = currency!.currencyCode!;
-                                  currencySymbol = currency!.symbol!;
-                                  MySharedPreferences.instance.addStringToSF(
-                                      SharedPreferencesKeys.currencySymbol,
-                                      currencySymbol);
-                                  MySharedPreferences.instance.addStringToSF(
-                                      SharedPreferencesKeys.currencyCode,
-                                      currencyCode);
-                                  print("currency is ---- ${currency!.symbol}");
-                                });
-                              },
-                              onMenuStateChange: (isOpen) {
-                                setState(() {
-                                  currencyDropdownOpen = isOpen;
-                                });
-                              },
-                              iconStyleData: IconStyleData(
-                              icon: Icon(
-                                !currencyDropdownOpen
-                                    ? Icons.keyboard_arrow_down
-                                    : Icons.keyboard_arrow_up,
-                                color: Colors.white,
-                              ),
-                            )),
+                                dropdownStyleData: DropdownStyleData(
+                                    decoration: BoxDecoration(
+                                        color: Helper.getCardColor(context),
+                                        borderRadius:
+                                            BorderRadius.circular(8))),
+                                items: currencyTypes
+                                    .map<DropdownMenuItem<CurrencyCategory>>(
+                                        (CurrencyCategory value) {
+                                  return DropdownMenuItem<CurrencyCategory>(
+                                    value: value,
+                                    child: Text(value.symbol!),
+                                  );
+                                }).toList(),
+                                hint: const Text("₹"),
+                                value: currency,
+                                onChanged: (value) {
+                                  setState(() {
+                                    currency = value;
+                                    currencyCode = currency!.currencyCode!;
+                                    currencySymbol = currency!.symbol!;
+                                    MySharedPreferences.instance.addStringToSF(
+                                        SharedPreferencesKeys.currencySymbol,
+                                        currencySymbol);
+                                    MySharedPreferences.instance.addStringToSF(
+                                        SharedPreferencesKeys.currencyCode,
+                                        currencyCode);
+                                    print(
+                                        "currency is ---- ${currency!.symbol}");
+                                  });
+                                },
+                                onMenuStateChange: (isOpen) {
+                                  setState(() {
+                                    currencyDropdownOpen = isOpen;
+                                  });
+                                },
+                                iconStyleData: IconStyleData(
+                                  icon: Icon(
+                                    !currencyDropdownOpen
+                                        ? Icons.keyboard_arrow_down
+                                        : Icons.keyboard_arrow_up,
+                                    color: Colors.white,
+                                  ),
+                                )),
                           )),
                     ]),
                   ),
@@ -300,5 +254,52 @@ class _BudgetScreenState extends State<BudgetScreen> {
             ),
           )),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    budgetController.dispose();
+    _focus
+      ..removeListener(_onFocusChange)
+      ..dispose();
+  }
+
+  Future<void> getCurrencyTypes() async {
+    try {
+      List<CurrencyCategory> currencyTypeList =
+          await databaseHelper.currencyMethods();
+      setState(() {
+        currencyTypes = currencyTypeList;
+      });
+    } catch (e) {
+      Helper.showToast(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(_onFocusChange);
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
+        isSkippedUser = value;
+        getCurrencyTypes();
+      }
+    });
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        getCurrencyTypes();
+      }
+    });
+  }
+
+  void _onFocusChange() {
+    setState(() {});
   }
 }

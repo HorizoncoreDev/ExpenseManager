@@ -29,31 +29,6 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
   String userEmail = "";
 
   @override
-  void initState() {
-    super.initState();
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.currencyCode)
-        .then((value) {
-      if (value != null) {
-        cCode = value;
-      }
-    });
-    getCurrencyTypes();
-  }
-
-  Future<void> getCurrencyTypes() async {
-    try {
-      List<CurrencyCategory> currencyTypeList =
-          await databaseHelper.currencyMethods();
-      setState(() {
-        currencyTypes = currencyTypeList;
-      });
-    } catch (e) {
-      Helper.showToast(e.toString());
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.35,
@@ -157,5 +132,30 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
         ],
       ),
     );
+  }
+
+  Future<void> getCurrencyTypes() async {
+    try {
+      List<CurrencyCategory> currencyTypeList =
+          await databaseHelper.currencyMethods();
+      setState(() {
+        currencyTypes = currencyTypeList;
+      });
+    } catch (e) {
+      Helper.showToast(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.currencyCode)
+        .then((value) {
+      if (value != null) {
+        cCode = value;
+      }
+    });
+    getCurrencyTypes();
   }
 }

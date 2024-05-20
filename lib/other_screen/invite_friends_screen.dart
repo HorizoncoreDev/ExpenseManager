@@ -16,12 +16,6 @@ class _InviteFriendsScreenState extends State<InviteFriendsScreen> {
   List<Contact> getContactList = [];
 
   @override
-  void initState() {
-    fetchContacts();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
@@ -113,6 +107,12 @@ class _InviteFriendsScreenState extends State<InviteFriendsScreen> {
       print('Name: ${contact.displayName}');
       print('Phone: ${contact.phones![0].value}');
     });
+  }
+
+  @override
+  void initState() {
+    fetchContacts();
+    super.initState();
   }
 
   void sendingSMS(String msg, String listRecipients) async {

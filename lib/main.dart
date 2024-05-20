@@ -15,9 +15,9 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'budget/budget_screen.dart';
 import 'intro_screen/intro_screen.dart';
@@ -50,9 +50,10 @@ void main() async {
     }
   });
   String langCode = "";
-  MySharedPreferences.instance.getStringValuesSF(SharedPreferencesKeys
-      .languageCode).then((value) {
-    if(value!= null){
+  MySharedPreferences.instance
+      .getStringValuesSF(SharedPreferencesKeys.languageCode)
+      .then((value) {
+    if (value != null) {
       langCode = value;
       print(" Lang is $langCode");
       if (langCode.isNotEmpty) {
@@ -76,7 +77,7 @@ void main() async {
               projectId: 'expense-management-27995'))
       : await Firebase.initializeApp();
 
-   FirebaseDatabase.instance.setPersistenceEnabled(true);
+  FirebaseDatabase.instance.setPersistenceEnabled(true);
 
   final FirebaseMessaging fcm = FirebaseMessaging.instance;
 
@@ -90,28 +91,31 @@ void main() async {
     sound: true,
   );
 
-
   const AndroidInitializationSettings initializationSettingsAndroid =
-  AndroidInitializationSettings('@mipmap/ic_launcher');
+      AndroidInitializationSettings('@mipmap/ic_launcher');
   DarwinInitializationSettings initializationSettingsIOS =
-  DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-      onDidReceiveLocalNotification: (int id, String? title, String? body, String? payload){});
+      DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+          onDidReceiveLocalNotification:
+              (int id, String? title, String? body, String? payload) {});
 
   InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid, iOS: initializationSettingsIOS,);
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsIOS,
+  );
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse notificationResponse){
-        AppConstanst.notificationClicked = true;
-        Get.to(()=>const FamilyAccountScreen());
-      });
+      onDidReceiveNotificationResponse:
+          (NotificationResponse notificationResponse) {
+    AppConstanst.notificationClicked = true;
+    Get.to(() => const FamilyAccountScreen());
+  });
 
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
   await fcm.setForegroundNotificationPresentationOptions(
     alert: true,
@@ -147,6 +151,17 @@ void main() async {
   ));
 }
 
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    description:
+        'This channel is used for important notifications.', // description
+    importance: Importance.high,
+    playSound: true);
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // await Firebase.initializeApp();
   AppConstanst.notificationClicked = true;
@@ -154,7 +169,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 class MyApp extends StatefulWidget {
-
   bool isBudgetAdded;
   bool isSkippedUser;
   bool isLogin;
@@ -162,54 +176,101 @@ class MyApp extends StatefulWidget {
 
   MyApp(
       {super.key,
-        required this.isBudgetAdded,
-        required this.isSkippedUser,
-        required this.isLogin,
-        required this.locale
-      });
+      required this.isBudgetAdded,
+      required this.isSkippedUser,
+      required this.isLogin,
+      required this.locale});
 
   @override
-  State<MyApp> createState() => _MyAppState(isBudgetAdded: this.isBudgetAdded,isSkippedUser: this.isSkippedUser,
-      isLogin: this.isLogin, locale: locale);
+  State<MyApp> createState() => _MyAppState(
+      isBudgetAdded: this.isBudgetAdded,
+      isSkippedUser: this.isSkippedUser,
+      isLogin: this.isLogin,
+      locale: locale);
 }
 
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
-    description:
-    'This channel is used for important notifications.', // description
-    importance: Importance.high,
-    playSound: true);
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
-
 class _MyAppState extends State<MyApp> {
-
   bool isBudgetAdded;
   bool isSkippedUser;
   bool isLogin;
   Locale? locale;
 
-  _MyAppState(
-      {
-        required this.isBudgetAdded,
-        required this.isSkippedUser,
-        required this.isLogin,
-        required this.locale,
-      });
+  _MyAppState({
+    required this.isBudgetAdded,
+    required this.isSkippedUser,
+    required this.isLogin,
+    required this.locale,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    return GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: themeNotifier.getTheme(),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        translations: TranslationService(),
+        locale: locale,
+        home: AppConstanst.notificationClicked
+            ? const FamilyAccountScreen()
+            : isBudgetAdded
+                ? isLogin
+                    ? const DashBoard()
+                    : isSkippedUser
+                        ? const DashBoard()
+                        : const SignInScreen()
+                : isSkippedUser
+                    ? const BudgetScreen()
+                    : user == null
+                        ? const IntroScreen()
+                        : const BudgetScreen()
+
+        /*user == null
+          ? const IntroScreen()
+          : isBudgetAdded
+              ? const DashBoard()
+              : const BudgetScreen(),*/
+        );
+  }
 
   @override
   void initState() {
     super.initState();
     setupInteractedMessage();
+  }
 
+  void onDidReceiveLocalNotification(
+      int id, String? title, String? body, String? payload) {}
+
+  /// Function: listen for upcoming notification
+  /// @return void
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+    FirebaseMessaging.onMessage.listen(_handleMessageNew);
   }
 
   //when application is in foreground
   void _handleMessage(RemoteMessage message) {
     AppConstanst.notificationClicked = true;
-    Get.to(()=>const FamilyAccountScreen());
+    Get.to(() => const FamilyAccountScreen());
   }
 
   void _handleMessageNew(RemoteMessage message) {
@@ -234,72 +295,4 @@ class _MyAppState extends State<MyApp> {
       }
     }
   }
-
-  void onDidReceiveLocalNotification(
-      int id, String? title, String? body, String? payload) {
-  }
-
-
-
-  /// Function: listen for upcoming notification
-  /// @return void
-  Future<void> setupInteractedMessage() async {
-    // Get any messages which caused the application to open from
-    // a terminated state.
-    RemoteMessage? initialMessage =
-    await FirebaseMessaging.instance.getInitialMessage();
-
-    // If the message also contains a data property with a "type" of "chat",
-    // navigate to a chat screen
-    if (initialMessage != null) {
-       _handleMessage(initialMessage);
-    }
-
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
-    FirebaseMessaging.onMessage.listen(_handleMessageNew);
-
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
-
-    User? user = FirebaseAuth.instance.currentUser;
-
-    return GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: themeNotifier.getTheme(),
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
-        translations: TranslationService(),
-        locale: locale,
-        home: AppConstanst.notificationClicked?
-        const FamilyAccountScreen():isBudgetAdded
-            ? isLogin
-            ? const DashBoard()
-            : isSkippedUser
-            ? const DashBoard()
-            : const SignInScreen()
-            : isSkippedUser
-            ? const BudgetScreen()
-            : user == null
-            ? const IntroScreen()
-            : const BudgetScreen()
-
-      /*user == null
-          ? const IntroScreen()
-          : isBudgetAdded
-              ? const DashBoard()
-              : const BudgetScreen(),*/
-    );
-  }
 }
-
-
-
-
-

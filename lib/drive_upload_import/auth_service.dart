@@ -6,11 +6,11 @@ class AuthService {
     scopes: ['email', 'https://www.googleapis.com/auth/drive.file'],
   );
 
-  AuthService._();
-
   factory AuthService() {
     return _instance;
   }
+
+  AuthService._();
 
   /// Sign in with Google
   /// returns auth-headers on success, else null

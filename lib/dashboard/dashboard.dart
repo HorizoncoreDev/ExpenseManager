@@ -24,25 +24,157 @@ class _DashBoardState extends State<DashBoard> {
   GlobalKey<StatisticsScreenState> overviewKey1 =
       GlobalKey<StatisticsScreenState>();
   String userEmail = "", currentUserEmail = "";
-  int currentPage=0;
+  int currentPage = 0;
   PageController? pageController;
 
-  updateBottomSheet() {
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
-        .then((value) {
-      if (value != null) {
-        userEmail = value;
-        MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-            .then((value) {
-          if (value != null) {
-            currentUserEmail = value;
-            setState(() {});
-          }
-        });
-      }
-    });
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        key: scaffoldKey,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            if (userEmail == currentUserEmail || userEmail!.isEmpty) {
+              Navigator.of(context, rootNavigator: true)
+                  .push(
+                MaterialPageRoute(
+                    builder: (context) => AddSpendingScreen(
+                          transactionName: AppConstanst.selectedTabIndex == 0
+                              ? AppConstanst.spendingTransactionName
+                              : AppConstanst.incomeTransactionName,
+                        )),
+              )
+                  .then((value) {
+                if (value != null) {
+                  if (value) {
+                    overviewKey.currentState?.getTransactions();
+                    overviewKey.currentState?.getIncomeTransactions();
+                    overviewKey1.currentState?.getTransactions();
+                    overviewKey1.currentState?.getIncomeData();
+                    //getTransactions();
+                  }
+                }
+              });
+            }
+          },
+          backgroundColor: Helper.getMiddleBottomNavBarItem(context),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+          child: userEmail!.isNotEmpty
+              ? userEmail == currentUserEmail
+                  ? Icon(
+                      Icons.add,
+                      color: Helper.getTextColor(context),
+                    )
+                  : const SizedBox()
+              : Icon(
+                  Icons.add,
+                  color: Helper.getTextColor(context),
+                ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: BottomAppBar(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          height: 60,
+          color: Helper.getBottomNavigationColor(context).backgroundColor!,
+          shape: const CircularNotchedRectangle(),
+          notchMargin: 5,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    currentPage = 0;
+                    _jumpToPage(currentPage);
+                  },
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.home,
+                        color: currentPage == 0
+                            ? Helper.getBottomNavigationColor(context)
+                                .selectedItemColor!
+                            : Helper.getBottomNavigationColor(context)
+                                .unselectedItemColor!,
+                      ),
+                      Text(
+                        LocaleKeys.overview.tr,
+                        style: TextStyle(
+                          color: currentPage == 0
+                              ? Helper.getBottomNavigationColor(context)
+                                  .selectedItemColor!
+                              : Helper.getBottomNavigationColor(context)
+                                  .unselectedItemColor!,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width / 3,
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    currentPage = 2;
+                    _jumpToPage(currentPage);
+                  },
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.stacked_bar_chart,
+                        color: currentPage == 2
+                            ? Helper.getBottomNavigationColor(context)
+                                .selectedItemColor!
+                            : Helper.getBottomNavigationColor(context)
+                                .unselectedItemColor!,
+                      ),
+                      Text(
+                        LocaleKeys.statistics.tr,
+                        style: TextStyle(
+                          color: currentPage == 2
+                              ? Helper.getBottomNavigationColor(context)
+                                  .selectedItemColor!
+                              : Helper.getBottomNavigationColor(context)
+                                  .unselectedItemColor!,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        body: PageView(
+          controller: pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          children: buildScreens(),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> buildScreens() {
+    return [
+      OverviewScreen(key: overviewKey, onAccountUpdate: updateBottomSheet),
+      const SizedBox(),
+      StatisticsScreen(key: overviewKey1),
+    ];
+  }
+
+  @override
+  void dispose() {
+    pageController!.dispose();
+    super.dispose();
   }
 
   @override
@@ -94,150 +226,28 @@ class _DashBoardState extends State<DashBoard> {
     });
   }
 
+  updateBottomSheet() {
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+            .then((value) {
+          if (value != null) {
+            currentUserEmail = value;
+            setState(() {});
+          }
+        });
+      }
+    });
+  }
+
   void _jumpToPage(int page) {
     if (pageController!.hasClients) {
       pageController!.jumpToPage(page);
-      setState(() {
-      });
+      setState(() {});
     }
   }
-
-  @override
-  void dispose() {
-    pageController!.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        key: scaffoldKey,
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            if (userEmail == currentUserEmail || userEmail!.isEmpty) {
-              Navigator.of(context, rootNavigator: true)
-                  .push(
-                MaterialPageRoute(
-                    builder: (context) => AddSpendingScreen(
-                      transactionName: AppConstanst.selectedTabIndex == 0
-                          ? AppConstanst.spendingTransactionName
-                          : AppConstanst.incomeTransactionName,
-                    )),
-              )
-                  .then((value) {
-                if (value != null) {
-                  if (value) {
-                    overviewKey.currentState?.getTransactions();
-                    overviewKey.currentState?.getIncomeTransactions();
-                    overviewKey1.currentState?.getTransactions();
-                    overviewKey1.currentState?.getIncomeData();
-                    //getTransactions();
-                  }
-                }
-              });
-            }
-          },
-          backgroundColor: Helper.getMiddleBottomNavBarItem(context),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-          child: userEmail!.isNotEmpty
-              ? userEmail == currentUserEmail
-                  ?  Icon(
-                      Icons.add,
-                      color: Helper.getTextColor(context),
-                    )
-                  : const SizedBox()
-              :  Icon(
-                  Icons.add,
-                  color:Helper.getTextColor(context),
-                ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        bottomNavigationBar: BottomAppBar(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          height: 60,
-          color:  Helper.getBottomNavigationColor(context).backgroundColor!,
-          shape: const CircularNotchedRectangle(),
-          notchMargin: 5,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Expanded(
-                child: InkWell(
-              onTap: (){
-                currentPage =0;
-                _jumpToPage(currentPage);
-              },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.home,
-                        color: currentPage==0?Helper.getBottomNavigationColor(context)
-                            .selectedItemColor!:Helper.getBottomNavigationColor(context)
-                            .unselectedItemColor!,
-                      ),
-                      Text(
-                        LocaleKeys.overview.tr,
-                        style: TextStyle(
-                          color: currentPage==0?Helper.getBottomNavigationColor(context)
-                              .selectedItemColor!:Helper.getBottomNavigationColor(context)
-                              .unselectedItemColor!,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: MediaQuery.of(context).size.width/3 ,),
-              Expanded(
-                child: InkWell(
-                  onTap: (){
-
-                    currentPage =2;
-                    _jumpToPage(currentPage);
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.stacked_bar_chart,
-                        color: currentPage==2?Helper.getBottomNavigationColor(context)
-                            .selectedItemColor!:Helper.getBottomNavigationColor(context)
-                            .unselectedItemColor!,
-                      ),
-                      Text(
-                        LocaleKeys.statistics.tr,
-                        style: TextStyle(
-                          color: currentPage==2?Helper.getBottomNavigationColor(context)
-                              .selectedItemColor!:Helper.getBottomNavigationColor(context)
-                              .unselectedItemColor!,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        body: PageView(
-          controller: pageController,
-          children: buildScreens(),
-        ),
-
-      ),
-    );
-  }
-
-  List<Widget> buildScreens() {
-    return [
-      OverviewScreen(key: overviewKey, onAccountUpdate: updateBottomSheet),
-      const SizedBox(),
-      StatisticsScreen(key: overviewKey1),
-    ];
-  }
-
-
 }

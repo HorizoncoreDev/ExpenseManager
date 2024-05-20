@@ -31,19 +31,6 @@ class _SignInScreenState extends State<SignInScreen> {
   String languageCode = "";
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.languageCode)
-        .then((value) {
-      if (value != null) {
-        languageCode = value;
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -492,5 +479,18 @@ class _SignInScreenState extends State<SignInScreen> {
     } catch (e) {
       Helper.showToast("some error occured $e");
     }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.languageCode)
+        .then((value) {
+      if (value != null) {
+        languageCode = value;
+      }
+    });
   }
 }

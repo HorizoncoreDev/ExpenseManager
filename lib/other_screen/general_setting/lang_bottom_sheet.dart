@@ -26,27 +26,6 @@ class _LanguageBottomSheetContentState
   String userEmail = "";
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    langCode = Get.locale!.languageCode;
-
-    getLanguageTypes();
-  }
-
-  Future<void> getLanguageTypes() async {
-    try {
-      List<LanguageCategory> languageTypesList =
-          await databaseHelper.languageMethods();
-      setState(() {
-        languageTypes = languageTypesList;
-      });
-    } catch (e) {
-      Helper.showToast(e.toString());
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.35,
@@ -156,5 +135,26 @@ class _LanguageBottomSheetContentState
         ],
       ),
     );
+  }
+
+  Future<void> getLanguageTypes() async {
+    try {
+      List<LanguageCategory> languageTypesList =
+          await databaseHelper.languageMethods();
+      setState(() {
+        languageTypes = languageTypesList;
+      });
+    } catch (e) {
+      Helper.showToast(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    langCode = Get.locale!.languageCode;
+
+    getLanguageTypes();
   }
 }

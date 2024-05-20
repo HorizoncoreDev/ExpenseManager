@@ -1,24 +1,14 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MySharedPreferences {
-  MySharedPreferences._privateConstructor();
-
   static final MySharedPreferences instance =
       MySharedPreferences._privateConstructor();
+
+  MySharedPreferences._privateConstructor();
 
   addBoolToSF(var key, var value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool(key, value);
-  }
-
-  addStringToSF(var key, var value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, value);
-  }
-
-  addIntToSF(var key, var value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt(key, value);
   }
 
   addDoubleToSF(var key, var value) async {
@@ -26,10 +16,19 @@ class MySharedPreferences {
     prefs.setDouble(key, value);
   }
 
-  Future<String?> getStringValuesSF(var key) async {
+  addIntToSF(var key, var value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? stringValue = prefs.getString(key);
-    return stringValue;
+    prefs.setInt(key, value);
+  }
+
+  addStringToSF(var key, var value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(key, value);
+  }
+
+  clearSharedPref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
   }
 
   Future<bool?> getBoolValuesSF(var key) async {
@@ -38,21 +37,22 @@ class MySharedPreferences {
     return boolValue ?? false;
   }
 
-  Future<int?> getIntValuesSF(var key) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? intValue = prefs.getInt(key);
-    return intValue;
-  }
-
   Future<double?> getDoubleValuesSF(var key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     double? doubleValue = prefs.getDouble(key);
     return doubleValue;
   }
 
-  clearSharedPref() async {
+  Future<int?> getIntValuesSF(var key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.clear();
+    int? intValue = prefs.getInt(key);
+    return intValue;
+  }
+
+  Future<String?> getStringValuesSF(var key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? stringValue = prefs.getString(key);
+    return stringValue;
   }
 
   removeValues() async {

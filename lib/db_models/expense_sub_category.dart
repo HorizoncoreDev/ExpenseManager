@@ -1,20 +1,5 @@
 const String spending_sub_category_table = 'expense_sub_category_table';
 
-class ExpenseSubCategoryFields {
-  static final List<String> values = [
-    /// Add all fields
-    id,
-    name,
-    categoryId,
-    priority
-  ];
-
-  static const String id = 'id';
-  static const String name = 'name';
-  static const String categoryId = 'category_id';
-  static const String priority = 'priority';
-}
-
 class ExpenseSubCategory {
   int? id;
   String? name;
@@ -45,4 +30,19 @@ class ExpenseSubCategory {
       'priority': priority,
     };
   }
+}
+
+class ExpenseSubCategoryFields {
+  static final List<String> values = [
+    /// Add all fields
+    id,
+    name,
+    categoryId,
+    priority
+  ];
+
+  static const String id = 'id';
+  static const String name = 'name';
+  static const String categoryId = 'category_id';
+  static const String priority = 'priority';
 }

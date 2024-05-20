@@ -54,21 +54,6 @@ import 'package:flutter/material.dart';
 
 const String expense_category_table = 'expense_category_table';
 
-class ExpenseCategoryField {
-  static final List<String> values = [
-    /// Add all fields
-    id,
-    name,
-    color,
-    icons
-  ];
-
-  static const String id = 'id';
-  static const String name = 'name';
-  static const String color = 'color';
-  static const String icons = 'icon';
-}
-
 class ExpenseCategory {
   int? id;
   String? name;
@@ -94,4 +79,19 @@ class ExpenseCategory {
       'icon': icons,
     };
   }
+}
+
+class ExpenseCategoryField {
+  static final List<String> values = [
+    /// Add all fields
+    id,
+    name,
+    color,
+    icons
+  ];
+
+  static const String id = 'id';
+  static const String name = 'name';
+  static const String color = 'color';
+  static const String icons = 'icon';
 }

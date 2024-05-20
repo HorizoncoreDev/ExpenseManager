@@ -1,18 +1,5 @@
 const String language_table = 'language_table';
 
-class LanguageFields {
-  static final List<String> values = [
-    /// Add all fields
-    id,
-    name,
-    code,
-  ];
-
-  static const String id = 'id';
-  static const String name = 'name';
-  static const String code = 'code';
-}
-
 class LanguageCategory {
   int? id;
   String? name;
@@ -39,4 +26,17 @@ class LanguageCategory {
       'code': code,
     };
   }
+}
+
+class LanguageFields {
+  static final List<String> values = [
+    /// Add all fields
+    id,
+    name,
+    code,
+  ];
+
+  static const String id = 'id';
+  static const String name = 'name';
+  static const String code = 'code';
 }

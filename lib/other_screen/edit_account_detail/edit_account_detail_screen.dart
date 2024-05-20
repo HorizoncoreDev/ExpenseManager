@@ -47,90 +47,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   String userCode = '';
   String fcmToken = '';
 
-  bool validateEmail(String email) {
-    RegExp emailRegex =
-        RegExp(r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$");
-    return emailRegex.hasMatch(email);
-  }
-
-  Future<void> getProfileData() async {
-    try {
-      await Future.delayed(const Duration(seconds: 2));
-      ProfileModel? fetchedProfileData =
-          await databaseHelper.getProfileData(userEmail);
-      setState(() {
-        profileData = fetchedProfileData;
-        key = profileData!.key!;
-        userCode = profileData!.user_code!;
-        firstNameController.text = profileData!.first_name!;
-        lastNameController.text = profileData!.last_name!;
-        emailController.text = profileData!.email!;
-        dateOfBirth = profileData!.dob!;
-        currentBalance = profileData!.current_balance!;
-        currentIncome = profileData!.current_income!;
-        actualBudget = profileData!.actual_budget!;
-        fcmToken = profileData!.fcm_token!;
-        selectedValue =
-            profileData!.gender == "" ? 'Female' : profileData!.gender!;
-        isLoading = false;
-      });
-      getShortName(profileData!.first_name!, profileData!.last_name!);
-    } catch (error) {
-      print('Error fetching Profile Data: $error');
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  String getShortName(String name, String name1) {
-    String firstStr = name.split(" ").first;
-    String secondStr = name1.split(" ").first;
-
-    String firstChar = firstStr.substring(0, 1);
-    String secondChar = secondStr.substring(0, 1);
-
-    return shortName = firstChar + secondChar;
-  }
-
-  Future<void> updateProfileData() async {
-    ProfileModel profileModel = ProfileModel(
-        key: key,
-        first_name: firstNameController.text,
-        last_name: lastNameController.text,
-        email: emailController.text,
-        dob: dateOfBirth == null ? "Select DOB" : dateOfBirth!,
-        gender: selectedValue,
-        current_balance: currentBalance,
-        current_income:currentIncome,
-        actual_budget: actualBudget,
-        user_code: userCode,
-        full_name: "${firstNameController.text} ${lastNameController.text}",
-        profile_image: "",
-        mobile_number: "",
-        fcm_token: fcmToken,
-        lang_code: Get.locale!.languageCode,
-        currency_code: AppConstanst.currencyCode,
-        currency_symbol: AppConstanst.currencySymbol);
-    await databaseHelper.updateProfileData(profileModel);
-
-    Helper.showToast("Profile update successful!");
-    getProfileData();
-  }
-
-  @override
-  void initState() {
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
-        .then((value) {
-      if (value != null) {
-        userEmail = value;
-        getProfileData();
-      }
-    });
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -212,6 +128,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         controller: firstNameController,
                         keyboardType: TextInputType.text,
                         hintText: LocaleKeys.enterName.tr,
+                        padding: 15,
                         hintColor: Helper.getTextColor(context),
                         textStyle: const TextStyle(fontSize: 16),
                         borderRadius: BorderRadius.circular(10),
@@ -254,6 +171,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         borderRadius: BorderRadius.circular(10),
                         borderColor: Helper.getTextColor(context),
                         fillColor: Helper.getCardColor(context),
+                        padding: 15,
                         prefixIcon: const Icon(
                           Icons.person_2_outlined,
                           color: Colors.blue,
@@ -291,6 +209,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         borderRadius: BorderRadius.circular(10),
                         borderColor: Helper.getTextColor(context),
                         fillColor: Helper.getCardColor(context),
+                        padding: 15,
                         prefixIcon: const Icon(
                           Icons.email_outlined,
                           color: Colors.blue,
@@ -352,7 +271,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                 color: Helper.getTextColor(context),
                               )),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 12),
+                              horizontal: 10, vertical: 15),
                           child: Row(
                             children: [
                               const Icon(
@@ -388,7 +307,8 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                   customButton: Container(
                                       color: Helper.getCardColor(context),
                                       padding: const EdgeInsets.symmetric(
-                                          vertical: 12, horizontal: 10),
+                                          vertical: 10, horizontal: 8),
+                                      margin: const EdgeInsets.all(2.5),
                                       child: Row(
                                         children: [
                                           Icon(
@@ -472,5 +392,89 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                   ),
                 ),
         ));
+  }
+
+  Future<void> getProfileData() async {
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+      ProfileModel? fetchedProfileData =
+          await databaseHelper.getProfileData(userEmail);
+      setState(() {
+        profileData = fetchedProfileData;
+        key = profileData!.key!;
+        userCode = profileData!.user_code!;
+        firstNameController.text = profileData!.first_name!;
+        lastNameController.text = profileData!.last_name!;
+        emailController.text = profileData!.email!;
+        dateOfBirth = profileData!.dob!;
+        currentBalance = profileData!.current_balance!;
+        currentIncome = profileData!.current_income!;
+        actualBudget = profileData!.actual_budget!;
+        fcmToken = profileData!.fcm_token!;
+        selectedValue =
+            profileData!.gender == "" ? 'Female' : profileData!.gender!;
+        isLoading = false;
+      });
+      getShortName(profileData!.first_name!, profileData!.last_name!);
+    } catch (error) {
+      print('Error fetching Profile Data: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  String getShortName(String name, String name1) {
+    String firstStr = name.split(" ").first;
+    String secondStr = name1.split(" ").first;
+
+    String firstChar = firstStr.substring(0, 1);
+    String secondChar = secondStr.substring(0, 1);
+
+    return shortName = firstChar + secondChar;
+  }
+
+  @override
+  void initState() {
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+        getProfileData();
+      }
+    });
+    super.initState();
+  }
+
+  Future<void> updateProfileData() async {
+    ProfileModel profileModel = ProfileModel(
+        key: key,
+        first_name: firstNameController.text,
+        last_name: lastNameController.text,
+        email: emailController.text,
+        dob: dateOfBirth == null ? "Select DOB" : dateOfBirth!,
+        gender: selectedValue,
+        current_balance: currentBalance,
+        current_income: currentIncome,
+        actual_budget: actualBudget,
+        user_code: userCode,
+        full_name: "${firstNameController.text} ${lastNameController.text}",
+        profile_image: "",
+        mobile_number: "",
+        fcm_token: fcmToken,
+        lang_code: Get.locale!.languageCode,
+        currency_code: AppConstanst.currencyCode,
+        currency_symbol: AppConstanst.currencySymbol);
+    await databaseHelper.updateProfileData(profileModel);
+
+    Helper.showToast("Profile update successful!");
+    getProfileData();
+  }
+
+  bool validateEmail(String email) {
+    RegExp emailRegex =
+        RegExp(r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$");
+    return emailRegex.hasMatch(email);
   }
 }

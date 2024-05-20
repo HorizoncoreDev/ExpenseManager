@@ -1,48 +1,5 @@
 const String profile_table = 'profile_table';
 
-class ProfileTableFields {
-  static final List<String> values = [
-    /// Add all fields
-    // id,
-    key,
-    first_name,
-    last_name,
-    email,
-    full_name,
-    dob,
-    user_code,
-    profile_image,
-    mobile_number,
-    current_balance,
-    current_income,
-    actual_budget,
-    gender,
-    fcm_token,
-    lang_code,
-    currency_code,
-    currency_symbol,
-  ];
-
-  // static const String id = 'id';
-  static const String key = 'key';
-  static const String first_name = 'first_name';
-  static const String last_name = 'last_name';
-  static const String email = 'email';
-  static const String user_code = 'user_code';
-  static const String full_name = 'full_name';
-  static const String dob = 'dob';
-  static const String profile_image = 'profile_image';
-  static const String mobile_number = 'mobile_number';
-  static const String gender = 'gender';
-  static const String current_balance = 'current_balance';
-  static const String current_income = 'current_income';
-  static const String actual_budget = 'actual_budget';
-  static const String fcm_token = 'fcm_token';
-  static const String lang_code = 'lang_code';
-  static const String currency_code = 'currency_code';
-  static const String currency_symbol = 'currency_symbol';
-}
-
 class ProfileModel {
   // int? id;
   String? key;
@@ -106,27 +63,6 @@ class ProfileModel {
         currency_symbol: map['currency_symbol']);
   }
 
-  static ProfileModel fromJson(Map<String, Object?> json) => ProfileModel(
-        // id: json[ProfileTableFields.id] as int,
-        key: json[ProfileTableFields.key] as String,
-        first_name: json[ProfileTableFields.first_name] as String,
-        last_name: json[ProfileTableFields.last_name] as String,
-        email: json[ProfileTableFields.email] as String,
-        user_code: json[ProfileTableFields.user_code] as String,
-        full_name: json[ProfileTableFields.full_name] as String,
-        dob: json[ProfileTableFields.dob] as String,
-        profile_image: json[ProfileTableFields.profile_image] as String,
-        mobile_number: json[ProfileTableFields.mobile_number] as String,
-        gender: json[ProfileTableFields.gender] as String,
-        current_balance: json[ProfileTableFields.current_balance] as String,
-        current_income: json[ProfileTableFields.current_income] as String,
-        actual_budget: json[ProfileTableFields.actual_budget] as String,
-        fcm_token: json[ProfileTableFields.fcm_token] as String,
-        lang_code: json[ProfileTableFields.lang_code] as String,
-        currency_code: json[ProfileTableFields.currency_code] as String,
-        currency_symbol: json[ProfileTableFields.currency_symbol] as String,
-      );
-
   Map<String, dynamic> toMap() {
     return {
       // 'id': id,
@@ -149,4 +85,68 @@ class ProfileModel {
       'currency_symbol': currency_symbol,
     };
   }
+
+  static ProfileModel fromJson(Map<String, Object?> json) => ProfileModel(
+        // id: json[ProfileTableFields.id] as int,
+        key: json[ProfileTableFields.key] as String,
+        first_name: json[ProfileTableFields.first_name] as String,
+        last_name: json[ProfileTableFields.last_name] as String,
+        email: json[ProfileTableFields.email] as String,
+        user_code: json[ProfileTableFields.user_code] as String,
+        full_name: json[ProfileTableFields.full_name] as String,
+        dob: json[ProfileTableFields.dob] as String,
+        profile_image: json[ProfileTableFields.profile_image] as String,
+        mobile_number: json[ProfileTableFields.mobile_number] as String,
+        gender: json[ProfileTableFields.gender] as String,
+        current_balance: json[ProfileTableFields.current_balance] as String,
+        current_income: json[ProfileTableFields.current_income] as String,
+        actual_budget: json[ProfileTableFields.actual_budget] as String,
+        fcm_token: json[ProfileTableFields.fcm_token] as String,
+        lang_code: json[ProfileTableFields.lang_code] as String,
+        currency_code: json[ProfileTableFields.currency_code] as String,
+        currency_symbol: json[ProfileTableFields.currency_symbol] as String,
+      );
+}
+
+class ProfileTableFields {
+  static final List<String> values = [
+    /// Add all fields
+    // id,
+    key,
+    first_name,
+    last_name,
+    email,
+    full_name,
+    dob,
+    user_code,
+    profile_image,
+    mobile_number,
+    current_balance,
+    current_income,
+    actual_budget,
+    gender,
+    fcm_token,
+    lang_code,
+    currency_code,
+    currency_symbol,
+  ];
+
+  // static const String id = 'id';
+  static const String key = 'key';
+  static const String first_name = 'first_name';
+  static const String last_name = 'last_name';
+  static const String email = 'email';
+  static const String user_code = 'user_code';
+  static const String full_name = 'full_name';
+  static const String dob = 'dob';
+  static const String profile_image = 'profile_image';
+  static const String mobile_number = 'mobile_number';
+  static const String gender = 'gender';
+  static const String current_balance = 'current_balance';
+  static const String current_income = 'current_income';
+  static const String actual_budget = 'actual_budget';
+  static const String fcm_token = 'fcm_token';
+  static const String lang_code = 'lang_code';
+  static const String currency_code = 'currency_code';
+  static const String currency_symbol = 'currency_symbol';
 }

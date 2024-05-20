@@ -72,433 +72,15 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
 
   String userEmail = '';
 
-  Future<void> getSpendingCategory() async {
-    try {
-      List<ExpenseCategory> fetchedCategories =
-          await databaseHelper.categorys();
-      setState(() {
-        categories = fetchedCategories;
-
-        for (int i = 0; i < categories.length; i++) {
-          if (categories[i].id == widget.transactionModel.expense_cat_id!) {
-            selectedSpendingIndex = i;
-            selectedItemList.add(categories[i]);
-            getSpendingSubCategory(categories[i].id!);
-          }
-          selectedIncomeIndex = -1;
-          selectedIncomeSubIndex = -1;
-        }
-      });
-    } catch (error) {
-      setState(() {});
-    }
-  }
-
-  Future<void> getSpendingSubCategory(int catId) async {
-    try {
-      List<ExpenseSubCategory> fetchedSpendingSubCategories =
-          await databaseHelper.getSpendingSubCategory(catId);
-      setState(() {
-        spendingSubCategories = fetchedSpendingSubCategories;
-        for (int i = 0; i < spendingSubCategories.length; i++) {
-          if (spendingSubCategories[i].id ==
-              widget.transactionModel.sub_expense_cat_id!) {
-            selectedSpendingSubIndex = i;
-          }
-        }
-      });
-    } catch (error) {
-      setState(() {});
-    }
-  }
-
-  Future<void> getIncomeCategory() async {
-    try {
-      List<IncomeCategory> fetchedIncomeCategories =
-          await databaseHelper.getIncomeCategory();
-      setState(() {
-        incomeCategories = fetchedIncomeCategories;
-        for (int i = 0; i < incomeCategories.length; i++) {
-          if (incomeCategories[i].id ==
-              widget.transactionModel.income_cat_id!) {
-            selectedIncomeIndex = i;
-            selectedIncomeItemList.add(incomeCategories[i]);
-            getIncomeSubCategory(incomeCategories[i].id!);
-          }
-          selectedSpendingIndex = -1;
-          selectedSpendingSubIndex = -1;
-        }
-      });
-    } catch (error) {
-      setState(() {});
-    }
-  }
-
-  Future<void> getIncomeSubCategory(int catId) async {
-    try {
-      List<IncomeSubCategory> fetchedIncomeSubCategories =
-          await databaseHelper.getIncomeSubCategory(catId);
-      setState(() {
-        incomeSubCategories = fetchedIncomeSubCategories;
-        for (int i = 0; i < incomeSubCategories.length; i++) {
-          if (incomeSubCategories[i].id ==
-              widget.transactionModel.sub_income_cat_id!) {
-            selectedIncomeSubIndex = i;
-          }
-        }
-      });
-    } catch (error) {
-      setState(() {});
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
-        .then((value) {
-      if (value != null) {
-        userEmail = value;
-      }
-    });
-    MySharedPreferences.instance
-        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-        .then((value) {
-      if (value != null) {
-        isSkippedUser = value;
-      }
-    });
-    selectedValue = widget.transactionModel.transaction_type ==
-            AppConstanst.spendingTransaction
-        ? AppConstanst.spendingTransactionName
-        : AppConstanst.incomeTransactionName;
-    if (selectedValue == AppConstanst.spendingTransactionName) {
-      getSpendingCategory();
-    } else {
-      getIncomeCategory();
-    }
-    getPaymentMethods();
-    setTransactionValues();
-  }
-
-  void setTransactionValues() {
-    try {
-      amountController.text = widget.transactionModel.amount!.toString();
-      selectedDate = DateFormat('dd/MM/yyyy HH:mm')
-          .parse(widget.transactionModel.transaction_date!);
-      descriptionController.text =
-          widget.transactionModel.description!.toString();
-      if (widget.transactionModel.receipt_image1!.isNotEmpty) {
-        image1 = File(widget.transactionModel.receipt_image1!);
-      }
-      if (widget.transactionModel.receipt_image2!.isNotEmpty) {
-        image2 = File(widget.transactionModel.receipt_image2!);
-      }
-      if (widget.transactionModel.receipt_image3!.isNotEmpty) {
-        image3 = File(widget.transactionModel.receipt_image3!);
-      }
-      setState(() {});
-    } catch (e) {
-      print('object......$e');
-    }
-  }
-
-  Future<void> getPaymentMethods() async {
-    try {
-      List<PaymentMethod> paymentMethodList =
-          await databaseHelper.paymentMethods();
-      setState(() {
-        paymentMethods = paymentMethodList;
-
-        for (int i = 0; i < paymentMethods.length; i++) {
-          if (paymentMethods[i].id ==
-              widget.transactionModel.payment_method_id!) {
-            selectedPaymentMethodIndex = i;
-          }
-        }
-      });
-    } catch (error) {
-      setState(() {});
-    }
-  }
-
-  void _incrementDate() {
-    setState(() {
-      selectedDate = selectedDate.add(const Duration(days: 1));
-      forwardIconColor =
-          selectedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
-    });
-  }
-
-  void _decrementDate() {
-    setState(() {
-      selectedDate = selectedDate.subtract(const Duration(days: 1));
-      forwardIconColor =
-          selectedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
-    });
-  }
-
-  String formattedDate() {
-    return DateFormat('dd/MM/yyyy').format(selectedDate);
-  }
-
-  String formattedTime() {
-    return DateFormat('HH:mm').format(selectedDate);
-  }
-
   int selectedSpendingSubIndex = -1;
+
   int selectedSpendingIndex = -1;
+
   int selectedIncomeSubIndex = -1;
+
   int selectedIncomeIndex = -1;
+
   int selectedPaymentMethodIndex = 0;
-
-  editSpendingIncome(BuildContext context, String email) async {
-    TransactionModel transactionModel = TransactionModel(
-        // id: widget.transactionModel.id,
-        key: widget.transactionModel.key,
-        // member_id: widget.transactionModel.member_id,
-        member_email: widget.transactionModel.member_email,
-        amount: int.parse(amountController.text),
-        expense_cat_id: selectedSpendingIndex != -1
-            ? categories[selectedSpendingIndex].id
-            : -1,
-        sub_expense_cat_id: selectedSpendingSubIndex != -1
-            ? spendingSubCategories[selectedSpendingSubIndex].id
-            : -1,
-        income_cat_id: selectedValue == AppConstanst.incomeTransactionName
-            ? incomeCategories[selectedIncomeIndex].id
-            : -1,
-        sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
-            ? selectedIncomeSubIndex != -1
-                ? incomeSubCategories[selectedIncomeSubIndex].id
-                : -1
-            : -1,
-        cat_name: selectedValue == AppConstanst.spendingTransactionName
-            ? selectedSpendingSubIndex != -1
-                ? spendingSubCategories[selectedSpendingSubIndex].name
-                : categories[selectedSpendingIndex].name
-            : selectedIncomeSubIndex != -1
-                ? incomeSubCategories[selectedIncomeSubIndex].name
-                : incomeCategories[selectedIncomeIndex].name,
-        cat_type: selectedValue == AppConstanst.spendingTransactionName
-            ? selectedSpendingSubIndex != -1
-                ? AppConstanst.subCategory
-                : AppConstanst.mainCategory
-            : selectedIncomeSubIndex != -1
-                ? AppConstanst.subCategory
-                : AppConstanst.mainCategory,
-        cat_color: selectedValue == AppConstanst.spendingTransactionName
-            ? categories[selectedSpendingIndex].color
-            : incomeCategories[selectedIncomeIndex].color,
-        cat_icon: selectedValue == AppConstanst.spendingTransactionName
-            ? categories[selectedSpendingIndex].icons
-            : incomeCategories[selectedIncomeIndex].path,
-        payment_method_id: paymentMethods[selectedPaymentMethodIndex].id,
-        payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
-        status: 1,
-        transaction_date: '${formattedDate()} ${formattedTime()}',
-        transaction_type: selectedValue == AppConstanst.spendingTransactionName
-            ? AppConstanst.spendingTransaction
-            : AppConstanst.incomeTransaction,
-        description: descriptionController.text,
-        currency_id: AppConstanst.rupeesCurrency,
-        receipt_image1: image1?.path ?? "",
-        receipt_image2: image2?.path ?? "",
-        receipt_image3: image3?.path ?? "",
-        created_at: widget.transactionModel.created_at!,
-        last_updated: DateTime.now().toString());
-
-    await databaseHelper
-        .updateTransactionData(transactionModel, isSkippedUser)
-        .then((value) async {
-      if (value != null) {
-        // Helper.hideLoading(context);
-        DateTime now = DateTime.now();
-        String currentMonthName = DateFormat('MMMM').format(now);
-        DateFormat format = DateFormat("dd/MM/yyyy");
-        DateTime parsedDate = format.parse(formattedDate());
-        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
-        if (currentMonthName == transactionMonthName) {
-          if (isSkippedUser) {
-            if (selectedValue == AppConstanst.spendingTransactionName) {
-              MySharedPreferences.instance
-                  .getStringValuesSF(
-                      SharedPreferencesKeys.skippedUserCurrentBalance)
-                  .then((value) {
-                if (value != null) {
-                  String updateBalance =
-                      (int.parse(value) - int.parse(amountController.text))
-                          .toString();
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.skippedUserCurrentBalance,
-                      updateBalance);
-                }
-              });
-            } else {
-              MySharedPreferences.instance
-                  .getStringValuesSF(
-                      SharedPreferencesKeys.skippedUserCurrentIncome)
-                  .then((value) {
-                if (value != null) {
-                  String updateBalance =
-                      (int.parse(value) + int.parse(amountController.text))
-                          .toString();
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.skippedUserCurrentIncome,
-                      updateBalance);
-                }
-              });
-            }
-          } else {
-            await DatabaseHelper.instance
-                .getProfileData(userEmail)
-                .then((profileData) async {
-              if (selectedValue == AppConstanst.spendingTransactionName) {
-                profileData!.current_balance =
-                    ((int.parse(profileData.current_balance!) +
-                                widget.transactionModel.amount!) -
-                            int.parse(amountController.text))
-                        .toString();
-              } else {
-                profileData!.current_income =
-                    ((int.parse(profileData.current_income!) -
-                                widget.transactionModel.amount!) +
-                            int.parse(amountController.text))
-                        .toString();
-              }
-              await DatabaseHelper.instance.updateProfileData(profileData);
-            });
-          }
-        }
-        Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
-            ? LocaleKeys.spendingUpdateSuccessfully.tr
-            : LocaleKeys.incomeUpdateSuccessfully.tr);
-        Navigator.of(context).pop(true);
-      }
-    });
-  }
-
-  createCopySpendingIncome(BuildContext context, String email) async {
-    TransactionModel transactionModel = TransactionModel(
-        key: "",
-        member_email: email,
-        amount: int.parse(amountController.text),
-        expense_cat_id: selectedSpendingIndex != -1
-            ? categories[selectedSpendingIndex].id
-            : -1,
-        sub_expense_cat_id: selectedSpendingSubIndex != -1
-            ? spendingSubCategories[selectedSpendingSubIndex].id
-            : -1,
-        income_cat_id: selectedValue == AppConstanst.incomeTransactionName
-            ? incomeCategories[selectedIncomeIndex].id
-            : -1,
-        sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
-            ? selectedIncomeSubIndex != -1
-                ? incomeSubCategories[selectedIncomeSubIndex].id
-                : -1
-            : -1,
-        cat_name: selectedValue == AppConstanst.spendingTransactionName
-            ? selectedSpendingSubIndex != -1
-                ? spendingSubCategories[selectedSpendingSubIndex].name
-                : categories[selectedSpendingIndex].name
-            : selectedIncomeSubIndex != -1
-                ? incomeSubCategories[selectedIncomeSubIndex].name
-                : incomeCategories[selectedIncomeIndex].name,
-        cat_type: selectedValue == AppConstanst.spendingTransactionName
-            ? selectedSpendingSubIndex != -1
-                ? AppConstanst.subCategory
-                : AppConstanst.mainCategory
-            : selectedIncomeSubIndex != -1
-                ? AppConstanst.subCategory
-                : AppConstanst.mainCategory,
-        cat_color: selectedValue == AppConstanst.spendingTransactionName
-            ? categories[selectedSpendingIndex].color
-            : incomeCategories[selectedIncomeIndex].color,
-        cat_icon: selectedValue == AppConstanst.spendingTransactionName
-            ? categories[selectedSpendingIndex].icons
-            : incomeCategories[selectedIncomeIndex].path,
-        payment_method_id: paymentMethods[selectedPaymentMethodIndex].id,
-        payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
-        status: 1,
-        transaction_date: '${formattedDate()} ${formattedTime()}',
-        transaction_type: selectedValue == AppConstanst.spendingTransactionName
-            ? AppConstanst.spendingTransaction
-            : AppConstanst.incomeTransaction,
-        description: descriptionController.text,
-        currency_id: AppConstanst.rupeesCurrency,
-        receipt_image1: image1?.path ?? "",
-        receipt_image2: image2?.path ?? "",
-        receipt_image3: image3?.path ?? "",
-        created_at: DateTime.now().toString(),
-        last_updated: DateTime.now().toString());
-    await databaseHelper
-        .insertTransactionData(transactionModel, isSkippedUser)
-        .then((value) async {
-      if (value != null) {
-        // Helper.hideLoading(context);
-        DateTime now = DateTime.now();
-        String currentMonthName = DateFormat('MMMM').format(now);
-        DateFormat format = DateFormat("dd/MM/yyyy");
-        DateTime parsedDate = format.parse(formattedDate());
-        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
-        if (currentMonthName == transactionMonthName) {
-          if (isSkippedUser) {
-            if (selectedValue == AppConstanst.spendingTransactionName) {
-              MySharedPreferences.instance
-                  .getStringValuesSF(
-                      SharedPreferencesKeys.skippedUserCurrentBalance)
-                  .then((value) {
-                if (value != null) {
-                  String updateBalance =
-                      (int.parse(value) - int.parse(amountController.text))
-                          .toString();
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.skippedUserCurrentBalance,
-                      updateBalance);
-                }
-              });
-            } else {
-              MySharedPreferences.instance
-                  .getStringValuesSF(
-                      SharedPreferencesKeys.skippedUserCurrentIncome)
-                  .then((value) {
-                if (value != null) {
-                  String updateBalance =
-                      (int.parse(value) + int.parse(amountController.text))
-                          .toString();
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.skippedUserCurrentIncome,
-                      updateBalance);
-                }
-              });
-            }
-          } else {
-            await DatabaseHelper.instance
-                .getProfileData(userEmail)
-                .then((profileData) async {
-              if (selectedValue == AppConstanst.spendingTransactionName) {
-                profileData!.current_balance =
-                    (int.parse(profileData.current_balance!) -
-                            int.parse(amountController.text))
-                        .toString();
-              } else {
-                profileData!.current_income =
-                    (int.parse(profileData.current_income!) +
-                            int.parse(amountController.text))
-                        .toString();
-              }
-              await DatabaseHelper.instance.updateProfileData(profileData);
-            });
-          }
-        }
-        Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
-            ? LocaleKeys.spendingSuccessfully.tr
-            : LocaleKeys.incomeSuccessfully.tr);
-        Navigator.of(context).pop(true);
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -536,8 +118,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                                 fontSize: 14, color: Colors.white)),
-                      )
-                      ),
+                      )),
                 ),
               ),
               10.widthBox,
@@ -1305,6 +886,416 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         ));
   }
 
+  createCopySpendingIncome(BuildContext context, String email) async {
+    TransactionModel transactionModel = TransactionModel(
+        key: "",
+        member_email: email,
+        amount: int.parse(amountController.text),
+        expense_cat_id: selectedSpendingIndex != -1
+            ? categories[selectedSpendingIndex].id
+            : -1,
+        sub_expense_cat_id: selectedSpendingSubIndex != -1
+            ? spendingSubCategories[selectedSpendingSubIndex].id
+            : -1,
+        income_cat_id: selectedValue == AppConstanst.incomeTransactionName
+            ? incomeCategories[selectedIncomeIndex].id
+            : -1,
+        sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
+            ? selectedIncomeSubIndex != -1
+                ? incomeSubCategories[selectedIncomeSubIndex].id
+                : -1
+            : -1,
+        cat_name: selectedValue == AppConstanst.spendingTransactionName
+            ? selectedSpendingSubIndex != -1
+                ? spendingSubCategories[selectedSpendingSubIndex].name
+                : categories[selectedSpendingIndex].name
+            : selectedIncomeSubIndex != -1
+                ? incomeSubCategories[selectedIncomeSubIndex].name
+                : incomeCategories[selectedIncomeIndex].name,
+        cat_type: selectedValue == AppConstanst.spendingTransactionName
+            ? selectedSpendingSubIndex != -1
+                ? AppConstanst.subCategory
+                : AppConstanst.mainCategory
+            : selectedIncomeSubIndex != -1
+                ? AppConstanst.subCategory
+                : AppConstanst.mainCategory,
+        cat_color: selectedValue == AppConstanst.spendingTransactionName
+            ? categories[selectedSpendingIndex].color
+            : incomeCategories[selectedIncomeIndex].color,
+        cat_icon: selectedValue == AppConstanst.spendingTransactionName
+            ? categories[selectedSpendingIndex].icons
+            : incomeCategories[selectedIncomeIndex].path,
+        payment_method_id: paymentMethods[selectedPaymentMethodIndex].id,
+        payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
+        status: 1,
+        transaction_date: '${formattedDate()} ${formattedTime()}',
+        transaction_type: selectedValue == AppConstanst.spendingTransactionName
+            ? AppConstanst.spendingTransaction
+            : AppConstanst.incomeTransaction,
+        description: descriptionController.text,
+        currency_id: AppConstanst.rupeesCurrency,
+        receipt_image1: image1?.path ?? "",
+        receipt_image2: image2?.path ?? "",
+        receipt_image3: image3?.path ?? "",
+        created_at: DateTime.now().toString(),
+        last_updated: DateTime.now().toString());
+    await databaseHelper
+        .insertTransactionData(transactionModel, isSkippedUser)
+        .then((value) async {
+      if (value != null) {
+        // Helper.hideLoading(context);
+        DateTime now = DateTime.now();
+        String currentMonthName = DateFormat('MMMM').format(now);
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(formattedDate());
+        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+        if (currentMonthName == transactionMonthName) {
+          if (isSkippedUser) {
+            if (selectedValue == AppConstanst.spendingTransactionName) {
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                      SharedPreferencesKeys.skippedUserCurrentBalance)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance =
+                      (int.parse(value) - int.parse(amountController.text))
+                          .toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentBalance,
+                      updateBalance);
+                }
+              });
+            } else {
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                      SharedPreferencesKeys.skippedUserCurrentIncome)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance =
+                      (int.parse(value) + int.parse(amountController.text))
+                          .toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentIncome,
+                      updateBalance);
+                }
+              });
+            }
+          } else {
+            await DatabaseHelper.instance
+                .getProfileData(userEmail)
+                .then((profileData) async {
+              if (selectedValue == AppConstanst.spendingTransactionName) {
+                profileData!.current_balance =
+                    (int.parse(profileData.current_balance!) -
+                            int.parse(amountController.text))
+                        .toString();
+              } else {
+                profileData!.current_income =
+                    (int.parse(profileData.current_income!) +
+                            int.parse(amountController.text))
+                        .toString();
+              }
+              await DatabaseHelper.instance.updateProfileData(profileData);
+            });
+          }
+        }
+        Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
+            ? LocaleKeys.spendingSuccessfully.tr
+            : LocaleKeys.incomeSuccessfully.tr);
+        Navigator.of(context).pop(true);
+      }
+    });
+  }
+
+  editSpendingIncome(BuildContext context, String email) async {
+    TransactionModel transactionModel = TransactionModel(
+        // id: widget.transactionModel.id,
+        key: widget.transactionModel.key,
+        // member_id: widget.transactionModel.member_id,
+        member_email: widget.transactionModel.member_email,
+        amount: int.parse(amountController.text),
+        expense_cat_id: selectedSpendingIndex != -1
+            ? categories[selectedSpendingIndex].id
+            : -1,
+        sub_expense_cat_id: selectedSpendingSubIndex != -1
+            ? spendingSubCategories[selectedSpendingSubIndex].id
+            : -1,
+        income_cat_id: selectedValue == AppConstanst.incomeTransactionName
+            ? incomeCategories[selectedIncomeIndex].id
+            : -1,
+        sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
+            ? selectedIncomeSubIndex != -1
+                ? incomeSubCategories[selectedIncomeSubIndex].id
+                : -1
+            : -1,
+        cat_name: selectedValue == AppConstanst.spendingTransactionName
+            ? selectedSpendingSubIndex != -1
+                ? spendingSubCategories[selectedSpendingSubIndex].name
+                : categories[selectedSpendingIndex].name
+            : selectedIncomeSubIndex != -1
+                ? incomeSubCategories[selectedIncomeSubIndex].name
+                : incomeCategories[selectedIncomeIndex].name,
+        cat_type: selectedValue == AppConstanst.spendingTransactionName
+            ? selectedSpendingSubIndex != -1
+                ? AppConstanst.subCategory
+                : AppConstanst.mainCategory
+            : selectedIncomeSubIndex != -1
+                ? AppConstanst.subCategory
+                : AppConstanst.mainCategory,
+        cat_color: selectedValue == AppConstanst.spendingTransactionName
+            ? categories[selectedSpendingIndex].color
+            : incomeCategories[selectedIncomeIndex].color,
+        cat_icon: selectedValue == AppConstanst.spendingTransactionName
+            ? categories[selectedSpendingIndex].icons
+            : incomeCategories[selectedIncomeIndex].path,
+        payment_method_id: paymentMethods[selectedPaymentMethodIndex].id,
+        payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
+        status: 1,
+        transaction_date: '${formattedDate()} ${formattedTime()}',
+        transaction_type: selectedValue == AppConstanst.spendingTransactionName
+            ? AppConstanst.spendingTransaction
+            : AppConstanst.incomeTransaction,
+        description: descriptionController.text,
+        currency_id: AppConstanst.rupeesCurrency,
+        receipt_image1: image1?.path ?? "",
+        receipt_image2: image2?.path ?? "",
+        receipt_image3: image3?.path ?? "",
+        created_at: widget.transactionModel.created_at!,
+        last_updated: DateTime.now().toString());
+
+    await databaseHelper
+        .updateTransactionData(transactionModel, isSkippedUser)
+        .then((value) async {
+      if (value != null) {
+        // Helper.hideLoading(context);
+        DateTime now = DateTime.now();
+        String currentMonthName = DateFormat('MMMM').format(now);
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime parsedDate = format.parse(formattedDate());
+        String transactionMonthName = DateFormat('MMMM').format(parsedDate);
+        if (currentMonthName == transactionMonthName) {
+          if (isSkippedUser) {
+            if (selectedValue == AppConstanst.spendingTransactionName) {
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                      SharedPreferencesKeys.skippedUserCurrentBalance)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance =
+                      (int.parse(value) - int.parse(amountController.text))
+                          .toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentBalance,
+                      updateBalance);
+                }
+              });
+            } else {
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                      SharedPreferencesKeys.skippedUserCurrentIncome)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance =
+                      (int.parse(value) + int.parse(amountController.text))
+                          .toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentIncome,
+                      updateBalance);
+                }
+              });
+            }
+          } else {
+            await DatabaseHelper.instance
+                .getProfileData(userEmail)
+                .then((profileData) async {
+              if (selectedValue == AppConstanst.spendingTransactionName) {
+                profileData!.current_balance =
+                    ((int.parse(profileData.current_balance!) +
+                                widget.transactionModel.amount!) -
+                            int.parse(amountController.text))
+                        .toString();
+              } else {
+                profileData!.current_income =
+                    ((int.parse(profileData.current_income!) -
+                                widget.transactionModel.amount!) +
+                            int.parse(amountController.text))
+                        .toString();
+              }
+              await DatabaseHelper.instance.updateProfileData(profileData);
+            });
+          }
+        }
+        Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
+            ? LocaleKeys.spendingUpdateSuccessfully.tr
+            : LocaleKeys.incomeUpdateSuccessfully.tr);
+        Navigator.of(context).pop(true);
+      }
+    });
+  }
+
+  String formattedDate() {
+    return DateFormat('dd/MM/yyyy').format(selectedDate);
+  }
+
+  String formattedTime() {
+    return DateFormat('HH:mm').format(selectedDate);
+  }
+
+  Future<void> getIncomeCategory() async {
+    try {
+      List<IncomeCategory> fetchedIncomeCategories =
+          await databaseHelper.getIncomeCategory();
+      setState(() {
+        incomeCategories = fetchedIncomeCategories;
+        for (int i = 0; i < incomeCategories.length; i++) {
+          if (incomeCategories[i].id ==
+              widget.transactionModel.income_cat_id!) {
+            selectedIncomeIndex = i;
+            selectedIncomeItemList.add(incomeCategories[i]);
+            getIncomeSubCategory(incomeCategories[i].id!);
+          }
+          selectedSpendingIndex = -1;
+          selectedSpendingSubIndex = -1;
+        }
+      });
+    } catch (error) {
+      setState(() {});
+    }
+  }
+
+  Future<void> getIncomeSubCategory(int catId) async {
+    try {
+      List<IncomeSubCategory> fetchedIncomeSubCategories =
+          await databaseHelper.getIncomeSubCategory(catId);
+      setState(() {
+        incomeSubCategories = fetchedIncomeSubCategories;
+        for (int i = 0; i < incomeSubCategories.length; i++) {
+          if (incomeSubCategories[i].id ==
+              widget.transactionModel.sub_income_cat_id!) {
+            selectedIncomeSubIndex = i;
+          }
+        }
+      });
+    } catch (error) {
+      setState(() {});
+    }
+  }
+  Future<void> getPaymentMethods() async {
+    try {
+      List<PaymentMethod> paymentMethodList =
+          await databaseHelper.paymentMethods();
+      setState(() {
+        paymentMethods = paymentMethodList;
+
+        for (int i = 0; i < paymentMethods.length; i++) {
+          if (paymentMethods[i].id ==
+              widget.transactionModel.payment_method_id!) {
+            selectedPaymentMethodIndex = i;
+          }
+        }
+      });
+    } catch (error) {
+      setState(() {});
+    }
+  }
+  Future<void> getSpendingCategory() async {
+    try {
+      List<ExpenseCategory> fetchedCategories =
+          await databaseHelper.categorys();
+      setState(() {
+        categories = fetchedCategories;
+
+        for (int i = 0; i < categories.length; i++) {
+          if (categories[i].id == widget.transactionModel.expense_cat_id!) {
+            selectedSpendingIndex = i;
+            selectedItemList.add(categories[i]);
+            getSpendingSubCategory(categories[i].id!);
+          }
+          selectedIncomeIndex = -1;
+          selectedIncomeSubIndex = -1;
+        }
+      });
+    } catch (error) {
+      setState(() {});
+    }
+  }
+  Future<void> getSpendingSubCategory(int catId) async {
+    try {
+      List<ExpenseSubCategory> fetchedSpendingSubCategories =
+          await databaseHelper.getSpendingSubCategory(catId);
+      setState(() {
+        spendingSubCategories = fetchedSpendingSubCategories;
+        for (int i = 0; i < spendingSubCategories.length; i++) {
+          if (spendingSubCategories[i].id ==
+              widget.transactionModel.sub_expense_cat_id!) {
+            selectedSpendingSubIndex = i;
+          }
+        }
+      });
+    } catch (error) {
+      setState(() {});
+    }
+  }
+  @override
+  void initState() {
+    super.initState();
+    MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .then((value) {
+      if (value != null) {
+        userEmail = value;
+      }
+    });
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) {
+      if (value != null) {
+        isSkippedUser = value;
+      }
+    });
+    selectedValue = widget.transactionModel.transaction_type ==
+            AppConstanst.spendingTransaction
+        ? AppConstanst.spendingTransactionName
+        : AppConstanst.incomeTransactionName;
+    if (selectedValue == AppConstanst.spendingTransactionName) {
+      getSpendingCategory();
+    } else {
+      getIncomeCategory();
+    }
+    getPaymentMethods();
+    setTransactionValues();
+  }
+
+  void setTransactionValues() {
+    try {
+      amountController.text = widget.transactionModel.amount!.toString();
+      selectedDate = DateFormat('dd/MM/yyyy HH:mm')
+          .parse(widget.transactionModel.transaction_date!);
+      descriptionController.text =
+          widget.transactionModel.description!.toString();
+      if (widget.transactionModel.receipt_image1!.isNotEmpty) {
+        image1 = File(widget.transactionModel.receipt_image1!);
+      }
+      if (widget.transactionModel.receipt_image2!.isNotEmpty) {
+        image2 = File(widget.transactionModel.receipt_image2!);
+      }
+      if (widget.transactionModel.receipt_image3!.isNotEmpty) {
+        image3 = File(widget.transactionModel.receipt_image3!);
+      }
+      setState(() {});
+    } catch (e) {
+      print('object......$e');
+    }
+  }
+
+  void _decrementDate() {
+    setState(() {
+      selectedDate = selectedDate.subtract(const Duration(days: 1));
+      forwardIconColor =
+          selectedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
+    });
+  }
+
   Widget _detailsView(BuildContext context) {
     return Column(
       children: [
@@ -1707,17 +1698,36 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
     );
   }
 
-  _storagePermission(BuildContext context, int position) async {
-    final deviceInfo = await DeviceInfoPlugin().androidInfo;
-    final androidVersion =
-        int.parse(deviceInfo.version.release.split('.').first);
-    if (androidVersion >= 13) {
-      _shopImagePickerDialog(context, position);
-    } else {
-      _requestPermission(context, position);
+  /// Function: get image from gallery
+  /// @return void
+  /// */
+  void _getImage(ImageSource imageSource, int position) async {
+    try {
+      XFile? imageFile = await picker.pickImage(source: imageSource);
+      if (imageFile == null) return;
+      File tmpFile = File(imageFile.path);
+      final appDir = await getExternalStorageDirectory();
+      final fileName = basename(imageFile.path);
+      tmpFile = await tmpFile.copy('/storage/emulated/0/Download/$fileName');
+      if (position == 1) {
+        image1 = tmpFile;
+      } else if (position == 2) {
+        image2 = tmpFile;
+      } else {
+        image3 = tmpFile;
+      }
+      setState(() {});
+    } catch (e) {
+      debugPrint('image-picker-error ${e.toString()}');
     }
+  }
 
-    return Colors.grey;
+  void _incrementDate() {
+    setState(() {
+      selectedDate = selectedDate.add(const Duration(days: 1));
+      forwardIconColor =
+          selectedDate.isBefore(DateTime.now()) ? Colors.blue : Colors.grey;
+    });
   }
 
   /// Function: request for camera access permission
@@ -1831,30 +1841,6 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
     );
   }
 
-  /// Function: get image from gallery
-  /// @return void
-  /// */
-  void _getImage(ImageSource imageSource, int position) async {
-    try {
-      XFile? imageFile = await picker.pickImage(source: imageSource);
-      if (imageFile == null) return;
-      File tmpFile = File(imageFile.path);
-      final appDir = await getExternalStorageDirectory();
-      final fileName = basename(imageFile.path);
-      tmpFile = await tmpFile.copy('/storage/emulated/0/Download/$fileName');
-      if (position == 1) {
-        image1 = tmpFile;
-      } else if (position == 2) {
-        image2 = tmpFile;
-      } else {
-        image3 = tmpFile;
-      }
-      setState(() {});
-    } catch (e) {
-      debugPrint('image-picker-error ${e.toString()}');
-    }
-  }
-
   void _showImage(BuildContext context, File image) async {
     await showDialog(
         context: context,
@@ -1904,5 +1890,18 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                 10.heightBox,
               ],
             )));
+  }
+
+  _storagePermission(BuildContext context, int position) async {
+    final deviceInfo = await DeviceInfoPlugin().androidInfo;
+    final androidVersion =
+        int.parse(deviceInfo.version.release.split('.').first);
+    if (androidVersion >= 13) {
+      _shopImagePickerDialog(context, position);
+    } else {
+      _requestPermission(context, position);
+    }
+
+    return Colors.grey;
   }
 }

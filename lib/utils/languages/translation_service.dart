@@ -6,8 +6,8 @@ import 'package:expense_manager/utils/languages/hi_IN.dart';
 import 'package:get/get.dart';
 
 class TranslationService extends Translations {
-  static Locale? get locale => Get.deviceLocale;
   static final fallBackLocale = Get.locale;
+  static Locale? get locale => Get.deviceLocale;
 
   @override
   Map<String, Map<String, String>> get keys =>

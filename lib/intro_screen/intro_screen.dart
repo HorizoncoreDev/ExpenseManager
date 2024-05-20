@@ -53,40 +53,6 @@ class _IntroScreenState extends State<IntroScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    MySharedPreferences.instance
-        .getBoolValuesSF(SharedPreferencesKeys.isCurrencyAndLanguageAdded)
-        .then((value) {
-      if (value != null) {
-        if (!value) {
-          Helper.addCurrencyAndLanguages().then((value) =>
-              MySharedPreferences.instance.addBoolToSF(
-                  SharedPreferencesKeys.isCurrencyAndLanguageAdded, true));
-          getLanguageTypes();
-        }
-      } else {
-        Helper.addCurrencyAndLanguages().then((value) =>
-            MySharedPreferences.instance.addBoolToSF(
-                SharedPreferencesKeys.isCurrencyAndLanguageAdded, true));
-        getLanguageTypes();
-      }
-    });
-  }
-
-  Future<void> getLanguageTypes() async {
-    try {
-      List<LanguageCategory> languageTypesList =
-          await databaseHelper.languageMethods();
-      setState(() {
-        languageTypes = languageTypesList;
-      });
-    } catch (e) {
-      Helper.showToast(e.toString());
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
@@ -186,8 +152,7 @@ class _IntroScreenState extends State<IntroScreen> {
                           dropdownStyleData: DropdownStyleData(
                               decoration: BoxDecoration(
                                   color: Helper.getCardColor(context),
-                                  borderRadius:
-                                  BorderRadius.circular(8))),
+                                  borderRadius: BorderRadius.circular(8))),
                           items: languageTypes
                               .map<DropdownMenuItem<LanguageCategory>>(
                                   (LanguageCategory value) {
@@ -228,12 +193,13 @@ class _IntroScreenState extends State<IntroScreen> {
                             });
                           },
                           isExpanded: true,
-                          iconStyleData: IconStyleData(icon:Icon(
+                          iconStyleData: IconStyleData(
+                              icon: Icon(
                             !languageDropdownOpen
                                 ? Icons.keyboard_arrow_down
                                 : Icons.keyboard_arrow_up,
                             color: Colors.white,
-                          ) ),
+                          )),
                         ),
                       ),
                     ),
@@ -277,5 +243,39 @@ class _IntroScreenState extends State<IntroScreen> {
         ),
       ),
     ));
+  }
+
+  Future<void> getLanguageTypes() async {
+    try {
+      List<LanguageCategory> languageTypesList =
+          await databaseHelper.languageMethods();
+      setState(() {
+        languageTypes = languageTypesList;
+      });
+    } catch (e) {
+      Helper.showToast(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isCurrencyAndLanguageAdded)
+        .then((value) {
+      if (value != null) {
+        if (!value) {
+          Helper.addCurrencyAndLanguages().then((value) =>
+              MySharedPreferences.instance.addBoolToSF(
+                  SharedPreferencesKeys.isCurrencyAndLanguageAdded, true));
+          getLanguageTypes();
+        }
+      } else {
+        Helper.addCurrencyAndLanguages().then((value) =>
+            MySharedPreferences.instance.addBoolToSF(
+                SharedPreferencesKeys.isCurrencyAndLanguageAdded, true));
+        getLanguageTypes();
+      }
+    });
   }
 }
