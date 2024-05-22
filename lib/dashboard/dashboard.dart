@@ -29,10 +29,13 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   Widget build(BuildContext context) {
+    bool currentEmail =userEmail!.isNotEmpty
+        ? userEmail == currentUserEmail
+    ?true:false:true;
     return SafeArea(
       child: Scaffold(
         key: scaffoldKey,
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: currentEmail?FloatingActionButton(
           onPressed: () {
             if (userEmail == currentUserEmail || userEmail!.isEmpty) {
               Navigator.of(context, rootNavigator: true)
@@ -60,25 +63,19 @@ class _DashBoardState extends State<DashBoard> {
           backgroundColor: Helper.getMiddleBottomNavBarItem(context),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-          child: userEmail!.isNotEmpty
-              ? userEmail == currentUserEmail
-                  ? Icon(
+          child: Icon(
                       Icons.add,
                       color: Helper.getTextColor(context),
                     )
-                  : const SizedBox()
-              : Icon(
-                  Icons.add,
-                  color: Helper.getTextColor(context),
-                ),
-        ),
+                  ,
+        ):SizedBox(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomAppBar(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           height: 60,
           color: Helper.getBottomNavigationColor(context).backgroundColor!,
           shape: const CircularNotchedRectangle(),
-          notchMargin: 5,
+          notchMargin:currentEmail? 5:0,
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
