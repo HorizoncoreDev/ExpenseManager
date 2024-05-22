@@ -174,6 +174,22 @@ class TransactionModel {
     );
   }
 
+  factory TransactionModel.fromMapForCSV(Map<dynamic, dynamic> map) {
+    return TransactionModel(
+      member_email: map['member_email'],
+      amount: map['amount'],
+      cat_name: map['cat_name'],
+      cat_type: map['cat_type'],
+      payment_method_name: map['payment_method_name'],
+      transaction_date: map['transaction_date'],
+      description: map['description'],
+      transaction_type: map['transaction_type'],
+      receipt_image1: map['receipt_image1'],
+      receipt_image2: map['receipt_image2'],
+      receipt_image3: map['receipt_image3'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       // 'id': id,

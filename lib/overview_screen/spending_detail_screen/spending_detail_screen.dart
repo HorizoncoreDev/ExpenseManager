@@ -599,8 +599,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
   }
 
   getProfileData() async {
-    /* try {
-      if (currentUserEmail == userEmail) {
+     try {
+      /*if (currentUserEmail == userEmail) {
         ProfileModel? fetchedProfileData =
             await databaseHelper.getProfileData(currentUserEmail);
         setState(() {
@@ -632,10 +632,10 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
         });
       }
     });
-    /*}
+    // }
     } catch (error) {
       print('Error fetching Profile Data: $error');
-    }*/
+    }
   }
 
   getTransactions(String category) async {

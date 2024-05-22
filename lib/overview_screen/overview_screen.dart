@@ -360,8 +360,8 @@ getIncomeTransactions() async {
   }*/
 
   getProfileData() async {
-    /* try {
-      if (currentUserEmail == userEmail) {
+     try {
+      /*if (currentUserEmail == userEmail) {
         ProfileModel? fetchedProfileData =
             await databaseHelper.getProfileData(currentUserEmail);
         setState(() {
@@ -391,10 +391,10 @@ getIncomeTransactions() async {
         });
       }
     });
-    /* }
+     // }
     } catch (error) {
       print('Error fetching Profile Data: $error');
-    }*/
+    }
   }
 
   getTransactions() async {
