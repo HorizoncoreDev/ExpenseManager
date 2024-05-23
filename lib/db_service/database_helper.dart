@@ -14,6 +14,7 @@ import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -276,11 +277,10 @@ class DatabaseHelper {
           .child(key)
           .orderByChild(TransactionFields.member_email)
           .equalTo(email);
-
-      reference.onValue.listen((value) {
+bool futureCompleted = false;
+      reference.once().then((value) {
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
-          print('object....called');
           Map<dynamic, dynamic> values =
               dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
@@ -294,8 +294,13 @@ class DatabaseHelper {
             }
           });
         }
-        completer.complete(transactions);
-      }).onError((error) {
+        if(!futureCompleted) {
+          futureCompleted = true;
+          reference.onValue.drain();
+          completer.complete(transactions);
+        }
+      }).catchError((error) {
+        reference.onValue.drain();
         completer.completeError(error);
       });
 
@@ -1053,15 +1058,33 @@ return completer.future;*/
       newPostRef.set(
         transactionModel.toMap(),
       );
-    } else {
-      final reference =
-          FirebaseDatabase.instance.reference().child(transaction_table);
-      var newPostRef = reference.push();
-      transactionModel.key = newPostRef.key;
     }
     return await db.insert(transaction_table, transactionModel.toMap());
   }
 
+  Future<void> insertMultipleTransactions(
+      List<TransactionModel> transactions,String key, bool isSkippedUser) async {
+    Database db = await database;
+    Batch batch = db.batch();
+
+    for (var transaction in transactions) {
+      transaction.key = key;
+      if (!isSkippedUser) {
+        final reference = FirebaseDatabase.instance
+            .reference()
+            .child(transaction_table)
+            .child(FirebaseAuth.instance.currentUser!.uid);
+        var newPostRef = reference.push();
+        transaction.key = newPostRef.key;
+        await newPostRef.set(
+          transaction.toMap(),
+        );
+      }
+      batch.insert(transaction_table, transaction.toMap());
+    }
+
+    await batch.commit(noResult: true);
+  }
   /// A method that retrieves all the language methods from the paymentMethods table.
   Future<List<LanguageCategory>> languageMethods() async {
     Database db = await database;
@@ -1116,11 +1139,14 @@ return completer.future;*/
 
   // Update ProfileData
   Future<void> updateProfileData(ProfileModel profileModel) async {
-    final db = await database;
-    await db.update(profile_table, profileModel.toMap(),
-        where: '${ProfileTableFields.email} = ?',
-        whereArgs: [profileModel.email]);
-
+    try {
+      final db = await database;
+      await db.update(profile_table, profileModel.toMap(),
+          where: '${ProfileTableFields.email} = ?',
+          whereArgs: [profileModel.email]);
+    }catch(e){
+      e.printError();
+    }
     final Map<String, Map> updates = {};
     updates['/$profile_table/${profileModel.key}'] = profileModel.toMap();
     FirebaseDatabase.instance.ref().update(updates);

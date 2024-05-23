@@ -40,7 +40,7 @@ class MasterPasswordDialog {
   String fileName = "";
   String userEmail = "", currentUserEmail = "";
   List<TransactionModel> transactions = [];
-  ProfileModel profileModel = ProfileModel();
+  // ProfileModel profileModel = ProfileModel();
 
   Future<void> showMasterPasswordDialog({required BuildContext context, required bool export, required String backupType}) async {
     MySharedPreferences.instance.getBoolValuesSF(
@@ -363,47 +363,29 @@ class MasterPasswordDialog {
 
 
   void addDataIntoTransactionTable(BuildContext context) async {
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(transaction_table);
-    var newPostRef = reference.push();
+    List<TransactionModel> importTransactionListData = [];
+    int currentBalance=0;
+    int currentIncome=0;
+    String importEmail = "";
     for (int i = 1; i < data.length; i++) {
       /// Start from index 1 to skip the header row
-
       String categoryName = data[i][2].toString();
       int categoryType = data[i][3];
       int transactionType = data[i][6];
       int amount = data[i][1];
-      String email = data[i][0].toString();
+      importEmail = data[i][0].toString();
 
+      if (transactionType == AppConstanst.spendingTransaction) {
+        currentBalance= currentBalance+amount;
+      }else{
+        currentIncome = currentIncome+amount;
+      }
       int? catIds = await DatabaseHelper().getCategoryID(categoryName, categoryType, transactionType);
       String? catIcon = await DatabaseHelper().getCategoryIcon(catIds, /*categoryName*/ categoryType, transactionType);
-      String key = "";
-
-      final reference = FirebaseDatabase.instance
-          .reference()
-          .child(profile_table)
-          .orderByChild(ProfileTableFields.email)
-          .equalTo(email);
-
-      reference.once().then((event) async {
-        DataSnapshot dataSnapshot = event.snapshot;
-        if (event.snapshot.exists) {
-          Map<dynamic, dynamic> values =
-          dataSnapshot.value as Map<dynamic, dynamic>;
-          values.forEach((key, value) async {
-            profileModel = ProfileModel.fromMap(value);
-            key = profileModel.key.toString();
-          });
-        }
-      });
-
-      print("Id is $catIds");
 
       TransactionModel transactionModel = TransactionModel(
-        // member_id: data[i][0],
-        key: key,
-        member_email: email,
+        key: "",
+        member_email: importEmail,
         amount: amount,
         expense_cat_id: categoryType == 0 && transactionType == 1 ? catIds : -1,
         sub_expense_cat_id: categoryType == 1 && transactionType == 1 ? catIds : -1,
@@ -429,78 +411,72 @@ class MasterPasswordDialog {
         created_at: DateTime.now().toString(),
         last_updated: DateTime.now().toString(),
       );
+      importTransactionListData.add(transactionModel);
 
-      await DatabaseHelper().insertTransactionData(transactionModel,isSkippedUser).then((value) async {
-        if (value != null) {
-          if (isSkippedUser) {
-            if (transactionType == AppConstanst.spendingTransaction) {
-              MySharedPreferences.instance
-                  .getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentBalance)
-                  .then((value) {
-                if (value != null) {
-                  String updateBalance =
-                  (int.parse(value) - amount)
+      print("Data is inserted");
+      print("list is this ${importTransactionListData.length}");
+    }
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(profile_table)
+        .orderByChild(ProfileTableFields.email)
+        .equalTo(importEmail);
+
+    reference.once().then((event) async {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+        dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+          var profileModel = ProfileModel.fromMap(value);
+
+          await DatabaseHelper().insertMultipleTransactions(importTransactionListData,value['key'],isSkippedUser);
+          if (value != null) {
+            if (isSkippedUser) {
+                MySharedPreferences.instance
+                    .getStringValuesSF(
+                    SharedPreferencesKeys.skippedUserCurrentBalance)
+                    .then((value) {
+                  if (value != null) {
+                    String updateBalance =
+                    (int.parse(value) - currentBalance)
+                        .toString();
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.skippedUserCurrentBalance,
+                        updateBalance);
+                  }
+                });
+                MySharedPreferences.instance
+                    .getStringValuesSF(
+                    SharedPreferencesKeys.skippedUserCurrentIncome)
+                    .then((value) {
+                  if (value != null) {
+                    String updateBalance =
+                    (int.parse(value) + currentIncome)
+                        .toString();
+                    MySharedPreferences.instance.addStringToSF(
+                        SharedPreferencesKeys.skippedUserCurrentIncome,
+                        updateBalance);
+                  }
+                });
+            }
+            else {
+              profileModel.current_balance =
+                  (int.parse(profileModel.current_balance!) -
+                      currentBalance)
                       .toString();
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.skippedUserCurrentBalance,
-                      updateBalance);
-                }
-              });
-            } else {
-              MySharedPreferences.instance
-                  .getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentIncome)
-                  .then((value) {
-                if (value != null) {
-                  String updateBalance =
-                  (int.parse(value) + amount)
+
+              profileModel.current_income =
+                  (int.parse(profileModel.current_income!) +
+                      currentIncome)
                       .toString();
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.skippedUserCurrentIncome,
-                      updateBalance);
-                }
-              });
+
+              await DatabaseHelper.instance.updateProfileData(profileModel);
             }
           }
-          else {
-        /*    final reference = FirebaseDatabase.instance
-                .reference()
-                .child(profile_table)
-                .orderByChild(ProfileTableFields.email)
-                .equalTo(email);
-
-            reference.onValue.listen((event) async {
-              DataSnapshot dataSnapshot = event.snapshot;
-              if (event.snapshot.exists) {
-                Map<dynamic, dynamic> values =
-                dataSnapshot.value as Map<dynamic, dynamic>;
-                values.forEach((key, value) async {
-                  profileModel = ProfileModel.fromMap(value);
-                });
-              }
-            });*/
-            await DatabaseHelper.instance.getProfileData(email)
-                .then((profileData) async {
-              if (transactionType == AppConstanst.spendingTransaction) {
-                profileData!.current_balance =
-                    (int.parse(profileData.current_balance!) -
-                        amount)
-                        .toString();
-              } else {
-                profileData!.current_income =
-                    (int.parse(profileData.current_income!) +
-                        amount)
-                        .toString();
-              }
-              await DatabaseHelper.instance.updateProfileData(profileData);
-            });
-          }
-          // }
-        }
-      });
-      print("Data is inserted");
-    }
+        });
+      }
+    });
   }
 
   void createMP(BuildContext context, void Function(void Function() p1) setState) {

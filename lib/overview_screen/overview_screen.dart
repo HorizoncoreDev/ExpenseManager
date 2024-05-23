@@ -203,7 +203,7 @@ class OverviewScreenState extends State<OverviewScreen> {
     );
   }
 
-getIncomeTransactions() async {
+  getIncomeTransactions() async {
     if (isSkippedUser) {
       MySharedPreferences.instance
           .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentIncome)
@@ -360,7 +360,7 @@ getIncomeTransactions() async {
   }*/
 
   getProfileData() async {
-     try {
+    try {
       /*if (currentUserEmail == userEmail) {
         ProfileModel? fetchedProfileData =
             await databaseHelper.getProfileData(currentUserEmail);
@@ -372,26 +372,26 @@ getIncomeTransactions() async {
           //checkRequests();
         });
       } else {*/
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(profile_table)
-        .orderByChild(ProfileTableFields.email)
-        .equalTo(currentUserEmail);
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(profile_table)
+          .orderByChild(ProfileTableFields.email)
+          .equalTo(currentUserEmail);
 
-    reference.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) async {
-          profileModel = ProfileModel.fromMap(value);
-          currentBalance = int.parse(profileModel.current_balance!);
-          currentIncome = int.parse(profileModel.current_income!);
-          actualBudget = int.parse(profileModel.actual_budget!);
-        });
-      }
-    });
-     // }
+      reference.onValue.listen((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+              dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            profileModel = ProfileModel.fromMap(value);
+            currentBalance = int.parse(profileModel.current_balance!);
+            currentIncome = int.parse(profileModel.current_income!);
+            actualBudget = int.parse(profileModel.actual_budget!);
+          });
+        }
+      });
+      // }
     } catch (error) {
       print('Error fetching Profile Data: $error');
     }
@@ -818,7 +818,8 @@ getIncomeTransactions() async {
                                         context: context,
                                         builder: (BuildContext context) {
                                           return AlertDialog(
-                                            backgroundColor: Helper.getCardColor(context),
+                                            backgroundColor:
+                                                Helper.getCardColor(context),
                                             title: Text(LocaleKeys.confirm.tr),
                                             content: Text(LocaleKeys
                                                 .deleteTransaction.tr),
@@ -1269,7 +1270,8 @@ getIncomeTransactions() async {
                                       context: context,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
-                                          backgroundColor: Helper.getCardColor(context),
+                                          backgroundColor:
+                                              Helper.getCardColor(context),
                                           title: Text(LocaleKeys.confirm.tr),
                                           content: Text(
                                               LocaleKeys.deleteTransaction.tr),

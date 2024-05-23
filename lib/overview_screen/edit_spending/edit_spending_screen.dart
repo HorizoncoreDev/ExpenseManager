@@ -1081,6 +1081,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                       SharedPreferencesKeys.skippedUserCurrentBalance)
                   .then((value) {
                 if (value != null) {
+
                   String updateBalance =
                       (int.parse(value) - int.parse(amountController.text))
                           .toString();
