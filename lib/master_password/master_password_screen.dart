@@ -40,6 +40,7 @@ class MasterPasswordDialog {
   String fileName = "";
   String userEmail = "", currentUserEmail = "";
   List<TransactionModel> transactions = [];
+  ProfileModel profileModel = ProfileModel();
 
   Future<void> showMasterPasswordDialog({required BuildContext context, required bool export, required String backupType}) async {
     MySharedPreferences.instance.getBoolValuesSF(
@@ -270,11 +271,9 @@ class MasterPasswordDialog {
           .getStringValuesSF(SharedPreferencesKeys.userName)
           .then((value) async {
         if (value != null) {
-          List<String> names = value.split(" ") ?? [];
-          name = names.isNotEmpty ? names[0].toLowerCase() : "";
+          name = value;
           String date = DateFormat('dd-MM-yyyy').format(DateTime.now());
           String filePath = '/storage/emulated/0/Download/${name}_$date.csv';
-
           final File file = File(filePath);
           await file.writeAsString(csvData);
           Helper.showToast('${LocaleKeys.csvExportedTo.tr} $filePath');
@@ -284,22 +283,16 @@ class MasterPasswordDialog {
     }
 
     MultipleEmailModel multipleEmailModel = await DatabaseHelper.exportAccessEmailDataToCSV(userEmail);
-    if(multipleEmailModel.csv!.isNotEmpty){
+    if(multipleEmailModel.csv.isNotEmpty){
       String date = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
-      for (var receiverName in multipleEmailModel.receiversName!) {
+      for (var receiverName in multipleEmailModel.receiversName) {
         String filePath = '/storage/emulated/0/Download/${receiverName}_$date.csv';
         final File file = File(filePath);
-        await file.writeAsString(multipleEmailModel.csv!);
+        await file.writeAsString(multipleEmailModel.csv[receiverName]!);
         Helper.showToast('${LocaleKeys.csvExportedTo.tr} $filePath');
         print("file path $filePath");
       }
-
-      /*String filePath = '/storage/emulated/0/Download/${multipleEmailModel.receiversName.toString()}_$date.csv';
-      final File file = File(filePath);
-      await file.writeAsString(multipleEmailModel.csv!);
-      Helper.showToast('${LocaleKeys.csvExportedTo.tr} $filePath');
-      print("file path $filePath");*/
     }
   }
 
@@ -385,12 +378,31 @@ class MasterPasswordDialog {
 
       int? catIds = await DatabaseHelper().getCategoryID(categoryName, categoryType, transactionType);
       String? catIcon = await DatabaseHelper().getCategoryIcon(catIds, /*categoryName*/ categoryType, transactionType);
+      String key = "";
+
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(profile_table)
+          .orderByChild(ProfileTableFields.email)
+          .equalTo(email);
+
+      reference.once().then((event) async {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+          dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            profileModel = ProfileModel.fromMap(value);
+            key = profileModel.key.toString();
+          });
+        }
+      });
 
       print("Id is $catIds");
 
       TransactionModel transactionModel = TransactionModel(
         // member_id: data[i][0],
-        key: newPostRef.key,
+        key: key,
         member_email: email,
         amount: amount,
         expense_cat_id: categoryType == 0 && transactionType == 1 ? catIds : -1,
@@ -450,7 +462,24 @@ class MasterPasswordDialog {
                 }
               });
             }
-          } else {
+          }
+          else {
+        /*    final reference = FirebaseDatabase.instance
+                .reference()
+                .child(profile_table)
+                .orderByChild(ProfileTableFields.email)
+                .equalTo(email);
+
+            reference.onValue.listen((event) async {
+              DataSnapshot dataSnapshot = event.snapshot;
+              if (event.snapshot.exists) {
+                Map<dynamic, dynamic> values =
+                dataSnapshot.value as Map<dynamic, dynamic>;
+                values.forEach((key, value) async {
+                  profileModel = ProfileModel.fromMap(value);
+                });
+              }
+            });*/
             await DatabaseHelper.instance.getProfileData(email)
                 .then((profileData) async {
               if (transactionType == AppConstanst.spendingTransaction) {

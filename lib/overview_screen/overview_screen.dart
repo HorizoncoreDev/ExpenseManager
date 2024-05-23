@@ -818,6 +818,7 @@ getIncomeTransactions() async {
                                         context: context,
                                         builder: (BuildContext context) {
                                           return AlertDialog(
+                                            backgroundColor: Helper.getCardColor(context),
                                             title: Text(LocaleKeys.confirm.tr),
                                             content: Text(LocaleKeys
                                                 .deleteTransaction.tr),
@@ -1268,6 +1269,7 @@ getIncomeTransactions() async {
                                       context: context,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
+                                          backgroundColor: Helper.getCardColor(context),
                                           title: Text(LocaleKeys.confirm.tr),
                                           content: Text(
                                               LocaleKeys.deleteTransaction.tr),

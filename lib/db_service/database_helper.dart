@@ -1330,7 +1330,8 @@ return completer.future;*/
     List<String> receiversName = [];
     List<ReceiverEmailData> receiverEmailList = await getAccessEmails(userEmail);
     for (var entry in receiverEmailList) {
-      receiversName.add(entry.receiverName.toString()!);
+      String recName = entry.receiverName.toString();
+      receiversName.add(recName);
       List<List<dynamic>> rows = [
         [
           'member_email',
@@ -1363,9 +1364,10 @@ return completer.future;*/
           task.receipt_image2 ?? ""
         ]);
       }
-      multipleEmailModel.csv = const ListToCsvConverter().convert(rows);
-      multipleEmailModel.receiversName = receiversName;
+      String csvContent = const ListToCsvConverter().convert(rows);
+      multipleEmailModel.csv[recName] = csvContent;
     }
+    multipleEmailModel.receiversName = receiversName;
     return multipleEmailModel;
   }
 
