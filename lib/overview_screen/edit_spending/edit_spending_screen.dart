@@ -8,6 +8,7 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -21,6 +22,7 @@ import '../../db_models/expense_category_model.dart';
 import '../../db_models/expense_sub_category.dart';
 import '../../db_models/income_category.dart';
 import '../../db_models/income_sub_category.dart';
+import '../../db_models/profile_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../utils/views/custom_text_form_field.dart';
 
@@ -71,6 +73,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
   final databaseHelper = DatabaseHelper.instance;
 
   String userEmail = '';
+  String currentUserEmail = '';
+  String currentUserKey = '';
 
   int selectedSpendingSubIndex = -1;
 
@@ -940,7 +944,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         created_at: DateTime.now().toString(),
         last_updated: DateTime.now().toString());
     await databaseHelper
-        .insertTransactionData(transactionModel, isSkippedUser)
+        .insertTransactionData(transactionModel,currentUserKey, isSkippedUser)
         .then((value) async {
       if (value != null) {
         // Helper.hideLoading(context);
@@ -1064,7 +1068,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         last_updated: DateTime.now().toString());
 
     await databaseHelper
-        .updateTransactionData(transactionModel, isSkippedUser)
+        .updateTransactionData(transactionModel, currentUserKey,isSkippedUser)
         .then((value) async {
       if (value != null) {
         // Helper.hideLoading(context);
@@ -1082,7 +1086,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                   .then((value) {
                 if (value != null) {
                   String updateBalance =
-                      (int.parse(value) - int.parse(amountController.text))
+                      ((int.parse(value) + widget.transactionModel.amount!) -
+                              int.parse(amountController.text))
                           .toString();
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.skippedUserCurrentBalance,
@@ -1096,7 +1101,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                   .then((value) {
                 if (value != null) {
                   String updateBalance =
-                      (int.parse(value) + int.parse(amountController.text))
+                      ((int.parse(value) - widget.transactionModel.amount!) +
+                              int.parse(amountController.text))
                           .toString();
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.skippedUserCurrentIncome,
@@ -1105,24 +1111,35 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
               });
             }
           } else {
-            await DatabaseHelper.instance
-                .getProfileData(userEmail)
-                .then((profileData) async {
-              if (selectedValue == AppConstanst.spendingTransactionName) {
-                profileData!.current_balance =
-                    ((int.parse(profileData.current_balance!) +
-                                widget.transactionModel.amount!) -
+            final reference = FirebaseDatabase.instance
+                .reference()
+                .child(profile_table)
+                .orderByChild(ProfileTableFields.email)
+                .equalTo(currentUserEmail);
+
+            reference.once().then((event) {
+              DataSnapshot dataSnapshot = event.snapshot;
+              if (event.snapshot.exists) {
+                Map<dynamic, dynamic> values =
+                dataSnapshot.value as Map<dynamic, dynamic>;
+                values.forEach((key, value) async {
+                  var profileModel = ProfileModel.fromMap(value);
+                  if (selectedValue == AppConstanst.spendingTransactionName) {
+                    profileModel.current_balance =
+                        (int.parse(profileModel.current_balance!) -
                             int.parse(amountController.text))
-                        .toString();
-              } else {
-                profileData!.current_income =
-                    ((int.parse(profileData.current_income!) -
-                                widget.transactionModel.amount!) +
+                            .toString();
+                  } else {
+                    profileModel.current_income =
+                        (int.parse(profileModel.current_income!) +
                             int.parse(amountController.text))
-                        .toString();
+                            .toString();
+                  }
+                  await DatabaseHelper.instance.updateProfileData(profileModel);
+                });
               }
-              await DatabaseHelper.instance.updateProfileData(profileData);
             });
+
           }
         }
         Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
@@ -1180,6 +1197,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
       setState(() {});
     }
   }
+
   Future<void> getPaymentMethods() async {
     try {
       List<PaymentMethod> paymentMethodList =
@@ -1198,6 +1216,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
       setState(() {});
     }
   }
+
   Future<void> getSpendingCategory() async {
     try {
       List<ExpenseCategory> fetchedCategories =
@@ -1219,6 +1238,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
       setState(() {});
     }
   }
+
   Future<void> getSpendingSubCategory(int catId) async {
     try {
       List<ExpenseSubCategory> fetchedSpendingSubCategories =
@@ -1236,6 +1256,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
       setState(() {});
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -1244,6 +1265,20 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         .then((value) {
       if (value != null) {
         userEmail = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+            .then((value) {
+          if (value != null) {
+            currentUserEmail = value;
+            MySharedPreferences.instance
+                .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
+                .then((value) {
+              if (value != null) {
+                currentUserKey = value;
+              }
+            });
+          }
+        });
       }
     });
     MySharedPreferences.instance
@@ -1619,11 +1654,11 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                       //   Helper.showLoading(context);
                       if (!isSkippedUser) {
                         print("USER NOT SKIPPED $isSkippedUser");
-                        await databaseHelper
+                        /*await databaseHelper
                             .getProfileData(userEmail)
-                            .then((value) async {
-                          editSpendingIncome(context, value!.email!);
-                        });
+                            .then((value) async {*/
+                          editSpendingIncome(context, currentUserEmail);
+                        //});
                       } else {
                         print("USER SKIPPED $isSkippedUser");
                         editSpendingIncome(context, "");
@@ -1667,11 +1702,11 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                       //   Helper.showLoading(context);
                       if (!isSkippedUser) {
                         print("USER NOT SKIPPED $isSkippedUser");
-                        await databaseHelper
+                       /* await databaseHelper
                             .getProfileData(userEmail)
-                            .then((value) async {
-                          createCopySpendingIncome(context, value!.email!);
-                        });
+                            .then((value) async {*/
+                          createCopySpendingIncome(context, currentUserEmail);
+                        // });
                       } else {
                         print("USER SKIPPED $isSkippedUser");
                         createCopySpendingIncome(context, "");

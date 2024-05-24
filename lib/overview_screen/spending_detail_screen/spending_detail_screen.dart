@@ -30,6 +30,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
   String currentUserEmail = "";
   String userEmail = "";
   String userKey = "";
+  int userAccess = AppConstanst.viewOnlyAccess;
   bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
   List<DateWiseTransactionModel> dateWiseTransaction = [];
@@ -322,7 +323,14 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                 itemBuilder: (context, index1) {
                                   return InkWell(
                                     onTap: () {
-                                      if (userEmail == currentUserEmail) {
+                                      bool currentEmail = userEmail.isNotEmpty
+                                          ? userEmail == currentUserEmail
+                                          ? true
+                                          : userAccess == AppConstanst.editAccess
+                                          ? true
+                                          : false
+                                          : true;
+                                      if (currentEmail) {
                                         Navigator.of(context,
                                                 rootNavigator: true)
                                             .push(
@@ -749,7 +757,12 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
             .then((value) {
           if (value != null) {
             userKey = value;
-          }
+          }MySharedPreferences.instance
+            .getIntValuesSF(SharedPreferencesKeys.userAccessType)
+            .then((value) {
+          if (value != null) {
+            userAccess = value;
+          }});
           MySharedPreferences.instance
               .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
               .then((value) async {

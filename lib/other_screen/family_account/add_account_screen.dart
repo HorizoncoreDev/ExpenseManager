@@ -43,6 +43,7 @@ class MyDialog {
               requester_name: profileModel.full_name,
               receiver_email: receiverEmail,
               receiver_name: receiverName,
+              accessType: AppConstanst.viewOnlyAccess,
               status: 1,
               created_at: DateTime.now().toString(),
             );
@@ -60,6 +61,7 @@ class MyDialog {
           requester_name: profileModel.full_name,
           receiver_email: receiverEmail,
           receiver_name: receiverName,
+          accessType: AppConstanst.viewOnlyAccess,
           status: 1,
           created_at: DateTime.now().toString(),
         );

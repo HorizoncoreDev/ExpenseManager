@@ -114,8 +114,14 @@ abstract class LocaleKeys {
   static const allowContactAccess = 'allowContactAccess';
 
   ///My account
+  static const switchAccount = 'switchAccount';
   static const addAccount = 'addAccount';
+  static const chooseAccess = 'chooseAccess';
+  static const edit = 'edit';
+  static const viewOnly = 'viewOnly';
   static const currently = 'currently';
+  static const viewOnlyAccessMsg = 'viewOnlyAccessMsg';
+  static const editAccessMsg = 'editAccessMsg';
   static const members = 'members';
   static const currentlyMember = 'currentlyMember';
   static const code = 'code';

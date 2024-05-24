@@ -11,6 +11,7 @@ import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -274,7 +275,7 @@ class DatabaseHelper {
           .orderByChild(TransactionFields.member_email)
           .equalTo(email);
 
-      reference.onValue.listen((value) {
+      reference.once().then((value) {
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
           print('object....called');
@@ -292,7 +293,7 @@ class DatabaseHelper {
           });
         }
         completer.complete(transactions);
-      }).onError((error) {
+      }).catchError((error) {
         completer.completeError(error);
       });
 
@@ -1038,25 +1039,54 @@ return completer.future;*/
 
   /// Insert Transaction Detail
   Future<int> insertTransactionData(
-      TransactionModel transactionModel, bool isSkippedUser) async {
+      TransactionModel transactionModel,String key, bool isSkippedUser) async {
     Database db = await database;
     if (!isSkippedUser) {
       final reference = FirebaseDatabase.instance
           .reference()
           .child(transaction_table)
-          .child(FirebaseAuth.instance.currentUser!.uid);
+          .child(key);
       var newPostRef = reference.push();
       transactionModel.key = newPostRef.key;
       newPostRef.set(
         transactionModel.toMap(),
       );
-    } else {
-      final reference =
-          FirebaseDatabase.instance.reference().child(transaction_table);
+    }else{
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(transaction_table);
       var newPostRef = reference.push();
       transactionModel.key = newPostRef.key;
     }
     return await db.insert(transaction_table, transactionModel.toMap());
+  }
+
+  Future<void> insertMultipleTransactions(
+      List<TransactionModel> transactions, bool isSkippedUser) async {
+    Database db = await database;
+    Batch batch = db.batch();
+
+    for (var transaction in transactions) {
+      if (!isSkippedUser) {
+        final reference = FirebaseDatabase.instance
+            .reference()
+            .child(transaction_table)
+            .child(FirebaseAuth.instance.currentUser!.uid);
+        var newPostRef = reference.push();
+        transaction.key = newPostRef.key;
+        await newPostRef.set(
+          transaction.toMap(),
+        );
+      }else {
+        final reference =
+        FirebaseDatabase.instance.reference().child(transaction_table);
+        var newPostRef = reference.push();
+        transaction.key = newPostRef.key;
+      }
+      batch.insert(transaction_table, transaction.toMap());
+    }
+
+    await batch.commit(noResult: true);
   }
 
   /// A method that retrieves all the language methods from the paymentMethods table.
@@ -1113,11 +1143,14 @@ return completer.future;*/
 
   // Update ProfileData
   Future<void> updateProfileData(ProfileModel profileModel) async {
-    final db = await database;
-    await db.update(profile_table, profileModel.toMap(),
-        where: '${ProfileTableFields.email} = ?',
-        whereArgs: [profileModel.email]);
-
+    try {
+      final db = await database;
+      await db.update(profile_table, profileModel.toMap(),
+          where: '${ProfileTableFields.email} = ?',
+          whereArgs: [profileModel.email]);
+    }catch(e){
+      e.printError();
+    }
     final Map<String, Map> updates = {};
     updates['/$profile_table/${profileModel.key}'] = profileModel.toMap();
     FirebaseDatabase.instance.ref().update(updates);
@@ -1140,11 +1173,11 @@ return completer.future;*/
   }
 
   Future<int> updateTransactionData(
-      TransactionModel transactionModel, bool isSkippedUser) async {
+      TransactionModel transactionModel, String key,bool isSkippedUser) async {
     Database db = await database;
     if (!isSkippedUser) {
       final Map<String, Map> updates = {};
-      updates['/$transaction_table/${FirebaseAuth.instance.currentUser!.uid}/${transactionModel.key}'] =
+      updates['/$transaction_table/$key/${transactionModel.key}'] =
           transactionModel.toMap();
       FirebaseDatabase.instance.ref().update(updates);
     }

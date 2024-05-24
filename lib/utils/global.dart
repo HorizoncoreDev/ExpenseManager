@@ -22,6 +22,9 @@ abstract class AppConstanst {
   static const int mainCategory = 0;
   static const int subCategory = 1;
 
+ static const int viewOnlyAccess = 1;
+  static const int editAccess = 2;
+
   static const int pendingRequest = 1;
   static const int acceptedRequest = 2;
   static const int rejectedRequest = 3;
@@ -67,6 +70,7 @@ abstract class SharedPreferencesKeys {
   static const currencySymbol = "currencySymbol";
   static const currencyCode = "currencyCode";
   static const currentUserName = "currentUserName";
+  static const userAccessType = "userAccessType";
   static const isSkippedUser = "skippedUser";
   static const skippedUserCurrentBalance = "skippedUserCurrentBalance";
   static const skippedUserCurrentIncome = "skippedUserCurrentIncome";

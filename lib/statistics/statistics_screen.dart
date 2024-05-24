@@ -20,6 +20,7 @@ class ChartData {
   final DateTime x;
 
   int y;
+
   ChartData(this.x, this.y);
 }
 
@@ -104,12 +105,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   ];
 
   bool showAvg = false;
-
+  int userAccess = AppConstanst.viewOnlyAccess;
   int currPage = 1;
   String mDate = "";
 
   int totalAmount = 0;
   int totalIncomeAmount = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -221,6 +223,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         Expanded(
                           child: InkWell(
                             onTap: () {
+                              AppConstanst.selectedTabIndex = 0;
                               setState(() {
                                 currPage = 1;
                               });
@@ -260,6 +263,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         Expanded(
                           child: InkWell(
                             onTap: () {
+                              AppConstanst.selectedTabIndex = 1;
                               setState(() {
                                 currPage = 2;
                               });
@@ -606,6 +610,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   @override
   void initState() {
+    AppConstanst.selectedTabIndex = 0;
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
         .then((value) {
@@ -617,11 +622,25 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           if (value != null) {
             currentUserKey = value;
             MySharedPreferences.instance
-                .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+                .getStringValuesSF(SharedPreferencesKeys.userEmail)
                 .then((value) {
               if (value != null) {
-                currentUserEmail = value;
-                getTransactions();
+                userEmail = value;
+                MySharedPreferences.instance
+                    .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+                    .then((value) {
+                  if (value != null) {
+                    currentUserEmail = value;
+                    MySharedPreferences.instance
+                        .getIntValuesSF(SharedPreferencesKeys.userAccessType)
+                        .then((value) {
+                      if (value != null) {
+                        userAccess = value;
+                      }
+                    });
+                    getTransactions();
+                  }
+                });
               }
             });
           }
@@ -975,7 +994,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       },
                       child: Text(
                         LocaleKeys.done.tr,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
                             fontSize: 16),
@@ -1187,6 +1206,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _incomeView() {
+    bool currentEmail = userEmail.isNotEmpty
+        ? userEmail == currentUserEmail
+            ? true
+            : userAccess == AppConstanst.editAccess
+                ? true
+                : false
+        : true;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -1342,6 +1368,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
+                width: double.maxFinite,
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
@@ -1360,43 +1387,44 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         style: TextStyle(color: Helper.getTextColor(context)),
                       ),
                       20.heightBox,
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 35),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .push(
-                              MaterialPageRoute(
-                                  builder: (context) => AddSpendingScreen(
-                                        transactionName:
-                                            AppConstanst.incomeTransactionName,
-                                      )),
-                            )
-                                .then((value) {
-                              if (value != null) {
-                                if (value) {
-                                  getIncomeData();
+                      if (currentEmail)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 35),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.of(context, rootNavigator: true)
+                                  .push(
+                                MaterialPageRoute(
+                                    builder: (context) => AddSpendingScreen(
+                                          transactionName: AppConstanst
+                                              .incomeTransactionName,
+                                        )),
+                              )
+                                  .then((value) {
+                                if (value != null) {
+                                  if (value) {
+                                    getIncomeData();
+                                  }
                                 }
-                              }
-                            });
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 15),
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                            child: Text(
-                              LocaleKeys.addIncome.tr,
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 14),
+                              });
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 15),
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              child: Text(
+                                LocaleKeys.addIncome.tr,
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                              ),
                             ),
                           ),
                         ),
-                      ),
                       15.heightBox,
                     ],
                   )),
@@ -1422,6 +1450,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _spendingView() {
+    bool currentEmail = userEmail.isNotEmpty
+        ? userEmail == currentUserEmail
+            ? true
+            : userAccess == AppConstanst.editAccess
+                ? true
+                : false
+        : true;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -1579,6 +1614,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
+                width: double.maxFinite,
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
@@ -1597,43 +1633,44 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         style: TextStyle(color: Helper.getTextColor(context)),
                       ),
                       20.heightBox,
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 35),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .push(
-                              MaterialPageRoute(
-                                  builder: (context) => AddSpendingScreen(
-                                        transactionName: AppConstanst
-                                            .spendingTransactionName,
-                                      )),
-                            )
-                                .then((value) {
-                              if (value != null) {
-                                if (value) {
-                                  getTransactions();
+                      if (currentEmail)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 35),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.of(context, rootNavigator: true)
+                                  .push(
+                                MaterialPageRoute(
+                                    builder: (context) => AddSpendingScreen(
+                                          transactionName: AppConstanst
+                                              .spendingTransactionName,
+                                        )),
+                              )
+                                  .then((value) {
+                                if (value != null) {
+                                  if (value) {
+                                    getTransactions();
+                                  }
                                 }
-                              }
-                            });
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 15),
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                            child: Text(
-                              LocaleKeys.addSpending.tr,
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 14),
+                              });
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 15),
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              child: Text(
+                                LocaleKeys.addSpending.tr,
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                              ),
                             ),
                           ),
                         ),
-                      ),
                       15.heightBox,
                     ],
                   )),

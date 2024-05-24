@@ -117,6 +117,11 @@ Map<String, String> enUS = {
   'allowContactAccess': 'Please allow to access contacts!!',
 
   ///My account
+  'chooseAccess': 'Choose Access',
+  'edit': 'Edit',
+  'viewOnly': 'View Only',
+  'viewOnlyAccessMsg': 'You have View Only Access',
+  'editAccessMsg': 'You have Edit Access',
   'addAccount': 'Add Account',
   'currently': 'Currently',
   'members': 'members',

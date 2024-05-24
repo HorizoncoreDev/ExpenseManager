@@ -17,6 +17,8 @@ import 'package:http/http.dart' as http;
 
 import 'add_account_screen.dart';
 
+enum AccessType { edit, viewOnly }
+
 class FamilyAccountScreen extends StatefulWidget {
   const FamilyAccountScreen({super.key});
 
@@ -225,6 +227,10 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                       SharedPreferencesKeys.currentUserName,
                                       accessRequestList[index]!.receiver_name);
 
+                                  MySharedPreferences.instance.addIntToSF(
+                                      SharedPreferencesKeys.userAccessType,
+                                      accessRequestList[index]!.accessType);
+
                                   final reference = FirebaseDatabase.instance
                                       .reference()
                                       .child(profile_table)
@@ -319,6 +325,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                                     SharedPreferencesKeys
                                                         .currentUserName,
                                                     userName);
+
 
                                             MySharedPreferences.instance
                                                 .addStringToSF(
@@ -513,6 +520,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                 requester_name: value['requester_name'],
                 receiver_email: value['receiver_email'],
                 receiver_name: value['receiver_name'],
+                accessType: value['access_type'],
                 status: value['status'],
                 created_at: value['created_at']);
             requestList.add(requestModel);
@@ -544,6 +552,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                 requester_name: value['requester_name'],
                 receiver_email: value['receiver_email'],
                 receiver_name: value['receiver_name'],
+                accessType: value['access_type'],
                 status: value['status'],
                 created_at: value['created_at']);
             accessRequestList.add(requestModel);
@@ -658,14 +667,111 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
   }
 
   _acceptRequest(RequestModel requestModel) {
-    requestModel.status = AppConstanst.acceptedRequest;
+    AccessType? _selectedAccessType = AccessType.viewOnly;
 
-    final Map<String, Map> updates = {};
-    updates['/$request_table/${requestModel.key}'] = requestModel.toMap();
-    FirebaseDatabase.instance.ref().update(updates).then((value) {
-      sendNotification(requestModel, profileData!, false);
-      getRequestList();
-    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder:
+              (BuildContext context, void Function(void Function()) setState) {
+            return AlertDialog(
+              title: Text(LocaleKeys.chooseAccess.tr,
+                  style: TextStyle(
+                      color: Helper.getTextColor(context),
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold)),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      visualDensity: const VisualDensity(
+                          horizontal: VisualDensity.minimumDensity,
+                          vertical: VisualDensity.minimumDensity),
+                      title: Text(LocaleKeys.viewOnly.tr),
+                      leading: Radio<AccessType>(
+                        value: AccessType.viewOnly,
+                        groupValue: _selectedAccessType,
+                        onChanged: (AccessType? value) {
+                          setState(() {
+                            _selectedAccessType = value;
+                          });
+                        },
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _selectedAccessType = AccessType.viewOnly;
+                        });
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      visualDensity: const VisualDensity(
+                          horizontal: VisualDensity.minimumDensity,
+                          vertical: VisualDensity.minimumDensity),
+                      title: Text(LocaleKeys.edit.tr),
+                      leading: Radio<AccessType>(
+                        value: AccessType.edit,
+                        groupValue: _selectedAccessType,
+                        onChanged: (AccessType? value) {
+                          setState(() {
+                            _selectedAccessType = value;
+                          });
+                        },
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _selectedAccessType = AccessType.edit;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(LocaleKeys.close.tr),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        requestModel.status = AppConstanst.acceptedRequest;
+                        if (_selectedAccessType == AccessType.edit) {
+                          requestModel.accessType = AppConstanst.editAccess;
+                        } else {
+                          requestModel.accessType = AppConstanst.viewOnlyAccess;
+                        }
+                        final Map<String, Map> updates = {};
+                        updates['/$request_table/${requestModel.key}'] =
+                            requestModel.toMap();
+                        FirebaseDatabase.instance
+                            .ref()
+                            .update(updates)
+                            .then((value) {
+                          sendNotification(requestModel, profileData!, false);
+                          getRequestList();
+                        });
+
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(LocaleKeys.submit.tr),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   _rejectRequest(RequestModel requestModel) {

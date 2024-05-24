@@ -1,4 +1,3 @@
-import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
@@ -24,58 +23,64 @@ class _DashBoardState extends State<DashBoard> {
   GlobalKey<StatisticsScreenState> overviewKey1 =
       GlobalKey<StatisticsScreenState>();
   String userEmail = "", currentUserEmail = "";
-  int currentPage = 0;
+  int currentPage = 0, userAccess = AppConstanst.viewOnlyAccess;
   PageController? pageController;
 
   @override
   Widget build(BuildContext context) {
-    bool currentEmail =userEmail!.isNotEmpty
+    bool currentEmail = userEmail.isNotEmpty
         ? userEmail == currentUserEmail
-    ?true:false:true;
+            ? true
+            : userAccess == AppConstanst.editAccess
+                ? true
+                : false
+        : true;
     return SafeArea(
       child: Scaffold(
         key: scaffoldKey,
-        floatingActionButton: currentEmail?FloatingActionButton(
-          onPressed: () {
-            if (userEmail == currentUserEmail || userEmail!.isEmpty) {
-              Navigator.of(context, rootNavigator: true)
-                  .push(
-                MaterialPageRoute(
-                    builder: (context) => AddSpendingScreen(
-                          transactionName: AppConstanst.selectedTabIndex == 0
-                              ? AppConstanst.spendingTransactionName
-                              : AppConstanst.incomeTransactionName,
-                        )),
-              )
-                  .then((value) {
-                if (value != null) {
-                  if (value) {
-                    overviewKey.currentState?.getTransactions();
-                    overviewKey.currentState?.getIncomeTransactions();
-                    overviewKey1.currentState?.getTransactions();
-                    overviewKey1.currentState?.getIncomeData();
-                    //getTransactions();
-                  }
-                }
-              });
-            }
-          },
-          backgroundColor: Helper.getMiddleBottomNavBarItem(context),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-          child: Icon(
-                      Icons.add,
-                      color: Helper.getTextColor(context),
+        floatingActionButton: currentEmail
+            ? FloatingActionButton(
+                onPressed: () {
+                  if (currentEmail) {
+                    Navigator.of(context, rootNavigator: true)
+                        .push(
+                      MaterialPageRoute(
+                          builder: (context) => AddSpendingScreen(
+                                transactionName:
+                                    AppConstanst.selectedTabIndex == 0
+                                        ? AppConstanst.spendingTransactionName
+                                        : AppConstanst.incomeTransactionName,
+                              )),
                     )
-                  ,
-        ):SizedBox(),
+                        .then((value) {
+                      if (value != null) {
+                        if (value) {
+                          overviewKey.currentState?.getTransactions();
+                          overviewKey.currentState?.getIncomeTransactions();
+                          overviewKey1.currentState?.getTransactions();
+                          overviewKey1.currentState?.getIncomeData();
+                          //getTransactions();
+                        }
+                      }
+                    });
+                  }
+                },
+                backgroundColor: Helper.getMiddleBottomNavBarItem(context),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(100)),
+                child: Icon(
+                  Icons.add,
+                  color: Helper.getTextColor(context),
+                ),
+              )
+            : SizedBox(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomAppBar(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           height: 60,
           color: Helper.getBottomNavigationColor(context).backgroundColor!,
           shape: const CircularNotchedRectangle(),
-          notchMargin:currentEmail? 5:0,
+          notchMargin: currentEmail ? 5 : 0,
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
@@ -235,6 +240,14 @@ class _DashBoardState extends State<DashBoard> {
           if (value != null) {
             currentUserEmail = value;
             setState(() {});
+            MySharedPreferences.instance
+                .getIntValuesSF(SharedPreferencesKeys.userAccessType)
+                .then((value) {
+              if (value != null) {
+                userAccess = value;
+                setState(() {});
+              }
+            });
           }
         });
       }

@@ -37,6 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
   String showMonth = LocaleKeys.selectMonth.tr;
   DateTime _selectedYear = DateTime.now();
   int isIncome = 0;
+  int userAccess = AppConstanst.viewOnlyAccess;
 
   List<MonthData> monthList = [
     MonthData(text: 'January'),
@@ -421,7 +422,12 @@ class _SearchScreenState extends State<SearchScreen> {
                 .then((value) {
               if (value != null) {
                 userKey = value;
-              }
+              }MySharedPreferences.instance
+                .getIntValuesSF(SharedPreferencesKeys.userAccessType)
+                .then((value) {
+              if (value != null) {
+                userAccess = value;
+              }});
               getTransactions("");
             });
           });
@@ -785,7 +791,14 @@ class _SearchScreenState extends State<SearchScreen> {
                   itemBuilder: (context, index1) {
                     return InkWell(
                       onTap: () {
-                        if (userEmail == currentUserEmail) {
+                        bool currentEmail = userEmail.isNotEmpty
+                            ? userEmail == currentUserEmail
+                            ? true
+                            : userAccess == AppConstanst.editAccess
+                            ? true
+                            : false
+                            : true;
+                        if (currentEmail) {
                           Navigator.of(context, rootNavigator: true)
                               .push(
                             MaterialPageRoute(

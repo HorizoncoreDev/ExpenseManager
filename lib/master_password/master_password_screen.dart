@@ -95,7 +95,7 @@ class MasterPasswordDialog {
       );
 
       await DatabaseHelper()
-          .insertTransactionData(transactionModel, isSkippedUser)
+          .insertTransactionData(transactionModel,"", isSkippedUser)
           .then((value) async {
         if (value != null) {
           if (isSkippedUser) {

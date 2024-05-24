@@ -7,6 +7,7 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../db_models/request_model.dart';
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
 import '../statistics/search/search_screen.dart';
@@ -36,7 +38,9 @@ class OverviewScreenState extends State<OverviewScreen> {
   String currentUserEmail = "";
   String currentUserKey = "";
   String userEmail = "";
+  String? currentUserName;
   String? userName;
+  int userAccess = AppConstanst.viewOnlyAccess;
   int currentBalance = 0;
   int currentIncome = 0;
   int actualBudget = 0;
@@ -70,13 +74,14 @@ class OverviewScreenState extends State<OverviewScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "${userName ?? LocaleKeys.guest.tr}: ${AppConstanst.currencySymbol}${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
+                                    "${currentUserName ?? LocaleKeys.guest.tr}: ${AppConstanst.currencySymbol}${(AppConstanst.selectedTabIndex == 0 ? currentBalance : currentIncome).toString()}",
                                     style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -90,6 +95,58 @@ class OverviewScreenState extends State<OverviewScreen> {
                                 ],
                               ),
                             ),
+                            InkWell(
+                                onTap: () {
+                                  final accessReference = FirebaseDatabase
+                                      .instance
+                                      .reference()
+                                      .child(request_table)
+                                      .orderByChild('requester_email')
+                                      .equalTo(userEmail);
+                                  print('object....$userEmail');
+                                  List<RequestModel> accessRequestList = [];
+                                  accessReference.once().then((event) {
+
+                                    accessRequestList.clear();
+                                    DataSnapshot dataSnapshot = event.snapshot;
+                                    if (event.snapshot.exists) {
+                                      Map<dynamic, dynamic> values =
+                                          dataSnapshot.value
+                                              as Map<dynamic, dynamic>;
+                                      values.forEach((key, value) {
+                                        if (value['status'] ==
+                                            AppConstanst.acceptedRequest) {
+                                          RequestModel requestModel =
+                                              RequestModel(
+                                                  key: key,
+                                                  requester_email:
+                                                      value['requester_email'],
+                                                  requester_name:
+                                                      value['requester_name'],
+                                                  receiver_email:
+                                                      value['receiver_email'],
+                                                  receiver_name:
+                                                      value['receiver_name'],
+                                                  accessType:
+                                                      value['access_type'],
+                                                  status: value['status'],
+                                                  created_at:
+                                                      value['created_at']);
+                                          accessRequestList.add(requestModel);
+                                        }
+                                      });
+                                    }
+                                    showSwitchAccountDialog(accessRequestList);
+
+                                  });
+
+                                },
+                                child: const Icon(
+                                  Icons.switch_account,
+                                  color: Colors.white,
+                                  size: 28,
+                                )),
+                            10.widthBox,
                             InkWell(
                                 onTap: () {
                                   Navigator.of(context, rootNavigator: true)
@@ -134,7 +191,16 @@ class OverviewScreenState extends State<OverviewScreen> {
                                                       .currentUserName)
                                               .then((value) {
                                             if (value != null) {
-                                              userName = value;
+                                              currentUserName = value;
+                                              MySharedPreferences.instance
+                                                  .getIntValuesSF(
+                                                      SharedPreferencesKeys
+                                                          .userAccessType)
+                                                  .then((value) {
+                                                if (value != null) {
+                                                  userAccess = value;
+                                                }
+                                              });
                                               if (AppConstanst
                                                       .selectedTabIndex ==
                                                   0) {
@@ -164,6 +230,23 @@ class OverviewScreenState extends State<OverviewScreen> {
                           ],
                         ),
                       ),
+                      if (currentUserEmail != userEmail) 5.heightBox,
+                      if (currentUserEmail != userEmail)
+                        Container(
+                          width: double.infinity,
+                          color: Colors.amberAccent,
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Text(
+                            userAccess == AppConstanst.viewOnlyAccess
+                                ? LocaleKeys.viewOnlyAccessMsg.tr
+                                : LocaleKeys.editAccessMsg.tr,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16),
+                          ),
+                        ),
                       TabBar(
                         labelColor: Colors.white,
                         unselectedLabelColor: Colors.white60,
@@ -203,7 +286,7 @@ class OverviewScreenState extends State<OverviewScreen> {
     );
   }
 
-getIncomeTransactions() async {
+  getIncomeTransactions() async {
     if (isSkippedUser) {
       MySharedPreferences.instance
           .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentIncome)
@@ -294,84 +377,10 @@ getIncomeTransactions() async {
     });
   }
 
-  /*  void checkRequests() {
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(request_table)
-        .orderByChild('receiver_email')
-        .equalTo(profileModel.email);
 
-    reference.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-        dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) {
-          if (value['status'] == AppConstanst.pendingRequest) {
-            RequestModel requestModel = RequestModel(
-                key: key,
-                requester_email: value['requester_email'],
-                requester_name: value['requester_name'],
-                receiver_email: value['receiver_email'],
-                receiver_name: value['receiver_name'],
-                status: value['status'],
-                created_at: value['created_at']);
-            sendRequestNotification(requestModel, profileModel);
-          }
-        });
-      }
-    });
-  }
-
-  void sendRequestNotification(
-      RequestModel requesterModel, ProfileModel profileModel) async {
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(profile_table)
-        .orderByChild('email')
-        .equalTo(requesterModel.receiver_email);
-
-    reference.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-        dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) async {
-          await http.post(
-            Uri.parse('https://fcm.googleapis.com/fcm/send'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization':
-              'key=AAAANkNYKio:APA91bHGQs2MllIVYtH83Lunknc7v8dXwEPlaqNKpM5u6oHIx3kNYU2VFNuYpEyVzg3hqWjoR-WzWiWMmDN8RrO1QwzEqIrGST726TgPxkp87lqbEI515NzGt7HYdCbrljuH0uldBCW8'
-            },
-            body: jsonEncode({
-              'to': value['fcm_token'],
-              'priority': 'high',
-              'notification': {
-                'title': 'Hello ${requesterModel.receiver_name},',
-                'body':
-                'You have a new request from ${requesterModel.requester_name}',
-              },
-            }),
-          );
-        });
-      }
-    });
-  }*/
 
   getProfileData() async {
-    /* try {
-      if (currentUserEmail == userEmail) {
-        ProfileModel? fetchedProfileData =
-            await databaseHelper.getProfileData(currentUserEmail);
-        setState(() {
-          profileModel = fetchedProfileData!;
-          currentBalance = int.parse(profileModel.current_balance!);
-          currentIncome = int.parse(profileModel.current_income!);
-          actualBudget = int.parse(profileModel.actual_budget!);
-          //checkRequests();
-        });
-      } else {*/
+
     final reference = FirebaseDatabase.instance
         .reference()
         .child(profile_table)
@@ -504,6 +513,7 @@ getIncomeTransactions() async {
 
   @override
   void initState() {
+    AppConstanst.selectedTabIndex = 0;
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
         .then((value) async {
@@ -532,9 +542,24 @@ getIncomeTransactions() async {
                               SharedPreferencesKeys.currentUserName)
                           .then((value) {
                         if (value != null) {
+                          currentUserName = value;
+                      MySharedPreferences.instance
+                          .getStringValuesSF(
+                              SharedPreferencesKeys.userName)
+                          .then((value) {
+                        if (value != null) {
                           userName = value;
+                          MySharedPreferences.instance
+                              .getIntValuesSF(
+                                  SharedPreferencesKeys.userAccessType)
+                              .then((value) {
+                            if (value != null) {
+                              userAccess = value;
+                            }
+                          });
                           getTransactions();
                         }
+                      });}
                       });
                     }
                   });
@@ -633,6 +658,13 @@ getIncomeTransactions() async {
   }
 
   Widget _incomeView() {
+    bool currentEmail = userEmail.isNotEmpty
+        ? userEmail == currentUserEmail
+            ? true
+            : userAccess == AppConstanst.editAccess
+                ? true
+                : false
+        : true;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: SingleChildScrollView(
@@ -800,7 +832,7 @@ getIncomeTransactions() async {
                                     dateWiseIncomeTransaction[index]
                                         .transactions![index1];
                                 return AbsorbPointer(
-                                  absorbing: userEmail != currentUserEmail,
+                                  absorbing: !currentEmail,
                                   child: Dismissible(
                                     key: Key(transaction.key!),
                                     direction: DismissDirection.endToStart,
@@ -1006,7 +1038,7 @@ getIncomeTransactions() async {
                         style: TextStyle(color: Helper.getTextColor(context)),
                       ),
                       20.heightBox,
-                      if (userEmail == currentUserEmail)
+                      if (currentEmail)
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 35),
                           child: InkWell(
@@ -1054,6 +1086,13 @@ getIncomeTransactions() async {
   }
 
   Widget _spendingView() {
+    bool currentEmail = userEmail.isNotEmpty
+        ? userEmail == currentUserEmail
+            ? true
+            : userAccess == AppConstanst.editAccess
+                ? true
+                : false
+        : true;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: SingleChildScrollView(
@@ -1248,7 +1287,7 @@ getIncomeTransactions() async {
                                   dateWiseSpendingTransaction[index]
                                       .transactions![index1];
                               return AbsorbPointer(
-                                absorbing: userEmail != currentUserEmail,
+                                absorbing: !currentEmail,
                                 child: Dismissible(
                                   key: Key(transaction.key!),
                                   // Unique key for each item
@@ -1316,7 +1355,7 @@ getIncomeTransactions() async {
                                   },
                                   child: InkWell(
                                     onTap: () {
-                                      if (userEmail == currentUserEmail) {
+                                      if (currentEmail) {
                                         Navigator.of(context,
                                                 rootNavigator: true)
                                             .push(
@@ -1452,7 +1491,7 @@ getIncomeTransactions() async {
                         style: TextStyle(color: Helper.getTextColor(context)),
                       ),
                       20.heightBox,
-                      if (userEmail == currentUserEmail)
+                      if (currentEmail)
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 35),
                           child: InkWell(
@@ -1497,5 +1536,258 @@ getIncomeTransactions() async {
         ),
       ),
     );
+  }
+
+  showSwitchAccountDialog(List<RequestModel> accessRequestList){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder:
+              (BuildContext context, void Function(void Function()) setState) {
+            return AlertDialog(
+              title: Text(LocaleKeys.switchAccount.tr,
+                  style: TextStyle(
+                      color: Helper.getTextColor(context),
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold)),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    10.heightBox,
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop(true);
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.currentUserEmail,
+                            userEmail);
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.currentUserName,
+                            userName);
+
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.currentUserKey,
+                            FirebaseAuth.instance.currentUser!.uid);
+                      },
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 5),
+                            decoration: BoxDecoration(
+                                color: Helper.getBackgroundColor(context),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(10))),
+                            child: Text(
+                              Helper.getShortName(userName!.split(" ").first,
+                                  userName!.split(" ").length>1? userName!.split(" ").last:''),
+                              style: const TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          20.widthBox,
+                          Text(
+                           userName!,
+                            style: TextStyle(
+                                color: Helper.getTextColor(context),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          if (currentUserEmail == userEmail)
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: SvgPicture.asset(
+                                  'asset/images/ic_accept.svg',
+                                  color: Colors.green,
+                                  height: 24,
+                                  width: 24,
+                                ),
+                              ),
+                            )
+                        ],
+                      ),
+                    ),
+                    if (accessRequestList.isNotEmpty)
+                      const Divider(
+                        thickness: 1,
+                        height: 1,
+                        color: Colors.black12,
+                      ),
+                    if (accessRequestList.isNotEmpty)
+                      Flexible(
+                        child: ListView.separated(
+                          shrinkWrap: true,
+// physics: const ScrollPhysics(),
+                          itemCount: accessRequestList.length,
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {
+                                Navigator.of(context).pop(true);
+                                MySharedPreferences.instance.addStringToSF(
+                                    SharedPreferencesKeys.currentUserEmail,
+                                    accessRequestList[index].receiver_email);
+                                MySharedPreferences.instance.addStringToSF(
+                                    SharedPreferencesKeys.currentUserName,
+                                    accessRequestList[index].receiver_name);
+
+                                MySharedPreferences.instance.addIntToSF(
+                                    SharedPreferencesKeys.userAccessType,
+                                    accessRequestList[index].accessType);
+
+                                final reference = FirebaseDatabase.instance
+                                    .ref()
+                                    .child(profile_table)
+                                    .orderByChild(ProfileTableFields.email)
+                                    .equalTo(accessRequestList[index]
+                                    .receiver_email);
+
+                                reference.onValue.listen((event) {
+                                  DataSnapshot dataSnapshot = event.snapshot;
+                                  if (event.snapshot.exists) {
+                                    Map<dynamic, dynamic> values = dataSnapshot
+                                        .value as Map<dynamic, dynamic>;
+                                    values.forEach((key, value) async {
+                                      MySharedPreferences.instance
+                                          .addStringToSF(
+                                          SharedPreferencesKeys
+                                              .currentUserKey,
+                                          value[ProfileTableFields.key]);
+                                    });
+                                  }
+                                });
+                              },
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 7, horizontal: 7),
+                                    decoration: BoxDecoration(
+                                        color:
+                                        Helper.getBackgroundColor(context),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(10))),
+                                    child: Text(
+                                      Helper.getShortName(
+                                          accessRequestList[index]
+                                              .receiver_name!
+                                              .split(' ')[0],
+                                          accessRequestList[index]
+                                              .receiver_name!
+                                              .split(' ')[1]),
+                                      style: const TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  20.widthBox,
+                                  Expanded(
+                                    child: Text(
+                                      accessRequestList[index].receiver_name!,
+                                      style: TextStyle(
+                                          color: Helper.getTextColor(context),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  if (currentUserEmail ==
+                                      accessRequestList[index].receiver_email)
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: SvgPicture.asset(
+                                          'asset/images/ic_accept.svg',
+                                          color: Colors.green,
+                                          height: 24,
+                                          width: 24,
+                                        ),
+                                      ),
+                                    )
+                                ],
+                              ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return const Divider(
+                              thickness: 1,
+                              height: 1,
+                              color: Colors.black12,
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text(LocaleKeys.close.tr),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ).then((value){
+      if(value){
+        widget.onAccountUpdate();
+        MySharedPreferences.instance
+            .getStringValuesSF(
+            SharedPreferencesKeys.currentUserKey)
+            .then((value) {
+          if (value != null) {
+            currentUserKey = value;
+            MySharedPreferences.instance
+                .getStringValuesSF(
+                SharedPreferencesKeys
+                    .currentUserEmail)
+                .then((value) {
+              if (value != null) {
+                currentUserEmail = value;
+                MySharedPreferences.instance
+                    .getStringValuesSF(
+                    SharedPreferencesKeys
+                        .currentUserName)
+                    .then((value) {
+                  if (value != null) {
+                    currentUserName = value;
+                    MySharedPreferences.instance
+                        .getIntValuesSF(
+                        SharedPreferencesKeys
+                            .userAccessType)
+                        .then((value) {
+                      if (value != null) {
+                        userAccess = value;
+                      }
+                    });
+                    if (AppConstanst
+                        .selectedTabIndex ==
+                        0) {
+                      getTransactions();
+                    } else {
+                      getIncomeTransactions();
+                    }
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+
+    });
   }
 }

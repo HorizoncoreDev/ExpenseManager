@@ -119,8 +119,13 @@ Map<String, String> guGJ = {
   'allowContactAccess': 'કૃપા કરીને સંપર્કને ઍક્સેસ આપો!!',
 
   ///My account
+ 'chooseAccess': 'પ્રવેશ પસંદ કરો',
+   'edit': 'સંપાદન કરો',
+   'viewOnly': 'માત્ર જુઓ',
   'addAccount': 'એકાઉન્ટ ઉમેરો',
   'currently': 'હાલમાં',
+'viewOnlyAccessMsg': 'તમારી પાસે માત્ર જોવા માટેની ઍક્સેસ છે',
+'editAccessMsg': 'તમારી પાસે સંપાદન માટેની ઍક્સેસ છે',
   'members': 'સભ્યો',
   'currentlyMember': 'હાલમાં 1 સભ્ય',
   'code': 'કોડ',

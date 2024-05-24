@@ -36,6 +36,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   final databaseHelper = DatabaseHelper();
   List<DateWiseTransactionModel> dateWiseTransaction = [];
   List<DateWiseTransactionModel> originalDateWiseTransaction = [];
+  int userAccess = AppConstanst.viewOnlyAccess;
   int currentBalance = 0;
   int currentIncome = 0;
   int actualBudget = 0;
@@ -322,7 +323,14 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                 itemBuilder: (context, index1) {
                                   return InkWell(
                                     onTap: () {
-                                      if (userEmail == currentUserEmail) {
+                                      bool currentEmail = userEmail.isNotEmpty
+                                          ? userEmail == currentUserEmail
+                                          ? true
+                                          : userAccess == AppConstanst.editAccess
+                                          ? true
+                                          : false
+                                          : true;
+                                      if (currentEmail) {
                                         Navigator.of(context,
                                                 rootNavigator: true)
                                             .push(
@@ -777,7 +785,12 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 .then((value) {
               if (value != null) {
                 userKey = value;
-              }
+              } MySharedPreferences.instance
+                .getIntValuesSF(SharedPreferencesKeys.userAccessType)
+                .then((value) {
+              if (value != null) {
+                userAccess = value;
+              }});
               getIncomeTransactions("");
             });
           });

@@ -7,6 +7,7 @@ class RequestModel {
   String? receiver_email;
   String? receiver_name;
   int? status;
+  int? accessType;
   String? created_at;
   String? key;
 
@@ -17,6 +18,7 @@ class RequestModel {
     this.requester_name,
     this.receiver_email,
     this.receiver_name,
+    this.accessType,
     this.status,
     this.created_at,
   });
@@ -29,6 +31,7 @@ class RequestModel {
       requester_name: map['requester_name'],
       receiver_email: map['receiver_email'],
       receiver_name: map['receiver_name'],
+      accessType: map['access_type'],
       status: map['status'],
       created_at: map['created_at'],
     );
@@ -42,6 +45,7 @@ class RequestModel {
       'requester_name': requester_name,
       'receiver_email': receiver_email,
       'receiver_name': receiver_name,
+      'access_type': accessType,
       'status': status,
       'created_at': created_at,
     };
