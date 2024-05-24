@@ -1078,13 +1078,13 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
             if (selectedValue == AppConstanst.spendingTransactionName) {
               MySharedPreferences.instance
                   .getStringValuesSF(
-                      SharedPreferencesKeys.skippedUserCurrentBalance)
+                  SharedPreferencesKeys.skippedUserCurrentBalance)
                   .then((value) {
                 if (value != null) {
-
                   String updateBalance =
-                      (int.parse(value) - int.parse(amountController.text))
-                          .toString();
+                  ((int.parse(value) + widget.transactionModel.amount!) -
+                      int.parse(amountController.text))
+                      .toString();
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.skippedUserCurrentBalance,
                       updateBalance);
@@ -1093,12 +1093,13 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
             } else {
               MySharedPreferences.instance
                   .getStringValuesSF(
-                      SharedPreferencesKeys.skippedUserCurrentIncome)
+                  SharedPreferencesKeys.skippedUserCurrentIncome)
                   .then((value) {
                 if (value != null) {
                   String updateBalance =
-                      (int.parse(value) + int.parse(amountController.text))
-                          .toString();
+                  ((int.parse(value) - widget.transactionModel.amount!) +
+                      int.parse(amountController.text))
+                      .toString();
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.skippedUserCurrentIncome,
                       updateBalance);

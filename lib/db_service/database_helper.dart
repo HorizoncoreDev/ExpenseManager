@@ -1059,6 +1059,13 @@ return completer.future;*/
         transactionModel.toMap(),
       );
     }
+    else{
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(transaction_table);
+      var newPostRef = reference.push();
+      transactionModel.key = newPostRef.key;
+    }
     return await db.insert(transaction_table, transactionModel.toMap());
   }
 
@@ -1073,12 +1080,18 @@ return completer.future;*/
         final reference = FirebaseDatabase.instance
             .reference()
             .child(transaction_table)
-            .child(FirebaseAuth.instance.currentUser!.uid);
+            .child(key);
         var newPostRef = reference.push();
         transaction.key = newPostRef.key;
         await newPostRef.set(
           transaction.toMap(),
         );
+      }
+      else {
+        final reference =
+        FirebaseDatabase.instance.reference().child(transaction_table);
+        var newPostRef = reference.push();
+        transaction.key = newPostRef.key;
       }
       batch.insert(transaction_table, transaction.toMap());
     }
@@ -1326,7 +1339,8 @@ return completer.future;*/
           'description',
           'receipt_image1',
           'receipt_image2',
-          'receipt_image3'
+          'receipt_image3',
+          'transaction_key'
         ]
       ];
 
@@ -1343,7 +1357,8 @@ return completer.future;*/
           task.description ?? "",
           task.receipt_image1 ?? "",
           task.receipt_image2 ?? "",
-          task.receipt_image2 ?? ""
+          task.receipt_image2 ?? "",
+          task.key ?? ""
         ]);
       }
       csv = const ListToCsvConverter().convert(rows);
@@ -1370,7 +1385,8 @@ return completer.future;*/
           'description',
           'receipt_image1',
           'receipt_image2',
-          'receipt_image3'
+          'receipt_image3',
+          'transaction_key'
         ]
       ];
 
@@ -1387,7 +1403,8 @@ return completer.future;*/
           task.description ?? "",
           task.receipt_image1 ?? "",
           task.receipt_image2 ?? "",
-          task.receipt_image2 ?? ""
+          task.receipt_image2 ?? "",
+          task.key ?? ""
         ]);
       }
       String csvContent = const ListToCsvConverter().convert(rows);
@@ -1488,6 +1505,31 @@ return completer.future;*/
       });
       completer.complete(transactions);
     });
+    return completer.future;
+  }
+  static Future<List<TransactionModel>> getTransactionsForEmail(String email) async {
+    Completer<List<TransactionModel>> completer = Completer<List<TransactionModel>>();
+    List<TransactionModel> transactions = [];
+    final reference = FirebaseDatabase.instance
+        .ref()
+        .child(transaction_table)
+        .orderByChild(TransactionFields.member_email)
+        .equalTo(email);
+
+    reference.once().then((event) {
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic>? values = event.snapshot.value as Map<dynamic, dynamic>?;
+        if (values != null) {
+          values.forEach((key, value) {
+            transactions.add(TransactionModel.fromMap(value));
+          });
+        }
+      }
+      completer.complete(transactions);
+    }).catchError((error) {
+      completer.completeError(error);
+    });
+
     return completer.future;
   }
 }

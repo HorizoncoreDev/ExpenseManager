@@ -187,6 +187,7 @@ class TransactionModel {
       receipt_image1: map['receipt_image1'],
       receipt_image2: map['receipt_image2'],
       receipt_image3: map['receipt_image3'],
+      key: map['key'],
     );
   }
 

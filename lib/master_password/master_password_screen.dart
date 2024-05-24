@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:expense_manager/db_models/multiple_email_model.dart';
+import 'package:expense_manager/db_models/receiver_email_data.dart';
 import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
@@ -34,7 +35,6 @@ class MasterPasswordDialog {
   List<List<dynamic>> data = [];
   int catType = 1;
   bool isSkippedUser = false;
-  String email = "";
   final _driveService = DriveService();
   String? fileId;
   String fileName = "";
@@ -53,17 +53,6 @@ class MasterPasswordDialog {
         .then((value) async {
       if (value != null) {
         userEmail = value;
-        /*MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-            .then((value) async {
-          if (value != null) {
-            currentUserEmail = value;
-            if (currentUserEmail != userEmail) {
-              await DatabaseHelper.getFirebaseTasks(
-                  userEmail, currentUserEmail);
-            }
-          }
-        });*/
       }
     });
 
@@ -72,14 +61,6 @@ class MasterPasswordDialog {
         .then((value) {
       if (value != null) {
         isSkippedUser = value;
-      }
-    });
-
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
-        .then((value) {
-      if (value != null) {
-        email = value;
       }
     });
 
@@ -212,8 +193,9 @@ class MasterPasswordDialog {
                                   setState(() {
                                     data = listData;
                                   });
-                                  print("Data is $data");
+                                  print("Data is ${data}");
                                   Navigator.pop(context);
+
                                   addDataIntoTransactionTable(context);
                                 } else {
                                   print("File selection canceled");
@@ -367,6 +349,8 @@ class MasterPasswordDialog {
     int currentBalance=0;
     int currentIncome=0;
     String importEmail = "";
+    List<ReceiverEmailData> checkRecEmailList = await DatabaseHelper.getAccessEmails(userEmail);
+    Set<String?> receiverEmails = checkRecEmailList.map((e) => e.receiverEmail).toSet();
     for (int i = 1; i < data.length; i++) {
       /// Start from index 1 to skip the header row
       String categoryName = data[i][2].toString();
@@ -374,47 +358,76 @@ class MasterPasswordDialog {
       int transactionType = data[i][6];
       int amount = data[i][1];
       importEmail = data[i][0].toString();
+      String transactionKey = data[i][11];
 
-      if (transactionType == AppConstanst.spendingTransaction) {
-        currentBalance= currentBalance+amount;
-      }else{
-        currentIncome = currentIncome+amount;
+      if (!receiverEmails.contains(importEmail) && importEmail != userEmail) {
+        Helper.showToast("You do not have access of this account!");
+        continue;
       }
-      int? catIds = await DatabaseHelper().getCategoryID(categoryName, categoryType, transactionType);
-      String? catIcon = await DatabaseHelper().getCategoryIcon(catIds, /*categoryName*/ categoryType, transactionType);
+      else {
+        List<TransactionModel> existingTransactions = await DatabaseHelper
+            .getTransactionsForEmail(importEmail);
 
-      TransactionModel transactionModel = TransactionModel(
-        key: "",
-        member_email: importEmail,
-        amount: amount,
-        expense_cat_id: categoryType == 0 && transactionType == 1 ? catIds : -1,
-        sub_expense_cat_id: categoryType == 1 && transactionType == 1 ? catIds : -1,
-        income_cat_id: categoryType == 0 && transactionType == 2 ? catIds : -1,
-        sub_income_cat_id: categoryType == 1 && transactionType == 2 ? catIds : -1,
-        cat_name: categoryName,
-        cat_type: categoryType,
-        cat_color: Colors.blueAccent,
-        cat_icon: catIcon ?? "ic_card",
-        payment_method_id: data[i][4] == "Cash" ? 1
-            : data[i][4] == "Online" ? 2
-            : data[i][4] == "Card" ? 3
-            : 1,
-        payment_method_name: data[i][4],
-        status: 1,
-        transaction_date: data[i][5].toString(),
-        transaction_type: transactionType,
-        description: data[i][7].toString(),
-        currency_id: AppConstanst.rupeesCurrency,
-        receipt_image1: data[i][8].toString() ?? "",
-        receipt_image2: data[i][9].toString() ?? "",
-        receipt_image3: data[i][10].toString() ?? "",
-        created_at: DateTime.now().toString(),
-        last_updated: DateTime.now().toString(),
-      );
-      importTransactionListData.add(transactionModel);
+        // Check if the transaction already exists
+        bool transactionExists = existingTransactions.any((
+            transaction) => transaction.key == transactionKey);
+        if (transactionExists) {
+          print("Duplicate transaction found, skipping: $transactionKey");
+          continue;
+        }
+        else {
+          if (transactionType == AppConstanst.spendingTransaction) {
+            currentBalance = currentBalance + amount;
+          } else {
+            currentIncome = currentIncome + amount;
+          }
+          int? catIds = await DatabaseHelper().getCategoryID(
+              categoryName, categoryType, transactionType);
+          String? catIcon = await DatabaseHelper().getCategoryIcon(
+              catIds, /*categoryName*/ categoryType, transactionType);
 
-      print("Data is inserted");
-      print("list is this ${importTransactionListData.length}");
+          TransactionModel transactionModel = TransactionModel(
+            key: transactionKey,
+            member_email: importEmail,
+            amount: amount,
+            expense_cat_id: categoryType == 0 && transactionType == 1
+                ? catIds
+                : -1,
+            sub_expense_cat_id: categoryType == 1 && transactionType == 1
+                ? catIds
+                : -1,
+            income_cat_id: categoryType == 0 && transactionType == 2
+                ? catIds
+                : -1,
+            sub_income_cat_id: categoryType == 1 && transactionType == 2
+                ? catIds
+                : -1,
+            cat_name: categoryName,
+            cat_type: categoryType,
+            cat_color: Colors.blueAccent,
+            cat_icon: catIcon ?? "ic_card",
+            payment_method_id: data[i][4] == "Cash" ? 1
+                : data[i][4] == "Online" ? 2
+                : data[i][4] == "Card" ? 3
+                : 1,
+            payment_method_name: data[i][4],
+            status: 1,
+            transaction_date: data[i][5].toString(),
+            transaction_type: transactionType,
+            description: data[i][7].toString(),
+            currency_id: AppConstanst.rupeesCurrency,
+            receipt_image1: data[i][8].toString() ?? "",
+            receipt_image2: data[i][9].toString() ?? "",
+            receipt_image3: data[i][10].toString() ?? "",
+            created_at: DateTime.now().toString(),
+            last_updated: DateTime.now().toString(),
+          );
+          importTransactionListData.add(transactionModel);
+
+          print("Data is inserted");
+          print("list is this ${importTransactionListData.length}");
+        }
+      }
     }
     final reference = FirebaseDatabase.instance
         .reference()
