@@ -386,24 +386,25 @@ class OverviewScreenState extends State<OverviewScreen> {
         .child(profile_table)
         .orderByChild(ProfileTableFields.email)
         .equalTo(currentUserEmail);
+try{
 
-    reference.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) async {
-          profileModel = ProfileModel.fromMap(value);
-          currentBalance = int.parse(profileModel.current_balance!);
-          currentIncome = int.parse(profileModel.current_income!);
-          actualBudget = int.parse(profileModel.actual_budget!);
-        });
-      }
-    });
-    /* }
+      reference.onValue.listen((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+              dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            profileModel = ProfileModel.fromMap(value);
+            currentBalance = int.parse(profileModel.current_balance!);
+            currentIncome = int.parse(profileModel.current_income!);
+            actualBudget = int.parse(profileModel.actual_budget!);
+          });
+        }
+      });
+      // }
     } catch (error) {
       print('Error fetching Profile Data: $error');
-    }*/
+    }
   }
 
   getTransactions() async {
@@ -850,6 +851,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                         context: context,
                                         builder: (BuildContext context) {
                                           return AlertDialog(
+                                            backgroundColor:
+                                                Helper.getCardColor(context),
                                             title: Text(LocaleKeys.confirm.tr),
                                             content: Text(LocaleKeys
                                                 .deleteTransaction.tr),
@@ -1307,6 +1310,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       context: context,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
+                                          backgroundColor:
+                                              Helper.getCardColor(context),
                                           title: Text(LocaleKeys.confirm.tr),
                                           content: Text(
                                               LocaleKeys.deleteTransaction.tr),

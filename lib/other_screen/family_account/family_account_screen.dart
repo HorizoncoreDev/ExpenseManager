@@ -485,7 +485,6 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
           await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-
         getRequestList();
       });
     } catch (error) {

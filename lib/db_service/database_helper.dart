@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:expense_manager/db_models/currency_category_model.dart';
 import 'package:expense_manager/db_models/language_category_model.dart';
+import 'package:expense_manager/db_models/multiple_email_model.dart';
+import 'package:expense_manager/db_models/receiver_email_data.dart';
+import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/statistics/statistics_screen.dart';
 import 'package:expense_manager/utils/global.dart';
@@ -274,11 +277,9 @@ class DatabaseHelper {
           .child(key)
           .orderByChild(TransactionFields.member_email)
           .equalTo(email);
-
       reference.once().then((value) {
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
-          print('object....called');
           Map<dynamic, dynamic> values =
               dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
@@ -294,6 +295,7 @@ class DatabaseHelper {
         }
         completer.complete(transactions);
       }).catchError((error) {
+
         completer.completeError(error);
       });
 
@@ -1051,7 +1053,9 @@ return completer.future;*/
       newPostRef.set(
         transactionModel.toMap(),
       );
-    }else{
+
+    }
+    else{
       final reference = FirebaseDatabase.instance
           .reference()
           .child(transaction_table);
@@ -1062,22 +1066,25 @@ return completer.future;*/
   }
 
   Future<void> insertMultipleTransactions(
-      List<TransactionModel> transactions, bool isSkippedUser) async {
+
+      List<TransactionModel> transactions,String key, bool isSkippedUser) async {
     Database db = await database;
     Batch batch = db.batch();
 
     for (var transaction in transactions) {
+      transaction.key = key;
       if (!isSkippedUser) {
         final reference = FirebaseDatabase.instance
             .reference()
             .child(transaction_table)
-            .child(FirebaseAuth.instance.currentUser!.uid);
+            .child(key);
         var newPostRef = reference.push();
         transaction.key = newPostRef.key;
         await newPostRef.set(
           transaction.toMap(),
         );
-      }else {
+      }
+      else {
         final reference =
         FirebaseDatabase.instance.reference().child(transaction_table);
         var newPostRef = reference.push();
@@ -1308,19 +1315,15 @@ return completer.future;*/
    ''');
   }
 
-  static Future<String> exportAllToCSV() async {
+  static Future<String> exportAllToCSV(String userEmail) async {
     String csv = "";
-    final tasks = await getTasks();
 
-    final firebaseTask = await getFirebaseTasks("", "");
+    final firebaseTask = await getFirebaseTasks(userEmail);
     Map<String, List<TransactionModel>> accountData = {};
-    for (var task in tasks) {
-      accountData.putIfAbsent(task.member_email!, () => []).add(task);
-    }
-
     for (var task in firebaseTask) {
       accountData.putIfAbsent(task.member_email!, () => []).add(task);
     }
+
     for (var entry in accountData.entries) {
       List<List<dynamic>> rows = [
         [
@@ -1334,7 +1337,8 @@ return completer.future;*/
           'description',
           'receipt_image1',
           'receipt_image2',
-          'receipt_image3'
+          'receipt_image3',
+          'transaction_key'
         ]
       ];
 
@@ -1351,7 +1355,8 @@ return completer.future;*/
           task.description ?? "",
           task.receipt_image1 ?? "",
           task.receipt_image2 ?? "",
-          task.receipt_image2 ?? ""
+          task.receipt_image2 ?? "",
+          task.key ?? ""
         ]);
       }
       csv = const ListToCsvConverter().convert(rows);
@@ -1359,52 +1364,171 @@ return completer.future;*/
     return csv;
   }
 
-  static Future<List<TransactionModel>> getFirebaseTasks(
-      String userEmail, String currentUserEmail) async {
+  static Future<MultipleEmailModel> exportAccessEmailDataToCSV(String userEmail) async {
+    MultipleEmailModel multipleEmailModel = MultipleEmailModel();
+    List<String> receiversName = [];
+    List<ReceiverEmailData> receiverEmailList = await getAccessEmails(userEmail);
+    for (var entry in receiverEmailList) {
+      String recName = entry.receiverName.toString();
+      receiversName.add(recName);
+      List<List<dynamic>> rows = [
+        [
+          'member_email',
+          'amount',
+          'cat_name',
+          'cat_type',
+          'payment_method_name',
+          'transaction_date',
+          'transaction_type',
+          'description',
+          'receipt_image1',
+          'receipt_image2',
+          'receipt_image3',
+          'transaction_key'
+        ]
+      ];
+
+      /// Add transaction data
+      for (var task in entry.transactionModel! ) {
+        rows.add([
+          task.member_email,
+          task.amount,
+          task.cat_name,
+          task.cat_type,
+          task.payment_method_name,
+          task.transaction_date,
+          task.transaction_type,
+          task.description ?? "",
+          task.receipt_image1 ?? "",
+          task.receipt_image2 ?? "",
+          task.receipt_image2 ?? "",
+          task.key ?? ""
+        ]);
+      }
+      String csvContent = const ListToCsvConverter().convert(rows);
+      multipleEmailModel.csv[recName] = csvContent;
+    }
+    multipleEmailModel.receiversName = receiversName;
+    return multipleEmailModel;
+  }
+
+
+  static Future<List<ReceiverEmailData>> getAccessEmails(String userEmail) async {
+    Completer<List<ReceiverEmailData>> completer = Completer<List<ReceiverEmailData>>();
+    List<ReceiverEmailData> receiverEmailList = [];
+    final accessReference = FirebaseDatabase.instance
+        .reference()
+        .child(request_table)
+        .orderByChild('requester_email')
+        .equalTo(userEmail);
+
+    accessReference.once().then((event) async {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+
+        List<Future<void>> futures = [];
+
+        values.forEach((key, value) {
+          var future = FirebaseDatabase.instance
+              .reference()
+              .child(profile_table)
+              .orderByChild(ProfileTableFields.email)
+              .equalTo(value['receiver_email'])
+              .once()
+              .then((event) async {
+            DataSnapshot dataSnapshot = event.snapshot;
+            if (event.snapshot.exists) {
+              Map<dynamic, dynamic> profileValues = dataSnapshot.value as Map<dynamic, dynamic>;
+
+              List<Future<void>> innerFutures = [];
+              profileValues.forEach((profileKey, profileValue) {
+                innerFutures.add(FirebaseDatabase.instance
+                    .reference()
+                    .child(transaction_table)
+                    .child(profileKey)
+                    .orderByChild(TransactionFields.member_email)
+                    .equalTo(value['receiver_email'])
+                    .once()
+                    .then((transactionEvent) {
+                  List<TransactionModel> transactionsEmail = [];
+                  DataSnapshot transactionSnapshot = transactionEvent.snapshot;
+                  if (transactionSnapshot.value != null) {
+                    Map<dynamic, dynamic> taskValues = transactionSnapshot.value as Map<dynamic, dynamic>;
+                    taskValues.forEach((taskKey, taskValue) {
+                      transactionsEmail.add(TransactionModel.fromMapForCSV(taskValue));
+                    });
+                  }
+
+                  receiverEmailList.add(ReceiverEmailData(
+                    receiverEmail: value['receiver_email'],
+                    transactionModel: transactionsEmail,
+                    receiverName: value['receiver_name'],
+                  ));
+                }));
+              });
+
+              await Future.wait(innerFutures);
+            }
+          });
+
+          futures.add(future);
+        });
+
+        await Future.wait(futures);
+        completer.complete(receiverEmailList);
+      } else {
+        completer.complete(receiverEmailList);
+      }
+    });
+
+    return completer.future;
+  }
+
+
+  static Future<List<TransactionModel>> getFirebaseTasks(String userEmail) async {
+    Completer<List<TransactionModel>> completer =Completer<List<TransactionModel>>();
     List<TransactionModel> transactions = [];
     final reference = FirebaseDatabase.instance
         .reference()
-        .child(profile_table)
-        .orderByChild(ProfileTableFields.email)
-        .equalTo(currentUserEmail);
-    reference.onValue.listen((event) {
+        .child(transaction_table)
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .orderByChild(TransactionFields.member_email)
+        .equalTo(userEmail);
+    reference.once().then((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       final tasks = dataSnapshot.value as Map<dynamic, dynamic>;
-      List.generate(tasks.length, (i) {
-        return TransactionModel(
-            member_email: tasks[i]['member_email'],
-            amount: tasks[i]['amount'],
-            cat_name: tasks[i]['cat_name'],
-            cat_type: tasks[i]['cat_type'],
-            payment_method_name: tasks[i]['payment_method_name'],
-            transaction_date: tasks[i]['transaction_date'],
-            transaction_type: tasks[i]['transaction_type'],
-            description: tasks[i]['description'],
-            receipt_image1: tasks[i]['receipt_image1'],
-            receipt_image2: tasks[i]['receipt_image2'],
-            receipt_image3: tasks[i]['receipt_image3']);
+      tasks.forEach((key, value) async {
+        transactions.add(TransactionModel.fromMapForCSV(value));
       });
+      completer.complete(transactions);
     });
-    return transactions;
+    return completer.future;
   }
+  static Future<List<TransactionModel>> getTransactionsForEmail(String email) async {
+    Completer<List<TransactionModel>> completer = Completer<List<TransactionModel>>();
+    List<TransactionModel> transactions = [];
+    final reference = FirebaseDatabase.instance
+        .ref()
+        .child(transaction_table)
+        .orderByChild(TransactionFields.member_email)
+        .equalTo(email);
 
-  static Future<List<TransactionModel>> getTasks() async {
-    final List<Map<String, dynamic>> tasks =
-        await _database!.query(transaction_table);
-    return List.generate(tasks.length, (i) {
-      return TransactionModel(
-          member_email: tasks[i]['member_email'],
-          amount: tasks[i]['amount'],
-          cat_name: tasks[i]['cat_name'],
-          cat_type: tasks[i]['cat_type'],
-          payment_method_name: tasks[i]['payment_method_name'],
-          transaction_date: tasks[i]['transaction_date'],
-          transaction_type: tasks[i]['transaction_type'],
-          description: tasks[i]['description'],
-          receipt_image1: tasks[i]['receipt_image1'],
-          receipt_image2: tasks[i]['receipt_image2'],
-          receipt_image3: tasks[i]['receipt_image3']);
+    reference.once().then((event) {
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic>? values = event.snapshot.value as Map<dynamic, dynamic>?;
+        if (values != null) {
+          values.forEach((key, value) {
+            transactions.add(TransactionModel.fromMap(value));
+          });
+        }
+      }
+      completer.complete(transactions);
+    }).catchError((error) {
+      completer.completeError(error);
     });
+
+    return completer.future;
   }
 }
 

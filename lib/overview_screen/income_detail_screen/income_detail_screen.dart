@@ -720,8 +720,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   }
 
   getProfileData() async {
-    /* try {
-      if (currentUserEmail == userEmail) {
+     try {
+      /*if (currentUserEmail == userEmail) {
         ProfileModel? fetchedProfileData =
             await databaseHelper.getProfileData(currentUserEmail);
         setState(() {
@@ -755,10 +755,10 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
         });
       }
     });
-    /*}
+    // }
     } catch (error) {
       print('Error fetching Profile Data: $error');
-    }*/
+    }
   }
 
   @override
