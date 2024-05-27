@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:expense_manager/accounts/add_account_screen.dart';
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
@@ -14,8 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-
-import 'add_account_screen.dart';
 
 enum AccessType { edit, viewOnly }
 
@@ -61,8 +60,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
         ),
         bottomNavigationBar: InkWell(
           onTap: () {
-            MyDialog().showAddAccountDialog(
-                context: context, profileModel: profileData!);
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => AddAccountScreen()));
           },
           child: Container(
             width: double.infinity,
@@ -195,7 +194,14 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                         ),
                       ),
                     ),
-                    if (accessRequestList.isNotEmpty)
+                    20.heightBox,
+                    Text(
+                      "Added Accounts",
+                      style: TextStyle(color: Helper.getTextColor(context)),
+                    ),
+
+                    ///Shared account code
+                    /*  if (accessRequestList.isNotEmpty)
                       const Divider(
                         thickness: 1,
                         height: 1,
@@ -473,7 +479,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                             },
                           ),
                         ),
-                      ),
+                      ),*/
                   ],
                 ),
               ));
@@ -485,7 +491,10 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
           await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-        getRequestList();
+        isLoading = false;
+
+        ///Share account code
+        // getRequestList();
       });
     } catch (error) {
       Helper.hideLoading(context);

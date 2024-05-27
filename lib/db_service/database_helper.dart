@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
+import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/currency_category_model.dart';
 import 'package:expense_manager/db_models/language_category_model.dart';
 import 'package:expense_manager/db_models/multiple_email_model.dart';
@@ -11,7 +12,6 @@ import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/statistics/statistics_screen.dart';
 import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
-import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
@@ -229,7 +229,6 @@ class DatabaseHelper {
               }
             }
           });
-          // Sort transactions by transaction date in descending order
           transactions.sort(
               (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
         }
@@ -1289,6 +1288,22 @@ return completer.future;*/
       ${IncomeSubCategoryFields.name} $textType,
       ${IncomeSubCategoryFields.categoryId} $integerType,
       ${IncomeSubCategoryFields.priority} $textType
+      )
+   ''');
+
+    await db.execute('''
+      CREATE TABLE $accounts_table(
+      ${AccountTableFields.account_id} $idType,
+      ${AccountTableFields.key} $textType,
+      ${AccountTableFields.owner_user_id} $integerType,
+      ${AccountTableFields.account_name} $textType,
+      ${AccountTableFields.description} $textType,
+      ${AccountTableFields.budget} $textType,
+      ${AccountTableFields.balance} $textType,
+      ${AccountTableFields.balance_date} $textType,
+      ${AccountTableFields.account_status} $textType,
+      ${AccountTableFields.created_at} $textType,
+      ${AccountTableFields.updated_at} $textType
       )
    ''');
 

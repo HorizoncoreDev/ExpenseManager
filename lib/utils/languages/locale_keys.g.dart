@@ -202,6 +202,9 @@ abstract class LocaleKeys {
   static const enterLastName = 'enterLastName';
   static const enterEmail = 'enterEmail';
 
+  ///Add Account screen
+
+
   ///Overview
   static const overview = 'overview';
 

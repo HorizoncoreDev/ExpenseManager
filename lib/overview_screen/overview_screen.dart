@@ -97,7 +97,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                             ),
                             InkWell(
                                 onTap: () {
-                                  final accessReference = FirebaseDatabase
+                                  ///Shared account code
+                                  /*final accessReference = FirebaseDatabase
                                       .instance
                                       .reference()
                                       .child(request_table)
@@ -139,7 +140,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     showSwitchAccountDialog(accessRequestList);
 
                                   });
-
+*/
+                                  showSwitchAccountDialog();
                                 },
                                 child: const Icon(
                                   Icons.switch_account,
@@ -1543,7 +1545,7 @@ try{
     );
   }
 
-  showSwitchAccountDialog(List<RequestModel> accessRequestList){
+  showSwitchAccountDialog(/*List<RequestModel> accessRequestList*/){
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1551,6 +1553,7 @@ try{
           builder:
               (BuildContext context, void Function(void Function()) setState) {
             return AlertDialog(
+              backgroundColor: Helper.getCardColor(context),
               title: Text(LocaleKeys.switchAccount.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context),
@@ -1617,7 +1620,8 @@ try{
                         ],
                       ),
                     ),
-                    if (accessRequestList.isNotEmpty)
+                 ///Share account code
+                 /*   if (accessRequestList.isNotEmpty)
                       const Divider(
                         thickness: 1,
                         height: 1,
@@ -1627,7 +1631,6 @@ try{
                       Flexible(
                         child: ListView.separated(
                           shrinkWrap: true,
-// physics: const ScrollPhysics(),
                           itemCount: accessRequestList.length,
                           itemBuilder: (context, index) {
                             return InkWell(
@@ -1725,7 +1728,7 @@ try{
                             );
                           },
                         ),
-                      ),
+                      ),*/
                   ],
                 ),
               ),

@@ -215,4 +215,6 @@ Map<String, String> guGJ = {
   'friday': 'શુક્રવાર',
   'saturday': 'શનિવાર',
   'sunday': 'રવિવાર',
+
+  'switchAccount': 'એકાઉન્ટ સ્વિચ કરો',
 };

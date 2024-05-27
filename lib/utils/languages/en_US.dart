@@ -213,4 +213,5 @@ Map<String, String> enUS = {
   'friday': 'Friday',
   'saturday': 'Saturday',
   'sunday': 'Sunday',
+  'switchAccount': 'Switch Account'
 };

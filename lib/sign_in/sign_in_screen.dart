@@ -395,13 +395,11 @@ class _SignInScreenState extends State<SignInScreen> {
 
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.userEmail, user.email);
-
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.currentUserEmail, user.email);
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.currentUserKey,
                       FirebaseAuth.instance.currentUser!.uid);
-
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.currentUserName, user.displayName);
                   MySharedPreferences.instance.addStringToSF(
