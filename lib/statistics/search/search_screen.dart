@@ -26,7 +26,8 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   String currentUserEmail = "";
   String userEmail = "";
-  String userKey = "";
+  String currentUserKey = "";
+  String currentAccountKey = "";
   TextEditingController searchController = TextEditingController();
   List<DateWiseTransactionModel> dateWiseTransaction = [];
   List<DateWiseTransactionModel> originalDateWiseTransaction = [];
@@ -284,8 +285,8 @@ class _SearchScreenState extends State<SearchScreen> {
             selectedMonths,
             expenseCatId,
             incomeCatId,
-            currentUserEmail,
-            userKey,
+            currentUserKey,
+            currentAccountKey,
             value,
             isSkippedUser)
         .then((value) {
@@ -338,8 +339,8 @@ class _SearchScreenState extends State<SearchScreen> {
     dateWiseTransaction = [];
 
     await DatabaseHelper.instance
-        .getTransactionList(category.toLowerCase(), currentUserEmail, userKey,
-            -1, isSkippedUser)
+        .getTransactionList(category.toLowerCase(), currentUserKey,
+            currentAccountKey, -1, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
       List<String> dates = [];
@@ -421,14 +422,23 @@ class _SearchScreenState extends State<SearchScreen> {
                 .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
                 .then((value) {
               if (value != null) {
-                userKey = value;
-              }MySharedPreferences.instance
-                .getIntValuesSF(SharedPreferencesKeys.userAccessType)
-                .then((value) {
-              if (value != null) {
-                userAccess = value;
-              }});
-              getTransactions("");
+                currentUserKey = value;
+              }
+              MySharedPreferences.instance
+                  .getStringValuesSF(SharedPreferencesKeys.currentAccountKey)
+                  .then((value) {
+                if (value != null) {
+                  currentAccountKey = value;
+                }
+                MySharedPreferences.instance
+                    .getIntValuesSF(SharedPreferencesKeys.userAccessType)
+                    .then((value) {
+                  if (value != null) {
+                    userAccess = value;
+                  }
+                });
+                getTransactions("");
+              });
             });
           });
         });
@@ -793,10 +803,10 @@ class _SearchScreenState extends State<SearchScreen> {
                       onTap: () {
                         bool currentEmail = userEmail.isNotEmpty
                             ? userEmail == currentUserEmail
-                            ? true
-                            : userAccess == AppConstanst.editAccess
-                            ? true
-                            : false
+                                ? true
+                                : userAccess == AppConstanst.editAccess
+                                    ? true
+                                    : false
                             : true;
                         if (currentEmail) {
                           Navigator.of(context, rootNavigator: true)

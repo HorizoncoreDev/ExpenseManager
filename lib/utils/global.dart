@@ -50,6 +50,9 @@ abstract class AppConstanst {
   static String currencySymbol = "\u20B9";
   static String currencyCode = "INR";
   static String languageCode = "en";
+
+  static String createdBySystem = "System";
+  static String createdByUser = "User";
 // static const String currencySymbol = "\u20B9";
 }
 
@@ -73,6 +76,7 @@ abstract class SharedPreferencesKeys {
   static const userEmail = "userEmail";
   static const currentUserEmail = "currentUserEmail";
   static const currentUserKey = "currentUserKey";
+  static const currentAccountKey = "currentAccountKey";
   static const userFcmToken = "userFcmToken";
   static const userName = "userName";
   static const currencySymbol = "currencySymbol";

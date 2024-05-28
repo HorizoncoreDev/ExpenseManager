@@ -308,37 +308,39 @@ class _SignInScreenState extends State<SignInScreen> {
 
                     await databaseHelper.insertProfileData(profileModel, false,accountsModel);
 
-                    await databaseHelper
-                        .getProfileData(user.email!)
-                        .then((profileData) async {
-                      if (profileData != null) {
-                        // profileModel!.id = profileData.id;
+                    final reference = FirebaseDatabase.instance
+                        .reference()
+                        .child(accounts_table)
+                        .orderByChild(AccountTableFields.key)
+                        .equalTo(FirebaseAuth.instance.currentUser!.uid);
 
-                        await databaseHelper.updateProfileData(profileModel);
-                        await databaseHelper.updateAccountData(accountsModel);
-                      } else {
-                        await databaseHelper.insertProfileData(
-                            profileModel, false,accountsModel);
-                      }
-                    });
+                    reference.onValue.listen((event) {
+                      DataSnapshot dataSnapshot = event.snapshot;
+                      if (event.snapshot.exists) {
+                        Map<dynamic, dynamic> values =
+                        dataSnapshot.value as Map<dynamic, dynamic>;
+                        values.forEach((key, value) async {
+                          await DatabaseHelper.instance
+                              .getTransactionList("", "", "", -1, true)
+                              .then((value) async {
+                            for (var t in value) {
+                              // t.member_id = 1;
+                              t.member_key = FirebaseAuth.instance.currentUser!.uid;
+                              t.account_key = key;
+                              await databaseHelper.updateTransaction(t);
 
-                    await DatabaseHelper.instance
-                        .getTransactionList("", "", "", -1, true)
-                        .then((value) async {
-                      for (var t in value) {
-                        // t.member_id = 1;
-                        t.member_email = user.email;
-                        await databaseHelper.updateTransaction(t);
-
-                        final reference = FirebaseDatabase.instance
-                            .reference()
-                            .child(transaction_table)
-                            .child(FirebaseAuth.instance.currentUser!.uid);
-                        var newPostRef = reference.push();
-                        t.key = newPostRef.key;
-                        newPostRef.set(
-                          t.toMap(),
-                        );
+                              final reference = FirebaseDatabase.instance
+                                  .reference()
+                                  .child(transaction_table)
+                                  .child(FirebaseAuth.instance.currentUser!.uid);
+                              var newPostRef = reference.push();
+                              t.key = newPostRef.key;
+                              newPostRef.set(
+                                t.toMap(),
+                              );
+                            }
+                          });
+                        });
                       }
                     });
 
@@ -346,6 +348,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         SharedPreferencesKeys.userEmail, user.email);
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.currentUserEmail, user.email);
+
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.currentUserKey,
                         FirebaseAuth.instance.currentUser!.uid);
@@ -425,10 +428,43 @@ class _SignInScreenState extends State<SignInScreen> {
                       if (!calledOnce) {
                         calledOnce = true;
                         await databaseHelper.insertProfileData(
-                            profileModel!, true,accountsModel!);
+                            profileModel!, true,accountsModel);
                       }
                     }
                   });
+                  await databaseHelper
+                      .getProfileData(user.email!)
+                      .then((profileData) async {
+                    if (profileData != null) {
+                      // profileModel!.id = profileData.id;
+                      await databaseHelper.updateProfileData(profileModel!);
+                      //await databaseHelper.updateAccountData(accountsModel!);
+                    } else {
+                      if (!calledOnce) {
+                        calledOnce = true;
+                        await databaseHelper.insertProfileData(
+                            profileModel!, true,accountsModel);
+                      }
+                    }
+                  });
+
+                  final reference = FirebaseDatabase.instance
+                      .reference()
+                      .child(accounts_table)
+                      .child(profileModel!.key!);
+
+                  reference.once().then((event) async {
+                    DataSnapshot dataSnapshot = event.snapshot;
+                    if (event.snapshot.exists) {
+                      Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+                      values.forEach((key, value) async {
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.currentAccountKey, key);
+                      });
+                    }
+                  });
+
+
 
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.userEmail, user.email);

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/payment_method_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/utils/extensions.dart';
@@ -72,9 +73,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
 
-  String userEmail = '';
-  String currentUserEmail = '';
   String currentUserKey = '';
+  String currentAccountKey = '';
 
   Color forwardIconColor = Colors.grey; // Initialize color to grey
 
@@ -182,14 +182,14 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                     //   Helper.showLoading(context);
                     if (!isSkippedUser) {
                       print("USER NOT SKIPPED $isSkippedUser");
-                     /* await databaseHelper
+                      /* await databaseHelper
                           .getProfileData(userEmail)
                           .then((value) async {*/
-                        createSpendingIncome(context, currentUserEmail);
-                     // });
+                      createSpendingIncome(context);
+                      // });
                     } else {
                       print("USER SKIPPED $isSkippedUser");
-                      createSpendingIncome(context, "");
+                      createSpendingIncome(context);
                     }
                   }
                 },
@@ -917,11 +917,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         ));
   }
 
-  createSpendingIncome(BuildContext context, String email) async {
+  createSpendingIncome(BuildContext context) async {
     TransactionModel transactionModel = TransactionModel(
         key: "",
         // member_id: id,
-        member_email: email,
+        member_key: currentUserKey,
+        account_key: currentAccountKey,
         amount: int.parse(amountController.text),
         expense_cat_id: selectedSpendingIndex != -1
             ? categories[selectedSpendingIndex].id
@@ -972,7 +973,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
         created_at: DateTime.now().toString(),
         last_updated: DateTime.now().toString());
     await databaseHelper
-        .insertTransactionData(transactionModel,currentUserKey, isSkippedUser)
+        .insertTransactionData(
+            transactionModel, currentUserKey, currentAccountKey, isSkippedUser)
         .then((value) async {
       if (value != null) {
         // Helper.hideLoading(context);
@@ -1012,39 +1014,36 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                 }
               });
             }
-          }
-          else {
+          } else {
             final reference = FirebaseDatabase.instance
                 .reference()
-                .child(profile_table)
-                .orderByChild(ProfileTableFields.email)
-                .equalTo(currentUserEmail);
+                .child(accounts_table)
+                .child(currentUserKey)
+                .orderByChild(AccountTableFields.key)
+                .equalTo(currentAccountKey);
 
             reference.once().then((event) {
               DataSnapshot dataSnapshot = event.snapshot;
               if (event.snapshot.exists) {
                 Map<dynamic, dynamic> values =
-                dataSnapshot.value as Map<dynamic, dynamic>;
+                    dataSnapshot.value as Map<dynamic, dynamic>;
                 values.forEach((key, value) async {
-                 var profileModel = ProfileModel.fromMap(value);
-                 if (selectedValue == AppConstanst.spendingTransactionName) {
-                   profileModel.current_balance =
-                       (int.parse(profileModel.current_balance!) -
-                           int.parse(amountController.text))
-                           .toString();
-                 } else {
-                   profileModel.current_income =
-                       (int.parse(profileModel.current_income!) +
-                           int.parse(amountController.text))
-                           .toString();
-                 }
-                 await DatabaseHelper.instance.updateProfileData(profileModel);
+                  var accountsModel = AccountsModel.fromMap(value);
+                  if (selectedValue == AppConstanst.spendingTransactionName) {
+                    accountsModel.balance =
+                        (int.parse(accountsModel.balance!) -
+                                int.parse(amountController.text))
+                            .toString();
+                  } else {
+                    accountsModel.income =
+                        (int.parse(accountsModel.income!) +
+                                int.parse(amountController.text))
+                            .toString();
+                  }
+                  await DatabaseHelper.instance.updateAccountData(accountsModel);
                 });
               }
             });
-
-
-
           }
         }
         Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
@@ -1127,23 +1126,17 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
   @override
   void initState() {
     super.initState();
+
     MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
         .then((value) {
       if (value != null) {
-        userEmail = value;
+        currentUserKey = value;
         MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+            .getStringValuesSF(SharedPreferencesKeys.currentAccountKey)
             .then((value) {
           if (value != null) {
-            currentUserEmail = value;
-            MySharedPreferences.instance
-                .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
-                .then((value) {
-              if (value != null) {
-                currentUserKey = value;
-              }
-            });
+            currentAccountKey = value;
           }
         });
       }

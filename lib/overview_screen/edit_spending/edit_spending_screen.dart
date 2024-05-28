@@ -18,6 +18,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../db_models/accounts_model.dart';
 import '../../db_models/expense_category_model.dart';
 import '../../db_models/expense_sub_category.dart';
 import '../../db_models/income_category.dart';
@@ -72,9 +73,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
 
-  String userEmail = '';
-  String currentUserEmail = '';
   String currentUserKey = '';
+  String currentAccountKey = '';
 
   int selectedSpendingSubIndex = -1;
 
@@ -890,10 +890,11 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         ));
   }
 
-  createCopySpendingIncome(BuildContext context, String email) async {
+  createCopySpendingIncome(BuildContext context) async {
     TransactionModel transactionModel = TransactionModel(
         key: "",
-        member_email: email,
+        member_key: currentUserKey,
+        account_key: currentAccountKey,
         amount: int.parse(amountController.text),
         expense_cat_id: selectedSpendingIndex != -1
             ? categories[selectedSpendingIndex].id
@@ -944,7 +945,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         created_at: DateTime.now().toString(),
         last_updated: DateTime.now().toString());
     await databaseHelper
-        .insertTransactionData(transactionModel,currentUserKey, isSkippedUser)
+        .insertTransactionData(transactionModel,currentUserKey, currentAccountKey,isSkippedUser)
         .then((value) async {
       if (value != null) {
         // Helper.hideLoading(context);
@@ -985,21 +986,34 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
               });
             }
           } else {
-            await DatabaseHelper.instance
-                .getProfileData(userEmail)
-                .then((profileData) async {
-              if (selectedValue == AppConstanst.spendingTransactionName) {
-                profileData!.current_balance =
-                    (int.parse(profileData.current_balance!) -
+            final reference = FirebaseDatabase.instance
+                .reference()
+                .child(accounts_table)
+                .child(currentUserKey)
+                .orderByChild(AccountTableFields.key)
+                .equalTo(currentAccountKey);
+
+            reference.once().then((event) {
+              DataSnapshot dataSnapshot = event.snapshot;
+              if (event.snapshot.exists) {
+                Map<dynamic, dynamic> values =
+                dataSnapshot.value as Map<dynamic, dynamic>;
+                values.forEach((key, value) async {
+                  var accountsModel = AccountsModel.fromMap(value);
+                  if (selectedValue == AppConstanst.spendingTransactionName) {
+                    accountsModel.balance =
+                        (int.parse(accountsModel.balance!) -
                             int.parse(amountController.text))
-                        .toString();
-              } else {
-                profileData!.current_income =
-                    (int.parse(profileData.current_income!) +
+                            .toString();
+                  } else {
+                    accountsModel.income =
+                        (int.parse(accountsModel.income!) +
                             int.parse(amountController.text))
-                        .toString();
+                            .toString();
+                  }
+                  await DatabaseHelper.instance.updateAccountData(accountsModel);
+                });
               }
-              await DatabaseHelper.instance.updateProfileData(profileData);
             });
           }
         }
@@ -1011,12 +1025,13 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
     });
   }
 
-  editSpendingIncome(BuildContext context, String email) async {
+  editSpendingIncome(BuildContext context) async {
     TransactionModel transactionModel = TransactionModel(
         // id: widget.transactionModel.id,
         key: widget.transactionModel.key,
         // member_id: widget.transactionModel.member_id,
-        member_email: widget.transactionModel.member_email,
+        member_key: widget.transactionModel.member_key,
+        account_key: widget.transactionModel.account_key,
         amount: int.parse(amountController.text),
         expense_cat_id: selectedSpendingIndex != -1
             ? categories[selectedSpendingIndex].id
@@ -1113,9 +1128,10 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
           } else {
             final reference = FirebaseDatabase.instance
                 .reference()
-                .child(profile_table)
-                .orderByChild(ProfileTableFields.email)
-                .equalTo(currentUserEmail);
+                .child(accounts_table)
+                .child(currentUserKey)
+                .orderByChild(AccountTableFields.key)
+                .equalTo(currentAccountKey);
 
             reference.once().then((event) {
               DataSnapshot dataSnapshot = event.snapshot;
@@ -1123,23 +1139,22 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                 Map<dynamic, dynamic> values =
                 dataSnapshot.value as Map<dynamic, dynamic>;
                 values.forEach((key, value) async {
-                  var profileModel = ProfileModel.fromMap(value);
+                  var accountsModel = AccountsModel.fromMap(value);
                   if (selectedValue == AppConstanst.spendingTransactionName) {
-                    profileModel.current_balance =
-                        (int.parse(profileModel.current_balance!) -
+                    accountsModel.balance =
+                        (int.parse(accountsModel.balance!) -
                             int.parse(amountController.text))
                             .toString();
                   } else {
-                    profileModel.current_income =
-                        (int.parse(profileModel.current_income!) +
+                    accountsModel.income =
+                        (int.parse(accountsModel.income!) +
                             int.parse(amountController.text))
                             .toString();
                   }
-                  await DatabaseHelper.instance.updateProfileData(profileModel);
+                  await DatabaseHelper.instance.updateAccountData(accountsModel);
                 });
               }
             });
-
           }
         }
         Helper.showToast(selectedValue == AppConstanst.spendingTransactionName
@@ -1260,25 +1275,12 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
   @override
   void initState() {
     super.initState();
+
     MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
         .then((value) {
       if (value != null) {
-        userEmail = value;
-        MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-            .then((value) {
-          if (value != null) {
-            currentUserEmail = value;
-            MySharedPreferences.instance
-                .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
-                .then((value) {
-              if (value != null) {
-                currentUserKey = value;
-              }
-            });
-          }
-        });
+        currentUserKey = value;
       }
     });
     MySharedPreferences.instance
@@ -1657,11 +1659,11 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                         /*await databaseHelper
                             .getProfileData(userEmail)
                             .then((value) async {*/
-                          editSpendingIncome(context, currentUserEmail);
+                          editSpendingIncome(context);
                         //});
                       } else {
                         print("USER SKIPPED $isSkippedUser");
-                        editSpendingIncome(context, "");
+                        editSpendingIncome(context);
                       }
                     }
                   },
@@ -1705,11 +1707,11 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                        /* await databaseHelper
                             .getProfileData(userEmail)
                             .then((value) async {*/
-                          createCopySpendingIncome(context, currentUserEmail);
+                          createCopySpendingIncome(context);
                         // });
                       } else {
                         print("USER SKIPPED $isSkippedUser");
-                        createCopySpendingIncome(context, "");
+                        createCopySpendingIncome(context);
                       }
                     }
                   },

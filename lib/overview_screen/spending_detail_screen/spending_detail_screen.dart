@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+import '../../db_models/accounts_model.dart';
 import '../../db_models/profile_model.dart';
 import '../../db_models/transaction_model.dart';
 import '../../statistics/statistics_screen.dart';
@@ -27,9 +28,11 @@ class SpendingDetailScreen extends StatefulWidget {
 }
 
 class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
-  String currentUserEmail = "";
   String userEmail = "";
-  String userKey = "";
+  String currentUserEmail = "";
+
+  String currentUserKey = "";
+  String currentAccountKey = "";
   int userAccess = AppConstanst.viewOnlyAccess;
   bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
@@ -325,10 +328,11 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                                     onTap: () {
                                       bool currentEmail = userEmail.isNotEmpty
                                           ? userEmail == currentUserEmail
-                                          ? true
-                                          : userAccess == AppConstanst.editAccess
-                                          ? true
-                                          : false
+                                              ? true
+                                              : userAccess ==
+                                                      AppConstanst.editAccess
+                                                  ? true
+                                                  : false
                                           : true;
                                       if (currentEmail) {
                                         Navigator.of(context,
@@ -555,8 +559,8 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
                 ? categoryList[selectedCategoryIndex].catId!
                 : -1,
             -1,
-            currentUserEmail,
-            userKey,
+            currentUserKey,
+        currentAccountKey,
             AppConstanst.spendingTransaction,
             value,
             isSkippedUser)
@@ -607,43 +611,31 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
   }
 
   getProfileData() async {
-     try {
-      /*if (currentUserEmail == userEmail) {
-        ProfileModel? fetchedProfileData =
-            await databaseHelper.getProfileData(currentUserEmail);
-        setState(() {
-          currentBalance = int.parse(fetchedProfileData!.current_balance!);
-          actualBudget = int.parse(fetchedProfileData!.actual_budget!);
-          double percentage =
-              currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
-          spendingPercentage = currentBalance > 0 ? 100 - percentage : 0;
-        });
-      } else {*/
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(profile_table)
-        .orderByChild(ProfileTableFields.email)
-        .equalTo(currentUserEmail);
 
-    reference.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) async {
-          var profileModel = ProfileModel.fromMap(value);
-          currentBalance = int.parse(profileModel.current_balance!);
-          actualBudget = int.parse(profileModel.actual_budget!);
-          double percentage =
-              currentBalance > 0 ? (currentBalance / actualBudget) * 100 : 100;
-          spendingPercentage = currentBalance > 0 ? 100 - percentage : 0;
-        });
-      }
-    });
-    // }
-    } catch (error) {
-      print('Error fetching Profile Data: $error');
-    }
+
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+          .child(currentUserKey)
+          .orderByChild(AccountTableFields.key)
+          .equalTo(currentAccountKey);
+      reference.onValue.listen((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+          dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+           var accountModel = AccountsModel.fromMap(value);
+            currentBalance = int.parse(accountModel.balance!);
+            actualBudget = int.parse(accountModel.budget!);
+            double percentage = currentBalance > 0
+                ? (currentBalance / actualBudget) * 100
+                : 100;
+            spendingPercentage = currentBalance > 0 ? 100 - percentage : 0;
+          });
+        }
+      });
+
   }
 
   getTransactions(String category) async {
@@ -674,7 +666,7 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
     List<TransactionModel> spendingTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(category.toLowerCase(), currentUserEmail, userKey,
+        .getTransactionList(category.toLowerCase(), currentUserKey, currentAccountKey,
             AppConstanst.spendingTransaction, isSkippedUser)
         .then((value) async {
       spendingTransaction = value;
@@ -756,13 +748,23 @@ class _SpendingDetailScreenState extends State<SpendingDetailScreen> {
             .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
             .then((value) {
           if (value != null) {
-            userKey = value;
-          }MySharedPreferences.instance
-            .getIntValuesSF(SharedPreferencesKeys.userAccessType)
-            .then((value) {
-          if (value != null) {
-            userAccess = value;
-          }});
+            currentUserKey = value;
+          }
+          MySharedPreferences.instance
+              .getIntValuesSF(SharedPreferencesKeys.userAccessType)
+              .then((value) {
+            if (value != null) {
+              userAccess = value;
+            }
+          });
+
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.currentAccountKey)
+              .then((value) {
+            if (value != null) {
+              currentAccountKey = value;
+            }
+          });
           MySharedPreferences.instance
               .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
               .then((value) async {

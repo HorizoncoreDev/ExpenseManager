@@ -11,6 +11,9 @@ class CategoryFields {
     path,
     status,
     color,
+  created_by,
+  created_at,
+  updated_at
   ];
 
   static const String id = 'id';
@@ -19,6 +22,9 @@ class CategoryFields {
   static const String path = 'path';
   static const String status = 'status';
   static const String color = 'color';
+  static const String created_by = 'created_by';
+  static const String created_at = 'created_at';
+  static const String updated_at = 'updated_at';
 }
 
 class IncomeCategory {
@@ -28,6 +34,9 @@ class IncomeCategory {
   String? path;
   int? status;
   Color color;
+  String? created_by;
+  String? created_at;
+  String? updated_at;
 
   IncomeCategory(
       {this.id,
@@ -35,7 +44,7 @@ class IncomeCategory {
       this.parentId,
       this.path,
       this.status,
-      required this.color});
+      required this.color,this.created_at,this.created_by,this.updated_at});
 
   factory IncomeCategory.fromMap(Map<String, dynamic> map) {
     return IncomeCategory(
@@ -45,6 +54,9 @@ class IncomeCategory {
       path: map['path'],
       status: map['status'],
       color: Color(map['color']),
+      created_by: map['created_by'],
+      created_at: map['created_at'],
+      updated_at: map['updated_at'],
     );
   }
 
@@ -55,7 +67,10 @@ class IncomeCategory {
       'parent_id': parentId,
       'path': path,
       'status': status,
-      'color': color.value
+      'color': color.value,
+      'created_by': created_by,
+      'created_at': created_at,
+      'updated_at': updated_at,
     };
   }
 }

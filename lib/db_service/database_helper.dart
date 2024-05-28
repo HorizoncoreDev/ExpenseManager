@@ -16,7 +16,6 @@ import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
-import 'package:googleapis/adsense/v2.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -129,8 +128,8 @@ class DatabaseHelper {
       List<MonthData> months,
       int expenseCatId,
       int incomeCatId,
-      String email,
-      String key,
+      String userKey,
+      String accountKey,
       String category,
       bool isSkippedUser) async {
     List<int> selectedMonthNumbers = months
@@ -153,12 +152,12 @@ class DatabaseHelper {
       query +=
           '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
       query +=
-          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ?';
+          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ?';
       List<dynamic> whereArgs = [
         ...selectedMonthNumbers
             .map((month) => month.toString().padLeft(2, '0')),
         year,
-        email
+        accountKey
       ];
 
       if (expenseCatId != -1 || incomeCatId != -1) {
@@ -197,9 +196,9 @@ class DatabaseHelper {
       final reference = await FirebaseDatabase.instance
           .reference()
           .child(transaction_table)
-          .child(key)
-          .orderByChild(TransactionFields.member_email)
-          .equalTo(email);
+          .child(userKey)
+          .child(accountKey)
+          ;
 
       List<String> months = selectedMonthNumbers
           .map((month) => month.toString().padLeft(2, '0'))
@@ -245,8 +244,8 @@ class DatabaseHelper {
   }
 
   /// Get transaction data for current month
-  Future<List<TransactionModel>> fetchDataForCurrentMonth(
-      int transactionType, String email, String key, bool isSkippedUser) async {
+  Future<List<TransactionModel>> fetchDataForCurrentMonth(int transactionType,
+      String userKey, String accountKey, bool isSkippedUser) async {
     DateTime now = DateTime.now();
     int currentMonth = now.month;
     int currentYear = now.year;
@@ -257,12 +256,12 @@ class DatabaseHelper {
         where: 'SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?'
             ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) =?'
             ' AND ${TransactionFields.transaction_type} = ?'
-            ' AND ${TransactionFields.member_email} = ?',
+            ' AND ${TransactionFields.member_key} = ?',
         whereArgs: [
           (currentMonth.toString().padLeft(2, '0')),
           (currentYear.toString()),
           transactionType,
-          email,
+          accountKey,
         ],
         orderBy: '${TransactionFields.transaction_date} DESC',
       );
@@ -276,9 +275,11 @@ class DatabaseHelper {
       final reference = await FirebaseDatabase.instance
           .ref()
           .child(transaction_table)
-          .child(key)
-          .orderByChild(TransactionFields.member_email)
-          .equalTo(email);
+          .child(userKey)
+          .child(accountKey)
+          .orderByChild(TransactionFields.transaction_type)
+          .equalTo(transactionType);
+
       reference.once().then((value) {
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
@@ -287,8 +288,7 @@ class DatabaseHelper {
           values.forEach((key, value) async {
             DateTime transactionDate = DateFormat('dd/MM/yyyy HH:mm')
                 .parse(value[TransactionFields.transaction_date]);
-
-            if (value[TransactionFields.transaction_type] == transactionType &&
+            if (
                 transactionDate.month == currentMonth &&
                 transactionDate.year == currentYear) {
               transactions.add(TransactionModel.fromMap(value));
@@ -297,7 +297,6 @@ class DatabaseHelper {
         }
         completer.complete(transactions);
       }).catchError((error) {
-
         completer.completeError(error);
       });
 
@@ -310,8 +309,8 @@ class DatabaseHelper {
       String monthName,
       int expenseCatId,
       int incomeCatId,
-      String email,
-      String key,
+      String userKey,
+      String accountKey,
       int transactionType,
       String category,
       bool isSkippedUser) async {
@@ -326,13 +325,13 @@ class DatabaseHelper {
       }
 
       query +=
-          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
+          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ? AND ${TransactionFields.transaction_type} = ?';
 
       List<dynamic> whereArgs = [
         if (selectedMonthNumber != null)
           selectedMonthNumber.toString().padLeft(2, '0'),
         year,
-        email,
+        userKey,
         transactionType
       ];
 
@@ -378,9 +377,10 @@ class DatabaseHelper {
       final reference = await FirebaseDatabase.instance
           .reference()
           .child(transaction_table)
-          .child(key)
-          .orderByChild(TransactionFields.member_email)
-          .equalTo(email);
+          .child(userKey)
+          .child(accountKey)
+          .orderByChild(TransactionFields.transaction_type)
+          .equalTo(transactionType);
 
       int? selectedMonthNumber = monthNameToNumber[monthName];
 
@@ -390,25 +390,14 @@ class DatabaseHelper {
           Map<dynamic, dynamic> values =
               dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
-            if (selectedMonthNumber ==
-                    value['transaction_date'].substring(3, 5) &&
-                value[TransactionFields.transaction_date].substring(6, 10) ==
-                    year &&
-                value[TransactionFields.transaction_type] == transactionType &&
+            if (selectedMonthNumber.toString().padLeft(2, '0') == value[TransactionFields.transaction_date].substring(3, 5) &&
+                value[TransactionFields.transaction_date].substring(6, 10) == year  &&
                 ((expenseCatId == -1 && incomeCatId == -1) ||
-                    (expenseCatId != -1 &&
-                        value[TransactionFields.expense_cat_id] ==
-                            expenseCatId) ||
-                    (incomeCatId != -1 &&
-                        value[TransactionFields.income_cat_id] ==
-                            incomeCatId)) &&
-                (category.isEmpty ||
-                    value[TransactionFields.cat_name]
-                        .toLowerCase()
-                        .contains(category.toLowerCase()) ||
-                    value[TransactionFields.description]
-                        .toLowerCase()
-                        .contains(category.toLowerCase()))) {
+                    (expenseCatId != -1 && value[TransactionFields.expense_cat_id] == expenseCatId) ||
+                    (incomeCatId != -1 && value[TransactionFields.income_cat_id] == incomeCatId)) &&
+                (category.isEmpty || value[TransactionFields.cat_name].toLowerCase().contains(category.toLowerCase()) ||
+                    value[TransactionFields.description].toLowerCase().contains(category.toLowerCase()))) {
+
               transactions.add(TransactionModel.fromMap(value));
             }
           });
@@ -430,8 +419,8 @@ class DatabaseHelper {
       List<MonthData> months,
       int expenseCatId,
       int incomeCatId,
-      String email,
-      String key,
+      String userKey,
+      String accountKey,
       int transactionType,
       String category,
       bool isSkippedUser) async {
@@ -455,13 +444,13 @@ class DatabaseHelper {
       query +=
           '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
       query +=
-          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_email} = ? AND ${TransactionFields.transaction_type} = ?';
+          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ? AND ${TransactionFields.transaction_type} = ?';
 
       whereArgs = [
         ...selectedMonthNumbers
             .map((month) => month.toString().padLeft(2, '0')),
         year,
-        email,
+        accountKey,
         transactionType
       ];
 
@@ -507,9 +496,10 @@ class DatabaseHelper {
       final reference = await FirebaseDatabase.instance
           .reference()
           .child(transaction_table)
-          .child(key)
-          .orderByChild(TransactionFields.member_email)
-          .equalTo(email);
+          .child(userKey)
+          .child(accountKey)
+          .orderByChild(TransactionFields.transaction_type)
+          .equalTo(transactionType);
 
       List<String> months = selectedMonthNumbers
           .map((month) => month.toString().padLeft(2, '0'))
@@ -522,8 +512,7 @@ class DatabaseHelper {
           values.forEach((key, value) async {
             if (months[0] == value['transaction_date'].substring(3, 5) &&
                 value[TransactionFields.transaction_date].substring(6, 10) ==
-                    year &&
-                value[TransactionFields.transaction_type] == transactionType &&
+                    year  &&
                 ((expenseCatId == -1 && incomeCatId == -1) ||
                     (expenseCatId != -1 &&
                         value[TransactionFields.expense_cat_id] ==
@@ -687,7 +676,7 @@ class DatabaseHelper {
         .reference()
         .child(profile_table)
         .orderByChild(ProfileTableFields.email)
-        .equalTo(email);
+        .equalTo( accountKey);
 
     Completer<ProfileModel?> completer = Completer<ProfileModel?>();
 
@@ -773,8 +762,12 @@ return completer.future;*/
         maps.length, (index) => TransactionModel.fromMap(maps[index]));
   }
 
-  Future<List<TransactionModel>> getTransactionList(String category,
-      String email, String key, int transactionType, bool isSkippedUser) async {
+  Future<List<TransactionModel>> getTransactionList(
+      String category,
+      String userKey,
+      String accountKey,
+      int transactionType,
+      bool isSkippedUser) async {
     if (isSkippedUser) {
       Database db = await database;
 
@@ -787,12 +780,12 @@ return completer.future;*/
 
       query += '(SUBSTR(${TransactionFields.transaction_date}, 4, 2) = ?) '
           'AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? '
-          'AND ${TransactionFields.member_email} = ? ';
+          'AND ${TransactionFields.member_key} = ? ';
 
       whereArgs = [
         (currentMonth.toString().padLeft(2, '0')),
         (currentYear.toString()),
-        email
+        accountKey
       ];
 
       if (transactionType == -1) {
@@ -830,11 +823,10 @@ return completer.future;*/
           Completer<List<TransactionModel>>();
       List<TransactionModel> transactions = [];
       final reference = await FirebaseDatabase.instance
-          .reference()
+          .ref()
           .child(transaction_table)
-          .child(key)
-          .orderByChild(TransactionFields.member_email)
-          .equalTo(email);
+          .child(userKey)
+          .child(accountKey);
 
       reference.once().then((value) {
         DataSnapshot dataSnapshot = value.snapshot;
@@ -1016,8 +1008,8 @@ return completer.future;*/
   }
 
   // Insert ProfileData
-  Future<void> insertProfileData(
-      ProfileModel profileModel, bool isProfileExistInFirebaseDb,AccountsModel accountModel) async {
+  Future<void> insertProfileData(ProfileModel profileModel,
+      bool isProfileExistInFirebaseDb, AccountsModel? accountModel) async {
     Database db = await database;
 
     if (!isProfileExistInFirebaseDb) {
@@ -1029,21 +1021,24 @@ return completer.future;*/
             profileModel.toMap(),
           );
 
-      final reference = FirebaseDatabase.instance
-          .reference()
-          .child(accounts_table)
-      .child(FirebaseAuth.instance.currentUser!.uid);
-      var newPostRef = reference.push();
-      accountModel.key = newPostRef.key;
-      accountModel.owner_user_key = FirebaseAuth.instance.currentUser!.uid;
-      newPostRef.set(
-        accountModel.toMap(),
-      );
+      if (accountModel != null) {
+        final reference = FirebaseDatabase.instance
+            .reference()
+            .child(accounts_table)
+            .child(FirebaseAuth.instance.currentUser!.uid);
+        var newPostRef = reference.push();
+        accountModel.key = newPostRef.key;
+        accountModel.owner_user_key = FirebaseAuth.instance.currentUser!.uid;
+        newPostRef.set(
+          accountModel.toMap(),
+        );
+        MySharedPreferences.instance.addStringToSF(
+            SharedPreferencesKeys.currentAccountKey, newPostRef.key);
+      }
     }
 
     await db.insert(profile_table, profileModel.toMap());
   }
-
 
   /// Insert Spending Sub Category
   Future<void> insertSpendingSubCategory(
@@ -1054,34 +1049,31 @@ return completer.future;*/
   }
 
   /// Insert Transaction Detail
-  Future<int> insertTransactionData(
-      TransactionModel transactionModel,String key, bool isSkippedUser) async {
+  Future<int> insertTransactionData(TransactionModel transactionModel,
+      String currentUserkey, currentAccountKey, bool isSkippedUser) async {
     Database db = await database;
     if (!isSkippedUser) {
       final reference = FirebaseDatabase.instance
           .reference()
           .child(transaction_table)
-          .child(key);
+          .child(currentUserkey)
+          .child(currentAccountKey);
       var newPostRef = reference.push();
       transactionModel.key = newPostRef.key;
       newPostRef.set(
         transactionModel.toMap(),
       );
-
-    }
-    else{
-      final reference = FirebaseDatabase.instance
-          .reference()
-          .child(transaction_table);
+    } else {
+      final reference =
+          FirebaseDatabase.instance.reference().child(transaction_table);
       var newPostRef = reference.push();
       transactionModel.key = newPostRef.key;
     }
     return await db.insert(transaction_table, transactionModel.toMap());
   }
 
-  Future<void> insertMultipleTransactions(
-
-      List<TransactionModel> transactions,String key, bool isSkippedUser) async {
+  Future<void> insertMultipleTransactions(List<TransactionModel> transactions,
+      String key, bool isSkippedUser) async {
     Database db = await database;
     Batch batch = db.batch();
 
@@ -1097,10 +1089,9 @@ return completer.future;*/
         await newPostRef.set(
           transaction.toMap(),
         );
-      }
-      else {
+      } else {
         final reference =
-        FirebaseDatabase.instance.reference().child(transaction_table);
+            FirebaseDatabase.instance.reference().child(transaction_table);
         var newPostRef = reference.push();
         transaction.key = newPostRef.key;
       }
@@ -1170,7 +1161,7 @@ return completer.future;*/
       await db.update(profile_table, profileModel.toMap(),
           where: '${ProfileTableFields.email} = ?',
           whereArgs: [profileModel.email]);
-    }catch(e){
+    } catch (e) {
       e.printError();
     }
     final Map<String, Map> updates = {};
@@ -1178,7 +1169,7 @@ return completer.future;*/
     FirebaseDatabase.instance.ref().update(updates);
   }
 
- // Update AccountData
+  // Update AccountData
   Future<void> updateAccountData(AccountsModel accountsModel) async {
     accountsModel.updated_at = DateTime.now().toString();
     try {
@@ -1186,15 +1177,16 @@ return completer.future;*/
       await db.update(accounts_table, accountsModel.toMap(),
           where: '${AccountTableFields.owner_user_key} = ?',
           whereArgs: [accountsModel.owner_user_key]);
-    }catch(e){
+    } catch (e) {
       e.printError();
     }
     final Map<String, Map> updates = {};
-    updates['/$accounts_table/${accountsModel.owner_user_key}/${accountsModel.key}'] = accountsModel.toMap();
+    updates['/$accounts_table/${accountsModel.owner_user_key}/${accountsModel.key}'] =
+        accountsModel.toMap();
     FirebaseDatabase.instance.ref().update(updates);
   }
 
-/// Update Spending Sub Category
+  /// Update Spending Sub Category
   Future<void> updateSpendingSubCategory(
       ExpenseSubCategory spendingSubCategory) async {
     var db = await database;
@@ -1211,7 +1203,7 @@ return completer.future;*/
   }
 
   Future<int> updateTransactionData(
-      TransactionModel transactionModel, String key,bool isSkippedUser) async {
+      TransactionModel transactionModel, String key, bool isSkippedUser) async {
     Database db = await database;
     if (!isSkippedUser) {
       final Map<String, Map> updates = {};
@@ -1234,7 +1226,8 @@ return completer.future;*/
     await db.execute('''
       CREATE TABLE $transaction_table (
       ${TransactionFields.key} $keyType,
-      ${TransactionFields.member_email} $textType,
+      ${TransactionFields.member_key} $textType,
+      ${TransactionFields.account_key} $textType,
       ${TransactionFields.amount} $integerType,
       ${TransactionFields.expense_cat_id} $integerType,
       ${TransactionFields.income_cat_id} $integerType,
@@ -1275,7 +1268,10 @@ return completer.future;*/
       ${CategoryFields.parent_id} $integerType,
       ${CategoryFields.path} $textType,
       ${CategoryFields.status} $integerType,
-      ${CategoryFields.color} $integerType
+      ${CategoryFields.color} $integerType,
+      ${CategoryFields.created_by} $textType,
+      ${CategoryFields.created_at} $textType,
+      ${CategoryFields.updated_at} $textType
       )
    ''');
 
@@ -1284,7 +1280,10 @@ return completer.future;*/
       ${ExpenseCategoryField.id} $idType,
       ${ExpenseCategoryField.name} $textType,
       ${ExpenseCategoryField.color} $integerType,
-      ${ExpenseCategoryField.icons} $textType
+      ${ExpenseCategoryField.icons} $textType,
+      ${ExpenseCategoryField.created_by} $textType,
+      ${ExpenseCategoryField.created_at} $textType,
+      ${ExpenseCategoryField.updated_at} $textType
       )
    ''');
 
@@ -1293,7 +1292,10 @@ return completer.future;*/
       ${ExpenseSubCategoryFields.id} $idType,
       ${ExpenseSubCategoryFields.name} $textType,
       ${ExpenseSubCategoryFields.categoryId} $integerType,
-      ${ExpenseSubCategoryFields.priority} $textType
+      ${ExpenseSubCategoryFields.priority} $textType,
+      ${ExpenseSubCategoryFields.created_by} $textType,
+      ${ExpenseSubCategoryFields.created_at} $textType,
+      ${ExpenseSubCategoryFields.updated_at} $textType
       )
    ''');
 
@@ -1319,7 +1321,10 @@ return completer.future;*/
       ${IncomeSubCategoryFields.id} $idType,
       ${IncomeSubCategoryFields.name} $textType,
       ${IncomeSubCategoryFields.categoryId} $integerType,
-      ${IncomeSubCategoryFields.priority} $textType
+      ${IncomeSubCategoryFields.priority} $textType,
+      ${IncomeSubCategoryFields.created_by} $textType,
+      ${IncomeSubCategoryFields.created_at} $textType,
+      ${IncomeSubCategoryFields.updated_at} $textType
       )
    ''');
 
@@ -1372,7 +1377,7 @@ return completer.future;*/
     final firebaseTask = await getFirebaseTasks(userEmail);
     Map<String, List<TransactionModel>> accountData = {};
     for (var task in firebaseTask) {
-      accountData.putIfAbsent(task.member_email!, () => []).add(task);
+      accountData.putIfAbsent(task.member_key!, () => []).add(task);
     }
 
     for (var entry in accountData.entries) {
@@ -1396,7 +1401,7 @@ return completer.future;*/
       /// Add transaction data
       for (var task in entry.value) {
         rows.add([
-          task.member_email,
+          task.member_key,
           task.amount,
           task.cat_name,
           task.cat_type,
@@ -1415,10 +1420,12 @@ return completer.future;*/
     return csv;
   }
 
-  static Future<MultipleEmailModel> exportAccessEmailDataToCSV(String userEmail) async {
+  static Future<MultipleEmailModel> exportAccessEmailDataToCSV(
+      String userEmail) async {
     MultipleEmailModel multipleEmailModel = MultipleEmailModel();
     List<String> receiversName = [];
-    List<ReceiverEmailData> receiverEmailList = await getAccessEmails(userEmail);
+    List<ReceiverEmailData> receiverEmailList =
+        await getAccessEmails(userEmail);
     for (var entry in receiverEmailList) {
       String recName = entry.receiverName.toString();
       receiversName.add(recName);
@@ -1440,9 +1447,9 @@ return completer.future;*/
       ];
 
       /// Add transaction data
-      for (var task in entry.transactionModel! ) {
+      for (var task in entry.transactionModel!) {
         rows.add([
-          task.member_email,
+          task.member_key,
           task.amount,
           task.cat_name,
           task.cat_type,
@@ -1463,9 +1470,10 @@ return completer.future;*/
     return multipleEmailModel;
   }
 
-
-  static Future<List<ReceiverEmailData>> getAccessEmails(String userEmail) async {
-    Completer<List<ReceiverEmailData>> completer = Completer<List<ReceiverEmailData>>();
+  static Future<List<ReceiverEmailData>> getAccessEmails(
+      String userEmail) async {
+    Completer<List<ReceiverEmailData>> completer =
+        Completer<List<ReceiverEmailData>>();
     List<ReceiverEmailData> receiverEmailList = [];
     final accessReference = FirebaseDatabase.instance
         .reference()
@@ -1476,7 +1484,8 @@ return completer.future;*/
     accessReference.once().then((event) async {
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+        Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
 
         List<Future<void>> futures = [];
 
@@ -1490,7 +1499,8 @@ return completer.future;*/
               .then((event) async {
             DataSnapshot dataSnapshot = event.snapshot;
             if (event.snapshot.exists) {
-              Map<dynamic, dynamic> profileValues = dataSnapshot.value as Map<dynamic, dynamic>;
+              Map<dynamic, dynamic> profileValues =
+                  dataSnapshot.value as Map<dynamic, dynamic>;
 
               List<Future<void>> innerFutures = [];
               profileValues.forEach((profileKey, profileValue) {
@@ -1498,16 +1508,18 @@ return completer.future;*/
                     .reference()
                     .child(transaction_table)
                     .child(profileKey)
-                    .orderByChild(TransactionFields.member_email)
+                    .orderByChild(TransactionFields.account_key)
                     .equalTo(value['receiver_email'])
                     .once()
                     .then((transactionEvent) {
                   List<TransactionModel> transactionsEmail = [];
                   DataSnapshot transactionSnapshot = transactionEvent.snapshot;
                   if (transactionSnapshot.value != null) {
-                    Map<dynamic, dynamic> taskValues = transactionSnapshot.value as Map<dynamic, dynamic>;
+                    Map<dynamic, dynamic> taskValues =
+                        transactionSnapshot.value as Map<dynamic, dynamic>;
                     taskValues.forEach((taskKey, taskValue) {
-                      transactionsEmail.add(TransactionModel.fromMapForCSV(taskValue));
+                      transactionsEmail
+                          .add(TransactionModel.fromMapForCSV(taskValue));
                     });
                   }
 
@@ -1536,15 +1548,16 @@ return completer.future;*/
     return completer.future;
   }
 
-
-  static Future<List<TransactionModel>> getFirebaseTasks(String userEmail) async {
-    Completer<List<TransactionModel>> completer =Completer<List<TransactionModel>>();
+  static Future<List<TransactionModel>> getFirebaseTasks(
+      String userEmail) async {
+    Completer<List<TransactionModel>> completer =
+        Completer<List<TransactionModel>>();
     List<TransactionModel> transactions = [];
     final reference = FirebaseDatabase.instance
         .reference()
         .child(transaction_table)
         .child(FirebaseAuth.instance.currentUser!.uid)
-        .orderByChild(TransactionFields.member_email)
+        .orderByChild(TransactionFields.account_key)
         .equalTo(userEmail);
     reference.once().then((event) {
       DataSnapshot dataSnapshot = event.snapshot;
@@ -1556,18 +1569,22 @@ return completer.future;*/
     });
     return completer.future;
   }
-  static Future<List<TransactionModel>> getTransactionsForEmail(String email) async {
-    Completer<List<TransactionModel>> completer = Completer<List<TransactionModel>>();
+
+  static Future<List<TransactionModel>> getTransactionsForEmail(
+      String accountKey) async {
+    Completer<List<TransactionModel>> completer =
+        Completer<List<TransactionModel>>();
     List<TransactionModel> transactions = [];
     final reference = FirebaseDatabase.instance
         .ref()
         .child(transaction_table)
-        .orderByChild(TransactionFields.member_email)
-        .equalTo(email);
+        .orderByChild(TransactionFields.account_key)
+        .equalTo(accountKey);
 
     reference.once().then((event) {
       if (event.snapshot.exists) {
-        Map<dynamic, dynamic>? values = event.snapshot.value as Map<dynamic, dynamic>?;
+        Map<dynamic, dynamic>? values =
+            event.snapshot.value as Map<dynamic, dynamic>?;
         if (values != null) {
           values.forEach((key, value) {
             transactions.add(TransactionModel.fromMap(value));

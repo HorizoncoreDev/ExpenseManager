@@ -59,8 +59,11 @@ class ExpenseCategory {
   String? name;
   Color color;
   String? icons;
+  String? created_by;
+  String? created_at;
+  String? updated_at;
 
-  ExpenseCategory({this.id, this.name, required this.color, this.icons});
+  ExpenseCategory({this.id, this.name, required this.color, this.icons,this.created_at,this.created_by,this.updated_at});
 
   factory ExpenseCategory.fromMap(Map<String, dynamic> map) {
     return ExpenseCategory(
@@ -68,6 +71,9 @@ class ExpenseCategory {
       name: map['name'],
       color: Color(map['color']),
       icons: map['icon'],
+      created_by: map['created_by'],
+      created_at: map['created_at'],
+      updated_at: map['updated_at'],
     );
   }
 
@@ -77,6 +83,9 @@ class ExpenseCategory {
       'name': name,
       'color': color.value,
       'icon': icons,
+      'created_by': created_by,
+      'created_at': created_at,
+      'updated_at': updated_at,
     };
   }
 }
@@ -87,11 +96,17 @@ class ExpenseCategoryField {
     id,
     name,
     color,
-    icons
+    icons,
+    created_by,
+    created_at,
+    updated_at
   ];
 
   static const String id = 'id';
   static const String name = 'name';
   static const String color = 'color';
   static const String icons = 'icon';
+  static const String created_by = 'created_by';
+  static const String created_at = 'created_at';
+  static const String updated_at = 'updated_at';
 }

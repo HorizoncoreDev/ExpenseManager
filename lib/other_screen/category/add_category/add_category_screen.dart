@@ -1,4 +1,5 @@
 import 'package:expense_manager/utils/extensions.dart';
+import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:flutter/material.dart';
@@ -255,7 +256,10 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
           parentId: 1,
           path: iconSelected,
           status: 1,
-          color: isSelectedColor!),
+          color: isSelectedColor!,
+      created_by: AppConstanst.createdByUser,
+      created_at: DateTime.now().toString(),
+      updated_at: DateTime.now().toString()),
     );
 
     Navigator.pop(context, true);
@@ -266,7 +270,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
 
     // Add save code here
     await databaseHelper.insertCategory(
-      ExpenseCategory(name: name, color: isSelectedColor!, icons: iconSelected),
+      ExpenseCategory(name: name, color: isSelectedColor!, icons: iconSelected,created_by: AppConstanst.createdByUser,
+          created_at: DateTime.now().toString(),
+          updated_at: DateTime.now().toString()),
     );
 
     Navigator.pop(context, true);

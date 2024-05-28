@@ -43,80 +43,232 @@ class Helper {
 
     List<ExpenseCategory> spendingCategories = [];
     spendingCategories.add(ExpenseCategory(
-        name: 'Dine out', color: Colors.blue, icons: 'ic_dine_out'));
+        name: 'Dine out',
+        color: Colors.blue,
+        icons: 'ic_dine_out',
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingCategories.add(ExpenseCategory(
-        name: 'Commute', color: Colors.blue, icons: 'ic_commute'));
+        name: 'Commute',
+        color: Colors.blue,
+        icons: 'ic_commute',
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingCategories.add(ExpenseCategory(
-        name: 'Enjoyment', color: Colors.blue, icons: 'ic_enjoyment'));
+        name: 'Enjoyment',
+        color: Colors.blue,
+        icons: 'ic_enjoyment',
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingCategories.add(ExpenseCategory(
-        name: 'Child care', color: Colors.blue, icons: 'ic_child_care'));
+        name: 'Child care',
+        color: Colors.blue,
+        icons: 'ic_child_care',
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingCategories.add(ExpenseCategory(
-        name: 'Shopping', color: Colors.blue, icons: 'ic_shopping'));
+        name: 'Shopping',
+        color: Colors.blue,
+        icons: 'ic_shopping',
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingCategories.add(ExpenseCategory(
-        name: 'Insurance', color: Colors.blue, icons: 'ic_insurance'));
+        name: 'Insurance',
+        color: Colors.blue,
+        icons: 'ic_insurance',
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingCategories.add(ExpenseCategory(
-        name: 'Health', color: Colors.blue, icons: 'ic_health'));
+        name: 'Health',
+        color: Colors.blue,
+        icons: 'ic_health',
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingCategories.add(ExpenseCategory(
-        name: 'Personal', color: Colors.blue, icons: 'ic_personal'));
+        name: 'Personal',
+        color: Colors.blue,
+        icons: 'ic_personal',
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     await databaseHelper.insertAllCategory(spendingCategories);
 
     List<ExpenseSubCategory> spendingSubCategories = [];
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'BreakFast', categoryId: 1, priority: AppConstanst.priorityHigh));
+        name: 'BreakFast',
+        categoryId: 1,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Lunch', categoryId: 1, priority: AppConstanst.priorityHigh));
+        name: 'Lunch',
+        categoryId: 1,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Dinner', categoryId: 1, priority: AppConstanst.priorityHigh));
+        name: 'Dinner',
+        categoryId: 1,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Snacks', categoryId: 1, priority: AppConstanst.priorityHigh));
+        name: 'Snacks',
+        categoryId: 1,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Fuel', categoryId: 2, priority: AppConstanst.priorityHigh));
+        name: 'Fuel',
+        categoryId: 2,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Movies', categoryId: 3, priority: AppConstanst.priorityHigh));
+        name: 'Movies',
+        categoryId: 3,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Concert', categoryId: 3, priority: AppConstanst.priorityHigh));
+        name: 'Concert',
+        categoryId: 3,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Party', categoryId: 3, priority: AppConstanst.priorityHigh));
+        name: 'Party',
+        categoryId: 3,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Sports', categoryId: 3, priority: AppConstanst.priorityHigh));
+        name: 'Sports',
+        categoryId: 3,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
         name: 'School Fees',
         categoryId: 4,
-        priority: AppConstanst.priorityHigh));
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Tuition', categoryId: 4, priority: AppConstanst.priorityHigh));
+        name: 'Tuition',
+        categoryId: 4,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
         name: 'Vaccination',
         categoryId: 4,
-        priority: AppConstanst.priorityHigh));
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Clothing', categoryId: 5, priority: AppConstanst.priorityHigh));
+        name: 'Clothing',
+        categoryId: 5,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Grocery', categoryId: 5, priority: AppConstanst.priorityHigh));
+        name: 'Grocery',
+        categoryId: 5,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
         name: 'Electronics',
         categoryId: 5,
-        priority: AppConstanst.priorityHigh));
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Auto', categoryId: 6, priority: AppConstanst.priorityHigh));
+        name: 'Auto',
+        categoryId: 6,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Health', categoryId: 6, priority: AppConstanst.priorityHigh));
+        name: 'Health',
+        categoryId: 6,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Home', categoryId: 6, priority: AppConstanst.priorityHigh));
+        name: 'Home',
+        categoryId: 6,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Life', categoryId: 6, priority: AppConstanst.priorityHigh));
+        name: 'Life',
+        categoryId: 6,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Dental', categoryId: 7, priority: AppConstanst.priorityHigh));
+        name: 'Dental',
+        categoryId: 7,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Eye Care', categoryId: 7, priority: AppConstanst.priorityHigh));
+        name: 'Eye Care',
+        categoryId: 7,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Nutrition', categoryId: 7, priority: AppConstanst.priorityHigh));
+        name: 'Nutrition',
+        categoryId: 7,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
         name: 'Personal Care',
         categoryId: 8,
-        priority: AppConstanst.priorityHigh));
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     spendingSubCategories.add(ExpenseSubCategory(
-        name: 'Gift', categoryId: 8, priority: AppConstanst.priorityHigh));
+        name: 'Gift',
+        categoryId: 8,
+        priority: AppConstanst.priorityHigh,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     await databaseHelper.insertAllSpendingSubCategory(spendingSubCategories);
 
     List<IncomeCategory> incomeCategories = [];
@@ -125,37 +277,55 @@ class Helper {
         color: Colors.blue,
         path: 'ic_salary',
         parentId: 1,
-        status: 1));
+        status: 1,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     incomeCategories.add(IncomeCategory(
         name: 'Bonus',
         color: Colors.blue,
         path: 'ic_bonus',
         parentId: 1,
-        status: 1));
+        status: 1,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     incomeCategories.add(IncomeCategory(
         name: 'Part-Time Work',
         color: Colors.blue,
         path: 'ic_part_time_work',
         parentId: 1,
-        status: 1));
+        status: 1,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     incomeCategories.add(IncomeCategory(
         name: 'Pensions',
         color: Colors.blue,
         path: 'ic_pension',
         parentId: 1,
-        status: 1));
+        status: 1,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     incomeCategories.add(IncomeCategory(
         name: 'Equities',
         color: Colors.blue,
         path: 'ic_equity',
         parentId: 1,
-        status: 1));
+        status: 1,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     incomeCategories.add(IncomeCategory(
         name: 'Coupons',
         color: Colors.blue,
         path: 'ic_coupon',
         parentId: 1,
-        status: 1));
+        status: 1,
+        created_at: DateTime.now().toString(),
+        updated_at: DateTime.now().toString(),
+        created_by: AppConstanst.createdBySystem));
     await databaseHelper.insertIncomeAllCategory(incomeCategories);
 
     List<PaymentMethod> paymentMethods = [];

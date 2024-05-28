@@ -95,6 +95,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   String userEmail = "";
   String currentUserEmail = "";
   String currentUserKey = "";
+  String currentAccountKey = "";
   bool isSkippedUser = false;
   bool isSpendingFilterCleared = false;
   bool isIncomeFilterCleared = false;
@@ -528,8 +529,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               incomeSelectedCategoryIndex != -1
                   ? incomeCategoryList[incomeSelectedCategoryIndex].catId!
                   : -1,
-              currentUserEmail,
               currentUserKey,
+              currentAccountKey,
               AppConstanst.incomeTransaction,
               "",
               isSkippedUser)
@@ -554,8 +555,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   ? spendingCategoryList[spendingSelectedCategoryIndex].catId!
                   : -1,
               -1,
-              currentUserEmail,
               currentUserKey,
+              currentAccountKey,
               AppConstanst.spendingTransaction,
               "",
               isSkippedUser)
@@ -576,7 +577,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     dateWiseIncomeTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForCurrentMonth(AppConstanst.incomeTransaction,
-            currentUserEmail, currentUserKey, isSkippedUser)
+            currentUserKey, currentAccountKey, isSkippedUser)
         .then((value) {
       parseIncomeList(value);
     });
@@ -602,7 +603,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,
-            currentUserEmail, currentUserKey, isSkippedUser)
+            currentUserKey, currentAccountKey, isSkippedUser)
         .then((value) {
       parseSpendingList(value);
     });
@@ -621,6 +622,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             .then((value) {
           if (value != null) {
             currentUserKey = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentAccountKey)
+            .then((value) {
+          if (value != null) {
+            currentAccountKey = value;
             MySharedPreferences.instance
                 .getStringValuesSF(SharedPreferencesKeys.userEmail)
                 .then((value) {
@@ -644,6 +650,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               }
             });
           }
+        });}
         });
       }
     });

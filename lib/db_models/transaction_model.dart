@@ -7,8 +7,8 @@ class TransactionFields {
     /// Add all fields
     // id,
     key,
-    // member_id,
-    member_email,
+    member_key,
+    account_key,
     amount,
     expense_cat_id,
     income_cat_id,
@@ -35,7 +35,8 @@ class TransactionFields {
   static const String key = 'key';
 
   // static const String member_id = 'member_id';
-  static const String member_email = 'member_email';
+  static const String member_key = 'member_key';
+  static const String account_key = 'account_key';
   static const String amount = 'amount';
   static const String expense_cat_id = 'expense_cat_id';
   static const String income_cat_id = 'income_cat_id';
@@ -62,7 +63,8 @@ class TransactionFields {
 class TransactionModel {
   // int? id;
   // int? member_id;
-  String? member_email;
+  String? member_key;
+  String? account_key;
   String? key;
   int? amount;
   int? expense_cat_id;
@@ -90,7 +92,8 @@ class TransactionModel {
     // this.id,
     // this.member_id,
     this.key,
-    this.member_email,
+    this.member_key,
+    this.account_key,
     this.amount,
     this.expense_cat_id,
     this.income_cat_id,
@@ -119,7 +122,8 @@ class TransactionModel {
       // id: json['id'],
       key: json['key'],
       // member_id: json['member_id'],
-      member_email: json['member_email'],
+      member_key: json['member_key'],
+      account_key: json['account_key'],
       amount: json['amount'],
       expense_cat_id: json['expense_cat_id'],
       income_cat_id: json['income_cat_id'],
@@ -149,7 +153,8 @@ class TransactionModel {
       // id: map['id'],
       key: map['key'],
       // member_id: map['member_id'],
-      member_email: map['member_email'],
+      member_key: map['member_key'],
+      account_key: map['account_key'],
       amount: map['amount'],
       expense_cat_id: map['expense_cat_id'],
       income_cat_id: map['income_cat_id'],
@@ -176,7 +181,8 @@ class TransactionModel {
 
   factory TransactionModel.fromMapForCSV(Map<dynamic, dynamic> map) {
     return TransactionModel(
-      member_email: map['member_email'],
+      member_key: map['member_key'],
+      account_key: map['account_key'],
       amount: map['amount'],
       cat_name: map['cat_name'],
       cat_type: map['cat_type'],
@@ -196,7 +202,8 @@ class TransactionModel {
       // 'id': id,
       'key': key,
       // 'member_id': member_id,
-      'member_email': member_email,
+      'member_key': member_key,
+      'account_key': account_key,
       'amount': amount,
       'expense_cat_id': expense_cat_id,
       'income_cat_id': income_cat_id,
@@ -226,7 +233,8 @@ class TransactionModel {
       // 'id': id,
       'key': key,
       // 'member_id': member_id,
-      'member_email': member_email,
+      'member_key': member_key,
+      'account_key': account_key,
       'amount': amount,
       'expense_cat_id': expense_cat_id,
       'income_cat_id': income_cat_id,

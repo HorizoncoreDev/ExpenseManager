@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import '../../../db_models/expense_sub_category.dart';
 import '../../../db_models/income_sub_category.dart';
 import '../../../db_service/database_helper.dart';
+import '../../../utils/global.dart';
 import '../../../utils/views/custom_text_form_field.dart';
 
 class SubCategoryScreen extends StatefulWidget {
@@ -286,7 +287,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
     await databaseHelper.insertIncomeSubCategory(
       widget.categoryId,
       IncomeSubCategory(
-          name: name, categoryId: widget.categoryId, priority: ""),
+          name: name, categoryId: widget.categoryId, priority: "",created_by: AppConstanst.createdByUser,
+          created_at: DateTime.now().toString(),
+          updated_at: DateTime.now().toString()),
     );
     getIncomeSubCategory();
     //Navigator.pop(context);
@@ -298,7 +301,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
     await databaseHelper.insertSpendingSubCategory(
       widget.categoryId,
       ExpenseSubCategory(
-          name: name, categoryId: widget.categoryId, priority: ""),
+          name: name, categoryId: widget.categoryId, priority: "",created_by: AppConstanst.createdByUser,
+          created_at: DateTime.now().toString(),
+          updated_at: DateTime.now().toString()),
     );
     getSpendingSubCategory();
     //Navigator.pop(context);

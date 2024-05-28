@@ -388,7 +388,7 @@ class MasterPasswordDialog {
 
           TransactionModel transactionModel = TransactionModel(
             key: transactionKey,
-            member_email: importEmail,
+            member_key: importEmail,
             amount: amount,
             expense_cat_id: categoryType == 0 && transactionType == 1
                 ? catIds

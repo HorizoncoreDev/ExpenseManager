@@ -1,4 +1,3 @@
-import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
@@ -16,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+import '../../db_models/accounts_model.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import '../edit_spending/edit_spending_screen.dart';
 
@@ -31,7 +31,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
 
   String currentUserEmail = "";
   String userEmail = "";
-  String userKey = "";
+  String currentUserKey = "";
+  String currentAccountKey = "";
   bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
   List<DateWiseTransactionModel> dateWiseTransaction = [];
@@ -325,10 +326,11 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                     onTap: () {
                                       bool currentEmail = userEmail.isNotEmpty
                                           ? userEmail == currentUserEmail
-                                          ? true
-                                          : userAccess == AppConstanst.editAccess
-                                          ? true
-                                          : false
+                                              ? true
+                                              : userAccess ==
+                                                      AppConstanst.editAccess
+                                                  ? true
+                                                  : false
                                           : true;
                                       if (currentEmail) {
                                         Navigator.of(context,
@@ -556,8 +558,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 ? categoryList[selectedCategoryIndex].catId!
                 : -1,
             -1,
-            currentUserEmail,
-            userKey,
+            currentUserKey,
+            currentAccountKey,
             AppConstanst.incomeTransaction,
             value,
             isSkippedUser)
@@ -642,8 +644,8 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
     List<TransactionModel> incomeTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
-        .getTransactionList(value.toLowerCase(), currentUserEmail, userKey,
-            AppConstanst.incomeTransaction, isSkippedUser)
+        .getTransactionList(value.toLowerCase(), currentUserKey,
+            currentAccountKey, AppConstanst.incomeTransaction, isSkippedUser)
         .then((value) async {
       incomeTransaction = value;
       List<String> dates = [];
@@ -720,45 +722,29 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   }
 
   getProfileData() async {
-     try {
-      /*if (currentUserEmail == userEmail) {
-        ProfileModel? fetchedProfileData =
-            await databaseHelper.getProfileData(currentUserEmail);
-        setState(() {
-          currentBalance = int.parse(fetchedProfileData!.current_balance!);
-          actualBudget = int.parse(fetchedProfileData.actual_budget!);
-          currentIncome = int.parse(fetchedProfileData.current_income!);
-          incomePercentage = currentIncome < actualBudget
-              ? (currentIncome / actualBudget) * 100
-              : 100;
-        });
-      } else {*/
     final reference = FirebaseDatabase.instance
         .reference()
-        .child(profile_table)
-        .orderByChild(ProfileTableFields.email)
-        .equalTo(currentUserEmail);
-
+        .child(accounts_table)
+        .child(currentUserKey)
+        .orderByChild(AccountTableFields.key)
+        .equalTo(currentAccountKey);
     reference.onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =
             dataSnapshot.value as Map<dynamic, dynamic>;
         values.forEach((key, value) async {
-          var profileModel = ProfileModel.fromMap(value);
-          currentBalance = int.parse(profileModel.current_balance!);
-          currentIncome = int.parse(profileModel.current_income!);
-          actualBudget = int.parse(profileModel.actual_budget!);
+          var accountModel = AccountsModel.fromMap(value);
+
+          currentBalance = int.parse(accountModel.balance!);
+          currentIncome = int.parse(accountModel.income!);
+          actualBudget = int.parse(accountModel.budget!);
           incomePercentage = currentIncome < actualBudget
               ? (currentIncome / actualBudget) * 100
               : 100;
         });
       }
     });
-    // }
-    } catch (error) {
-      print('Error fetching Profile Data: $error');
-    }
   }
 
   @override
@@ -784,14 +770,22 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                 .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
                 .then((value) {
               if (value != null) {
-                userKey = value;
+                currentUserKey = value;
               } MySharedPreferences.instance
-                .getIntValuesSF(SharedPreferencesKeys.userAccessType)
+                .getStringValuesSF(SharedPreferencesKeys.currentAccountKey)
                 .then((value) {
               if (value != null) {
-                userAccess = value;
-              }});
+                currentAccountKey = value;
+              }
+              MySharedPreferences.instance
+                  .getIntValuesSF(SharedPreferencesKeys.userAccessType)
+                  .then((value) {
+                if (value != null) {
+                  userAccess = value;
+                }
+              });
               getIncomeTransactions("");
+            });
             });
           });
         });
