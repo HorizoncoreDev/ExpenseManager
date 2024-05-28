@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../budget/budget_screen.dart';
+import '../db_models/accounts_model.dart';
 import '../db_models/profile_model.dart';
 import '../db_service/database_helper.dart';
 import '../utils/global.dart';
@@ -287,20 +288,40 @@ class _SignInScreenState extends State<SignInScreen> {
                       lang_code: languageCode,
                       currency_code: "",
                       currency_symbol: "",
+                        register_type: AppConstanst.gmailRegistration,
+                        register_otp: "",
+                        created_at: DateTime.now().toString(),
+                        updated_at: DateTime.now().toString()
                     );
-                    await databaseHelper.insertProfileData(profileModel, false);
+
+                    AccountsModel accountsModel = AccountsModel(
+                        account_name:user.displayName,
+                        description:"",
+                        budget:currentActualBudget,
+                        balance:currentBalance,
+                        income: currentIncome,
+                        balance_date:DateTime.now().toString(),
+                        account_status:AppConstanst.activeAccount,
+                        created_at: DateTime.now().toString(),
+                        updated_at: DateTime.now().toString()
+                    );
+
+                    await databaseHelper.insertProfileData(profileModel, false,accountsModel);
 
                     await databaseHelper
                         .getProfileData(user.email!)
                         .then((profileData) async {
                       if (profileData != null) {
                         // profileModel!.id = profileData.id;
+
                         await databaseHelper.updateProfileData(profileModel);
+                        await databaseHelper.updateAccountData(accountsModel);
                       } else {
                         await databaseHelper.insertProfileData(
-                            profileModel, false);
+                            profileModel, false,accountsModel);
                       }
                     });
+
                     await DatabaseHelper.instance
                         .getTransactionList("", "", "", -1, true)
                         .then((value) async {
@@ -367,15 +388,30 @@ class _SignInScreenState extends State<SignInScreen> {
                 DataSnapshot dataSnapshot = event.snapshot;
                 if (event.snapshot.exists && !profileCheckCalledOnce) {
                   ProfileModel? profileModel;
+                  AccountsModel? accountsModel;
                   Map<dynamic, dynamic> values =
                       dataSnapshot.value as Map<dynamic, dynamic>;
                   values.forEach((key, value) async {
                     profileModel = ProfileModel.fromMap(value);
+
                     profileModel!.fcm_token = fcmToken;
                     final Map<String, Map> updates = {};
                     updates['/$profile_table/${profileModel!.key}'] =
                         profileModel!.toMap();
                     FirebaseDatabase.instance.ref().update(updates);
+
+                     /*accountsModel = AccountsModel(
+                        account_name:value[ProfileTableFields.full_name],
+                        description:"",
+                        budget:value[ProfileTableFields.actual_budget],
+                        balance:value[ProfileTableFields.current_balance],
+                        income: value[ProfileTableFields.current_income],
+                        balance_date:DateTime.now().toString(),
+                        account_status:AppConstanst.activeAccount,
+                        created_at: DateTime.now().toString(),
+                        updated_at: DateTime.now().toString()
+                    );*/
+
                   });
 
                   await databaseHelper
@@ -384,11 +420,12 @@ class _SignInScreenState extends State<SignInScreen> {
                     if (profileData != null) {
                       // profileModel!.id = profileData.id;
                       await databaseHelper.updateProfileData(profileModel!);
+                      //await databaseHelper.updateAccountData(accountsModel!);
                     } else {
                       if (!calledOnce) {
                         calledOnce = true;
                         await databaseHelper.insertProfileData(
-                            profileModel!, true);
+                            profileModel!, true,accountsModel!);
                       }
                     }
                   });
@@ -444,8 +481,25 @@ class _SignInScreenState extends State<SignInScreen> {
                       lang_code: languageCode,
                       currency_code: "",
                       currency_symbol: "",
+                      register_type: AppConstanst.gmailRegistration,
+                      register_otp: "",
+                      created_at: DateTime.now().toString(),
+                      updated_at: DateTime.now().toString()
                     );
-                    await databaseHelper.insertProfileData(profileModel, false);
+
+                    AccountsModel accountsModel = AccountsModel(
+                    account_name:user.displayName,
+                    description:"",
+                    budget:"0",
+                    balance:"0",
+                    income: "0",
+                    balance_date:DateTime.now().toString(),
+                    account_status:AppConstanst.activeAccount,
+                    created_at: DateTime.now().toString(),
+                    updated_at: DateTime.now().toString()
+                    );
+
+                    await databaseHelper.insertProfileData(profileModel, false,accountsModel);
 
                     MySharedPreferences.instance.addStringToSF(
                         SharedPreferencesKeys.userEmail, user.email);

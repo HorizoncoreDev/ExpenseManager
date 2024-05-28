@@ -15,6 +15,7 @@ import 'package:expense_manager/utils/helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
+import 'package:googleapis/adsense/v2.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -1014,7 +1015,7 @@ return completer.future;*/
 
   // Insert ProfileData
   Future<void> insertProfileData(
-      ProfileModel profileModel, bool isProfileExistInFirebaseDb) async {
+      ProfileModel profileModel, bool isProfileExistInFirebaseDb,AccountsModel accountModel) async {
     Database db = await database;
 
     if (!isProfileExistInFirebaseDb) {
@@ -1025,10 +1026,22 @@ return completer.future;*/
           .set(
             profileModel.toMap(),
           );
+
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+      .child(FirebaseAuth.instance.currentUser!.uid);
+      var newPostRef = reference.push();
+      accountModel.key = newPostRef.key;
+      accountModel.owner_user_key = FirebaseAuth.instance.currentUser!.uid;
+      newPostRef.set(
+        accountModel.toMap(),
+      );
     }
 
     await db.insert(profile_table, profileModel.toMap());
   }
+
 
   /// Insert Spending Sub Category
   Future<void> insertSpendingSubCategory(
@@ -1149,6 +1162,7 @@ return completer.future;*/
 
   // Update ProfileData
   Future<void> updateProfileData(ProfileModel profileModel) async {
+    profileModel.updated_at = DateTime.now().toString();
     try {
       final db = await database;
       await db.update(profile_table, profileModel.toMap(),
@@ -1159,6 +1173,22 @@ return completer.future;*/
     }
     final Map<String, Map> updates = {};
     updates['/$profile_table/${profileModel.key}'] = profileModel.toMap();
+    FirebaseDatabase.instance.ref().update(updates);
+  }
+
+ // Update AccountData
+  Future<void> updateAccountData(AccountsModel accountsModel) async {
+    accountsModel.updated_at = DateTime.now().toString();
+    try {
+      final db = await database;
+      await db.update(accounts_table, accountsModel.toMap(),
+          where: '${AccountTableFields.owner_user_key} = ?',
+          whereArgs: [accountsModel.owner_user_key]);
+    }catch(e){
+      e.printError();
+    }
+    final Map<String, Map> updates = {};
+    updates['/$accounts_table/${accountsModel.owner_user_key}/${accountsModel.key}'] = accountsModel.toMap();
     FirebaseDatabase.instance.ref().update(updates);
   }
 
@@ -1325,7 +1355,27 @@ return completer.future;*/
       ${ProfileTableFields.fcm_token} $textType,
       ${ProfileTableFields.lang_code} $textType,
       ${ProfileTableFields.currency_code} $textType,
-      ${ProfileTableFields.currency_symbol} $textType
+      ${ProfileTableFields.currency_symbol} $textType,
+      ${ProfileTableFields.register_type} $integerType,
+      ${ProfileTableFields.register_otp} $textType,
+      ${ProfileTableFields.created_at} $textType,
+      ${ProfileTableFields.updated_at} $textType
+      )
+   ''');
+
+    await db.execute('''
+      CREATE TABLE $accounts_table(
+      ${AccountTableFields.key} $keyType,
+      ${AccountTableFields.owner_user_key} $textType,
+      ${AccountTableFields.account_name} $textType,
+      ${AccountTableFields.description} $textType,
+      ${AccountTableFields.budget} $textType,
+      ${AccountTableFields.balance} $textType,
+      ${AccountTableFields.income} $textType,
+      ${AccountTableFields.balance_date} $textType,
+      ${AccountTableFields.account_status} $integerType,
+      ${AccountTableFields.created_at} $textType,
+      ${AccountTableFields.updated_at} $textType
       )
    ''');
   }

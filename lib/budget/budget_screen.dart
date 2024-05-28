@@ -1,15 +1,18 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/currency_category_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../dashboard/dashboard.dart';
+import '../db_models/profile_model.dart';
 import '../utils/global.dart';
 import '../utils/views/custom_text_form_field.dart';
 
@@ -82,8 +85,32 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             currencyCode.isEmpty ? "INR" : currencyCode;
                         profileData.currency_symbol =
                             currencySymbol.isEmpty ? "\u20B9" : currencySymbol;
+
+                        final reference = FirebaseDatabase.instance
+                            .reference()
+                            .child(accounts_table)
+                            .child(profileData.key!)
+                       /* .orderByChild(AccountTableFields.account_name)
+                        .equalTo(profileData.full_name)*/;
+
+                        reference.once().then((event) async {
+                          DataSnapshot dataSnapshot = event.snapshot;
+                          if (event.snapshot.exists) {
+                            Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+                            values.forEach((key, value) async {
+                              AccountsModel?  accountsModel = AccountsModel.fromMap(value);
+                              accountsModel.budget = budgetController.text.toString();
+                              accountsModel.balance =  budgetController.text.toString();
+                              await DatabaseHelper.instance
+                                  .updateAccountData(accountsModel);
+                            });
+                          }
+                        });
+
+
                         await DatabaseHelper.instance
                             .updateProfileData(profileData);
+
 
                         MySharedPreferences.instance.addBoolToSF(
                             SharedPreferencesKeys.isBudgetAdded, true);
