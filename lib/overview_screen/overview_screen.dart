@@ -1,3 +1,4 @@
+import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
@@ -14,8 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
-import '../db_models/request_model.dart';
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
 import '../statistics/search/search_screen.dart';
@@ -47,6 +46,7 @@ class OverviewScreenState extends State<OverviewScreen> {
   bool isSkippedUser = false, loading = true;
   final databaseHelper = DatabaseHelper();
   ProfileModel profileModel = ProfileModel();
+  AccountsModel accountsModel = AccountsModel();
   List<TransactionModel> spendingTransaction = [];
 
   @override
@@ -170,8 +170,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     .push(
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          const OtherScreen()),
-                                )
+                                          const OtherScreen()),)
                                     .then((value) {
                                   widget.onAccountUpdate();
                                   MySharedPreferences.instance
@@ -379,17 +378,40 @@ class OverviewScreenState extends State<OverviewScreen> {
     });
   }
 
+  getAccountData() async {
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(accounts_table)
+        .orderByChild(AccountTableFields.account_name)
+        .equalTo(currentUserEmail);
+    try{
+      reference.onValue.listen((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+          dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            profileModel = ProfileModel.fromMap(value);
+            currentBalance = int.parse(profileModel.current_balance!);
+            currentIncome = int.parse(profileModel.current_income!);
+            actualBudget = int.parse(profileModel.actual_budget!);
+          });
+        }
+      });
+      // }
+    } catch (error) {
+      print('Error fetching Profile Data: $error');
+    }
+  }
 
-
+  ///Get data from profile
   getProfileData() async {
-
     final reference = FirebaseDatabase.instance
         .reference()
         .child(profile_table)
         .orderByChild(ProfileTableFields.email)
         .equalTo(currentUserEmail);
-try{
-
+    try{
       reference.onValue.listen((event) {
         DataSnapshot dataSnapshot = event.snapshot;
         if (event.snapshot.exists) {

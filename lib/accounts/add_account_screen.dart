@@ -1,4 +1,5 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/currency_category_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/utils/extensions.dart';
@@ -27,6 +28,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController balanceController = TextEditingController();
+  TextEditingController incomeController = TextEditingController();
 
   String userEmail = '';
   bool isSkippedUser = false;
@@ -36,6 +38,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   String currencyCode = "";
   String currencySymbol = "";
   bool currencyDropdownOpen = false;
+  List<AccountsModel> accontsList = [];
   DateTime selectedDate = DateTime.now();
 
   String formattedDate() {
@@ -47,8 +50,21 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
     return SafeArea(
       child: Scaffold(
         bottomNavigationBar: InkWell(
-          onTap: () {
+          onTap: () async {
+            AccountsModel accountsModel = AccountsModel(
+                account_name:nameController.text,
+                description:descriptionController.text,
+                budget:budgetController.text,
+                balance:balanceController.text,
+                income: incomeController.text,
+                balance_date:selectedDate.toString(),
+                account_status:AppConstanst.activeAccount,
+                created_at: DateTime.now().toString(),
+                updated_at: DateTime.now().toString()
+            );
 
+            await databaseHelper.insertAccountData(accountsModel, false);
+            Navigator.pop(context, true);
           },
           child: Container(
             width: double.infinity,
@@ -354,6 +370,47 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                             setState(() {
                               FocusScope.of(context).unfocus();
                               balanceController.clear();
+                            });
+                          },
+                          child: const Icon(
+                            Icons.cancel,
+                            color: Colors.grey,
+                          ))
+                          : 0.widthBox,
+                      onChanged: (value) {
+                        setState(() {
+                          /* getShortName(firstNameController.text,
+                              lastNameController.text);*/
+                        });
+                      },
+                      validator: (value) {
+                        return null;
+                      },
+                    ),
+                  ),
+                  20.heightBox,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: CustomBoxTextFormField(
+                      controller: incomeController,
+                      keyboardType: TextInputType.text,
+                      hintText: "Enter income",
+                      padding: 15,
+                      borderColor: Helper.getCardColor(context),
+                      hintColor: Helper.getTextColor(context),
+                      textStyle: const TextStyle(fontSize: 16),
+                      borderRadius: BorderRadius.circular(6),
+                      fillColor: Helper.getCardColor(context),
+                      prefixIcon: const Icon(
+                        Icons.account_balance_wallet_outlined,
+                        color: Colors.blue,
+                      ),
+                      suffixIcon: incomeController.text.isNotEmpty
+                          ? InkWell(
+                          onTap: () {
+                            setState(() {
+                              FocusScope.of(context).unfocus();
+                              incomeController.clear();
                             });
                           },
                           child: const Icon(

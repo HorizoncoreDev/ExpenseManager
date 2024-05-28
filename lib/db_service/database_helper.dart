@@ -678,7 +678,8 @@ class DatabaseHelper {
 
     if (map.isNotEmpty) {
       return ProfileModel.fromJson(map.first);
-    } else {
+    }
+    else {
       return null;
     }
     /* final reference = FirebaseDatabase.instance
@@ -705,7 +706,43 @@ class DatabaseHelper {
 return completer.future;*/
   }
 
-  // A method that retrieves Profile Data from the Profile table.
+  Future<AccountsModel?> getAccountData(String accountKey) async {
+    Database db = await database;
+    final map = await db.rawQuery(
+        "SELECT * FROM $accounts_table WHERE ${AccountTableFields.owner_user_key} = ?",
+        [accountKey]);
+
+    if (map.isNotEmpty) {
+      return AccountsModel.fromJson(map.first);
+    }
+    else {
+      return null;
+    }
+    /* final reference = FirebaseDatabase.instance
+        .reference()
+        .child(profile_table)
+        .orderByChild(ProfileTableFields.email)
+        .equalTo(email);
+
+    Completer<ProfileModel?> completer = Completer<ProfileModel?>();
+
+    reference.once().then((event) async {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+        dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+          ProfileModel?  profileModel = ProfileModel.fromMap(value);
+          completer.complete(profileModel);
+        });
+      }else{
+        completer.complete(null);
+      }
+      });
+return completer.future;*/
+  }
+
+  /// A method that retrieves Profile Data from the Profile table.
   Future<List<ProfileModel>> getProfileDataList() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(profile_table);
@@ -1040,8 +1077,29 @@ return completer.future;*/
     }
 
     await db.insert(profile_table, profileModel.toMap());
+    await db.insert(accounts_table, accountModel.toMap());
   }
 
+  Future<void> insertAccountData(
+      AccountsModel accountsModel, bool isAccountExistInFirebaseDb) async {
+    Database db = await database;
+
+    if (!isAccountExistInFirebaseDb) {
+
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+          .child(FirebaseAuth.instance.currentUser!.uid);
+      var newPostRef = reference.push();
+      accountsModel.key = newPostRef.key;
+      accountsModel.owner_user_key = FirebaseAuth.instance.currentUser!.uid;
+      newPostRef.set(
+        accountsModel.toMap(),
+      );
+    }
+
+    await db.insert(accounts_table, accountsModel.toMap());
+  }
 
   /// Insert Spending Sub Category
   Future<void> insertSpendingSubCategory(
@@ -1160,7 +1218,7 @@ return completer.future;*/
         where: '${PaymentMethodFields.id} = ?', whereArgs: [paymentMethod.id]);
   }
 
-  // Update ProfileData
+  /// Update ProfileData
   Future<void> updateProfileData(ProfileModel profileModel) async {
     profileModel.updated_at = DateTime.now().toString();
     try {
@@ -1323,15 +1381,15 @@ return completer.future;*/
 
     await db.execute('''
       CREATE TABLE $accounts_table(
-      ${AccountTableFields.account_id} $idType,
-      ${AccountTableFields.key} $textType,
-      ${AccountTableFields.owner_user_id} $integerType,
+      ${AccountTableFields.key} $keyType,
+      ${AccountTableFields.owner_user_key} $textType,
       ${AccountTableFields.account_name} $textType,
       ${AccountTableFields.description} $textType,
       ${AccountTableFields.budget} $textType,
       ${AccountTableFields.balance} $textType,
+      ${AccountTableFields.income} $textType,
       ${AccountTableFields.balance_date} $textType,
-      ${AccountTableFields.account_status} $textType,
+      ${AccountTableFields.account_status} $integerType,
       ${AccountTableFields.created_at} $textType,
       ${AccountTableFields.updated_at} $textType
       )
@@ -1363,21 +1421,6 @@ return completer.future;*/
       )
    ''');
 
-    await db.execute('''
-      CREATE TABLE $accounts_table(
-      ${AccountTableFields.key} $keyType,
-      ${AccountTableFields.owner_user_key} $textType,
-      ${AccountTableFields.account_name} $textType,
-      ${AccountTableFields.description} $textType,
-      ${AccountTableFields.budget} $textType,
-      ${AccountTableFields.balance} $textType,
-      ${AccountTableFields.income} $textType,
-      ${AccountTableFields.balance_date} $textType,
-      ${AccountTableFields.account_status} $integerType,
-      ${AccountTableFields.created_at} $textType,
-      ${AccountTableFields.updated_at} $textType
-      )
-   ''');
   }
 
   static Future<String> exportAllToCSV(String userEmail) async {
