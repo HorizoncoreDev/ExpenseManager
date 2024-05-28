@@ -1,4 +1,3 @@
-
 class AddAccountModel {
   String? name;
   String? description;
@@ -6,7 +5,6 @@ class AddAccountModel {
   String? balance;
   String? balanceDate;
   String? status;
-
 
   AddAccountModel({
     this.name,

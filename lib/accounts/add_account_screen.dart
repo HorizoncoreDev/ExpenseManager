@@ -42,14 +42,13 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
     return DateFormat('dd/MM/yyyy').format(selectedDate);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         bottomNavigationBar: InkWell(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> const AddAccountScreen()));
+
           },
           child: Container(
             width: double.infinity,
@@ -69,22 +68,25 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
             automaticallyImplyLeading: false,
             backgroundColor: Helper.getBackgroundColor(context),
             titleSpacing: 10,
-            title: Row(
-              children: [
-                InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Icon(
-                      Icons.arrow_back_ios,
-                      color: Helper.getTextColor(context),
-                    )),
-                Text(LocaleKeys.addAccount.tr,
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Helper.getTextColor(context),
-                    )),
-              ],
+            title: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Row(
+                children: [
+                  InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(
+                        Icons.arrow_back_ios,
+                        color: Helper.getTextColor(context),
+                      )),
+                  Text(LocaleKeys.addAccount.tr,
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Helper.getTextColor(context),
+                      )),
+                ],
+              ),
             ),
             actions: [
         /*      InkWell(
