@@ -1,7 +1,7 @@
 const String profile_table = 'profile_table';
 
 class ProfileModel {
-  // int? id;
+ // int? user_id;
   String? key;
   String? first_name;
   String? last_name;
@@ -19,9 +19,14 @@ class ProfileModel {
   String? lang_code;
   String? currency_code;
   String? currency_symbol;
+  int? register_type;//(1=Gmail, 2=Facebook, 3=Mobile, 4=Email)
+  String? register_otp;
+  String? created_at;
+  String? updated_at;
+
 
   ProfileModel({
-    // this.id,
+   // this.user_id,
     this.key,
     this.first_name,
     this.last_name,
@@ -39,11 +44,15 @@ class ProfileModel {
     this.lang_code,
     this.currency_code,
     this.currency_symbol,
+    this.register_type,
+    this.register_otp,
+    this.created_at,
+    this.updated_at
   });
 
   factory ProfileModel.fromMap(Map<dynamic, dynamic> map) {
     return ProfileModel(
-        // id: map['id'],
+        // user_id: map['user_id'],
         key: map['key'],
         first_name: map['first_name'],
         last_name: map['last_name'],
@@ -60,12 +69,17 @@ class ProfileModel {
         fcm_token: map['fcm_token'],
         lang_code: map['lang_code'],
         currency_code: map['currency_code'],
+        register_type: map['register_type'],
+        register_otp: map['register_otp'],
+        created_at: map['created_at'],
+        updated_at: map['updated_at'],
         currency_symbol: map['currency_symbol']);
+
   }
 
   Map<String, dynamic> toMap() {
     return {
-      // 'id': id,
+     //  'user_id': user_id,
       'key': key,
       'first_name': first_name,
       'last_name': last_name,
@@ -83,11 +97,15 @@ class ProfileModel {
       'lang_code': lang_code,
       'currency_code': currency_code,
       'currency_symbol': currency_symbol,
+      'register_type': register_type,
+      'register_otp': register_otp,
+      'created_at': created_at,
+      'updated_at': updated_at,
     };
   }
 
   static ProfileModel fromJson(Map<String, Object?> json) => ProfileModel(
-        // id: json[ProfileTableFields.id] as int,
+      //   user_id: json[ProfileTableFields.user_id] as int,
         key: json[ProfileTableFields.key] as String,
         first_name: json[ProfileTableFields.first_name] as String,
         last_name: json[ProfileTableFields.last_name] as String,
@@ -105,13 +123,17 @@ class ProfileModel {
         lang_code: json[ProfileTableFields.lang_code] as String,
         currency_code: json[ProfileTableFields.currency_code] as String,
         currency_symbol: json[ProfileTableFields.currency_symbol] as String,
+        register_type: json[ProfileTableFields.register_type] as int,
+        register_otp: json[ProfileTableFields.register_otp] as String,
+        created_at: json[ProfileTableFields.created_at] as String,
+        updated_at: json[ProfileTableFields.updated_at] as String,
       );
 }
 
 class ProfileTableFields {
   static final List<String> values = [
     /// Add all fields
-    // id,
+   //  user_id,
     key,
     first_name,
     last_name,
@@ -129,9 +151,17 @@ class ProfileTableFields {
     lang_code,
     currency_code,
     currency_symbol,
+    register_type,
+    register_otp,
+    created_at,
+    updated_at
   ];
 
-  // static const String id = 'id';
+   static const String user_id = 'user_id';
+   static const String register_type = 'register_type';
+   static const String register_otp = 'register_otp';
+   static const String created_at = 'created_at';
+   static const String updated_at = 'updated_at';
   static const String key = 'key';
   static const String first_name = 'first_name';
   static const String last_name = 'last_name';

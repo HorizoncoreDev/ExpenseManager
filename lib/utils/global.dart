@@ -22,6 +22,14 @@ abstract class AppConstanst {
   static const int mainCategory = 0;
   static const int subCategory = 1;
 
+ static const int gmailRegistration = 1;
+ static const int fbRegistration = 2;
+ static const int mobileRegistration = 3;
+ static const int emailRegistration = 4;
+
+ static const int activeAccount = 1;
+ static const int deletedAccount = 1;
+
  static const int viewOnlyAccess = 1;
   static const int editAccess = 2;
 
