@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:expense_manager/accounts/add_account_screen.dart';
+import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_models/request_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
@@ -8,14 +10,10 @@ import 'package:expense_manager/utils/global.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-
-import 'add_account_screen.dart';
 
 enum AccessType { edit, viewOnly }
 
@@ -28,11 +26,13 @@ class FamilyAccountScreen extends StatefulWidget {
 
 class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
   final databaseHelper = DatabaseHelper.instance;
-  String userEmail = '', userName = '', currentUserEmail = '';
+  String userEmail = '', userName = '', currentUserEmail = '', ownerKey = '';
   bool isLoading = true;
   ProfileModel? profileData;
+  AccountsModel? accountsModel;
   List<RequestModel?> requestList = [];
   List<RequestModel?> accessRequestList = [];
+  List<AccountsModel?> accountsList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +61,13 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
         ),
         bottomNavigationBar: InkWell(
           onTap: () {
-            MyDialog().showAddAccountDialog(
-                context: context, profileModel: profileData!);
+            Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AddAccountScreen()))
+                .then((value) {
+              if (value != null && value) {
+                getAccountsList();
+              }
+            });
           },
           child: Container(
             width: double.infinity,
@@ -96,8 +101,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            accessRequestList.isNotEmpty
-                                ? "${LocaleKeys.currently.tr} ${1 + accessRequestList.length} ${LocaleKeys.members.tr}"
+                            accountsList.isNotEmpty
+                                ? "${LocaleKeys.currently.tr} ${accountsList.length} ${LocaleKeys.account.tr.toLowerCase()}"
                                 : LocaleKeys.currentlyMember.tr,
                             style:
                                 TextStyle(color: Helper.getTextColor(context)),
@@ -123,8 +128,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                             ])),
                       ],
                     ),
-                    10.heightBox,
-                    InkWell(
+                    /*InkWell(
                       onTap: () {
                         setState(() {
                           currentUserEmail = userEmail;
@@ -194,8 +198,116 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                           ],
                         ),
                       ),
+                    ),*/
+                    20.heightBox,
+                    Expanded(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const ScrollPhysics(),
+                        itemCount: accountsList.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            onTap: () {},
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  borderRadius: accessRequestList.isEmpty
+                                      ? const BorderRadius.all(
+                                          Radius.circular(10))
+                                      : const BorderRadius.only(
+                                          topLeft: Radius.circular(10),
+                                          topRight: Radius.circular(10)),
+                                  color: Helper.getCardColor(context)),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                        color: Helper.getBackgroundColor(context),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(10))),
+                                    child: Center(
+                                      child: Text(
+                                        Helper.getShortName(
+                                            accountsList[index]!
+                                                .account_name!
+                                                .split(' ').first??"",
+                                            accountsList[index]!.account_name!
+                                                .split(' ').length > 1 ? accountsList[index]!
+                                                .account_name!.split(' ').last : ""),
+                                        style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                  20.widthBox,
+                                  Expanded(
+                                    child: Text(
+                                      accountsList[index]!.account_name!,
+                                      style: TextStyle(
+                                          color: Helper.getTextColor(context),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  10.widthBox,
+                                  /*   InkWell(
+                                    onTap: () {
+                                      if (currentUserEmail !=
+                                          accessRequestList[index]!
+                                              .requester_email) {
+                                        setState(() {
+                                          currentUserEmail = userEmail;
+                                        });
+                                        MySharedPreferences.instance
+                                            .addStringToSF(
+                                            SharedPreferencesKeys
+                                                .currentUserEmail,
+                                            userEmail);
+                                        MySharedPreferences.instance
+                                            .addStringToSF(
+                                            SharedPreferencesKeys
+                                                .currentUserName,
+                                            userName);
+                      
+                      
+                                        MySharedPreferences.instance
+                                            .addStringToSF(
+                                            SharedPreferencesKeys
+                                                .currentUserKey,
+                                            FirebaseAuth.instance
+                                                .currentUser!.uid);
+                                      }
+                      
+                                      _removeAccessRequest(
+                                          accessRequestList[index]!);
+                                    },
+                                    child: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                      size: 30,
+                                    ),
+                                  )*/
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return Divider(
+                            thickness: 0,
+                            height: 10,
+                            color: Colors.transparent,
+                          );
+                        },
+                      ),
                     ),
-                    if (accessRequestList.isNotEmpty)
+
+                    ///Shared account code
+                    /*  if (accessRequestList.isNotEmpty)
                       const Divider(
                         thickness: 1,
                         height: 1,
@@ -473,7 +585,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                             },
                           ),
                         ),
-                      ),
+                      ),*/
                   ],
                 ),
               ));
@@ -485,7 +597,10 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
           await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-        getRequestList();
+        isLoading = false;
+
+        ///Share account code
+        // getRequestList();
       });
     } catch (error) {
       Helper.hideLoading(context);
@@ -496,7 +611,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
     }
   }
 
-  Future<void> getRequestList() async {
+/*  Future<void> getRequestList() async {
     final reference = FirebaseDatabase.instance
         .reference()
         .child(request_table)
@@ -560,7 +675,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
       }
       setState(() {});
     });
-  }
+  }*/
 
   @override
   void initState() {
@@ -581,6 +696,14 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
               if (value != null) {
                 userEmail = value;
                 getProfileData();
+                MySharedPreferences.instance
+                    .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
+                    .then((value) {
+                  if (value != null) {
+                    ownerKey = value;
+                    getAccountsList();
+                  }
+                });
               }
             });
           }
@@ -665,7 +788,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
     }
   }
 
-  _acceptRequest(RequestModel requestModel) {
+  /*_acceptRequest(RequestModel requestModel) {
     AccessType? _selectedAccessType = AccessType.viewOnly;
 
     showDialog(
@@ -800,5 +923,52 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
       sendNotification(requestModel, profileData!, false);
       getRequestList();
     });
+  }
+*/
+  Future<void> getAccountsList() async {
+    try {
+      accountsList.clear();
+      AccountsModel? fetchedAccountData =
+          await databaseHelper.getAccountData(ownerKey);
+      setState(() {
+        accountsModel = fetchedAccountData;
+      });
+
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+          .child(accountsModel!.owner_user_key!);
+
+      reference.once().then((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+              dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            AccountsModel accountsModelList = AccountsModel(
+                key: key,
+                owner_user_key: value['owner_user_key'],
+                account_name: value['account_name'],
+                description: value['description'],
+                budget: value['budget'],
+                balance: value['balance'],
+                income: value['income'],
+                balance_date: value['balance_date'],
+                account_status: value['account_status'],
+                created_at: value['created_at'],
+                updated_at: value['updated_at']);
+            setState(() {
+              accountsList.add(accountsModelList);
+            });
+          });
+        } else {
+          setState(() {
+            accountsList = [];
+          });
+        }
+      });
+    } catch (error) {
+      print('Error fetching Account Data: $error');
+    }
   }
 }

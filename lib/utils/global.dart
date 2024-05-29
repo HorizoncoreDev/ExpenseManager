@@ -89,4 +89,5 @@ abstract class SharedPreferencesKeys {
   static const skippedUserActualBudget = "skippedUserActualBudget";
   static const isMasterPasswordGenerated = "isMasterPasswordGenerated";
   static const languageCode = "languageCode";
+  static const accountOwnerKey = "accountOwnerKey";
 }

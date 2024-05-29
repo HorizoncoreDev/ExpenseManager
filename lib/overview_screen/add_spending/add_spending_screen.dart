@@ -455,6 +455,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                   });
                                 },
                                 child: Container(
+                                  height: 16,
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 5, horizontal: 5),
                                   alignment: Alignment.center,

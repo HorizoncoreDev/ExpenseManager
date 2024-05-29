@@ -16,7 +16,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:googleapis/testing/v1.dart';
 import 'package:intl/intl.dart';
-
 import '../db_models/request_model.dart';
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
@@ -50,6 +49,7 @@ class OverviewScreenState extends State<OverviewScreen> {
   bool isSkippedUser = false, loading = true;
   final databaseHelper = DatabaseHelper();
   AccountsModel accountModel = AccountsModel();
+
   List<TransactionModel> spendingTransaction = [];
 
   @override
@@ -100,7 +100,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                             ),
                             InkWell(
                                 onTap: () {
-                                  final accessReference = FirebaseDatabase
+                                  ///Shared account code
+                                  /*final accessReference = FirebaseDatabase
                                       .instance
                                       .reference()
                                       .child(request_table)
@@ -139,6 +140,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     }
                                     showSwitchAccountDialog(accessRequestList);
                                   });
+
+*/
                                 },
                                 child: const Icon(
                                   Icons.switch_account,
@@ -167,8 +170,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     .push(
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          const OtherScreen()),
-                                )
+                                          const OtherScreen()),)
                                     .then((value) {
                                   widget.onAccountUpdate();
                                   MySharedPreferences.instance
@@ -383,6 +385,7 @@ class OverviewScreenState extends State<OverviewScreen> {
         .child(currentUserKey)
         .orderByChild(AccountTableFields.key)
         .equalTo(currentAccountKey);
+
       reference.onValue.listen((event) {
         DataSnapshot dataSnapshot = event.snapshot;
         if (event.snapshot.exists) {
@@ -1589,6 +1592,7 @@ class OverviewScreenState extends State<OverviewScreen> {
           builder:
               (BuildContext context, void Function(void Function()) setState) {
             return AlertDialog(
+              backgroundColor: Helper.getCardColor(context),
               title: Text(LocaleKeys.switchAccount.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context),
@@ -1656,7 +1660,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                         ],
                       ),
                     ),
-                    if (accessRequestList.isNotEmpty)
+                 ///Share account code
+                 /*   if (accessRequestList.isNotEmpty)
                       const Divider(
                         thickness: 1,
                         height: 1,
@@ -1666,7 +1671,6 @@ class OverviewScreenState extends State<OverviewScreen> {
                       Flexible(
                         child: ListView.separated(
                           shrinkWrap: true,
-// physics: const ScrollPhysics(),
                           itemCount: accessRequestList.length,
                           itemBuilder: (context, index) {
                             return InkWell(
@@ -1764,7 +1768,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                             );
                           },
                         ),
-                      ),
+                      ),*/
                   ],
                 ),
               ),

@@ -4,7 +4,7 @@ const String accounts_table = 'accounts_table';
 class AccountTableFields {
   static final List<String> values = [
     /// Add all fields
-   // account_id,
+    // account_id,
     key,
     owner_user_key,
     account_name,
@@ -18,7 +18,7 @@ class AccountTableFields {
     updated_at
   ];
 
- // static const String account_id = 'account_id';
+  // static const String account_id = 'account_id';
   static const String key = 'key';
   static const String owner_user_key = 'owner_user_key';
   static const String account_name = 'account_name';
@@ -33,7 +33,7 @@ class AccountTableFields {
 }
 
 class AccountsModel {
- // int? account_id;
+  // int? account_id;
   String? key;
   String? owner_user_key;
   String? account_name;
@@ -48,7 +48,7 @@ class AccountsModel {
 
   AccountsModel(
       {
-       // this.account_id,
+        // this.account_id,
         this.key,
         this.owner_user_key,
         this.account_name,
@@ -64,7 +64,7 @@ class AccountsModel {
 
   factory AccountsModel.fromMap(Map<dynamic, dynamic> map) {
     return AccountsModel(
-     // account_id: map['account_id'],
+      // account_id: map['account_id'],
       key: map['key'],
       owner_user_key: map['owner_user_key'],
       account_name: map['account_name'],
@@ -81,7 +81,7 @@ class AccountsModel {
 
   Map<String, dynamic> toMap() {
     return {
-     // 'account_id': account_id,
+      // 'account_id': account_id,
       'key': key,
       'owner_user_key': owner_user_key,
       'account_name': account_name,
@@ -95,4 +95,19 @@ class AccountsModel {
       'updated_at': updated_at,
     };
   }
+
+  static AccountsModel fromJson(Map<String, Object?> json) => AccountsModel(
+    key: json[AccountTableFields.key] as String,
+    owner_user_key: json[AccountTableFields.owner_user_key] as String,
+    account_name: json[AccountTableFields.account_name] as String,
+    description: json[AccountTableFields.description] as String,
+    budget: json[AccountTableFields.budget] as String,
+    balance: json[AccountTableFields.balance] as String,
+    income: json[AccountTableFields.income] as String,
+    balance_date: json[AccountTableFields.balance_date] as String,
+    account_status: json[AccountTableFields.account_status] as int,
+    created_at: json[AccountTableFields.created_at] as String,
+    updated_at: json[AccountTableFields.updated_at] as String,
+  );
 }
+

@@ -420,7 +420,8 @@ class Helper {
     String secondStr = name1.split(" ").first;
 
     String firstChar = firstStr.substring(0, 1);
-    String secondChar = secondStr.substring(0, 1);
+
+    String secondChar = name1.isNotEmpty? secondStr.substring(0, 1) : "";
 
     return firstChar + secondChar;
   }

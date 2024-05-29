@@ -188,4 +188,6 @@ Map<String, String> hiIN = {
   'friday': 'शुक्रवार',
   'saturday': 'शनिवार',
   'sunday': 'रविवार',
+
+  'switchAccount': 'खाता स्थानांतरित करें',
 };

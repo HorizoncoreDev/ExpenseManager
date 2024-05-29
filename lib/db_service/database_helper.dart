@@ -66,7 +66,7 @@ class DatabaseHelper {
   Future<List<ExpenseCategory>> categorys() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
-        await db.query(expense_category_table);
+    await db.query(expense_category_table);
     return List.generate(
         maps.length, (index) => ExpenseCategory.fromMap(maps[index]));
   }
@@ -115,7 +115,7 @@ class DatabaseHelper {
     );
     if (!isSkippedUser) {
       final reference =
-          FirebaseDatabase.instance.reference().child(transaction_table);
+      FirebaseDatabase.instance.reference().child(transaction_table);
       reference
           .child(FirebaseAuth.instance.currentUser!.uid)
           .child(transactionModel.key!)
@@ -150,9 +150,9 @@ class DatabaseHelper {
       }
 
       query +=
-          '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
+      '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
       query +=
-          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ?';
+      ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ?';
       List<dynamic> whereArgs = [
         ...selectedMonthNumbers
             .map((month) => month.toString().padLeft(2, '0')),
@@ -162,14 +162,14 @@ class DatabaseHelper {
 
       if (expenseCatId != -1 || incomeCatId != -1) {
         query +=
-            ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+        ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
         whereArgs.add(expenseCatId);
         whereArgs.add(incomeCatId);
       }
 
       if (category.isNotEmpty) {
         query +=
-            ' AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE';
+        ' AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE';
         whereArgs.add('%$category%');
         whereArgs.add('%$category%');
       }
@@ -191,14 +191,14 @@ class DatabaseHelper {
       }
     } else {
       Completer<List<TransactionModel>> completer =
-          Completer<List<TransactionModel>>();
+      Completer<List<TransactionModel>>();
       List<TransactionModel> transactions = [];
       final reference = await FirebaseDatabase.instance
           .reference()
           .child(transaction_table)
           .child(userKey)
           .child(accountKey)
-          ;
+      ;
 
       List<String> months = selectedMonthNumbers
           .map((month) => month.toString().padLeft(2, '0'))
@@ -208,15 +208,15 @@ class DatabaseHelper {
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if (months.contains(value[TransactionFields.transaction_date]
-                    .substring(3, 5)) &&
+                .substring(3, 5)) &&
                 value[TransactionFields.transaction_date].substring(6, 10) ==
                     year) {
               if ((expenseCatId == -1 ||
-                      value[TransactionFields.expense_cat_id] ==
-                          expenseCatId) &&
+                  value[TransactionFields.expense_cat_id] ==
+                      expenseCatId) &&
                   (incomeCatId == -1 ||
                       value[TransactionFields.income_cat_id] == incomeCatId) &&
                   (category.isEmpty ||
@@ -232,7 +232,7 @@ class DatabaseHelper {
           });
           // Sort transactions by transaction date in descending order
           transactions.sort(
-              (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
+                  (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
         }
         completer.complete(transactions);
       }).catchError((error) {
@@ -270,7 +270,7 @@ class DatabaseHelper {
           result.length, (index) => TransactionModel.fromMap(result[index]));
     } else {
       Completer<List<TransactionModel>> completer =
-          Completer<List<TransactionModel>>();
+      Completer<List<TransactionModel>>();
       List<TransactionModel> transactions = [];
       final reference = await FirebaseDatabase.instance
           .ref()
@@ -284,12 +284,12 @@ class DatabaseHelper {
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             DateTime transactionDate = DateFormat('dd/MM/yyyy HH:mm')
                 .parse(value[TransactionFields.transaction_date]);
             if (
-                transactionDate.month == currentMonth &&
+            transactionDate.month == currentMonth &&
                 transactionDate.year == currentYear) {
               transactions.add(TransactionModel.fromMap(value));
             }
@@ -325,7 +325,7 @@ class DatabaseHelper {
       }
 
       query +=
-          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ? AND ${TransactionFields.transaction_type} = ?';
+      ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ? AND ${TransactionFields.transaction_type} = ?';
 
       List<dynamic> whereArgs = [
         if (selectedMonthNumber != null)
@@ -343,14 +343,14 @@ class DatabaseHelper {
         whereArgs.add(expenseCatId);
       } else if (expenseCatId != -1 && incomeCatId != -1) {
         query +=
-            ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+        ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
         whereArgs.add(expenseCatId);
         whereArgs.add(incomeCatId);
       }
 
       if (category.isNotEmpty) {
         query +=
-            ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
+        ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
         whereArgs.add('%$category%');
         whereArgs.add('%$category%');
       }
@@ -372,7 +372,7 @@ class DatabaseHelper {
       }
     } else {
       Completer<List<TransactionModel>> completer =
-          Completer<List<TransactionModel>>();
+      Completer<List<TransactionModel>>();
       List<TransactionModel> transactions = [];
       final reference = await FirebaseDatabase.instance
           .reference()
@@ -388,7 +388,7 @@ class DatabaseHelper {
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if (selectedMonthNumber.toString().padLeft(2, '0') == value[TransactionFields.transaction_date].substring(3, 5) &&
                 value[TransactionFields.transaction_date].substring(6, 10) == year  &&
@@ -403,7 +403,7 @@ class DatabaseHelper {
           });
           // Sort transactions by transaction date in descending order
           transactions.sort(
-              (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
+                  (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
         }
         completer.complete(transactions);
       }).catchError((error) {
@@ -442,9 +442,9 @@ class DatabaseHelper {
       }
 
       query +=
-          '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
+      '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
       query +=
-          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ? AND ${TransactionFields.transaction_type} = ?';
+      ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ? AND ${TransactionFields.transaction_type} = ?';
 
       whereArgs = [
         ...selectedMonthNumbers
@@ -462,14 +462,14 @@ class DatabaseHelper {
         whereArgs.add(expenseCatId);
       } else if (expenseCatId != -1 && incomeCatId != -1) {
         query +=
-            ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+        ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
         whereArgs.add(expenseCatId);
         whereArgs.add(incomeCatId);
       }
 
       if (category.isNotEmpty) {
         query +=
-            ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
+        ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
         whereArgs.add('%$category%');
         whereArgs.add('%$category%');
       }
@@ -491,7 +491,7 @@ class DatabaseHelper {
       }
     } else {
       Completer<List<TransactionModel>> completer =
-          Completer<List<TransactionModel>>();
+      Completer<List<TransactionModel>>();
       List<TransactionModel> transactions = [];
       final reference = await FirebaseDatabase.instance
           .reference()
@@ -508,7 +508,7 @@ class DatabaseHelper {
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if (months[0] == value['transaction_date'].substring(3, 5) &&
                 value[TransactionFields.transaction_date].substring(6, 10) ==
@@ -532,7 +532,7 @@ class DatabaseHelper {
           });
           // Sort transactions by transaction date in descending order
           transactions.sort(
-              (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
+                  (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
         }
         completer.complete(transactions);
       }).catchError((error) {
@@ -644,7 +644,7 @@ class DatabaseHelper {
   Future<List<IncomeCategory>> getIncomeCategory() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
-        await db.query(income_category_table);
+    await db.query(income_category_table);
     return List.generate(
         maps.length, (index) => IncomeCategory.fromMap(maps[index]));
   }
@@ -727,7 +727,7 @@ return completer.future;*/
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
+        dataSnapshot.value as Map<dynamic, dynamic>;
         values.forEach((key, value) async {
           profileModel = ProfileModel.fromMap(value);
           completer.complete(profileModel);
@@ -820,7 +820,7 @@ return completer.future;*/
           result.length, (index) => TransactionModel.fromMap(result[index]));
     } else {
       Completer<List<TransactionModel>> completer =
-          Completer<List<TransactionModel>>();
+      Completer<List<TransactionModel>>();
       List<TransactionModel> transactions = [];
       final reference = await FirebaseDatabase.instance
           .ref()
@@ -832,7 +832,7 @@ return completer.future;*/
         DataSnapshot dataSnapshot = value.snapshot;
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if ((category.isEmpty ||
                 value[TransactionFields.cat_name]
@@ -853,7 +853,7 @@ return completer.future;*/
           });
           // Sort transactions by transaction date in descending order
           transactions.sort(
-              (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
+                  (a, b) => b.transaction_date!.compareTo(a.transaction_date!));
         }
         completer.complete(transactions);
       }).catchError((error) {
@@ -881,7 +881,7 @@ return completer.future;*/
 
     // Open/create the database at a given path
     var notesDatabase =
-        await openDatabase(path, version: 1, onCreate: _createDb);
+    await openDatabase(path, version: 1, onCreate: _createDb);
     return notesDatabase;
   }
 
@@ -1018,8 +1018,8 @@ return completer.future;*/
           .child(profile_table)
           .child(FirebaseAuth.instance.currentUser!.uid)
           .set(
-            profileModel.toMap(),
-          );
+        profileModel.toMap(),
+      );
 
       if (accountModel != null) {
         final reference = FirebaseDatabase.instance
@@ -1065,7 +1065,7 @@ return completer.future;*/
       );
     } else {
       final reference =
-          FirebaseDatabase.instance.reference().child(transaction_table);
+      FirebaseDatabase.instance.reference().child(transaction_table);
       var newPostRef = reference.push();
       transactionModel.key = newPostRef.key;
     }
@@ -1091,7 +1091,7 @@ return completer.future;*/
         );
       } else {
         final reference =
-            FirebaseDatabase.instance.reference().child(transaction_table);
+        FirebaseDatabase.instance.reference().child(transaction_table);
         var newPostRef = reference.push();
         transaction.key = newPostRef.key;
       }
@@ -1113,7 +1113,7 @@ return completer.future;*/
   Future<List<PaymentMethod>> paymentMethods() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
-        await db.query(payment_method_table);
+    await db.query(payment_method_table);
     return List.generate(
         maps.length, (index) => PaymentMethod.fromMap(maps[index]));
   }
@@ -1420,12 +1420,48 @@ return completer.future;*/
     return csv;
   }
 
+  Future<AccountsModel?> getAccountData(String accountKey) async {
+    Database db = await database;
+    final map = await db.rawQuery(
+        "SELECT * FROM $accounts_table WHERE ${AccountTableFields.owner_user_key} = ?",
+        [accountKey]);
+
+    if (map.isNotEmpty) {
+      return AccountsModel.fromJson(map.first);
+    }
+    else {
+      return null;
+    }
+
+  }
+
+  Future<void> insertAccountData(
+      AccountsModel accountsModel, bool isAccountExistInFirebaseDb) async {
+    Database db = await database;
+
+    if (!isAccountExistInFirebaseDb) {
+
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+          .child(FirebaseAuth.instance.currentUser!.uid);
+      var newPostRef = reference.push();
+      accountsModel.key = newPostRef.key;
+      accountsModel.owner_user_key = FirebaseAuth.instance.currentUser!.uid;
+      newPostRef.set(
+        accountsModel.toMap(),
+      );
+    }
+
+    await db.insert(accounts_table, accountsModel.toMap());
+  }
+
   static Future<MultipleEmailModel> exportAccessEmailDataToCSV(
       String userEmail) async {
     MultipleEmailModel multipleEmailModel = MultipleEmailModel();
     List<String> receiversName = [];
     List<ReceiverEmailData> receiverEmailList =
-        await getAccessEmails(userEmail);
+    await getAccessEmails(userEmail);
     for (var entry in receiverEmailList) {
       String recName = entry.receiverName.toString();
       receiversName.add(recName);
@@ -1473,7 +1509,7 @@ return completer.future;*/
   static Future<List<ReceiverEmailData>> getAccessEmails(
       String userEmail) async {
     Completer<List<ReceiverEmailData>> completer =
-        Completer<List<ReceiverEmailData>>();
+    Completer<List<ReceiverEmailData>>();
     List<ReceiverEmailData> receiverEmailList = [];
     final accessReference = FirebaseDatabase.instance
         .reference()
@@ -1485,7 +1521,7 @@ return completer.future;*/
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
+        dataSnapshot.value as Map<dynamic, dynamic>;
 
         List<Future<void>> futures = [];
 
@@ -1500,7 +1536,7 @@ return completer.future;*/
             DataSnapshot dataSnapshot = event.snapshot;
             if (event.snapshot.exists) {
               Map<dynamic, dynamic> profileValues =
-                  dataSnapshot.value as Map<dynamic, dynamic>;
+              dataSnapshot.value as Map<dynamic, dynamic>;
 
               List<Future<void>> innerFutures = [];
               profileValues.forEach((profileKey, profileValue) {
@@ -1516,7 +1552,7 @@ return completer.future;*/
                   DataSnapshot transactionSnapshot = transactionEvent.snapshot;
                   if (transactionSnapshot.value != null) {
                     Map<dynamic, dynamic> taskValues =
-                        transactionSnapshot.value as Map<dynamic, dynamic>;
+                    transactionSnapshot.value as Map<dynamic, dynamic>;
                     taskValues.forEach((taskKey, taskValue) {
                       transactionsEmail
                           .add(TransactionModel.fromMapForCSV(taskValue));
@@ -1551,7 +1587,7 @@ return completer.future;*/
   static Future<List<TransactionModel>> getFirebaseTasks(
       String userEmail) async {
     Completer<List<TransactionModel>> completer =
-        Completer<List<TransactionModel>>();
+    Completer<List<TransactionModel>>();
     List<TransactionModel> transactions = [];
     final reference = FirebaseDatabase.instance
         .reference()
@@ -1573,7 +1609,7 @@ return completer.future;*/
   static Future<List<TransactionModel>> getTransactionsForEmail(
       String accountKey) async {
     Completer<List<TransactionModel>> completer =
-        Completer<List<TransactionModel>>();
+    Completer<List<TransactionModel>>();
     List<TransactionModel> transactions = [];
     final reference = FirebaseDatabase.instance
         .ref()
@@ -1584,7 +1620,7 @@ return completer.future;*/
     reference.once().then((event) {
       if (event.snapshot.exists) {
         Map<dynamic, dynamic>? values =
-            event.snapshot.value as Map<dynamic, dynamic>?;
+        event.snapshot.value as Map<dynamic, dynamic>?;
         if (values != null) {
           values.forEach((key, value) {
             transactions.add(TransactionModel.fromMap(value));

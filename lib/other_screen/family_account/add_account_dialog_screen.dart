@@ -126,9 +126,9 @@ class MyDialog {
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder:
-              (BuildContext context, void Function(void Function()) setState) {
+          builder: (BuildContext context, void Function(void Function()) setState) {
             return AlertDialog(
+            backgroundColor: Helper.getCardColor(context),
               title: Text(LocaleKeys.addAccount.tr,
                   style: TextStyle(
                       color: Helper.getTextColor(context),

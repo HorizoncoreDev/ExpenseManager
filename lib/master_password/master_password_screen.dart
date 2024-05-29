@@ -368,14 +368,13 @@ class MasterPasswordDialog {
         List<TransactionModel> existingTransactions = await DatabaseHelper
             .getTransactionsForEmail(importEmail);
 
-        // Check if the transaction already exists
-        bool transactionExists = existingTransactions.any((
+        /*bool transactionExists = existingTransactions.any((
             transaction) => transaction.key == transactionKey);
         if (transactionExists) {
           print("Duplicate transaction found, skipping: $transactionKey");
           continue;
         }
-        else {
+        else {*/
           if (transactionType == AppConstanst.spendingTransaction) {
             currentBalance = currentBalance + amount;
           } else {
@@ -384,7 +383,7 @@ class MasterPasswordDialog {
           int? catIds = await DatabaseHelper().getCategoryID(
               categoryName, categoryType, transactionType);
           String? catIcon = await DatabaseHelper().getCategoryIcon(
-              catIds, /*categoryName*/ categoryType, transactionType);
+              catIds!, /*categoryName*/ categoryType, transactionType);
 
           TransactionModel transactionModel = TransactionModel(
             key: transactionKey,
@@ -427,7 +426,7 @@ class MasterPasswordDialog {
           print("Data is inserted");
           print("list is this ${importTransactionListData.length}");
         }
-      }
+      // }
     }
     final reference = FirebaseDatabase.instance
         .reference()
@@ -491,7 +490,6 @@ class MasterPasswordDialog {
       }
     });
   }
-
   void createMP(BuildContext context, void Function(void Function() p1) setState) {
     showDialog(
       context: context,
