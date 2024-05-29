@@ -221,24 +221,26 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                               child: Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 7, horizontal: 7),
+                                    width: 40,
+                                    height: 40,
                                     decoration: BoxDecoration(
                                         color: Helper.getBackgroundColor(context),
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(10))),
-                                    child: Text(
-                                      Helper.getShortName(
-                                          accountsList[index]!
-                                              .account_name!
-                                              .split(' ').first??"",
-                                          accountsList[index]!.account_name!
-                                              .split(' ').length > 1 ? accountsList[index]!
-                                              .account_name!.split(' ').last : ""),
-                                      style: const TextStyle(
-                                          color: Colors.blue,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
+                                    child: Center(
+                                      child: Text(
+                                        Helper.getShortName(
+                                            accountsList[index]!
+                                                .account_name!
+                                                .split(' ').first??"",
+                                            accountsList[index]!.account_name!
+                                                .split(' ').length > 1 ? accountsList[index]!
+                                                .account_name!.split(' ').last : ""),
+                                        style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
                                     ),
                                   ),
                                   20.widthBox,

@@ -212,11 +212,13 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                           : 0.widthBox,
                       onChanged: (value) {
                         setState(() {
-                         /* getShortName(firstNameController.text,
-                              lastNameController.text);*/
+
                         });
                       },
                       validator: (value) {
+                        if(value == null || value.isEmpty){
+                          return 'Please enter your name';
+                        }
                         return null;
                       },
                     ),
