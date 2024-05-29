@@ -1008,7 +1008,7 @@ return completer.future;*/
   }
 
   // Insert ProfileData
-  Future<void> insertProfileData(ProfileModel profileModel,
+  Future<String> insertProfileData(ProfileModel profileModel,
       bool isProfileExistInFirebaseDb, AccountsModel? accountModel) async {
     Database db = await database;
 
@@ -1038,6 +1038,7 @@ return completer.future;*/
     }
 
     await db.insert(profile_table, profileModel.toMap());
+    return accountModel!=null?accountModel.key!:'';
   }
 
   /// Insert Spending Sub Category

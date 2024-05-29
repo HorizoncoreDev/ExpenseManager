@@ -268,71 +268,195 @@ class _SignInScreenState extends State<SignInScreen> {
                       .then((value) async {
                     fcmToken = value!;
 
-                    String userCode = await Helper.generateUniqueCode();
-
-                    ProfileModel profileModel = ProfileModel(
-                      key: FirebaseAuth.instance.currentUser!.uid,
-                      first_name: firstName,
-                      last_name: lastName,
-                      email: user.email ?? "",
-                      full_name: user.displayName ?? "",
-                      dob: "",
-                      user_code: userCode,
-                      profile_image: "",
-                      mobile_number: "",
-                      current_balance: currentBalance,
-                      current_income: currentIncome,
-                      actual_budget: currentActualBudget,
-                      gender: "",
-                      fcm_token: fcmToken,
-                      lang_code: languageCode,
-                      currency_code: "",
-                      currency_symbol: "",
-                        register_type: AppConstanst.gmailRegistration,
-                        register_otp: "",
-                        created_at: DateTime.now().toString(),
-                        updated_at: DateTime.now().toString()
-                    );
-
-                    AccountsModel accountsModel = AccountsModel(
-                        account_name:user.displayName,
-                        description:"",
-                        budget:currentActualBudget,
-                        balance:currentBalance,
-                        income: currentIncome,
-                        balance_date:DateTime.now().toString(),
-                        account_status:AppConstanst.activeAccount,
-                        created_at: DateTime.now().toString(),
-                        updated_at: DateTime.now().toString()
-                    );
-
-                    await databaseHelper.insertProfileData(profileModel, false,accountsModel);
-
-                    final reference = FirebaseDatabase.instance
+                    final profileReference = FirebaseDatabase.instance
                         .reference()
-                        .child(accounts_table)
-                        .orderByChild(AccountTableFields.key)
-                        .equalTo(FirebaseAuth.instance.currentUser!.uid);
-
-                    reference.onValue.listen((event) {
+                        .child(profile_table)
+                        .orderByChild('email')
+                        .equalTo(user.email!);
+                    bool calledOnce = false, profileCheckCalledOnce = false;
+                    profileReference.onValue.listen((event) async {
                       DataSnapshot dataSnapshot = event.snapshot;
-                      if (event.snapshot.exists) {
+                      if (event.snapshot.exists && !profileCheckCalledOnce) {
+
+                        ProfileModel? profileModel;
+                        AccountsModel? accountsModel;
                         Map<dynamic, dynamic> values =
                         dataSnapshot.value as Map<dynamic, dynamic>;
                         values.forEach((key, value) async {
+                          profileModel = ProfileModel.fromMap(value);
+                          profileCheckCalledOnce=true;
+                          profileModel!.fcm_token = fcmToken;
+                          final Map<String, Map> updates = {};
+                          updates['/$profile_table/${profileModel!.key}'] =
+                              profileModel!.toMap();
+                          FirebaseDatabase.instance.ref().update(updates);
+
+                        });
+
+                        await databaseHelper
+                            .getProfileData(user.email!)
+                            .then((profileData) async {
+                          if (profileData != null) {
+                            // profileModel!.id = profileData.id;
+                            await databaseHelper.updateProfileData(profileModel!);
+                            //await databaseHelper.updateAccountData(accountsModel!);
+                          } else {
+                            if (!calledOnce) {
+                              calledOnce = true;
+                              await databaseHelper.insertProfileData(
+                                  profileModel!, true,accountsModel);
+                            }
+                          }
+                        });
+
+                        final reference = FirebaseDatabase.instance
+                            .reference()
+                            .child(accounts_table)
+                            .child(profileModel!.key!);
+
+                        reference.once().then((event) async {
+                          DataSnapshot dataSnapshot = event.snapshot;
+                          if (event.snapshot.exists) {
+                            Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+                            values.forEach((key, value) async {
+                              var accountsModel = AccountsModel.fromMap(value);
+                              int totalSpending=0;
+                              int totalIncome =0;
+                              await DatabaseHelper.instance
+                                  .getTransactionList("", "", "", -1, true)
+                                  .then((value) async {
+                                for (var t in value) {
+                                  // t.member_id = 1;
+                                  t.member_key =
+                                      FirebaseAuth.instance.currentUser!.uid;
+                                  t.account_key = key;
+                                  await databaseHelper.updateTransaction(t);
+
+                                  final reference = FirebaseDatabase.instance
+                                      .reference()
+                                      .child(transaction_table)
+                                      .child(t.member_key!)
+                                      .child(t.account_key!);
+                                  var newPostRef = reference.push();
+                                  t.key = newPostRef.key;
+                                  newPostRef.set(
+                                    t.toMap(),
+                                  );
+
+                                  if (t.transaction_type ==
+                                      AppConstanst.spendingTransaction) {
+                                    totalSpending = totalSpending+t.amount!;
+
+                                  } else {
+                                    totalIncome = totalIncome+t.amount!;
+                                  }
+
+                                }
+                                accountsModel.balance =
+                                    (int.parse(accountsModel.balance!) -
+                                       totalSpending)
+                                        .toString();
+                                accountsModel.income =
+                                    (int.parse(accountsModel.income!) +
+                                        totalIncome)
+                                        .toString();
+                                await DatabaseHelper.instance.updateAccountData(accountsModel);
+                              });
+
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.currentAccountKey, key);
+
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.userEmail, user.email);
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.currentUserEmail, user.email);
+
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.currentUserKey,
+                                  FirebaseAuth.instance.currentUser!.uid);
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.userName, user.displayName);
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.currentUserName,
+                                  user.displayName);
+                              MySharedPreferences.instance
+                                  .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.skippedUserCurrentBalance, "0");
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.skippedUserCurrentIncome, "0");
+                              MySharedPreferences.instance.addStringToSF(
+                                  SharedPreferencesKeys.skippedUserActualBudget, "0");
+
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const DashBoard()),
+                                      (Route<dynamic> route) => false);
+                            }
+                            );
+                          }
+                        });
+
+
+
+                      }
+                      else if (!profileCheckCalledOnce) {
+                        profileCheckCalledOnce = true;
+                        String userCode = await Helper.generateUniqueCode();
+
+                        ProfileModel profileModel = ProfileModel(
+                            key: FirebaseAuth.instance.currentUser!.uid,
+                            first_name: firstName,
+                            last_name: lastName,
+                            email: user.email ?? "",
+                            full_name: user.displayName ?? "",
+                            dob: "",
+                            user_code: userCode,
+                            profile_image: "",
+                            mobile_number: "",
+                            current_balance: currentBalance,
+                            current_income: currentIncome,
+                            actual_budget: currentActualBudget,
+                            gender: "",
+                            fcm_token: fcmToken,
+                            lang_code: languageCode,
+                            currency_code: "",
+                            currency_symbol: "",
+                            register_type: AppConstanst.gmailRegistration,
+                            register_otp: "",
+                            created_at: DateTime.now().toString(),
+                            updated_at: DateTime.now().toString()
+                        );
+
+                        AccountsModel accountsModel = AccountsModel(
+                            account_name:user.displayName,
+                            description:"",
+                            budget:currentActualBudget,
+                            balance:currentBalance,
+                            income: currentIncome,
+                            balance_date:DateTime.now().toString(),
+                            account_status:AppConstanst.activeAccount,
+                            created_at: DateTime.now().toString(),
+                            updated_at: DateTime.now().toString()
+                        );
+
+                        await databaseHelper.insertProfileData(profileModel, false,accountsModel).then((accountKey) async {
+
                           await DatabaseHelper.instance
                               .getTransactionList("", "", "", -1, true)
                               .then((value) async {
                             for (var t in value) {
                               // t.member_id = 1;
-                              t.member_key = FirebaseAuth.instance.currentUser!.uid;
-                              t.account_key = key;
+                              t.member_key = profileModel.key!;
+                              t.account_key = accountKey;
                               await databaseHelper.updateTransaction(t);
 
                               final reference = FirebaseDatabase.instance
                                   .reference()
                                   .child(transaction_table)
-                                  .child(FirebaseAuth.instance.currentUser!.uid);
+                                  .child(t.member_key!)
+                                  .child(t.account_key!);
                               var newPostRef = reference.push();
                               t.key = newPostRef.key;
                               newPostRef.set(
@@ -340,37 +464,44 @@ class _SignInScreenState extends State<SignInScreen> {
                               );
                             }
                           });
+
+                          MySharedPreferences.instance.addStringToSF(
+                              SharedPreferencesKeys.currentAccountKey, accountKey);
+
+                          MySharedPreferences.instance.addStringToSF(
+                              SharedPreferencesKeys.userEmail, user.email);
+                          MySharedPreferences.instance.addStringToSF(
+                              SharedPreferencesKeys.currentUserEmail, user.email);
+
+                          MySharedPreferences.instance.addStringToSF(
+                              SharedPreferencesKeys.currentUserKey,
+                              FirebaseAuth.instance.currentUser!.uid);
+                          MySharedPreferences.instance.addStringToSF(
+                              SharedPreferencesKeys.userName, user.displayName);
+                          MySharedPreferences.instance.addStringToSF(
+                              SharedPreferencesKeys.currentUserName,
+                              user.displayName);
+                          MySharedPreferences.instance
+                              .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+                          MySharedPreferences.instance.addStringToSF(
+                              SharedPreferencesKeys.skippedUserCurrentBalance, "0");
+                          MySharedPreferences.instance.addStringToSF(
+                              SharedPreferencesKeys.skippedUserCurrentIncome, "0");
+                          MySharedPreferences.instance.addStringToSF(
+                              SharedPreferencesKeys.skippedUserActualBudget, "0");
+
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const DashBoard()),
+                                  (Route<dynamic> route) => false);
                         });
+
                       }
+
                     });
 
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.userEmail, user.email);
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.currentUserEmail, user.email);
 
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.currentUserKey,
-                        FirebaseAuth.instance.currentUser!.uid);
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.userName, user.displayName);
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.currentUserName,
-                        user.displayName);
-                    MySharedPreferences.instance
-                        .addBoolToSF(SharedPreferencesKeys.isLogin, true);
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.skippedUserCurrentBalance, "0");
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.skippedUserCurrentIncome, "0");
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.skippedUserActualBudget, "0");
-
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const DashBoard()),
-                        (Route<dynamic> route) => false);
                   });
                 });
               });
@@ -387,16 +518,17 @@ class _SignInScreenState extends State<SignInScreen> {
                   .orderByChild('email')
                   .equalTo(user.email!);
               bool calledOnce = false, profileCheckCalledOnce = false;
-              reference.once().then((event) async {
+              reference.onValue.listen((event) async {
                 DataSnapshot dataSnapshot = event.snapshot;
                 if (event.snapshot.exists && !profileCheckCalledOnce) {
+
                   ProfileModel? profileModel;
                   AccountsModel? accountsModel;
                   Map<dynamic, dynamic> values =
                       dataSnapshot.value as Map<dynamic, dynamic>;
                   values.forEach((key, value) async {
                     profileModel = ProfileModel.fromMap(value);
-
+                    profileCheckCalledOnce=true;
                     profileModel!.fcm_token = fcmToken;
                     final Map<String, Map> updates = {};
                     updates['/$profile_table/${profileModel!.key}'] =
@@ -432,21 +564,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       }
                     }
                   });
-                  await databaseHelper
-                      .getProfileData(user.email!)
-                      .then((profileData) async {
-                    if (profileData != null) {
-                      // profileModel!.id = profileData.id;
-                      await databaseHelper.updateProfileData(profileModel!);
-                      //await databaseHelper.updateAccountData(accountsModel!);
-                    } else {
-                      if (!calledOnce) {
-                        calledOnce = true;
-                        await databaseHelper.insertProfileData(
-                            profileModel!, true,accountsModel);
-                      }
-                    }
-                  });
 
                   final reference = FirebaseDatabase.instance
                       .reference()
@@ -460,43 +577,45 @@ class _SignInScreenState extends State<SignInScreen> {
                       values.forEach((key, value) async {
                         MySharedPreferences.instance.addStringToSF(
                             SharedPreferencesKeys.currentAccountKey, key);
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.userEmail, user.email);
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.currentUserEmail, user.email);
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.currentUserKey,
+                            FirebaseAuth.instance.currentUser!.uid);
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.currentUserName, user.displayName);
+                        MySharedPreferences.instance.addStringToSF(
+                            SharedPreferencesKeys.userName, user.displayName);
+                        MySharedPreferences.instance
+                            .addBoolToSF(SharedPreferencesKeys.isLogin, true);
+                        if (profileModel!.actual_budget == "0") {
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const BudgetScreen()),
+                                  (Route<dynamic> route) => false);
+                        }
+                        else {
+                          MySharedPreferences.instance
+                              .addBoolToSF(SharedPreferencesKeys.isBudgetAdded, true);
+
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const DashBoard()),
+                                  (Route<dynamic> route) => false);
+                        }
                       });
                     }
                   });
 
 
 
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.userEmail, user.email);
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.currentUserEmail, user.email);
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.currentUserKey,
-                      FirebaseAuth.instance.currentUser!.uid);
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.currentUserName, user.displayName);
-                  MySharedPreferences.instance.addStringToSF(
-                      SharedPreferencesKeys.userName, user.displayName);
-                  MySharedPreferences.instance
-                      .addBoolToSF(SharedPreferencesKeys.isLogin, true);
-                  if (profileModel!.actual_budget == "0") {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const BudgetScreen()),
-                        (Route<dynamic> route) => false);
-                  } else {
-                    MySharedPreferences.instance
-                        .addBoolToSF(SharedPreferencesKeys.isBudgetAdded, true);
 
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const DashBoard()),
-                        (Route<dynamic> route) => false);
-                  }
-                } else {
-                  if (!profileCheckCalledOnce) {
+                }
+                else if (!profileCheckCalledOnce) {
                     profileCheckCalledOnce = true;
                     String userCode = await Helper.generateUniqueCode();
                     ProfileModel profileModel = ProfileModel(
@@ -558,7 +677,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           builder: (context) => const BudgetScreen()),
                     );
                   }
-                }
+
               });
             });
           }
