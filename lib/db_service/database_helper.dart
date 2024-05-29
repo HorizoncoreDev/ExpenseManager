@@ -1438,9 +1438,7 @@ return completer.future;*/
   Future<void> insertAccountData(
       AccountsModel accountsModel, bool isAccountExistInFirebaseDb) async {
     Database db = await database;
-
     if (!isAccountExistInFirebaseDb) {
-
       final reference = FirebaseDatabase.instance
           .reference()
           .child(accounts_table)
@@ -1453,8 +1451,22 @@ return completer.future;*/
       );
     }
 
-    await db.insert(accounts_table, accountsModel.toMap());
+    // await db.insert(accounts_table, accountsModel.toMap());
   }
+
+  Future<void> updateAddedAccountData(AccountsModel accountsModel) async {
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(accounts_table).child(FirebaseAuth.instance.currentUser!.uid)
+        .child(accountsModel.key!);
+
+    await reference.update(accountsModel.toMap());
+
+    // Uncomment and modify the below line if you want to update the local database as well
+    // Database db = await database;
+    // await db.update(accounts_table, accountsModel.toMap(), where: 'key = ?', whereArgs: [accountsModel.key]);
+  }
+
 
   static Future<MultipleEmailModel> exportAccessEmailDataToCSV(
       String userEmail) async {

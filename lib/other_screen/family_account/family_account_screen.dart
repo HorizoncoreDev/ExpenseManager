@@ -61,9 +61,19 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
         ),
         bottomNavigationBar: InkWell(
           onTap: () {
-            Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddAccountScreen()))
-                .then((value) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddAccountScreen(
+                          account_name: "",
+                          balance: "",
+                          balance_date: "",
+                          income: "",
+                          budget: "",
+                          description: "",
+                          forEditAccount: false,
+                          account_key: "",
+                        ))).then((value) {
               if (value != null && value) {
                 getAccountsList();
               }
@@ -207,7 +217,32 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                         itemCount: accountsList.length,
                         itemBuilder: (context, index) {
                           return InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddAccountScreen(
+                                            account_name: accountsList[index]!
+                                                .account_name!,
+                                            description: accountsList[index]!
+                                                .description!,
+                                            budget:
+                                                accountsList[index]!.budget!,
+                                            balance_date: accountsList[index]!
+                                                .balance_date!,
+                                            balance:
+                                                accountsList[index]!.balance!,
+                                            income:
+                                                accountsList[index]!.income!,
+                                            forEditAccount: true,
+                                            account_key:
+                                                accountsList[index]!.key!,
+                                          ))).then((value) {
+                                if (value != null && value) {
+                                  getAccountsList();
+                                }
+                              });
+                            },
                             child: Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
@@ -224,18 +259,28 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                        color: Helper.getBackgroundColor(context),
+                                        color:
+                                            Helper.getBackgroundColor(context),
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(10))),
                                     child: Center(
                                       child: Text(
                                         Helper.getShortName(
                                             accountsList[index]!
-                                                .account_name!
-                                                .split(' ').first??"",
-                                            accountsList[index]!.account_name!
-                                                .split(' ').length > 1 ? accountsList[index]!
-                                                .account_name!.split(' ').last : ""),
+                                                    .account_name!
+                                                    .split(' ')
+                                                    .first ??
+                                                "",
+                                            accountsList[index]!
+                                                        .account_name!
+                                                        .split(' ')
+                                                        .length >
+                                                    1
+                                                ? accountsList[index]!
+                                                    .account_name!
+                                                    .split(' ')
+                                                    .last
+                                                : ""),
                                         style: const TextStyle(
                                             color: Colors.blue,
                                             fontSize: 18,
@@ -272,8 +317,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                             SharedPreferencesKeys
                                                 .currentUserName,
                                             userName);
-                      
-                      
+
+
                                         MySharedPreferences.instance
                                             .addStringToSF(
                                             SharedPreferencesKeys
@@ -281,7 +326,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                             FirebaseAuth.instance
                                                 .currentUser!.uid);
                                       }
-                      
+
                                       _removeAccessRequest(
                                           accessRequestList[index]!);
                                     },

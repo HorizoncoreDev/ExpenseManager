@@ -16,7 +16,18 @@ import '../utils/global.dart';
 import '../utils/views/custom_text_form_field.dart';
 
 class AddAccountScreen extends StatefulWidget {
-  const AddAccountScreen({super.key});
+  final String account_name;
+  final String description;
+  final String budget;
+  final String balance_date;
+  final String balance;
+  final String income;
+  final String account_key;
+  final bool forEditAccount;
+   AddAccountScreen({super.key, required this.account_name, required this.description,
+     required this.budget, required this.balance_date, required this.balance, required this.income,
+     required this.forEditAccount, required this.account_key
+   });
 
   @override
   State<AddAccountScreen> createState() => _AddAccountScreenState();
@@ -29,6 +40,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController balanceController = TextEditingController();
   TextEditingController incomeController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   String userEmail = '';
   bool isSkippedUser = false;
@@ -51,20 +63,41 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
       child: Scaffold(
         bottomNavigationBar: InkWell(
           onTap: () async {
-            AccountsModel accountsModel = AccountsModel(
-                account_name:nameController.text,
-                description:descriptionController.text,
-                budget:budgetController.text,
-                balance:balanceController.text,
-                income: incomeController.text,
-                balance_date:selectedDate.toString(),
-                account_status:AppConstanst.activeAccount,
-                created_at: DateTime.now().toString(),
-                updated_at: DateTime.now().toString()
-            );
+            if(widget.forEditAccount){
+              AccountsModel accountsModel = AccountsModel(
+                key: widget.account_key,
+                  account_name:nameController.text,
+                  description:descriptionController.text,
+                  budget:budgetController.text,
+                  balance:balanceController.text,
+                  income: incomeController.text,
+                  balance_date:selectedDate.toString(),
+                  account_status:AppConstanst.activeAccount,
+                  created_at: DateTime.now().toString(),
+                  updated_at: DateTime.now().toString()
+              );
+              await databaseHelper.updateAddedAccountData(accountsModel);
+              Navigator.pop(context, true);
+            }
+            else{
+              if (_formKey.currentState?.validate() ?? false) {
+                AccountsModel accountsModel = AccountsModel(
+                    account_name:nameController.text,
+                    description:descriptionController.text,
+                    budget:budgetController.text,
+                    balance:balanceController.text,
+                    income: incomeController.text,
+                    balance_date:selectedDate.toString(),
+                    account_status:AppConstanst.activeAccount,
+                    created_at: DateTime.now().toString(),
+                    updated_at: DateTime.now().toString()
+                );
+                await databaseHelper.insertAccountData(accountsModel, false);
+                Navigator.pop(context, true);
+              }
+            }
 
-            await databaseHelper.insertAccountData(accountsModel, false);
-            Navigator.pop(context, true);
+
           },
           child: Container(
             width: double.infinity,
@@ -75,7 +108,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                 color: Colors.blue,
                 borderRadius: BorderRadius.all(Radius.circular(10))),
             child: Text(
-              LocaleKeys.addAccount.tr,
+              !widget.forEditAccount ? LocaleKeys.addAccount.tr : "Update Account",
               style: const TextStyle(color: Colors.white, fontSize: 14),
             ),
           ),
@@ -96,7 +129,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                         Icons.arrow_back_ios,
                         color: Helper.getTextColor(context),
                       )),
-                  Text(LocaleKeys.addAccount.tr,
+                  Text(!widget.forEditAccount ? LocaleKeys.addAccount.tr : "Edit Account",
                       style: TextStyle(
                         fontSize: 22,
                         color: Helper.getTextColor(context),
@@ -178,323 +211,325 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
             height: double.maxFinite,
             color: Helper.getBackgroundColor(context),
             child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  20.heightBox,
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: CustomBoxTextFormField(
-                      controller: nameController,
-                      keyboardType: TextInputType.text,
-                      hintText: LocaleKeys.enterName.tr,
-                      padding: 15,
-                      borderColor: Helper.getCardColor(context),
-                      hintColor: Helper.getTextColor(context),
-                      textStyle: const TextStyle(fontSize: 16),
-                      borderRadius: BorderRadius.circular(6),
-                      fillColor: Helper.getCardColor(context),
-                      prefixIcon: const Icon(
-                        Icons.person_2_outlined,
-                        color: Colors.blue,
-                      ),
-                      suffixIcon: nameController.text.isNotEmpty
-                          ? InkWell(
-                          onTap: () {
-                            setState(() {
-                              FocusScope.of(context).unfocus();
-                              nameController.clear();
-                            });
-                          },
-                          child: const Icon(
-                            Icons.cancel,
-                            color: Colors.grey,
-                          ))
-                          : 0.widthBox,
-                      onChanged: (value) {
-                        setState(() {
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    20.heightBox,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: CustomBoxTextFormField(
+                        controller: nameController,
+                        keyboardType: TextInputType.text,
+                        hintText: LocaleKeys.enterName.tr,
+                        padding: 15,
+                        borderColor: Helper.getCardColor(context),
+                        hintColor: Helper.getTextColor(context),
+                        textStyle: const TextStyle(fontSize: 16),
+                        borderRadius: BorderRadius.circular(6),
+                        fillColor: Helper.getCardColor(context),
+                        prefixIcon: const Icon(
+                          Icons.person_2_outlined,
+                          color: Colors.blue,
+                        ),
+                        suffixIcon: nameController.text.isNotEmpty
+                            ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                FocusScope.of(context).unfocus();
+                                nameController.clear();
+                              });
+                            },
+                            child: const Icon(
+                              Icons.cancel,
+                              color: Colors.grey,
+                            ))
+                            : 0.widthBox,
+                        onChanged: (value) {
+                          setState(() {
 
-                        });
-                      },
-                      validator: (value) {
-                        if(value == null || value.isEmpty){
-                          return 'Please enter your name';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  20.heightBox,
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: CustomBoxTextFormField(
-                      controller: descriptionController,
-                      keyboardType: TextInputType.text,
-                      hintText: LocaleKeys.enterDescription.tr,
-                      padding: 15,
-                      borderColor: Helper.getCardColor(context),
-                      hintColor: Helper.getTextColor(context),
-                      textStyle: const TextStyle(fontSize: 16),
-                      borderRadius: BorderRadius.circular(6),
-                      fillColor: Helper.getCardColor(context),
-                      prefixIcon: const Icon(
-                        Icons.description,
-                        color: Colors.blue,
+                          });
+                        },
+                        validator: (value) {
+                          if(value == null || value.isEmpty){
+                            return 'Please enter your name';
+                          }
+                          return null;
+                        },
                       ),
-                      suffixIcon: descriptionController.text.isNotEmpty
-                          ? InkWell(
-                          onTap: () {
-                            setState(() {
-                              FocusScope.of(context).unfocus();
-                              descriptionController.clear();
-                            });
-                          },
-                          child: const Icon(
-                            Icons.cancel,
-                            color: Colors.grey,
-                          ))
-                          : 0.widthBox,
-                      onChanged: (value) {
-                        setState(() {
-                          /* getShortName(firstNameController.text,
-                              lastNameController.text);*/
-                        });
-                      },
-                      validator: (value) {
-                        return null;
-                      },
                     ),
-                  ),
-                  20.heightBox,
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(children: [
-                      Expanded(
-                          child: CustomBoxTextFormField(
-                              controller: budgetController,
-                              onChanged: (val) {},
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(5),
-                                  bottomLeft: Radius.circular(5)),
-                              keyboardType: TextInputType.number,
-                              hintText: LocaleKeys.enterBudgetText.tr,
-                              fillColor: Helper.getCardColor(context),
-                              hintColor: Helper.getTextColor(context),
-                              borderColor: Colors.transparent,
-                              textStyle: TextStyle(
-                                  color: Helper.getTextColor(context)),
-                              padding: 15,
-                              horizontalPadding: 5,
-                              //focusNode: _focus,
-                              validator: (value) {
-                                return null;
-                              })),
-                      Container(
+                    20.heightBox,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: CustomBoxTextFormField(
+                        controller: descriptionController,
+                        keyboardType: TextInputType.text,
+                        hintText: LocaleKeys.enterDescription.tr,
+                        padding: 15,
+                        borderColor: Helper.getCardColor(context),
+                        hintColor: Helper.getTextColor(context),
+                        textStyle: const TextStyle(fontSize: 16),
+                        borderRadius: BorderRadius.circular(6),
+                        fillColor: Helper.getCardColor(context),
+                        prefixIcon: const Icon(
+                          Icons.description,
+                          color: Colors.blue,
+                        ),
+                        suffixIcon: descriptionController.text.isNotEmpty
+                            ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                FocusScope.of(context).unfocus();
+                                descriptionController.clear();
+                              });
+                            },
+                            child: const Icon(
+                              Icons.cancel,
+                              color: Colors.grey,
+                            ))
+                            : 0.widthBox,
+                        onChanged: (value) {
+                          setState(() {
+                          });
+                        },
+                        validator: (value) {
+                          return null;
+                        },
+                      ),
+                    ),
+                    20.heightBox,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(children: [
+                        Expanded(
+                            child: CustomBoxTextFormField(
+                                controller: budgetController,
+                                onChanged: (val) {},
+                                borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(5),
+                                    bottomLeft: Radius.circular(5)),
+                                keyboardType: TextInputType.number,
+                                hintText: LocaleKeys.enterBudgetText.tr,
+                                fillColor: Helper.getCardColor(context),
+                                hintColor: Helper.getTextColor(context),
+                                borderColor: Colors.transparent,
+                                textStyle: TextStyle(
+                                    color: Helper.getTextColor(context)),
+                                padding: 15,
+                                horizontalPadding: 5,
+                                //focusNode: _focus,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a budget';
+                                  }
+                                  return null;
+                                })),
+                        Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 3, horizontal: 5),
+                            decoration: BoxDecoration(
+                                color: Helper.getCardColor(context),
+                                border: Border(
+                                  left: BorderSide(
+                                    color: Helper.getCardColor(context),
+                                  ),
+                                ),
+                                borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(5),
+                                    bottomRight: Radius.circular(5))),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton2<CurrencyCategory>(
+                                  dropdownStyleData: DropdownStyleData(
+                                      decoration: BoxDecoration(
+                                          color: Helper.getCardColor(context),
+                                          borderRadius:
+                                          BorderRadius.circular(8))),
+                                  items: currencyTypes
+                                      .map<DropdownMenuItem<CurrencyCategory>>(
+                                          (CurrencyCategory value) {
+                                        return DropdownMenuItem<CurrencyCategory>(
+                                          value: value,
+                                          child: Text(value.symbol!),
+                                        );
+                                      }).toList(),
+                                  hint: const Text("₹"),
+                                  value: currency,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      currency = value;
+                                      currencyCode = currency!.currencyCode!;
+                                      currencySymbol = currency!.symbol!;
+                                      MySharedPreferences.instance.addStringToSF(
+                                          SharedPreferencesKeys.currencySymbol,
+                                          currencySymbol);
+                                      MySharedPreferences.instance.addStringToSF(
+                                          SharedPreferencesKeys.currencyCode,
+                                          currencyCode);
+                                      print(
+                                          "currency is ---- ${currency!.symbol}");
+                                    });
+                                  },
+                                  onMenuStateChange: (isOpen) {
+                                    setState(() {
+                                      currencyDropdownOpen = isOpen;
+                                    });
+                                  },
+                                  iconStyleData: IconStyleData(
+                                    icon: Icon(
+                                      !currencyDropdownOpen
+                                          ? Icons.keyboard_arrow_down
+                                          : Icons.keyboard_arrow_up,
+                                      color: Colors.white,
+                                    ),
+                                  )),
+                            )),
+                      ]),
+                    ),
+                    20.heightBox,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: CustomBoxTextFormField(
+                        controller: balanceController,
+                        keyboardType: TextInputType.text,
+                        hintText: "Enter balance",
+                        padding: 15,
+                        borderColor: Helper.getCardColor(context),
+                        hintColor: Helper.getTextColor(context),
+                        textStyle: const TextStyle(fontSize: 16),
+                        borderRadius: BorderRadius.circular(6),
+                        fillColor: Helper.getCardColor(context),
+                        prefixIcon: const Icon(
+                          Icons.account_balance_wallet_outlined,
+                          color: Colors.blue,
+                        ),
+                        suffixIcon: balanceController.text.isNotEmpty
+                            ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                FocusScope.of(context).unfocus();
+                                balanceController.clear();
+                              });
+                            },
+                            child: const Icon(
+                              Icons.cancel,
+                              color: Colors.grey,
+                            ))
+                            : 0.widthBox,
+                        onChanged: (value) {
+                          setState(() {
+                            /* getShortName(firstNameController.text,
+                                lastNameController.text);*/
+                          });
+                        },
+                        validator: (value) {
+                          return null;
+                        },
+                      ),
+                    ),
+                    20.heightBox,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: CustomBoxTextFormField(
+                        controller: incomeController,
+                        keyboardType: TextInputType.text,
+                        hintText: "Enter income",
+                        padding: 15,
+                        borderColor: Helper.getCardColor(context),
+                        hintColor: Helper.getTextColor(context),
+                        textStyle: const TextStyle(fontSize: 16),
+                        borderRadius: BorderRadius.circular(6),
+                        fillColor: Helper.getCardColor(context),
+                        prefixIcon: const Icon(
+                          Icons.account_balance_wallet_outlined,
+                          color: Colors.blue,
+                        ),
+                        suffixIcon: incomeController.text.isNotEmpty
+                            ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                FocusScope.of(context).unfocus();
+                                incomeController.clear();
+                              });
+                            },
+                            child: const Icon(
+                              Icons.cancel,
+                              color: Colors.grey,
+                            ))
+                            : 0.widthBox,
+                        onChanged: (value) {
+                          setState(() {
+                          });
+                        },
+                        validator: (value) {
+                          return null;
+                        },
+                      ),
+                    ),
+                    20.heightBox,
+                    InkWell(
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: const ColorScheme.light(
+                                    primary: Colors.blue,
+                                    onPrimary: Colors.white,
+                                    onSurface: Colors.blue,
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor:
+                                      Colors.blue, // button text color
+                                    ),
+                                  ),
+                                ),
+                                child: child!,
+                              );
+                            },
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime.now());
+                        if (pickedDate != null && pickedDate != selectedDate) {
+                          setState(() {
+                            selectedDate = pickedDate;
+                          });
+                        } else if (pickedDate != null &&
+                            pickedDate == DateTime.now()) {
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Container(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 3, horizontal: 5),
+                              vertical: 14, horizontal: 10 ),
                           decoration: BoxDecoration(
                               color: Helper.getCardColor(context),
-                              border: Border(
-                                left: BorderSide(
-                                  color: Helper.getCardColor(context),
-                                ),
+                              borderRadius:
+                              const BorderRadius.all(Radius.circular(5))),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.date_range,
+                                color: Colors.blue,
+                                size: 18,
                               ),
-                              borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(5),
-                                  bottomRight: Radius.circular(5))),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton2<CurrencyCategory>(
-                                dropdownStyleData: DropdownStyleData(
-                                    decoration: BoxDecoration(
-                                        color: Helper.getCardColor(context),
-                                        borderRadius:
-                                        BorderRadius.circular(8))),
-                                items: currencyTypes
-                                    .map<DropdownMenuItem<CurrencyCategory>>(
-                                        (CurrencyCategory value) {
-                                      return DropdownMenuItem<CurrencyCategory>(
-                                        value: value,
-                                        child: Text(value.symbol!),
-                                      );
-                                    }).toList(),
-                                hint: const Text("₹"),
-                                value: currency,
-                                onChanged: (value) {
-                                  setState(() {
-                                    currency = value;
-                                    currencyCode = currency!.currencyCode!;
-                                    currencySymbol = currency!.symbol!;
-                                    MySharedPreferences.instance.addStringToSF(
-                                        SharedPreferencesKeys.currencySymbol,
-                                        currencySymbol);
-                                    MySharedPreferences.instance.addStringToSF(
-                                        SharedPreferencesKeys.currencyCode,
-                                        currencyCode);
-                                    print(
-                                        "currency is ---- ${currency!.symbol}");
-                                  });
-                                },
-                                onMenuStateChange: (isOpen) {
-                                  setState(() {
-                                    currencyDropdownOpen = isOpen;
-                                  });
-                                },
-                                iconStyleData: IconStyleData(
-                                  icon: Icon(
-                                    !currencyDropdownOpen
-                                        ? Icons.keyboard_arrow_down
-                                        : Icons.keyboard_arrow_up,
-                                    color: Colors.white,
-                                  ),
-                                )),
-                          )),
-                    ]),
-                  ),
-                  20.heightBox,
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: CustomBoxTextFormField(
-                      controller: balanceController,
-                      keyboardType: TextInputType.text,
-                      hintText: "Enter balance",
-                      padding: 15,
-                      borderColor: Helper.getCardColor(context),
-                      hintColor: Helper.getTextColor(context),
-                      textStyle: const TextStyle(fontSize: 16),
-                      borderRadius: BorderRadius.circular(6),
-                      fillColor: Helper.getCardColor(context),
-                      prefixIcon: const Icon(
-                        Icons.account_balance_wallet_outlined,
-                        color: Colors.blue,
-                      ),
-                      suffixIcon: balanceController.text.isNotEmpty
-                          ? InkWell(
-                          onTap: () {
-                            setState(() {
-                              FocusScope.of(context).unfocus();
-                              balanceController.clear();
-                            });
-                          },
-                          child: const Icon(
-                            Icons.cancel,
-                            color: Colors.grey,
-                          ))
-                          : 0.widthBox,
-                      onChanged: (value) {
-                        setState(() {
-                          /* getShortName(firstNameController.text,
-                              lastNameController.text);*/
-                        });
-                      },
-                      validator: (value) {
-                        return null;
-                      },
-                    ),
-                  ),
-                  20.heightBox,
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: CustomBoxTextFormField(
-                      controller: incomeController,
-                      keyboardType: TextInputType.text,
-                      hintText: "Enter income",
-                      padding: 15,
-                      borderColor: Helper.getCardColor(context),
-                      hintColor: Helper.getTextColor(context),
-                      textStyle: const TextStyle(fontSize: 16),
-                      borderRadius: BorderRadius.circular(6),
-                      fillColor: Helper.getCardColor(context),
-                      prefixIcon: const Icon(
-                        Icons.account_balance_wallet_outlined,
-                        color: Colors.blue,
-                      ),
-                      suffixIcon: incomeController.text.isNotEmpty
-                          ? InkWell(
-                          onTap: () {
-                            setState(() {
-                              FocusScope.of(context).unfocus();
-                              incomeController.clear();
-                            });
-                          },
-                          child: const Icon(
-                            Icons.cancel,
-                            color: Colors.grey,
-                          ))
-                          : 0.widthBox,
-                      onChanged: (value) {
-                        setState(() {
-                          /* getShortName(firstNameController.text,
-                              lastNameController.text);*/
-                        });
-                      },
-                      validator: (value) {
-                        return null;
-                      },
-                    ),
-                  ),
-                  20.heightBox,
-                  InkWell(
-                    onTap: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                          builder: (context, child) {
-                            return Theme(
-                              data: Theme.of(context).copyWith(
-                                colorScheme: const ColorScheme.light(
-                                  primary: Colors.blue,
-                                  onPrimary: Colors.white,
-                                  onSurface: Colors.blue,
-                                ),
-                                textButtonTheme: TextButtonThemeData(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor:
-                                    Colors.blue, // button text color
-                                  ),
-                                ),
+                              8.widthBox,
+                              Text(
+                                formattedDate(),
+                                style: TextStyle(
+                                    color: Helper.getTextColor(context)),
                               ),
-                              child: child!,
-                            );
-                          },
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime.now());
-                      if (pickedDate != null && pickedDate != selectedDate) {
-                        setState(() {
-                          selectedDate = pickedDate;
-                        });
-                      } else if (pickedDate != null &&
-                          pickedDate == DateTime.now()) {
-                      }
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 10 ),
-                        decoration: BoxDecoration(
-                            color: Helper.getCardColor(context),
-                            borderRadius:
-                            const BorderRadius.all(Radius.circular(5))),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Icon(
-                              Icons.date_range,
-                              color: Colors.blue,
-                              size: 18,
-                            ),
-                            8.widthBox,
-                            Text(
-                              formattedDate(),
-                              style: TextStyle(
-                                  color: Helper.getTextColor(context)),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
-                ],
+                  ],
+                ),
               ),
             ),
           )),
@@ -525,6 +560,12 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   @override
   void initState() {
     super.initState();
+    nameController.text = widget.account_name;
+    descriptionController.text = widget.description;
+    budgetController.text = widget.budget;
+    balanceController.text = widget.balance;
+    incomeController.text = widget.income;
+    // selectedDate = widget.balance_dat;
     _focus.addListener(_onFocusChange);
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
