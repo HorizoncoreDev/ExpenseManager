@@ -1028,9 +1028,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
 
   editSpendingIncome(BuildContext context) async {
     TransactionModel transactionModel = TransactionModel(
-        // id: widget.transactionModel.id,
         key: widget.transactionModel.key,
-        // member_id: widget.transactionModel.member_id,
         member_key: widget.transactionModel.member_key,
         account_key: widget.transactionModel.account_key,
         amount: int.parse(amountController.text),
@@ -1045,33 +1043,17 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
             : -1,
         sub_income_cat_id: selectedValue == AppConstanst.incomeTransactionName
             ? selectedIncomeSubIndex != -1
-                ? incomeSubCategories[selectedIncomeSubIndex].id
-                : -1
+            ? incomeSubCategories[selectedIncomeSubIndex].id
+            : -1
             : -1,
-        /*  cat_name: selectedValue == AppConstanst.spendingTransactionName
-            ? selectedSpendingSubIndex != -1
-                ? spendingSubCategories[selectedSpendingSubIndex].name
-                : categories[selectedSpendingIndex].name
-            : selectedIncomeSubIndex != -1
-                ? incomeSubCategories[selectedIncomeSubIndex].name
-                : incomeCategories[selectedIncomeIndex].name,
-     */
         cat_type: selectedValue == AppConstanst.spendingTransactionName
             ? selectedSpendingSubIndex != -1
-                ? AppConstanst.subCategory
-                : AppConstanst.mainCategory
+            ? AppConstanst.subCategory
+            : AppConstanst.mainCategory
             : selectedIncomeSubIndex != -1
-                ? AppConstanst.subCategory
-                : AppConstanst.mainCategory,
-        /* cat_color: selectedValue == AppConstanst.spendingTransactionName
-            ? categories[selectedSpendingIndex].color
-            : incomeCategories[selectedIncomeIndex].color,
-        cat_icon: selectedValue == AppConstanst.spendingTransactionName
-            ? categories[selectedSpendingIndex].icons
-            : incomeCategories[selectedIncomeIndex].path,
-     */
+            ? AppConstanst.subCategory
+            : AppConstanst.mainCategory,
         payment_method_id: paymentMethods[selectedPaymentMethodIndex].id,
-        // payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
         status: 1,
         transaction_date: '${formattedDate()} ${formattedTime()}',
         transaction_type: selectedValue == AppConstanst.spendingTransactionName
@@ -1083,14 +1065,13 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         receipt_image2: image2?.path ?? "",
         receipt_image3: image3?.path ?? "",
         created_at: widget.transactionModel.created_at!,
-        last_updated: DateTime.now().toString());
+        last_updated: DateTime.now().toString()
+    );
 
     await databaseHelper
-        .updateTransactionData(
-            transactionModel, currentUserKey, currentAccountKey, isSkippedUser)
+        .updateTransactionData(transactionModel, currentUserKey, currentAccountKey, isSkippedUser)
         .then((value) async {
       if (value != null) {
-        // Helper.hideLoading(context);
         DateTime now = DateTime.now();
         String currentMonthName = DateFormat('MMMM').format(now);
         DateFormat format = DateFormat("dd/MM/yyyy");
@@ -1100,14 +1081,10 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
           if (isSkippedUser) {
             if (selectedValue == AppConstanst.spendingTransactionName) {
               MySharedPreferences.instance
-                  .getStringValuesSF(
-                      SharedPreferencesKeys.skippedUserCurrentBalance)
+                  .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentBalance)
                   .then((value) {
                 if (value != null) {
-                  String updateBalance =
-                      ((int.parse(value) + widget.transactionModel.amount!) -
-                              int.parse(amountController.text))
-                          .toString();
+                  String updateBalance = (int.parse(value) - widget.transactionModel.amount! + int.parse(amountController.text)).toString();
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.skippedUserCurrentBalance,
                       updateBalance);
@@ -1115,14 +1092,10 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
               });
             } else {
               MySharedPreferences.instance
-                  .getStringValuesSF(
-                      SharedPreferencesKeys.skippedUserCurrentIncome)
+                  .getStringValuesSF(SharedPreferencesKeys.skippedUserCurrentIncome)
                   .then((value) {
                 if (value != null) {
-                  String updateBalance =
-                      ((int.parse(value) - widget.transactionModel.amount!) +
-                              int.parse(amountController.text))
-                          .toString();
+                  String updateBalance = (int.parse(value) + int.parse(amountController.text) - widget.transactionModel.amount!).toString();
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.skippedUserCurrentIncome,
                       updateBalance);
@@ -1136,25 +1109,18 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                 .child(currentUserKey)
                 .orderByChild(AccountTableFields.key)
                 .equalTo(currentAccountKey);
-
             reference.once().then((event) {
               DataSnapshot dataSnapshot = event.snapshot;
               if (event.snapshot.exists) {
-                Map<dynamic, dynamic> values =
-                    dataSnapshot.value as Map<dynamic, dynamic>;
+                Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
                 values.forEach((key, value) async {
                   var accountsModel = AccountsModel.fromMap(value);
                   if (selectedValue == AppConstanst.spendingTransactionName) {
-                    accountsModel.balance = (int.parse(accountsModel.balance!) -
-                            int.parse(amountController.text))
-                        .toString();
+                    accountsModel.balance = (int.parse(accountsModel.balance!) + widget.transactionModel.amount! - int.parse(amountController.text)).toString();
                   } else {
-                    accountsModel.income = (int.parse(accountsModel.income!) +
-                            int.parse(amountController.text))
-                        .toString();
+                    accountsModel.income = (int.parse(accountsModel.income!) - widget.transactionModel.amount! + int.parse(amountController.text)).toString();
                   }
-                  await DatabaseHelper.instance
-                      .updateAccountData(accountsModel);
+                  await DatabaseHelper.instance.updateAccountData(accountsModel);
                 });
               }
             });
@@ -1167,6 +1133,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
       }
     });
   }
+
 
   String formattedDate() {
     return DateFormat('dd/MM/yyyy').format(selectedDate);

@@ -1,5 +1,4 @@
 import 'package:expense_manager/db_models/accounts_model.dart';
-import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_models/transaction_new_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
@@ -15,8 +14,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:googleapis/testing/v1.dart';
 import 'package:intl/intl.dart';
+
 import '../db_models/request_model.dart';
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
@@ -171,7 +170,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     .push(
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          const OtherScreen()),)
+                                          const OtherScreen()),
+                                )
                                     .then((value) {
                                   widget.onAccountUpdate();
                                   MySharedPreferences.instance
@@ -201,6 +201,15 @@ class OverviewScreenState extends State<OverviewScreen> {
                                                   .then((value) {
                                                 if (value != null) {
                                                   userAccess = value;
+                                                  MySharedPreferences.instance
+                                                      .getStringValuesSF(
+                                                          SharedPreferencesKeys
+                                                              .currentAccountKey)
+                                                      .then((value) {
+                                                    if (value != null) {
+                                                      currentAccountKey = value;
+                                                    }
+                                                  });
                                                 }
                                               });
                                               if (AppConstanst
@@ -312,7 +321,7 @@ class OverviewScreenState extends State<OverviewScreen> {
     dateWiseIncomeTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForCurrentMonth(AppConstanst.incomeTransaction,
-        currentUserKey, currentAccountKey, isSkippedUser)
+            currentUserKey, currentAccountKey, isSkippedUser)
         .then((value) async {
       incomeTransaction = value;
       List<String> dates = [];
@@ -387,19 +396,19 @@ class OverviewScreenState extends State<OverviewScreen> {
         .orderByChild(AccountTableFields.key)
         .equalTo(currentAccountKey);
 
-      reference.onValue.listen((event) {
-        DataSnapshot dataSnapshot = event.snapshot;
-        if (event.snapshot.exists) {
-          Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
-          values.forEach((key, value) async {
-            accountModel = AccountsModel.fromMap(value);
-            currentBalance = int.parse(accountModel.balance!);
-            currentIncome = int.parse(accountModel.income!);
-            actualBudget = int.parse(accountModel.budget!);
-          });
-        }
-      });
+    reference.onValue.listen((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+          accountModel = AccountsModel.fromMap(value);
+          currentBalance = int.parse(accountModel.balance!);
+          currentIncome = int.parse(accountModel.income!);
+          actualBudget = int.parse(accountModel.budget!);
+        });
+      }
+    });
   }
 
   getTransactions() async {
@@ -446,7 +455,8 @@ class OverviewScreenState extends State<OverviewScreen> {
           if (t.member_key == "") {
             // t.member_id = profileModel.id;
             t.member_key = currentUserKey;
-            await databaseHelper.updateTransaction(TransactionModel.fromOtherModel(t));
+            await databaseHelper
+                .updateTransaction(TransactionModel.fromOtherModel(t));
           }
         }
       }
@@ -466,7 +476,6 @@ class OverviewScreenState extends State<OverviewScreen> {
             loading = false;
           });
           if (currentUserEmail == userEmail) {
-
             final reference = FirebaseDatabase.instance
                 .reference()
                 .child(accounts_table)
@@ -478,12 +487,12 @@ class OverviewScreenState extends State<OverviewScreen> {
               DataSnapshot dataSnapshot = event.snapshot;
               if (event.snapshot.exists) {
                 Map<dynamic, dynamic> values =
-                dataSnapshot.value as Map<dynamic, dynamic>;
+                    dataSnapshot.value as Map<dynamic, dynamic>;
                 values.forEach((key, value) async {
                   var accountsModel = AccountsModel.fromMap(value);
-                    accountsModel.balance =
-                        accountsModel.budget;
-                  await DatabaseHelper.instance.updateAccountData(accountsModel);
+                  accountsModel.balance = accountsModel.budget;
+                  await DatabaseHelper.instance
+                      .updateAccountData(accountsModel);
                 });
               }
             });
@@ -548,37 +557,40 @@ class OverviewScreenState extends State<OverviewScreen> {
                       .then((value) {
                     if (value != null) {
                       currentUserKey = value;
-                  MySharedPreferences.instance
-                      .getStringValuesSF(SharedPreferencesKeys.currentAccountKey)
-                      .then((value) {
-                    if (value != null) {
-                      currentAccountKey = value;
                       MySharedPreferences.instance
                           .getStringValuesSF(
-                              SharedPreferencesKeys.currentUserName)
+                              SharedPreferencesKeys.currentAccountKey)
                           .then((value) {
                         if (value != null) {
-                          currentUserName = value;
+                          currentAccountKey = value;
                           MySharedPreferences.instance
-                              .getStringValuesSF(SharedPreferencesKeys.userName)
+                              .getStringValuesSF(
+                                  SharedPreferencesKeys.currentUserName)
                               .then((value) {
                             if (value != null) {
-                              userName = value;
+                              currentUserName = value;
                               MySharedPreferences.instance
-                                  .getIntValuesSF(
-                                      SharedPreferencesKeys.userAccessType)
+                                  .getStringValuesSF(
+                                      SharedPreferencesKeys.userName)
                                   .then((value) {
                                 if (value != null) {
-                                  userAccess = value;
+                                  userName = value;
+                                  MySharedPreferences.instance
+                                      .getIntValuesSF(
+                                          SharedPreferencesKeys.userAccessType)
+                                      .then((value) {
+                                    if (value != null) {
+                                      userAccess = value;
+                                    }
+                                  });
+                                  getTransactions();
                                 }
                               });
-                              getTransactions();
                             }
                           });
                         }
                       });
                     }
-                  }); }
                   });
                 }
               });
@@ -900,13 +912,18 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       });
                                       await databaseHelper
                                           .deleteTransactionFromDB(
-                                          TransactionModel.fromOtherModel(transaction), isSkippedUser);
+                                              TransactionModel.fromOtherModel(
+                                                  transaction),
+                                              currentUserKey,
+                                              currentAccountKey,
+                                              isSkippedUser);
 
                                       setState(() {
                                         currentIncome =
                                             currentIncome - transaction.amount!;
                                       });
-                                      final reference = FirebaseDatabase.instance
+                                      final reference = FirebaseDatabase
+                                          .instance
                                           .reference()
                                           .child(accounts_table)
                                           .child(currentUserKey)
@@ -914,17 +931,22 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           .equalTo(currentAccountKey);
 
                                       reference.once().then((event) {
-                                        DataSnapshot dataSnapshot = event.snapshot;
+                                        DataSnapshot dataSnapshot =
+                                            event.snapshot;
                                         if (event.snapshot.exists) {
                                           Map<dynamic, dynamic> values =
-                                          dataSnapshot.value as Map<dynamic, dynamic>;
+                                              dataSnapshot.value
+                                                  as Map<dynamic, dynamic>;
                                           values.forEach((key, value) async {
-                                            var accountsModel = AccountsModel.fromMap(value);
+                                            var accountsModel =
+                                                AccountsModel.fromMap(value);
 
                                             accountsModel.income =
                                                 currentIncome.toString();
 
-                                            await DatabaseHelper.instance.updateAccountData(accountsModel);
+                                            await DatabaseHelper.instance
+                                                .updateAccountData(
+                                                    accountsModel);
                                             getIncomeTransactions();
                                           });
                                         }
@@ -939,7 +961,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                               builder: (context) =>
                                                   EditSpendingScreen(
                                                     transactionModel:
-                                                    TransactionModel.fromOtherModel(transaction),
+                                                        TransactionModel
+                                                            .fromOtherModel(
+                                                                transaction),
                                                   )),
                                         )
                                             .then((value) {
@@ -1370,7 +1394,11 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     });
                                     await databaseHelper
                                         .deleteTransactionFromDB(
-                                        TransactionModel.fromOtherModel(transaction), isSkippedUser);
+                                            TransactionModel.fromOtherModel(
+                                                transaction),
+                                            currentUserKey,
+                                            currentAccountKey,
+                                            isSkippedUser);
 
                                     setState(() {
                                       currentBalance =
@@ -1385,16 +1413,20 @@ class OverviewScreenState extends State<OverviewScreen> {
                                         .equalTo(currentAccountKey);
 
                                     reference.once().then((event) {
-                                      DataSnapshot dataSnapshot = event.snapshot;
+                                      DataSnapshot dataSnapshot =
+                                          event.snapshot;
                                       if (event.snapshot.exists) {
                                         Map<dynamic, dynamic> values =
-                                        dataSnapshot.value as Map<dynamic, dynamic>;
+                                            dataSnapshot.value
+                                                as Map<dynamic, dynamic>;
                                         values.forEach((key, value) async {
-                                          var accountsModel = AccountsModel.fromMap(value);
+                                          var accountsModel =
+                                              AccountsModel.fromMap(value);
 
-                                            accountsModel.income =
-                                                currentBalance.toString();
-                                          await DatabaseHelper.instance.updateAccountData(accountsModel);
+                                          accountsModel.balance =
+                                              currentBalance.toString();
+                                          await DatabaseHelper.instance
+                                              .updateAccountData(accountsModel);
                                           getTransactions();
                                         });
                                       }
@@ -1410,7 +1442,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                               builder: (context) =>
                                                   EditSpendingScreen(
                                                     transactionModel:
-                                                    TransactionModel.fromOtherModel(transaction),
+                                                        TransactionModel
+                                                            .fromOtherModel(
+                                                                transaction),
                                                   )),
                                         )
                                             .then((value) {
@@ -1661,8 +1695,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                         ],
                       ),
                     ),
-                 ///Share account code
-                 /*   if (accessRequestList.isNotEmpty)
+
+                    ///Share account code
+                    /*   if (accessRequestList.isNotEmpty)
                       const Divider(
                         thickness: 1,
                         height: 1,
