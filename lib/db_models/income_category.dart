@@ -73,4 +73,12 @@ class IncomeCategory {
       'updated_at': updated_at,
     };
   }
+
+  static IncomeCategory fromJson(Map<String, Object?> json) => IncomeCategory(
+    //   user_id: json[ProfileTableFields.user_id] as int,
+    id: json[CategoryFields.id] as int,
+    name: json[CategoryFields.name] as String,
+    color: Color(json[CategoryFields.color] as int),
+    path: json[CategoryFields.path] as String,
+  );
 }

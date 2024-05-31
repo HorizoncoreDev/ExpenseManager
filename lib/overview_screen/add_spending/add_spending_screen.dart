@@ -939,13 +939,13 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                 ? incomeSubCategories[selectedIncomeSubIndex].id
                 : -1
             : -1,
-        cat_name: selectedValue == AppConstanst.spendingTransactionName
+       /* cat_name: selectedValue == AppConstanst.spendingTransactionName
             ? selectedSpendingSubIndex != -1
                 ? spendingSubCategories[selectedSpendingSubIndex].name
                 : categories[selectedSpendingIndex].name
             : selectedIncomeSubIndex != -1
                 ? incomeSubCategories[selectedIncomeSubIndex].name
-                : incomeCategories[selectedIncomeIndex].name,
+                : incomeCategories[selectedIncomeIndex].name,*/
         cat_type: selectedValue == AppConstanst.spendingTransactionName
             ? selectedSpendingSubIndex != -1
                 ? AppConstanst.subCategory
@@ -953,14 +953,14 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
             : selectedIncomeSubIndex != -1
                 ? AppConstanst.subCategory
                 : AppConstanst.mainCategory,
-        cat_color: selectedValue == AppConstanst.spendingTransactionName
+    /*    cat_color: selectedValue == AppConstanst.spendingTransactionName
             ? categories[selectedSpendingIndex].color
             : incomeCategories[selectedIncomeIndex].color,
         cat_icon: selectedValue == AppConstanst.spendingTransactionName
             ? categories[selectedSpendingIndex].icons
-            : incomeCategories[selectedIncomeIndex].path,
+            : incomeCategories[selectedIncomeIndex].path,*/
         payment_method_id: paymentMethods[selectedPaymentMethodIndex].id,
-        payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
+        // payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
         status: 1,
         transaction_date: '${formattedDate()} ${formattedTime()}',
         transaction_type: selectedValue == AppConstanst.spendingTransactionName

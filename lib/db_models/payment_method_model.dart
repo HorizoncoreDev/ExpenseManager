@@ -25,6 +25,14 @@ class PaymentMethod {
       'icon': icon,
     };
   }
+
+  static PaymentMethod fromJson(Map<String, Object?> json) => PaymentMethod(
+    //   user_id: json[ProfileTableFields.user_id] as int,
+    id: json[PaymentMethodFields.id] as int,
+    name: json[PaymentMethodFields.name] as String,
+    icon: json[PaymentMethodFields.icon] as String,
+    status: json[PaymentMethodFields.status] as int,
+  );
 }
 
 class PaymentMethodFields {

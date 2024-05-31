@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:expense_manager/db_models/transaction_new_model.dart';
+
 const String transaction_table = 'transaction_table';
 
 class TransactionFields {
@@ -160,12 +162,12 @@ class TransactionModel {
       income_cat_id: map['income_cat_id'],
       sub_expense_cat_id: map['sub_expense_cat_id'],
       sub_income_cat_id: map['sub_income_cat_id'],
-      cat_name: map['cat_name'],
+     // cat_name: map['cat_name'],
       cat_type: map['cat_type'],
-      cat_color: Color(map['cat_color']),
-      cat_icon: map['cat_icon'],
+   //   cat_color: Color(map['cat_color']),
+     // cat_icon: map['cat_icon'],
       payment_method_id: map['payment_method_id'],
-      payment_method_name: map['payment_method_name'],
+    //  payment_method_name: map['payment_method_name'],
       status: map['status'],
       transaction_date: map['transaction_date'],
       description: map['description'],
@@ -240,12 +242,12 @@ class TransactionModel {
       'income_cat_id': income_cat_id,
       'sub_expense_cat_id': sub_expense_cat_id,
       'sub_income_cat_id': sub_income_cat_id,
-      'cat_name': cat_name,
+      // 'cat_name': cat_name,
       'cat_type': cat_type,
-      'cat_icon': cat_icon,
-      'cat_color': cat_color!.value,
+      // 'cat_icon': cat_icon,
+      // 'cat_color': cat_color!.value,
       'payment_method_id': payment_method_id,
-      'payment_method_name': payment_method_name,
+      // 'payment_method_name': payment_method_name,
       'status': status,
       'transaction_date': transaction_date,
       'transaction_type': transaction_type,
@@ -259,4 +261,36 @@ class TransactionModel {
       'last_updated': last_updated /*DateTime.parse(lastUpdated as String)*/,
     };
   }
+
+  TransactionModel.fromOtherModel(TransactionNewModel other)
+      : key = other.key,
+        member_key = other.member_key,
+        account_key = other.account_key,
+        amount = other.amount,
+        expense_cat_id = other.expense_cat_id,
+        income_cat_id = other.income_cat_id,
+        sub_expense_cat_id = other.sub_expense_cat_id,
+        sub_income_cat_id = other.sub_income_cat_id,
+        cat_name = other.cat_name,
+        cat_type = other.cat_type,
+        cat_color = other.cat_color,
+        cat_icon = other.cat_icon,
+        payment_method_id = other.payment_method_id,
+        payment_method_name = other.payment_method_name,
+        status = other.status,
+        transaction_date = other.transaction_date,
+        transaction_type = other.transaction_type,
+        description = other.description,
+        currency_id = other.currency_id,
+        receipt_image1 = other.receipt_image1,
+        receipt_image2 = other.receipt_image2,
+        receipt_image3 = other.receipt_image3,
+        created_at = other.created_at,
+        last_updated = other.last_updated;
 }
+
+
+
+
+
+

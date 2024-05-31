@@ -88,6 +88,14 @@ class ExpenseCategory {
       'updated_at': updated_at,
     };
   }
+
+  static ExpenseCategory fromJson(Map<String, Object?> json) => ExpenseCategory(
+    //   user_id: json[ProfileTableFields.user_id] as int,
+    id: json[ExpenseCategoryField.id] as int,
+    name: json[ExpenseCategoryField.name] as String,
+    icons: json[ExpenseCategoryField.icons] as String,
+    color: Color(json[ExpenseCategoryField.color] as int),
+  );
 }
 
 class ExpenseCategoryField {

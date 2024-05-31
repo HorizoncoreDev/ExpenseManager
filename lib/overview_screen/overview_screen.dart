@@ -1,5 +1,6 @@
 import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/profile_model.dart';
+import 'package:expense_manager/db_models/transaction_new_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
 import 'package:expense_manager/overview_screen/spending_detail_screen/spending_detail_screen.dart';
@@ -50,7 +51,7 @@ class OverviewScreenState extends State<OverviewScreen> {
   final databaseHelper = DatabaseHelper();
   AccountsModel accountModel = AccountsModel();
 
-  List<TransactionModel> spendingTransaction = [];
+  List<TransactionNewModel> spendingTransaction = [];
 
   @override
   Widget build(BuildContext context) {
@@ -307,7 +308,7 @@ class OverviewScreenState extends State<OverviewScreen> {
       getProfileData();
     }
 
-    List<TransactionModel> incomeTransaction = [];
+    List<TransactionNewModel> incomeTransaction = [];
     dateWiseIncomeTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForCurrentMonth(AppConstanst.incomeTransaction,
@@ -351,7 +352,7 @@ class OverviewScreenState extends State<OverviewScreen> {
         dates.sort((a, b) => b.compareTo(a));
         for (var date in dates) {
           int totalAmount = 0;
-          List<TransactionModel> newTransaction = [];
+          List<TransactionNewModel> newTransaction = [];
           for (var t in incomeTransaction) {
             if (date == t.transaction_date!.split(' ')[0]) {
               newTransaction.add(t);
@@ -445,7 +446,7 @@ class OverviewScreenState extends State<OverviewScreen> {
           if (t.member_key == "") {
             // t.member_id = profileModel.id;
             t.member_key = currentUserKey;
-            await databaseHelper.updateTransaction(t);
+            await databaseHelper.updateTransaction(TransactionModel.fromOtherModel(t));
           }
         }
       }
@@ -492,7 +493,7 @@ class OverviewScreenState extends State<OverviewScreen> {
         dates.sort((a, b) => b.compareTo(a));
         for (var date in dates) {
           int totalAmount = 0;
-          List<TransactionModel> newTransaction = [];
+          List<TransactionNewModel> newTransaction = [];
           for (var t in spendingTransaction) {
             if (date == t.transaction_date!.split(' ')[0]) {
               newTransaction.add(t);
@@ -899,7 +900,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       });
                                       await databaseHelper
                                           .deleteTransactionFromDB(
-                                              transaction, isSkippedUser);
+                                          TransactionModel.fromOtherModel(transaction), isSkippedUser);
 
                                       setState(() {
                                         currentIncome =
@@ -938,7 +939,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                               builder: (context) =>
                                                   EditSpendingScreen(
                                                     transactionModel:
-                                                        transaction,
+                                                    TransactionModel.fromOtherModel(transaction),
                                                   )),
                                         )
                                             .then((value) {
@@ -1369,7 +1370,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     });
                                     await databaseHelper
                                         .deleteTransactionFromDB(
-                                            transaction, isSkippedUser);
+                                        TransactionModel.fromOtherModel(transaction), isSkippedUser);
 
                                     setState(() {
                                       currentBalance =
@@ -1409,7 +1410,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                               builder: (context) =>
                                                   EditSpendingScreen(
                                                     transactionModel:
-                                                        transaction,
+                                                    TransactionModel.fromOtherModel(transaction),
                                                   )),
                                         )
                                             .then((value) {

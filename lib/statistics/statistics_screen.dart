@@ -14,6 +14,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../db_models/transaction_new_model.dart';
 import '../overview_screen/add_spending/DateWiseTransactionModel.dart';
 
 class ChartData {
@@ -79,8 +80,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   List<DateWiseTransactionModel> dateWiseSpendingTransaction = [];
   List<DateWiseTransactionModel> dateWiseIncomeTransaction = [];
-  List<TransactionModel> spendingChartData = [];
-  List<TransactionModel> incomeChartData = [];
+  List<TransactionNewModel> spendingChartData = [];
+  List<TransactionNewModel> incomeChartData = [];
 
   List<CommonCategoryModel> incomeCategoryList = [];
   List<CommonCategoryModel> spendingCategoryList = [];
@@ -352,7 +353,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     return amount;
   }
 
-  Widget chartDataWidget(List<TransactionModel> spendingChartData, int type) {
+  Widget chartDataWidget(List<TransactionNewModel> spendingChartData, int type) {
     DateTime now = DateTime.now();
 
     List<ChartData> chartData;
@@ -480,14 +481,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   List<ChartData> generateChartDataForMonth(
-      List<TransactionModel> spendingChartData, DateTime month) {
+      List<TransactionNewModel> spendingChartData, DateTime month) {
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
 
     List<ChartData> chartDataList = List.generate(daysInMonth,
         (i) => ChartData(DateTime(month.year, month.month, i + 1), 0));
 
     for (int i = 0; i < spendingChartData.length; i++) {
-      TransactionModel transaction = spendingChartData[i];
+      TransactionNewModel transaction = spendingChartData[i];
       DateTime transactionDate = _parseDate(transaction.transaction_date!);
       if (transactionDate.month == month.month &&
           transactionDate.year == month.year) {
@@ -659,8 +660,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     super.initState();
   }
 
-  parseIncomeList(List<TransactionModel> value) {
-    List<TransactionModel> incomeTransaction = [];
+  parseIncomeList(List<TransactionNewModel> value) {
+    List<TransactionNewModel> incomeTransaction = [];
     incomeTransaction = value;
     incomeChartData = value;
     List<String> dates = [];
@@ -677,7 +678,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     dates.sort((a, b) => b.compareTo(a));
     for (var date in dates) {
       int totalAmount = 0;
-      List<TransactionModel> newTransaction = [];
+      List<TransactionNewModel> newTransaction = [];
       for (var t in incomeTransaction) {
         DateFormat format = DateFormat("dd/MM/yyyy");
         DateTime parsedDate = format.parse(t.transaction_date!);
@@ -708,8 +709,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     setState(() {});
   }
 
-  parseSpendingList(List<TransactionModel> value) {
-    List<TransactionModel> spendingTransaction = [];
+  parseSpendingList(List<TransactionNewModel> value) {
+    List<TransactionNewModel> spendingTransaction = [];
     spendingTransaction = value;
     spendingChartData = value;
     List<String> dates = [];
@@ -726,7 +727,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     dates.sort((a, b) => b.compareTo(a));
     for (var date in dates) {
       int totalAmount = 0;
-      List<TransactionModel> newTransaction = [];
+      List<TransactionNewModel> newTransaction = [];
       for (var t in spendingTransaction) {
         DateFormat format = DateFormat("dd/MM/yyyy");
         DateTime parsedDate = format.parse(t.transaction_date!);
