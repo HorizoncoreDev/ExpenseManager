@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../db_models/transaction_model.dart';
+import '../../db_models/transaction_new_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../overview_screen/add_spending/DateWiseTransactionModel.dart';
 import '../../overview_screen/edit_spending/edit_spending_screen.dart';
@@ -276,7 +277,7 @@ class _SearchScreenState extends State<SearchScreen> {
         expenseCatId = categoryList[selectedCategoryIndex].catId!;
       }
     }
-    List<TransactionModel> spendingTransaction = [];
+    List<TransactionNewModel> spendingTransaction = [];
     dateWiseTransaction = [];
 
     await DatabaseHelper.instance
@@ -300,7 +301,7 @@ class _SearchScreenState extends State<SearchScreen> {
       dates.sort((a, b) => b.compareTo(a));
       for (var date in dates) {
         int totalAmount = 0;
-        List<TransactionModel> newTransaction = [];
+        List<TransactionNewModel> newTransaction = [];
         var incomeTransactionTotal = 0;
         var spendingTransactionTotal = 0;
         for (var t in spendingTransaction) {
@@ -335,7 +336,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   getTransactions(String category) async {
-    List<TransactionModel> spendingTransaction = [];
+    List<TransactionNewModel> spendingTransaction = [];
     dateWiseTransaction = [];
 
     await DatabaseHelper.instance
@@ -361,7 +362,7 @@ class _SearchScreenState extends State<SearchScreen> {
       dates.sort((a, b) => b.compareTo(a));
       for (var date in dates) {
         int totalAmount = 0;
-        List<TransactionModel> newTransaction = [];
+        List<TransactionNewModel> newTransaction = [];
         var incomeTransactionTotal = 0;
         var spendingTransactionTotal = 0;
         for (var t in spendingTransaction) {
@@ -814,8 +815,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             MaterialPageRoute(
                                 builder: (context) => EditSpendingScreen(
                                       transactionModel:
-                                          dateWiseTransaction[index]
-                                              .transactions![index1],
+                                      TransactionModel.fromOtherModel(dateWiseTransaction[index]
+                                              .transactions![index1]),
                                     )),
                           )
                               .then((value) {

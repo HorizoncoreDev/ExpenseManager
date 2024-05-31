@@ -38,6 +38,11 @@ updated_at: map['updated_at'],
 'updated_at': updated_at,
     };
   }
+
+  static IncomeSubCategory fromJson(Map<String, Object?> json) => IncomeSubCategory(
+    id: json[IncomeSubCategoryFields.id] as int,
+    name: json[IncomeSubCategoryFields.name] as String,
+  );
 }
 
 class IncomeSubCategoryFields {

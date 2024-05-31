@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import '../../db_models/accounts_model.dart';
+import '../../db_models/transaction_new_model.dart';
 import '../../utils/views/custom_text_form_field.dart';
 import '../edit_spending/edit_spending_screen.dart';
 
@@ -340,10 +341,10 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                               builder: (context) =>
                                                   EditSpendingScreen(
                                                     transactionModel:
-                                                        dateWiseTransaction[
+                                                    TransactionModel.fromOtherModel(dateWiseTransaction[
                                                                     index]
                                                                 .transactions![
-                                                            index1],
+                                                            index1]),
                                                   )),
                                         )
                                             .then((value) {
@@ -548,7 +549,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
   }
 
   getFilteredData(String value) async {
-    List<TransactionModel> incomeTransaction = [];
+    List<TransactionNewModel> incomeTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForYearMonthsAndCategory(
@@ -575,7 +576,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
       totalMonthlyIncomeAmount = 0;
       for (var date in dates) {
         int totalAmount = 0;
-        List<TransactionModel> newTransaction = [];
+        List<TransactionNewModel> newTransaction = [];
         var incomeTransactionTotal = 0;
         var spendingTransactionTotal = 0;
         for (var t in incomeTransaction) {
@@ -641,7 +642,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
       getProfileData();
     }
 
-    List<TransactionModel> incomeTransaction = [];
+    List<TransactionNewModel> incomeTransaction = [];
     dateWiseTransaction = [];
     await DatabaseHelper.instance
         .getTransactionList(value.toLowerCase(), currentUserKey,
@@ -684,7 +685,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
         totalMonthlyIncomeAmount = 0;
         for (var date in dates) {
           int totalAmount = 0;
-          List<TransactionModel> newTransaction = [];
+          List<TransactionNewModel> newTransaction = [];
           for (var t in incomeTransaction) {
             if (date == t.transaction_date!.split(' ')[0]) {
               newTransaction.add(t);

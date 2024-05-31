@@ -1,10 +1,12 @@
 import 'package:expense_manager/db_models/transaction_model.dart';
 
+import '../../db_models/transaction_new_model.dart';
+
 class DateWiseTransactionModel {
   String? transactionDate;
   int? transactionTotal;
   String? transactionDay;
-  List<TransactionModel>? transactions;
+  List<TransactionNewModel>? transactions;
 
   DateWiseTransactionModel({
     this.transactionDate,
@@ -18,8 +20,8 @@ class DateWiseTransactionModel {
       transactionDate: json['transactionDate'],
       transactionTotal: json['transactionTotal'],
       transactionDay: json['transactionDay'],
-      transactions: List<TransactionModel>.from((json['transactions'] ?? [])
-          .map((transaction) => TransactionModel.fromJson(transaction))),
+      transactions: List<TransactionNewModel>.from((json['transactions'] ?? [])
+          .map((transaction) => TransactionNewModel.fromJson(transaction))),
     );
   }
 

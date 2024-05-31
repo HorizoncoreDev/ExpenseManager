@@ -39,6 +39,10 @@ class ExpenseSubCategory {
       'updated_at': updated_at,
     };
   }
+  static ExpenseSubCategory fromJson(Map<String, Object?> json) => ExpenseSubCategory(
+    id: json[ExpenseSubCategoryFields.id] as int,
+    name: json[ExpenseSubCategoryFields.name] as String,
+  );
 }
 
 class ExpenseSubCategoryFields {

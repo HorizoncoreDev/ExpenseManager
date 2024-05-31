@@ -23,7 +23,6 @@ import '../../db_models/expense_category_model.dart';
 import '../../db_models/expense_sub_category.dart';
 import '../../db_models/income_category.dart';
 import '../../db_models/income_sub_category.dart';
-import '../../db_models/profile_model.dart';
 import '../../db_service/database_helper.dart';
 import '../../utils/views/custom_text_form_field.dart';
 
@@ -910,13 +909,14 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                 ? incomeSubCategories[selectedIncomeSubIndex].id
                 : -1
             : -1,
-        cat_name: selectedValue == AppConstanst.spendingTransactionName
+        /* cat_name: selectedValue == AppConstanst.spendingTransactionName
             ? selectedSpendingSubIndex != -1
                 ? spendingSubCategories[selectedSpendingSubIndex].name
                 : categories[selectedSpendingIndex].name
             : selectedIncomeSubIndex != -1
                 ? incomeSubCategories[selectedIncomeSubIndex].name
                 : incomeCategories[selectedIncomeIndex].name,
+    */
         cat_type: selectedValue == AppConstanst.spendingTransactionName
             ? selectedSpendingSubIndex != -1
                 ? AppConstanst.subCategory
@@ -924,14 +924,15 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
             : selectedIncomeSubIndex != -1
                 ? AppConstanst.subCategory
                 : AppConstanst.mainCategory,
-        cat_color: selectedValue == AppConstanst.spendingTransactionName
+        /*  cat_color: selectedValue == AppConstanst.spendingTransactionName
             ? categories[selectedSpendingIndex].color
             : incomeCategories[selectedIncomeIndex].color,
         cat_icon: selectedValue == AppConstanst.spendingTransactionName
             ? categories[selectedSpendingIndex].icons
             : incomeCategories[selectedIncomeIndex].path,
+      */
         payment_method_id: paymentMethods[selectedPaymentMethodIndex].id,
-        payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
+        // payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
         status: 1,
         transaction_date: '${formattedDate()} ${formattedTime()}',
         transaction_type: selectedValue == AppConstanst.spendingTransactionName
@@ -945,7 +946,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         created_at: DateTime.now().toString(),
         last_updated: DateTime.now().toString());
     await databaseHelper
-        .insertTransactionData(transactionModel,currentUserKey, currentAccountKey,isSkippedUser)
+        .insertTransactionData(
+            transactionModel, currentUserKey, currentAccountKey, isSkippedUser)
         .then((value) async {
       if (value != null) {
         // Helper.hideLoading(context);
@@ -997,21 +999,20 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
               DataSnapshot dataSnapshot = event.snapshot;
               if (event.snapshot.exists) {
                 Map<dynamic, dynamic> values =
-                dataSnapshot.value as Map<dynamic, dynamic>;
+                    dataSnapshot.value as Map<dynamic, dynamic>;
                 values.forEach((key, value) async {
                   var accountsModel = AccountsModel.fromMap(value);
                   if (selectedValue == AppConstanst.spendingTransactionName) {
-                    accountsModel.balance =
-                        (int.parse(accountsModel.balance!) -
+                    accountsModel.balance = (int.parse(accountsModel.balance!) -
                             int.parse(amountController.text))
-                            .toString();
+                        .toString();
                   } else {
-                    accountsModel.income =
-                        (int.parse(accountsModel.income!) +
+                    accountsModel.income = (int.parse(accountsModel.income!) +
                             int.parse(amountController.text))
-                            .toString();
+                        .toString();
                   }
-                  await DatabaseHelper.instance.updateAccountData(accountsModel);
+                  await DatabaseHelper.instance
+                      .updateAccountData(accountsModel);
                 });
               }
             });
@@ -1047,13 +1048,14 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                 ? incomeSubCategories[selectedIncomeSubIndex].id
                 : -1
             : -1,
-        cat_name: selectedValue == AppConstanst.spendingTransactionName
+        /*  cat_name: selectedValue == AppConstanst.spendingTransactionName
             ? selectedSpendingSubIndex != -1
                 ? spendingSubCategories[selectedSpendingSubIndex].name
                 : categories[selectedSpendingIndex].name
             : selectedIncomeSubIndex != -1
                 ? incomeSubCategories[selectedIncomeSubIndex].name
                 : incomeCategories[selectedIncomeIndex].name,
+     */
         cat_type: selectedValue == AppConstanst.spendingTransactionName
             ? selectedSpendingSubIndex != -1
                 ? AppConstanst.subCategory
@@ -1061,14 +1063,15 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
             : selectedIncomeSubIndex != -1
                 ? AppConstanst.subCategory
                 : AppConstanst.mainCategory,
-        cat_color: selectedValue == AppConstanst.spendingTransactionName
+        /* cat_color: selectedValue == AppConstanst.spendingTransactionName
             ? categories[selectedSpendingIndex].color
             : incomeCategories[selectedIncomeIndex].color,
         cat_icon: selectedValue == AppConstanst.spendingTransactionName
             ? categories[selectedSpendingIndex].icons
             : incomeCategories[selectedIncomeIndex].path,
+     */
         payment_method_id: paymentMethods[selectedPaymentMethodIndex].id,
-        payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
+        // payment_method_name: paymentMethods[selectedPaymentMethodIndex].name,
         status: 1,
         transaction_date: '${formattedDate()} ${formattedTime()}',
         transaction_type: selectedValue == AppConstanst.spendingTransactionName
@@ -1083,7 +1086,8 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         last_updated: DateTime.now().toString());
 
     await databaseHelper
-        .updateTransactionData(transactionModel, currentUserKey,isSkippedUser)
+        .updateTransactionData(
+            transactionModel, currentUserKey, currentAccountKey, isSkippedUser)
         .then((value) async {
       if (value != null) {
         // Helper.hideLoading(context);
@@ -1097,13 +1101,13 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
             if (selectedValue == AppConstanst.spendingTransactionName) {
               MySharedPreferences.instance
                   .getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentBalance)
+                      SharedPreferencesKeys.skippedUserCurrentBalance)
                   .then((value) {
                 if (value != null) {
                   String updateBalance =
-                  ((int.parse(value) + widget.transactionModel.amount!) -
-                      int.parse(amountController.text))
-                      .toString();
+                      ((int.parse(value) + widget.transactionModel.amount!) -
+                              int.parse(amountController.text))
+                          .toString();
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.skippedUserCurrentBalance,
                       updateBalance);
@@ -1112,13 +1116,13 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
             } else {
               MySharedPreferences.instance
                   .getStringValuesSF(
-                  SharedPreferencesKeys.skippedUserCurrentIncome)
+                      SharedPreferencesKeys.skippedUserCurrentIncome)
                   .then((value) {
                 if (value != null) {
                   String updateBalance =
-                  ((int.parse(value) - widget.transactionModel.amount!) +
-                      int.parse(amountController.text))
-                      .toString();
+                      ((int.parse(value) - widget.transactionModel.amount!) +
+                              int.parse(amountController.text))
+                          .toString();
                   MySharedPreferences.instance.addStringToSF(
                       SharedPreferencesKeys.skippedUserCurrentIncome,
                       updateBalance);
@@ -1137,21 +1141,20 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
               DataSnapshot dataSnapshot = event.snapshot;
               if (event.snapshot.exists) {
                 Map<dynamic, dynamic> values =
-                dataSnapshot.value as Map<dynamic, dynamic>;
+                    dataSnapshot.value as Map<dynamic, dynamic>;
                 values.forEach((key, value) async {
                   var accountsModel = AccountsModel.fromMap(value);
                   if (selectedValue == AppConstanst.spendingTransactionName) {
-                    accountsModel.balance =
-                        (int.parse(accountsModel.balance!) -
+                    accountsModel.balance = (int.parse(accountsModel.balance!) -
                             int.parse(amountController.text))
-                            .toString();
+                        .toString();
                   } else {
-                    accountsModel.income =
-                        (int.parse(accountsModel.income!) +
+                    accountsModel.income = (int.parse(accountsModel.income!) +
                             int.parse(amountController.text))
-                            .toString();
+                        .toString();
                   }
-                  await DatabaseHelper.instance.updateAccountData(accountsModel);
+                  await DatabaseHelper.instance
+                      .updateAccountData(accountsModel);
                 });
               }
             });
@@ -1281,6 +1284,13 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
         .then((value) {
       if (value != null) {
         currentUserKey = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.currentAccountKey)
+            .then((value) {
+          if (value != null) {
+            currentAccountKey = value;
+          }
+        });
       }
     });
     MySharedPreferences.instance
@@ -1659,7 +1669,7 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                         /*await databaseHelper
                             .getProfileData(userEmail)
                             .then((value) async {*/
-                          editSpendingIncome(context);
+                        editSpendingIncome(context);
                         //});
                       } else {
                         print("USER SKIPPED $isSkippedUser");
@@ -1704,10 +1714,10 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                       //   Helper.showLoading(context);
                       if (!isSkippedUser) {
                         print("USER NOT SKIPPED $isSkippedUser");
-                       /* await databaseHelper
+                        /* await databaseHelper
                             .getProfileData(userEmail)
                             .then((value) async {*/
-                          createCopySpendingIncome(context);
+                        createCopySpendingIncome(context);
                         // });
                       } else {
                         print("USER SKIPPED $isSkippedUser");
