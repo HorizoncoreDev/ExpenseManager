@@ -1433,7 +1433,6 @@ return completer.future;*/
     else {
       return null;
     }
-
   }
 
   Future<void> insertAccountData(
@@ -1466,6 +1465,55 @@ return completer.future;*/
     // Uncomment and modify the below line if you want to update the local database as well
     // Database db = await database;
     // await db.update(accounts_table, accountsModel.toMap(), where: 'key = ?', whereArgs: [accountsModel.key]);
+  }
+
+ /* Future<List<AccountsModel>> getAccountsList(String ownerKey) async {
+    List<AccountsModel> accountsList = [];
+    try {
+      accountsList.clear();
+
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+          .child(ownerKey);
+
+      reference.once().then((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+          dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            AccountsModel accountsModelList = AccountsModel(
+                key: key,
+                owner_user_key: value['owner_user_key'],
+                account_name: value['account_name'],
+                description: value['description'],
+                budget: value['budget'],
+                balance: value['balance'],
+                income: value['income'],
+                balance_date: value['balance_date'],
+                account_status: value['account_status'],
+                created_at: value['created_at'],
+                updated_at: value['updated_at']);
+
+              accountsList.add(accountsModelList);
+          });
+        } else {
+            accountsList = [];
+        }
+      });
+    } catch (error) {
+      print('Error fetching Account Data: $error');
+    }
+    return accountsList;
+  }*/
+
+  Future<void> deleteAddedAccountFromFirebase(String ownKey, String accKey)async {
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(accounts_table);
+    reference.child(ownKey)
+        .child(accKey).remove();
   }
 
 
