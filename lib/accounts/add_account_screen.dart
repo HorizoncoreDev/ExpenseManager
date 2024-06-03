@@ -20,6 +20,7 @@ class AddAccountScreen extends StatefulWidget {
   final String description;
   final String budget;
   final String balance_date;
+  final String updateOnDate;
   final String balance;
   final String income;
   final String account_key;
@@ -27,7 +28,7 @@ class AddAccountScreen extends StatefulWidget {
   final bool forEditAccount;
    AddAccountScreen({super.key, required this.account_name, required this.description,
      required this.budget, required this.balance_date, required this.balance, required this.income,
-     required this.forEditAccount, required this.account_key, required this.owner_user_key
+     required this.forEditAccount, required this.account_key, required this.owner_user_key, required this.updateOnDate
    });
 
   @override
@@ -41,6 +42,8 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController balanceController = TextEditingController();
   TextEditingController incomeController = TextEditingController();
+  TextEditingController createdOnController = TextEditingController();
+  TextEditingController updatedOnController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   String userEmail = '';
@@ -215,12 +218,20 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
-                child: Column(
-                  children: [
-                    20.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: CustomBoxTextFormField(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      20.heightBox,
+                      Text("Name",
+                        style: TextStyle(
+                          color: Helper.getTextColor(context),
+                          fontSize: 14
+                        ),
+                      ),
+                      5.heightBox,
+                      CustomBoxTextFormField(
                         controller: nameController,
                         keyboardType: TextInputType.text,
                         hintText: LocaleKeys.enterName.tr,
@@ -259,11 +270,15 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                           return null;
                         },
                       ),
-                    ),
-                    20.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: CustomBoxTextFormField(
+                      20.heightBox,
+                      Text("Description",
+                        style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 14
+                        ),
+                      ),
+                      5.heightBox,
+                      CustomBoxTextFormField(
                         controller: descriptionController,
                         keyboardType: TextInputType.text,
                         hintText: LocaleKeys.enterDescription.tr,
@@ -298,11 +313,15 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                           return null;
                         },
                       ),
-                    ),
-                    20.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(children: [
+                      20.heightBox,
+                      Text("Budget",
+                        style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 14
+                        ),
+                      ),
+                      5.heightBox,
+                      Row(children: [
                         Expanded(
                             child: CustomBoxTextFormField(
                                 controller: budgetController,
@@ -386,11 +405,15 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                                   )),
                             )),
                       ]),
-                    ),
-                    20.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: CustomBoxTextFormField(
+                      20.heightBox,
+                      Text("Balance",
+                        style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 14
+                        ),
+                      ),
+                      5.heightBox,
+                      CustomBoxTextFormField(
                         controller: balanceController,
                         keyboardType: TextInputType.text,
                         hintText: "Enter balance",
@@ -427,11 +450,15 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                           return null;
                         },
                       ),
-                    ),
-                    20.heightBox,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: CustomBoxTextFormField(
+                      20.heightBox,
+                      Text("Income",
+                        style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 14
+                        ),
+                      ),
+                      5.heightBox,
+                      CustomBoxTextFormField(
                         controller: incomeController,
                         keyboardType: TextInputType.text,
                         hintText: "Enter income",
@@ -466,43 +493,47 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                           return null;
                         },
                       ),
-                    ),
-                    20.heightBox,
-                    InkWell(
-                      onTap: () async {
-                        DateTime? pickedDate = await showDatePicker(
-                            builder: (context, child) {
-                              return Theme(
-                                data: Theme.of(context).copyWith(
-                                  colorScheme: const ColorScheme.light(
-                                    primary: Colors.blue,
-                                    onPrimary: Colors.white,
-                                    onSurface: Colors.blue,
-                                  ),
-                                  textButtonTheme: TextButtonThemeData(
-                                    style: TextButton.styleFrom(
-                                      foregroundColor:
-                                      Colors.blue, // button text color
+                      20.heightBox,
+                      Text("Balance Date",
+                        style: TextStyle(
+                            color: Helper.getTextColor(context),
+                            fontSize: 14
+                        ),
+                      ),
+                      5.heightBox,
+                      InkWell(
+                        onTap: () async {
+                          DateTime? pickedDate = await showDatePicker(
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: const ColorScheme.light(
+                                      primary: Colors.blue,
+                                      onPrimary: Colors.white,
+                                      onSurface: Colors.blue,
+                                    ),
+                                    textButtonTheme: TextButtonThemeData(
+                                      style: TextButton.styleFrom(
+                                        foregroundColor:
+                                        Colors.blue, // button text color
+                                      ),
                                     ),
                                   ),
-                                ),
-                                child: child!,
-                              );
-                            },
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now());
-                        if (pickedDate != null && pickedDate != selectedDate) {
-                          setState(() {
-                            selectedDate = pickedDate;
-                          });
-                        } else if (pickedDate != null &&
-                            pickedDate == DateTime.now()) {
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                  child: child!,
+                                );
+                              },
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime.now());
+                          if (pickedDate != null && pickedDate != selectedDate) {
+                            setState(() {
+                              selectedDate = pickedDate;
+                            });
+                          } else if (pickedDate != null &&
+                              pickedDate == DateTime.now()) {
+                          }
+                        },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               vertical: 14, horizontal: 10 ),
@@ -528,9 +559,70 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                           ),
                         ),
                       ),
-                    ),
+                      20.heightBox,
+                      if(widget.forEditAccount)...[
+                        Text("Created on",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 14
+                          ),
+                        ),
+                        5.heightBox,
+                        CustomBoxTextFormField(
+                          controller: createdOnController,
+                          keyboardType: TextInputType.text,
+                          padding: 15,
+                          borderColor: Helper.getCardColor(context),
+                          hintColor: Helper.getTextColor(context),
+                          textStyle: const TextStyle(fontSize: 16),
+                          borderRadius: BorderRadius.circular(6),
+                          fillColor: Helper.getCardColor(context),
+                          prefixIcon: const Icon(
+                            Icons.account_balance_wallet_outlined,
+                            color: Colors.blue,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                            });
+                          },
+                          validator: (value) {
+                            return null;
+                          },
+                        ),
+                        20.heightBox,
+                        Text("Last updated on",
+                          style: TextStyle(
+                              color: Helper.getTextColor(context),
+                              fontSize: 14
+                          ),
+                        ),
+                        5.heightBox,
+                        CustomBoxTextFormField(
+                          controller: updatedOnController,
+                          keyboardType: TextInputType.text,
+                          padding: 15,
+                          borderColor: Helper.getCardColor(context),
+                          hintColor: Helper.getTextColor(context),
+                          textStyle: const TextStyle(fontSize: 16),
+                          borderRadius: BorderRadius.circular(6),
+                          fillColor: Helper.getCardColor(context),
+                          prefixIcon: const Icon(
+                            Icons.account_balance_wallet_outlined,
+                            color: Colors.blue,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                            });
+                          },
+                          validator: (value) {
+                            return null;
+                          },
+                        ),
+                        20.heightBox
+                      ],
 
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -567,6 +659,19 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
     budgetController.text = widget.budget;
     balanceController.text = widget.balance;
     incomeController.text = widget.income;
+    if(widget.forEditAccount){
+      String balanceDate =  widget.balance_date;
+      String updateAccountDate =  widget.updateOnDate;
+
+      DateTime dateTime = DateTime.parse(balanceDate);
+      String formattedBalanceDate = DateFormat('dd/MM/yyyy').format(dateTime);
+      createdOnController.text = formattedBalanceDate;
+      DateTime dateTimes = DateTime.parse(updateAccountDate);
+      String formattedUpdatedDate = DateFormat('dd/MM/yyyy').format(dateTimes);
+      updatedOnController.text = formattedUpdatedDate;
+    }
+
+
     // selectedDate = widget.balance_dat;
     _focus.addListener(_onFocusChange);
     MySharedPreferences.instance
