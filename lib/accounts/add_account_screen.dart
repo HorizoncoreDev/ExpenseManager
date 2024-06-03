@@ -7,11 +7,9 @@ import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../dashboard/dashboard.dart';
 import '../utils/global.dart';
 import '../utils/views/custom_text_form_field.dart';
 
