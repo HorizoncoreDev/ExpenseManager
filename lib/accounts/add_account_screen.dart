@@ -24,7 +24,7 @@ class AddAccountScreen extends StatefulWidget {
   final String account_key;
   final String owner_user_key;
   final bool forEditAccount;
-   AddAccountScreen({super.key, required this.account_name, required this.description,
+   const AddAccountScreen({super.key, required this.account_name, required this.description,
      required this.budget, required this.balance_date, required this.balance, required this.income,
      required this.forEditAccount, required this.account_key, required this.owner_user_key, required this.updateOnDate
    });
@@ -56,7 +56,9 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   DateTime selectedDate = DateTime.now();
 
   String formattedDate() {
+    print(selectedDate);
     return DateFormat('dd/MM/yyyy').format(selectedDate);
+
   }
 
   @override
