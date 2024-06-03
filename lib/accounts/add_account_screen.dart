@@ -374,6 +374,8 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                                   hint: const Text("₹"),
                                   value: currency,
                                   onChanged: (value) {
+
+
                                     setState(() {
                                       currency = value;
                                       currencyCode = currency!.currencyCode!;
