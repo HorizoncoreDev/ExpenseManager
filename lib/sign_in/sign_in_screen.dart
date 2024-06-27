@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:expense_manager/dashboard/dashboard.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/utils/extensions.dart';
@@ -8,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -81,8 +83,9 @@ class _SignInScreenState extends State<SignInScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: InkWell(
-                  onTap: () {
-                    googleSignup();
+                  onTap: () async {
+                    await checkInternetConnectivity();
+                    //googleSignup();
                   },
                   child: Container(
                     width: double.infinity,
@@ -215,6 +218,25 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
+  /// set internet connectivity function *
+  Future<void> checkInternetConnectivity() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.mobile) ||
+        connectivityResult.contains(ConnectivityResult.wifi)) {
+      googleSignup();
+    } else {
+      Fluttertoast.showToast(
+        msg: "Please check your Internet connection",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: AppColors.internetToastColor,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
+  }
+
   Future<void> googleSignup() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -336,7 +358,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                   t.member_key =
                                       FirebaseAuth.instance.currentUser!.uid;
                                   t.account_key = key;
-                                  await databaseHelper.updateTransaction(TransactionModel.fromOtherModel(t));
+                                  await databaseHelper.updateTransaction(
+                                      TransactionModel.fromOtherModel(t));
 
                                   final reference = FirebaseDatabase.instance
                                       .reference()
@@ -458,7 +481,8 @@ class _SignInScreenState extends State<SignInScreen> {
                             for (var t in value) {
                               t.member_key = profileModel.key!;
                               t.account_key = accountKey;
-                              await databaseHelper.updateTransaction(TransactionModel.fromOtherModel(t));
+                              await databaseHelper.updateTransaction(
+                                  TransactionModel.fromOtherModel(t));
 
                               final reference = FirebaseDatabase.instance
                                   .reference()
