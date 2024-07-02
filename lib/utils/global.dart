@@ -80,6 +80,7 @@ abstract class SharedPreferencesKeys {
   static const currentUserEmail = "currentUserEmail";
   static const currentUserKey = "currentUserKey";
   static const currentAccountKey = "currentAccountKey";
+  static const selectedAccountIndex = "selectedAccountIndex";
   static const userFcmToken = "userFcmToken";
   static const userName = "userName";
   static const currencySymbol = "currencySymbol";

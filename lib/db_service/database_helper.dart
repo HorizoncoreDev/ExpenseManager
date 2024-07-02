@@ -107,7 +107,7 @@ class DatabaseHelper {
   }
 
   Future<void> deleteTransactionFromDB(
-      TransactionModel transactionModel, bool isSkippedUser) async {
+      TransactionModel transactionModel,String userKey,String accountKey, bool isSkippedUser) async {
     Database db = await instance.database;
     await db.delete(
       transaction_table,
@@ -116,9 +116,10 @@ class DatabaseHelper {
     );
     if (!isSkippedUser) {
       final reference =
-          FirebaseDatabase.instance.reference().child(transaction_table);
+      FirebaseDatabase.instance.reference().child(transaction_table);
       reference
-          .child(FirebaseAuth.instance.currentUser!.uid)
+          .child(userKey)
+          .child(accountKey)
           .child(transactionModel.key!)
           .remove();
     }
@@ -634,7 +635,6 @@ class DatabaseHelper {
               }
             }
           });
-          // Sort transactions by transaction date in descending order
         }
         await Future.wait(futures);
         transactions.sort(
@@ -677,13 +677,13 @@ class DatabaseHelper {
       List<Future<TransactionNewModel>> futureTransactionModels = result.map((transactionData) async {
         TransactionNewModel transactionModel = TransactionNewModel.fromMap(transactionData);
 
-        // Get payment method name from payment table
+        /// Get payment method name from payment table
         var paymentMethod = await DatabaseHelper.instance.getPaymentMethod(transactionData[TransactionFields.payment_method_id]);
         if (paymentMethod != null) {
           transactionModel.payment_method_name = paymentMethod.name;
 
           if (transactionData[TransactionFields.transaction_type] == AppConstanst.spendingTransaction) {
-            // If transaction is spending, get cat_color & icon from spending category table
+            /// If transaction is spending, get cat_color & icon from spending category table
             var expenseCategory = await DatabaseHelper.instance.getExpenseCategory(transactionData[TransactionFields.expense_cat_id]);
             if (expenseCategory != null) {
               transactionModel.cat_color = expenseCategory.color;
@@ -692,7 +692,7 @@ class DatabaseHelper {
               if (transactionData[TransactionFields.sub_expense_cat_id] == -1) {
                 transactionModel.cat_name = expenseCategory.name;
               } else {
-                // If transaction's category is sub expense category, get cat name from sub expense category table
+                /// If transaction's category is sub expense category, get cat name from sub expense category table
                 var expenseSubCategory = await DatabaseHelper.instance.getExpenseSubCategory(transactionData[TransactionFields.sub_expense_cat_id]);
                 if (expenseSubCategory != null) {
                   transactionModel.cat_name = expenseSubCategory.name;
@@ -700,7 +700,7 @@ class DatabaseHelper {
               }
             }
           } else {
-            // If transaction is income, get cat_color & icon from income category table
+            /// If transaction is income, get cat_color & icon from income category table
             var incomeCategory = await DatabaseHelper.instance.getIncomeCategoryModel(transactionData[TransactionFields.income_cat_id]);
             if (incomeCategory != null) {
               transactionModel.cat_color = incomeCategory.color;
@@ -2152,7 +2152,6 @@ return completer.future;*/
   Future<void> insertAccountData(
       AccountsModel accountsModel, bool isAccountExistInFirebaseDb) async {
     Database db = await database;
-
     if (!isAccountExistInFirebaseDb) {
       final reference = FirebaseDatabase.instance
           .reference()
@@ -2166,8 +2165,71 @@ return completer.future;*/
       );
     }
 
-    await db.insert(accounts_table, accountsModel.toMap());
+    // await db.insert(accounts_table, accountsModel.toMap());
   }
+
+  Future<void> updateAddedAccountData(AccountsModel accountsModel) async {
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(accounts_table).child(FirebaseAuth.instance.currentUser!.uid)
+        .child(accountsModel.key!);
+
+    await reference.update(accountsModel.toMap());
+
+    // Uncomment and modify the below line if you want to update the local database as well
+    // Database db = await database;
+    // await db.update(accounts_table, accountsModel.toMap(), where: 'key = ?', whereArgs: [accountsModel.key]);
+  }
+
+ /* Future<List<AccountsModel>> getAccountsList(String ownerKey) async {
+    List<AccountsModel> accountsList = [];
+    try {
+      accountsList.clear();
+
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+          .child(ownerKey);
+
+      reference.once().then((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+          dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            AccountsModel accountsModelList = AccountsModel(
+                key: key,
+                owner_user_key: value['owner_user_key'],
+                account_name: value['account_name'],
+                description: value['description'],
+                budget: value['budget'],
+                balance: value['balance'],
+                income: value['income'],
+                balance_date: value['balance_date'],
+                account_status: value['account_status'],
+                created_at: value['created_at'],
+                updated_at: value['updated_at']);
+
+              accountsList.add(accountsModelList);
+          });
+        } else {
+            accountsList = [];
+        }
+      });
+    } catch (error) {
+      print('Error fetching Account Data: $error');
+    }
+    return accountsList;
+  }*/
+
+  Future<void> deleteAddedAccountFromFirebase(String ownKey, String accKey)async {
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(accounts_table);
+    reference.child(ownKey)
+        .child(accKey).remove();
+  }
+
 
   static Future<MultipleEmailModel> exportAccessEmailDataToCSV(
       String userEmail) async {

@@ -245,6 +245,15 @@ class _DashBoardState extends State<DashBoard> {
                 .then((value) {
               if (value != null) {
                 userAccess = value;
+             /*   MySharedPreferences.instance
+                    .getStringValuesSF(
+                    SharedPreferencesKeys
+                        .currentAccountKey)
+                    .then((value) {
+                  if (value != null) {
+                    currentAccountKey = value;
+                  }
+                });*/
                 setState(() {});
               }
             });

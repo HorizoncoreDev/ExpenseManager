@@ -12,6 +12,7 @@ import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -33,6 +34,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
   List<RequestModel?> requestList = [];
   List<RequestModel?> accessRequestList = [];
   List<AccountsModel?> accountsList = [];
+  int? selectedIndex = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
             children: [
               InkWell(
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.of(context).pop(true);
                   },
                   child: Icon(
                     Icons.arrow_back_ios,
@@ -61,9 +63,21 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
         ),
         bottomNavigationBar: InkWell(
           onTap: () {
-            Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddAccountScreen()))
-                .then((value) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddAccountScreen(
+                          account_name: "",
+                          balance: "",
+                          balance_date: "",
+                          income: "",
+                          budget: "",
+                          updateOnDate: "",
+                          description: "",
+                          forEditAccount: false,
+                          account_key: "",
+                          owner_user_key: "",
+                        ))).then((value) {
               if (value != null && value) {
                 getAccountsList();
               }
@@ -206,105 +220,204 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                         physics: const ScrollPhysics(),
                         itemCount: accountsList.length,
                         itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {},
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
+                          final account = accountsList[index];
+                          return Dismissible(
+                            key: Key(account!.key!),
+                            direction: DismissDirection.endToStart,
+                            background: Container(),
+                            secondaryBackground: Container(
+                              color: Colors.red,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              alignment: Alignment.centerRight,
+                              child:
+                                  const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            confirmDismiss: (direction) async {
+                              return await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return userName != accountsList[index]!.account_name
+                                      ? AlertDialog(
+                                          backgroundColor:
+                                              Helper.getCardColor(context),
+                                          title: Text(LocaleKeys.confirm.tr),
+                                          content: const Text(
+                                              "Are you sure to delete the account?"),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(false),
+                                              child: Text(LocaleKeys.cancel.tr),
+                                            ),
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(true),
+                                              child: Text(LocaleKeys.delete.tr),
+                                            ),
+                                          ],
+                                        )
+                                      : AlertDialog(
+                                          backgroundColor:
+                                              Helper.getCardColor(context),
+                                          title: const Text("Warning"),
+                                          content: const Text(
+                                              "You can not delete this account from here!!"),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(false),
+                                              child: Text(LocaleKeys.done.tr),
+                                            ),
+                                          ],
+                                        );
+                                },
+                              );
+                            },
+                            onDismissed: (direction) async {
+                              await DatabaseHelper()
+                                  .deleteAddedAccountFromFirebase(
+                                      ownerKey, account.key!);
+                              setState(() {
+                                accountsList.removeAt(index);
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Account deleted')),
+                              );
+                            },
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  selectedIndex = index;
+                                  MySharedPreferences.instance.addIntToSF(
+                                      SharedPreferencesKeys
+                                          .selectedAccountIndex,
+                                      selectedIndex);
+                                /*  MySharedPreferences.instance.addStringToSF(
+                                      SharedPreferencesKeys
+                                          .currentUserName,
+                                      accountsList[index]!.account_name);
+                                  MySharedPreferences.instance.addStringToSF(
+                                      SharedPreferencesKeys
+                                          .currentAccountKey,
+                                      accountsList[index]!.key);*/
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
                                   borderRadius: accessRequestList.isEmpty
                                       ? const BorderRadius.all(
                                           Radius.circular(10))
                                       : const BorderRadius.only(
                                           topLeft: Radius.circular(10),
-                                          topRight: Radius.circular(10)),
-                                  color: Helper.getCardColor(context)),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                        color: Helper.getBackgroundColor(context),
+                                          topRight: Radius.circular(10),
+                                        ),
+                                  color: Helper.getCardColor(context),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Helper.getBackgroundColor(context),
                                         borderRadius: const BorderRadius.all(
-                                            Radius.circular(10))),
-                                    child: Center(
-                                      child: Text(
-                                        Helper.getShortName(
-                                            accountsList[index]!
-                                                .account_name!
-                                                .split(' ').first??"",
-                                            accountsList[index]!.account_name!
-                                                .split(' ').length > 1 ? accountsList[index]!
-                                                .account_name!.split(' ').last : ""),
-                                        style: const TextStyle(
-                                            color: Colors.blue,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
+                                            Radius.circular(10)),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          Helper.getShortName(
+                                              account.account_name!
+                                                      .split(' ')
+                                                      .first ??
+                                                  "",
+                                              account.account_name!
+                                                          .split(' ')
+                                                          .length >
+                                                      1
+                                                  ? account.account_name!
+                                                      .split(' ')
+                                                      .last
+                                                  : ""),
+                                          style: const TextStyle(
+                                              color: Colors.blue,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  20.widthBox,
-                                  Expanded(
-                                    child: Text(
-                                      accountsList[index]!.account_name!,
-                                      style: TextStyle(
+                                    SizedBox(width: 20),
+                                    Expanded(
+                                      child: Text(
+                                        account.account_name!,
+                                        style: TextStyle(
                                           color: Helper.getTextColor(context),
                                           fontSize: 16,
-                                          fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  10.widthBox,
-                                  /*   InkWell(
-                                    onTap: () {
-                                      if (currentUserEmail !=
-                                          accessRequestList[index]!
-                                              .requester_email) {
-                                        setState(() {
-                                          currentUserEmail = userEmail;
+                                    SizedBox(width: 10),
+                                    if (userName == accountsList[index]!.account_name!)
+                                      SvgPicture.asset(
+                                        'asset/images/ic_accept.svg',
+                                        color: Colors.green,
+                                        height: 24,
+                                        width: 24,
+                                      ),
+                                    SizedBox(width: 10),
+                                    InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                AddAccountScreen(
+                                              account_name:
+                                                  account.account_name!,
+                                              description: account.description!,
+                                              budget: account.budget!,
+                                              balance_date:
+                                                  account.balance_date!,
+                                              balance: account.balance!,
+                                              income: account.income!,
+                                              updateOnDate: account.updated_at!,
+                                              forEditAccount: true,
+                                              account_key: account.key!,
+                                              owner_user_key:
+                                                  account.owner_user_key!,
+                                            ),
+                                          ),
+                                        ).then((value) {
+                                          if (value != null && value) {
+                                            getAccountsList();
+                                          }
                                         });
-                                        MySharedPreferences.instance
-                                            .addStringToSF(
-                                            SharedPreferencesKeys
-                                                .currentUserEmail,
-                                            userEmail);
-                                        MySharedPreferences.instance
-                                            .addStringToSF(
-                                            SharedPreferencesKeys
-                                                .currentUserName,
-                                            userName);
-                      
-                      
-                                        MySharedPreferences.instance
-                                            .addStringToSF(
-                                            SharedPreferencesKeys
-                                                .currentUserKey,
-                                            FirebaseAuth.instance
-                                                .currentUser!.uid);
-                                      }
-                      
-                                      _removeAccessRequest(
-                                          accessRequestList[index]!);
-                                    },
-                                    child: const Icon(
-                                      Icons.delete,
-                                      color: Colors.red,
-                                      size: 30,
-                                    ),
-                                  )*/
-                                ],
+                                      },
+                                      child: Icon(Icons.edit,
+                                          color: Helper.getTextColor(context)),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           );
                         },
                         separatorBuilder: (BuildContext context, int index) {
-                          return Divider(
+                          return const Divider(
                             thickness: 0,
                             height: 10,
                             color: Colors.transparent,
                           );
                         },
                       ),
-                    ),
+                    )
 
                     ///Shared account code
                     /*  if (accessRequestList.isNotEmpty)
@@ -702,6 +815,14 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                   if (value != null) {
                     ownerKey = value;
                     getAccountsList();
+                    MySharedPreferences.instance
+                        .getIntValuesSF(
+                            SharedPreferencesKeys.selectedAccountIndex)
+                        .then((value) {
+                      if (value != null) {
+                        selectedIndex = value;
+                      }
+                    });
                   }
                 });
               }
@@ -710,7 +831,6 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
         });
       }
     });
-
     super.initState();
   }
 
@@ -928,16 +1048,10 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
   Future<void> getAccountsList() async {
     try {
       accountsList.clear();
-      AccountsModel? fetchedAccountData =
-          await databaseHelper.getAccountData(ownerKey);
-      setState(() {
-        accountsModel = fetchedAccountData;
-      });
-
       final reference = FirebaseDatabase.instance
           .reference()
           .child(accounts_table)
-          .child(accountsModel!.owner_user_key!);
+          .child(ownerKey);
 
       reference.once().then((event) {
         DataSnapshot dataSnapshot = event.snapshot;
@@ -970,5 +1084,15 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
     } catch (error) {
       print('Error fetching Account Data: $error');
     }
+  }
+
+  void addItem(AccountsModel newAccount) {
+    setState(() {
+      if (selectedIndex != -1) {
+        accountsList.insert(selectedIndex! + 1, newAccount);
+      } else {
+        accountsList.add(newAccount); // Add at the end if no item is selected
+      }
+    });
   }
 }
