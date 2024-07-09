@@ -1,5 +1,6 @@
+import 'dart:ffi';
+
 import 'package:expense_manager/db_models/accounts_model.dart';
-import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_models/transaction_new_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/account_details_dialog.dart';
@@ -16,7 +17,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:googleapis/testing/v1.dart';
 import 'package:intl/intl.dart';
 import '../db_models/request_model.dart';
 import '../db_models/transaction_model.dart';
@@ -52,15 +52,17 @@ class OverviewScreenState extends State<OverviewScreen> {
   final databaseHelper = DatabaseHelper();
   AccountsModel accountModel = AccountsModel();
 
-  List<TransactionNewModel> spendingTransaction = [];
   late List<AccountsModel?> accountsList = [];
   AccountsModel? accountsModel;
-  String ownerKey = '';
+  String ownerKey = "";
+  int? selectedIndex = -1;
 
+  List<TransactionNewModel> spendingTransaction = [];
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
+
       canPop: true,
       child: DefaultTabController(
         length: 2,
@@ -105,13 +107,57 @@ class OverviewScreenState extends State<OverviewScreen> {
                               ),
                             ),
                             InkWell(
-                                onTap: () {
+                                onTap: () async {
+                                  await sharedPreferences();
                                   showDialog(
                                       context: context,
                                       builder: (context) =>
-                                          AccountDetailsDialog(
+                                          /*showSwitchAccountDialog(accessRequestList);*/
+                                      AccountDetailsDialog(
                                               accountsList: accountsList));
+                                  /*     ///Shared account code
+                            final accessReference = FirebaseDatabase
+                                      .instance
+                                      .reference()
+                                      .child(request_table)
+                                      .orderByChild('requester_email')
+                                      .equalTo(userEmail);
+                                  List<RequestModel> accessRequestList = [];
+                                  accessReference.once().then((event) {
+                                    accessRequestList.clear();
+                                    DataSnapshot dataSnapshot = event.snapshot;
+                                    if (event.snapshot.exists) {
+                                      Map<dynamic, dynamic> values =
+                                          dataSnapshot.value
+                                              as Map<dynamic, dynamic>;
+                                      values.forEach((key, value) {
+                                        if (value['status'] ==
+                                            AppConstanst.acceptedRequest) {
+                                          RequestModel requestModel =
+                                              RequestModel(
+                                                  key: key,
+                                                  requester_email:
+                                                      value['requester_email'],
+                                                  requester_name:
+                                                      value['requester_name'],
+                                                  receiver_email:
+                                                      value['receiver_email'],
+                                                  receiver_name:
+                                                      value['receiver_name'],
+                                                  accessType:
+                                                      value['access_type'],
+                                                  status: value['status'],
+                                                  created_at:
+                                                      value['created_at']);
+                                          accessRequestList.add(requestModel);
+                                        }
+                                      });
+                                    }
+                                    showSwitchAccountDialog(accessRequestList);
+                                  });
+*/
                                 },
+
                                 child: const Icon(
                                   Icons.switch_account,
                                   color: Colors.white,
@@ -170,6 +216,15 @@ class OverviewScreenState extends State<OverviewScreen> {
                                                   .then((value) {
                                                 if (value != null) {
                                                   userAccess = value;
+                                                  MySharedPreferences.instance
+                                                      .getStringValuesSF(
+                                                          SharedPreferencesKeys
+                                                              .currentAccountKey)
+                                                      .then((value) {
+                                                    if (value != null) {
+                                                      currentAccountKey = value;
+                                                    }
+                                                  });
                                                 }
                                               });
                                               if (AppConstanst
@@ -255,156 +310,6 @@ class OverviewScreenState extends State<OverviewScreen> {
         ),
       ),
     );
-  }
-
-  void initState() {
-    AppConstanst.selectedTabIndex = 0;
-    MySharedPreferences.instance
-        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
-        .then((value) async {
-      if (value != null) {
-        isSkippedUser = value;
-        if (isSkippedUser) {
-          getTransactions();
-        } else {
-          MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.userEmail)
-              .then((value) {
-            if (value != null) {
-              userEmail = value;
-              MySharedPreferences.instance
-                  .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-                  .then((value) {
-                if (value != null) {
-                  currentUserEmail = value;
-                  MySharedPreferences.instance
-                      .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
-                      .then((value) {
-                    if (value != null) {
-                      currentUserKey = value;
-                      MySharedPreferences.instance
-                          .getStringValuesSF(
-                          SharedPreferencesKeys.currentAccountKey)
-                          .then((value) {
-                        if (value != null) {
-                          currentAccountKey = value;
-                          MySharedPreferences.instance
-                              .getStringValuesSF(
-                              SharedPreferencesKeys.currentUserName)
-                              .then((value) {
-                            if (value != null) {
-                              currentUserName = value;
-                              MySharedPreferences.instance
-                                  .getStringValuesSF(
-                                  SharedPreferencesKeys.userName)
-                                  .then((value) {
-                                if (value != null) {
-                                  userName = value;
-                                  MySharedPreferences.instance
-                                      .getIntValuesSF(
-                                      SharedPreferencesKeys.userAccessType)
-                                      .then((value) {
-                                    if (value != null) {
-                                      userAccess = value;
-                                    }
-                                  });
-                                  getTransactions();
-                                }
-                              });
-                            }
-                          });
-                        }
-                      });
-                    }
-                  });
-                }
-              });
-            }
-          });
-        }
-      }
-    });
-
-    MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userName)
-        .then((value) {
-      if (value != null) {
-        userName = value;
-        MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
-            .then((value) {
-          if (value != null) {
-            currentUserEmail = value;
-            MySharedPreferences.instance
-                .getStringValuesSF(SharedPreferencesKeys.userEmail)
-                .then((value) {
-              if (value != null) {
-                userEmail = value;
-                getProfileData();
-                MySharedPreferences.instance
-                    .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
-                    .then((value) {
-                  if (value != null) {
-                    ownerKey = value;
-                    getAccountsList();
-                  }
-                });
-              }
-            });
-          }
-        });
-      }
-    });
-
-    super.initState();
-  }
-
-  Future<void> getAccountsList() async {
-    try {
-      accountsList.clear();
-      AccountsModel? fetchedAccountData =
-      await databaseHelper.getAccountData(ownerKey);
-      setState(() {
-        accountsModel = fetchedAccountData;
-      });
-
-      final reference = FirebaseDatabase.instance
-          .reference()
-          .child(accounts_table)
-          .child(accountsModel!.owner_user_key!);
-
-      reference.once().then((event) {
-        DataSnapshot dataSnapshot = event.snapshot;
-        if (event.snapshot.exists) {
-          Map<dynamic, dynamic> values =
-          dataSnapshot.value as Map<dynamic, dynamic>;
-          values.forEach((key, value) async {
-            AccountsModel accountsModelList = AccountsModel(
-                key: key,
-                owner_user_key: value['owner_user_key'],
-                account_name: value['account_name'],
-                description: value['description'],
-                budget: value['budget'],
-                balance: value['balance'],
-                income: value['income'],
-                balance_date: value['balance_date'],
-                account_status: value['account_status'],
-                created_at: value['created_at'],
-                updated_at: value['updated_at']);
-            setState(() {
-              accountsList.add(accountsModelList);
-            });
-          });
-        } else {
-          setState(() {
-            accountsList = [];
-            print("-------------$accountsList");
-          });
-        }
-      });
-    } catch (error) {
-      print('Error fetching Account Data: $error');
-    }
   }
 
   getIncomeTransactions() async {
@@ -640,6 +545,204 @@ class OverviewScreenState extends State<OverviewScreen> {
       }
     });
   }
+
+  @override
+  void initState() {
+    AppConstanst.selectedTabIndex = 0;
+    MySharedPreferences.instance
+        .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
+        .then((value) async {
+      if (value != null) {
+        isSkippedUser = value;
+        if (isSkippedUser) {
+          getTransactions();
+        } else {
+          MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.userEmail)
+              .then((value) {
+            if (value != null) {
+              userEmail = value;
+              MySharedPreferences.instance
+                  .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+                  .then((value) {
+                if (value != null) {
+                  currentUserEmail = value;
+                  MySharedPreferences.instance
+                      .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
+                      .then((value) {
+                    if (value != null) {
+                      currentUserKey = value;
+                      MySharedPreferences.instance
+                          .getStringValuesSF(
+                              SharedPreferencesKeys.currentAccountKey)
+                          .then((value) {
+                        if (value != null) {
+                          currentAccountKey = value;
+                          MySharedPreferences.instance
+                              .getStringValuesSF(
+                                  SharedPreferencesKeys.currentUserName)
+                              .then((value) {
+                            if (value != null) {
+                              currentUserName = value;
+                              MySharedPreferences.instance
+                                  .getStringValuesSF(
+                                      SharedPreferencesKeys.userName)
+                                  .then((value) {
+                                if (value != null) {
+                                  userName = value;
+                                  MySharedPreferences.instance
+                                      .getIntValuesSF(
+                                          SharedPreferencesKeys.userAccessType)
+                                      .then((value) {
+                                    if (value != null) {
+                                      userAccess = value;
+                                    }
+                                  });
+                                  getTransactions();
+                                }
+                              });
+                            }
+                          });
+                        }
+                      });
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      }
+    });
+    super.initState();
+  }
+
+  /*Future<void> getAccountsList() async {
+    try {
+      accountsList.clear();
+      AccountsModel? fetchedAccountData =
+          await databaseHelper.getAccountData(currentUserKey);
+      setState(() {
+        accountsModel = fetchedAccountData;
+      });
+
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+          .child(accountsModel!.owner_user_key!);
+
+      reference.once().then((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+              dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            AccountsModel accountsModelList = AccountsModel(
+                key: key,
+                owner_user_key: value['owner_user_key'],
+                account_name: value['account_name'],
+                description: value['description'],
+                budget: value['budget'],
+                balance: value['balance'],
+                income: value['income'],
+                balance_date: value['balance_date'],
+                account_status: value['account_status'],
+                created_at: value['created_at'],
+                updated_at: value['updated_at']);
+            setState(() {
+              accountsList.add(accountsModelList);
+            });
+          });
+        } else {
+          setState(() {
+            accountsList = [];
+            print("-------------$accountsList");
+          });
+        }
+      });
+    } catch (error) {
+      print('Error fetching Account Data: $error');
+    }
+  }*/
+
+  Future<void> sharedPreferences() async {
+    final userNameValue = await MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userName);
+    if (userNameValue != null) {
+      userName = userNameValue;
+
+      final currentUserEmailValue = await MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.currentUserEmail);
+      if (currentUserEmailValue != null) {
+        currentUserEmail = currentUserEmailValue;
+
+        final userEmailValue = await MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.userEmail);
+        if (userEmailValue != null) {
+          userEmail = userEmailValue;
+          getProfileData();
+
+          final currentUserKeyValue = await MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.currentUserKey);
+          if (currentUserKeyValue != null) {
+            ownerKey = currentUserKeyValue;
+            await getAccountsList(); // Ensure this completes before proceeding
+
+            final selectedAccountIndexValue = await MySharedPreferences.instance
+                .getIntValuesSF(SharedPreferencesKeys.selectedAccountIndex);
+            if (selectedAccountIndexValue != null) {
+              selectedIndex = selectedAccountIndexValue;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> getAccountsList() async {
+    try {
+      accountsList.clear();
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+          .child(ownerKey);
+
+      final event = await reference.once();
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (dataSnapshot.exists) {
+        Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+        List<AccountsModel> fetchedAccountsList = [];
+
+        values.forEach((key, value) {
+          AccountsModel accountsModel = AccountsModel(
+            key: key,
+            owner_user_key: value['owner_user_key'],
+            account_name: value['account_name'],
+            description: value['description'],
+            budget: value['budget'],
+            balance: value['balance'],
+            income: value['income'],
+            balance_date: value['balance_date'],
+            account_status: value['account_status'],
+            created_at: value['created_at'],
+            updated_at: value['updated_at'],
+          );
+          fetchedAccountsList.add(accountsModel);
+        });
+
+        setState(() {
+          accountsList = fetchedAccountsList;
+        });
+      } else {
+        setState(() {
+          accountsList = [];
+        });
+      }
+    } catch (error) {
+      print('Error fetching Account Data: $error');
+    }
+  }
+
 
   List<PieChartSectionData> showingIncomeSections() {
     double incomePercentage = currentIncome < actualBudget
@@ -952,8 +1055,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           .deleteTransactionFromDB(
                                               TransactionModel.fromOtherModel(
                                                   transaction),
+                                              currentUserKey,
+                                              currentAccountKey,
                                               isSkippedUser);
-
                                       setState(() {
                                         currentIncome =
                                             currentIncome - transaction.amount!;
@@ -1432,6 +1536,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                         .deleteTransactionFromDB(
                                             TransactionModel.fromOtherModel(
                                                 transaction),
+                                            currentUserKey,
+                                            currentAccountKey,
                                             isSkippedUser);
 
                                     setState(() {
@@ -1457,7 +1563,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                           var accountsModel =
                                               AccountsModel.fromMap(value);
 
-                                          accountsModel.income =
+                                          accountsModel.balance =
                                               currentBalance.toString();
                                           await DatabaseHelper.instance
                                               .updateAccountData(accountsModel);

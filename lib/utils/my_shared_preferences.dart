@@ -62,4 +62,6 @@ class MySharedPreferences {
     prefs.remove("intValue");
     prefs.remove("doubleValue");
   }
+
+
 }

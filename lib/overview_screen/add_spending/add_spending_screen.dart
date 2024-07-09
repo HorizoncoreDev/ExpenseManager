@@ -447,6 +447,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               return InkWell(
                                 onTap: () {
                                   setState(() {
+                                    selectedItemList.clear();
                                     selectedItemList = [];
                                     spendingSubCategories = [];
                                     selectedSpendingIndex = index;
@@ -939,7 +940,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                 ? incomeSubCategories[selectedIncomeSubIndex].id
                 : -1
             : -1,
-       /* cat_name: selectedValue == AppConstanst.spendingTransactionName
+        /* cat_name: selectedValue == AppConstanst.spendingTransactionName
             ? selectedSpendingSubIndex != -1
                 ? spendingSubCategories[selectedSpendingSubIndex].name
                 : categories[selectedSpendingIndex].name
@@ -953,7 +954,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
             : selectedIncomeSubIndex != -1
                 ? AppConstanst.subCategory
                 : AppConstanst.mainCategory,
-    /*    cat_color: selectedValue == AppConstanst.spendingTransactionName
+        /*    cat_color: selectedValue == AppConstanst.spendingTransactionName
             ? categories[selectedSpendingIndex].color
             : incomeCategories[selectedIncomeIndex].color,
         cat_icon: selectedValue == AppConstanst.spendingTransactionName
@@ -1031,17 +1032,16 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                 values.forEach((key, value) async {
                   var accountsModel = AccountsModel.fromMap(value);
                   if (selectedValue == AppConstanst.spendingTransactionName) {
-                    accountsModel.balance =
-                        (int.parse(accountsModel.balance!) -
-                                int.parse(amountController.text))
-                            .toString();
+                    accountsModel.balance = (int.parse(accountsModel.balance!) -
+                            int.parse(amountController.text))
+                        .toString();
                   } else {
-                    accountsModel.income =
-                        (int.parse(accountsModel.income!) +
-                                int.parse(amountController.text))
-                            .toString();
+                    accountsModel.income = (int.parse(accountsModel.income!) +
+                            int.parse(amountController.text))
+                        .toString();
                   }
-                  await DatabaseHelper.instance.updateAccountData(accountsModel);
+                  await DatabaseHelper.instance
+                      .updateAccountData(accountsModel);
                 });
               }
             });

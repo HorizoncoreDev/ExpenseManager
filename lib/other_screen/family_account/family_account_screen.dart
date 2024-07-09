@@ -214,7 +214,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                       ),
                     ),*/
                     20.heightBox,
-                    Expanded(
+                      Expanded(
                       child: ListView.separated(
                         shrinkWrap: true,
                         physics: const ScrollPhysics(),
@@ -297,14 +297,14 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                       SharedPreferencesKeys
                                           .selectedAccountIndex,
                                       selectedIndex);
-                                /*  MySharedPreferences.instance.addStringToSF(
+                                   MySharedPreferences.instance.addStringToSF(
                                       SharedPreferencesKeys
                                           .currentUserName,
                                       accountsList[index]!.account_name);
                                   MySharedPreferences.instance.addStringToSF(
                                       SharedPreferencesKeys
                                           .currentAccountKey,
-                                      accountsList[index]!.key);*/
+                                      accountsList[index]!.key);
                                 });
                               },
                               child: Container(
@@ -364,7 +364,14 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                       ),
                                     ),
                                     SizedBox(width: 10),
-                                    if (userName == accountsList[index]!.account_name!)
+                                   /* if (userName == accountsList[index]!.account_name!)
+                                      SvgPicture.asset(
+                                        'asset/images/ic_accept.svg',
+                                        color: Colors.green,
+                                        height: 24,
+                                        width: 24,
+                                      ),*/
+                                    if (selectedIndex == index)
                                       SvgPicture.asset(
                                         'asset/images/ic_accept.svg',
                                         color: Colors.green,
@@ -418,7 +425,6 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                         },
                       ),
                     )
-
                     ///Shared account code
                     /*  if (accessRequestList.isNotEmpty)
                       const Divider(
@@ -831,6 +837,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
         });
       }
     });
+
+
     super.initState();
   }
 
