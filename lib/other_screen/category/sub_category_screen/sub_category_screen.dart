@@ -339,6 +339,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                 5.heightBox,
                 CustomBoxTextFormField(
                     controller: nameController,
+                    decoration: InputDecoration(
+                        counterText: ""
+                    ),
                     borderRadius: const BorderRadius.all(Radius.circular(8)),
                     keyboardType: TextInputType.text,
                     fillColor: Helper.getCardColor(context),

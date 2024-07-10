@@ -12,6 +12,7 @@ import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -230,6 +231,12 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               bottomLeft: Radius.circular(5)),
                           keyboardType: TextInputType.number,
                           hintText: "0",
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(7),
+                          ],
+                          decoration: const InputDecoration(
+                            counter: null
+                          ),
                           hintFontSize: 20,
                           hintColor: Colors.blue,
                           fillColor: Helper.getCardColor(context),
@@ -769,6 +776,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                     child: InkWell(
                       onTap: () async {
                         DateTime? pickedDate = await showDatePicker(
+
                             builder: (context, child) {
                               return Theme(
                                 data: Theme.of(context).copyWith(
@@ -1190,6 +1198,9 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                   fillColor: Helper.getCardColor(context),
                   borderColor: Colors.transparent,
                   padding: 11,
+                  decoration: InputDecoration(
+                    counterText: ""
+                  ),
                   horizontalPadding: 5,
                   textStyle: TextStyle(color: Helper.getTextColor(context)),
                   validator: (value) {

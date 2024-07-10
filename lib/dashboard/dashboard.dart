@@ -19,6 +19,7 @@ class DashBoard extends StatefulWidget {
 class _DashBoardState extends State<DashBoard> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   bool hideNavBar = false;
+  String extra = "";
   GlobalKey<OverviewScreenState> overviewKey = GlobalKey<OverviewScreenState>();
   GlobalKey<StatisticsScreenState> overviewKey1 =
       GlobalKey<StatisticsScreenState>();
@@ -46,13 +47,11 @@ class _DashBoardState extends State<DashBoard> {
                         .push(
                       MaterialPageRoute(
                           builder: (context) => AddSpendingScreen(
-                                transactionName:
-                                    AppConstanst.selectedTabIndex == 0
+                                transactionName: AppConstanst.selectedTabIndex == 0
                                         ? AppConstanst.spendingTransactionName
                                         : AppConstanst.incomeTransactionName,
                               )),
-                    )
-                        .then((value) {
+                    ).then((value) {
                       if (value != null) {
                         if (value) {
                           overviewKey.currentState?.getTransactions();
@@ -73,7 +72,7 @@ class _DashBoardState extends State<DashBoard> {
                   color: Helper.getTextColor(context),
                 ),
               )
-            : SizedBox(),
+            : const SizedBox(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomAppBar(
           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -126,6 +125,8 @@ class _DashBoardState extends State<DashBoard> {
                     currentPage = 2;
                     _jumpToPage(currentPage);
                   },
+
+
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   child: Column(
@@ -214,7 +215,7 @@ class _DashBoardState extends State<DashBoard> {
         .then((value) {
       if (value != null) {
         AppConstanst.languageCode = value;
-        print("CS --- ${AppConstanst.languageCode}");
+        print("LC --- ${AppConstanst.languageCode}");
       }
     });
 
@@ -223,7 +224,7 @@ class _DashBoardState extends State<DashBoard> {
         .then((value) {
       if (value != null) {
         AppConstanst.currencyCode = value;
-        print("CS --- ${AppConstanst.currencyCode}");
+        print("CC --- ${AppConstanst.currencyCode}");
       }
     });
   }

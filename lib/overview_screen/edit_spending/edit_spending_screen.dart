@@ -10,6 +10,7 @@ import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -195,6 +196,12 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                               bottomLeft: Radius.circular(5)),
                           keyboardType: TextInputType.number,
                           hintText: "0",
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(7),
+                          ],
+                          decoration: InputDecoration(
+                              counterText: ""
+                          ),
                           hintFontSize: 20,
                           hintColor: Colors.blue,
                           fillColor: Helper.getCardColor(context),
@@ -1334,6 +1341,10 @@ class _EditSpendingScreenState extends State<EditSpendingScreen> {
                   fillColor: Helper.getCardColor(context),
                   borderColor: Colors.transparent,
                   padding: 11,
+
+                  decoration: InputDecoration(
+                      counterText: ""
+                  ),
                   horizontalPadding: 5,
                   textStyle: TextStyle(color: Helper.getTextColor(context)),
                   validator: (value) {

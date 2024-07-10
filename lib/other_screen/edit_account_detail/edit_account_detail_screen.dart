@@ -129,6 +129,9 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         keyboardType: TextInputType.text,
                         hintText: LocaleKeys.enterName.tr,
                         padding: 15,
+                        decoration: InputDecoration(
+                            counterText: ""
+                        ),
                         hintColor: Helper.getTextColor(context),
                         textStyle: const TextStyle(fontSize: 16),
                         borderRadius: BorderRadius.circular(10),
@@ -172,6 +175,9 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         borderColor: Helper.getTextColor(context),
                         fillColor: Helper.getCardColor(context),
                         padding: 15,
+                        decoration: InputDecoration(
+                            counterText: ""
+                        ),
                         prefixIcon: const Icon(
                           Icons.person_2_outlined,
                           color: Colors.blue,
@@ -210,6 +216,9 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         borderColor: Helper.getTextColor(context),
                         fillColor: Helper.getCardColor(context),
                         padding: 15,
+                        decoration: InputDecoration(
+                            counterText: ""
+                        ),
                         prefixIcon: const Icon(
                           Icons.email_outlined,
                           color: Colors.blue,

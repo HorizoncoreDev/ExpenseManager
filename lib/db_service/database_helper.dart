@@ -524,7 +524,6 @@ class DatabaseHelper {
               }
             }
           });
-
           return transactionModel;
         });
       } catch (e) {
@@ -1901,7 +1900,7 @@ return completer.future;*/
       e.printError();
     }
     final Map<String, Map> updates = {};
-    updates['/$accounts_table/${accountsModel.owner_user_key}/${accountsModel.key}'] =
+    updates['/$accounts_table/${accountsModel.owner_user_key}/${accountsModel.key}']  =
         accountsModel.toMap();
     FirebaseDatabase.instance.ref().update(updates);
   }
@@ -2230,7 +2229,6 @@ return completer.future;*/
         .child(accKey).remove();
   }
 
-
   static Future<MultipleEmailModel> exportAccessEmailDataToCSV(
       String userEmail) async {
     MultipleEmailModel multipleEmailModel = MultipleEmailModel();
@@ -2355,7 +2353,6 @@ return completer.future;*/
         completer.complete(receiverEmailList);
       }
     });
-
     return completer.future;
   }
 

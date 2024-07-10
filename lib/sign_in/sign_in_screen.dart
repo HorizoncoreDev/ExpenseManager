@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:expense_manager/dashboard/dashboard.dart';
 import 'package:expense_manager/db_models/transaction_model.dart';
 import 'package:expense_manager/utils/extensions.dart';
@@ -81,9 +82,9 @@ class _SignInScreenState extends State<SignInScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: InkWell(
-                  onTap: () {
-                    googleSignup();
-                  },
+                  onTap: () async {
+                    await checkInternetConnectivity();
+                    },
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
@@ -112,6 +113,8 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                 ),
               ),
+
+
 
               /*15.heightBox,
                         Padding(
@@ -213,6 +216,17 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       )),
     );
+  }
+
+
+  Future<void> checkInternetConnectivity() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.mobile) ||
+        connectivityResult.contains(ConnectivityResult.wifi)) {
+      googleSignup();
+    } else {
+      Helper.showToast("Please check your Internet connection");
+    }
   }
 
   Future<void> googleSignup() async {

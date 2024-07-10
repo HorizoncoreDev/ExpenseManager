@@ -5,6 +5,7 @@ import '../global.dart';
 
 class CustomBoxTextFormField extends StatelessWidget {
   final TextEditingController controller;
+  final InputDecoration decoration;
   final TextInputType? keyboardType;
   final String? hintText;
   final double? hintFontSize;
@@ -41,6 +42,7 @@ class CustomBoxTextFormField extends StatelessWidget {
       {super.key,
       required this.controller,
       this.keyboardType,
+        required this.decoration,
       this.hintText,
       this.hintColor,
       this.focusNode,

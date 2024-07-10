@@ -125,6 +125,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
               ),
               10.heightBox,
               CustomBoxTextFormField(
+                  decoration: InputDecoration(
+                      counterText: ""
+                  ),
                   controller: nameController,
                   borderRadius: const BorderRadius.all(Radius.circular(8)),
                   keyboardType: TextInputType.text,

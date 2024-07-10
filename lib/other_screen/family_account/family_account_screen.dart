@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:expense_manager/accounts/add_account_screen.dart';
 import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/profile_model.dart';
@@ -66,7 +65,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => AddAccountScreen(
+                    builder: (context) => const AddAccountScreen(
                           account_name: "",
                           balance: "",
                           balance_date: "",
@@ -230,8 +229,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 20),
                               alignment: Alignment.centerRight,
-                              child:
-                                  const Icon(Icons.delete, color: Colors.white),
+                              child: const Icon(Icons.delete, color: Colors.white),
                             ),
                             confirmDismiss: (direction) async {
                               return await showDialog(
@@ -352,7 +350,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 20),
+                                    const SizedBox(width: 20),
                                     Expanded(
                                       child: Text(
                                         account.account_name!,
@@ -363,7 +361,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     if (userName == accountsList[index]!.account_name!)
                                       SvgPicture.asset(
                                         'asset/images/ic_accept.svg',
@@ -371,7 +369,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                         height: 24,
                                         width: 24,
                                       ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     InkWell(
                                       onTap: () {
                                         Navigator.push(
@@ -383,8 +381,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                                   account.account_name!,
                                               description: account.description!,
                                               budget: account.budget!,
-                                              balance_date:
-                                                  account.balance_date!,
+                                              balance_date: account.balance_date!,
                                               balance: account.balance!,
                                               income: account.income!,
                                               updateOnDate: account.updated_at!,
@@ -703,7 +700,6 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                 ),
               ));
   }
-
   Future<void> getProfileData() async {
     try {
       ProfileModel? fetchedProfileData =

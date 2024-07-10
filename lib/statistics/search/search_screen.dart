@@ -156,6 +156,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   fillColor: Helper.getCardColor(context),
                   borderColor: Colors.transparent,
                   padding: 10,
+                  decoration: InputDecoration(
+                      counterText: ""
+                  ),
                   textStyle: TextStyle(color: Helper.getTextColor(context)),
                   horizontalPadding: 5,
                   suffixIcon: searchController.text.isNotEmpty

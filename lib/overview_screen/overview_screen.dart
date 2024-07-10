@@ -1,6 +1,7 @@
 import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/transaction_new_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
+import 'package:expense_manager/overview_screen/account_details_dialog.dart';
 import 'package:expense_manager/overview_screen/add_spending/DateWiseTransactionModel.dart';
 import 'package:expense_manager/overview_screen/spending_detail_screen/spending_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
@@ -15,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
 import '../db_models/request_model.dart';
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
@@ -49,6 +49,8 @@ class OverviewScreenState extends State<OverviewScreen> {
   bool isSkippedUser = false, loading = true;
   final databaseHelper = DatabaseHelper();
   AccountsModel accountModel = AccountsModel();
+  late List<AccountsModel?> accountsList = [];
+  AccountsModel? accountsModel;
 
   List<TransactionNewModel> spendingTransaction = [];
 
@@ -100,8 +102,14 @@ class OverviewScreenState extends State<OverviewScreen> {
                             ),
                             InkWell(
                                 onTap: () {
-                                  ///Shared account code
-                                  /*final accessReference = FirebaseDatabase
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) =>
+                                          /*showSwitchAccountDialog(accessRequestList);*/
+                                          AccountDetailsDialog(
+                                              accountsList: accountsList));
+                             /*     ///Shared account code
+                            final accessReference = FirebaseDatabase
                                       .instance
                                       .reference()
                                       .child(request_table)
@@ -140,8 +148,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     }
                                     showSwitchAccountDialog(accessRequestList);
                                   });
-
 */
+
                                 },
                                 child: const Icon(
                                   Icons.switch_account,
@@ -603,6 +611,54 @@ class OverviewScreenState extends State<OverviewScreen> {
     super.initState();
   }
 
+  Future<void> getAccountsList() async {
+    try {
+      accountsList.clear();
+      AccountsModel? fetchedAccountData =
+      await databaseHelper.getAccountData(currentUserKey);
+      setState(() {
+        accountsModel = fetchedAccountData;
+      });
+
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+          .child(accountsModel!.owner_user_key!);
+
+      reference.once().then((event) {
+        DataSnapshot dataSnapshot = event.snapshot;
+        if (event.snapshot.exists) {
+          Map<dynamic, dynamic> values =
+          dataSnapshot.value as Map<dynamic, dynamic>;
+          values.forEach((key, value) async {
+            AccountsModel accountsModelList = AccountsModel(
+                key: key,
+                owner_user_key: value['owner_user_key'],
+                account_name: value['account_name'],
+                description: value['description'],
+                budget: value['budget'],
+                balance: value['balance'],
+                income: value['income'],
+                balance_date: value['balance_date'],
+                account_status: value['account_status'],
+                created_at: value['created_at'],
+                updated_at: value['updated_at']);
+            setState(() {
+              accountsList.add(accountsModelList);
+            });
+          });
+        } else {
+          setState(() {
+            accountsList = [];
+            print("-------------$accountsList");
+          });
+        }
+      });
+    } catch (error) {
+      print('Error fetching Account Data: $error');
+    }
+  }
+
   List<PieChartSectionData> showingIncomeSections() {
     double incomePercentage = currentIncome < actualBudget
         ? (currentIncome / actualBudget) * 100
@@ -917,7 +973,6 @@ class OverviewScreenState extends State<OverviewScreen> {
                                               currentUserKey,
                                               currentAccountKey,
                                               isSkippedUser);
-
                                       setState(() {
                                         currentIncome =
                                             currentIncome - transaction.amount!;

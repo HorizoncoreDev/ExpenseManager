@@ -58,7 +58,6 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   String formattedDate() {
     print(selectedDate);
     return DateFormat('dd/MM/yyyy').format(selectedDate);
-
   }
 
   @override
@@ -101,8 +100,6 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                 Navigator.pop(context, true);
               }
             }
-
-
           },
           child: Container(
             width: double.infinity,
@@ -235,6 +232,9 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                         controller: nameController,
                         keyboardType: TextInputType.text,
                         hintText: LocaleKeys.enterName.tr,
+                        decoration: InputDecoration(
+                            counterText: ""
+                        ),
                         padding: 15,
                         borderColor: Helper.getCardColor(context),
                         hintColor: Helper.getTextColor(context),
@@ -288,6 +288,9 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                         textStyle: const TextStyle(fontSize: 16),
                         borderRadius: BorderRadius.circular(6),
                         fillColor: Helper.getCardColor(context),
+                        decoration: InputDecoration(
+                            counterText: ""
+                        ),
                         prefixIcon: const Icon(
                           Icons.description,
                           color: Colors.blue,
@@ -331,6 +334,9 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                                     bottomLeft: Radius.circular(5)),
                                 keyboardType: TextInputType.number,
                                 hintText: LocaleKeys.enterBudgetText.tr,
+                                decoration: InputDecoration(
+                                    counterText: ""
+                                ),
                                 fillColor: Helper.getCardColor(context),
                                 hintColor: Helper.getTextColor(context),
                                 borderColor: Colors.transparent,
@@ -376,8 +382,6 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                                   hint: const Text("₹"),
                                   value: currency,
                                   onChanged: (value) {
-
-
                                     setState(() {
                                       currency = value;
                                       currencyCode = currency!.currencyCode!;
@@ -419,6 +423,9 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                         controller: balanceController,
                         keyboardType: TextInputType.text,
                         hintText: "Enter balance",
+                        decoration: InputDecoration(
+                            counterText: ""
+                        ),
                         padding: 15,
                         borderColor: Helper.getCardColor(context),
                         hintColor: Helper.getTextColor(context),
@@ -463,6 +470,9 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                       CustomBoxTextFormField(
                         controller: incomeController,
                         keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                            counterText: ""
+                        ),
                         hintText: "Enter income",
                         padding: 15,
                         borderColor: Helper.getCardColor(context),
@@ -574,6 +584,10 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                           controller: createdOnController,
                           keyboardType: TextInputType.text,
                           padding: 15,
+                          readOnly: true,
+                          decoration: InputDecoration(
+                              counterText: ""
+                          ),
                           borderColor: Helper.getCardColor(context),
                           hintColor: Helper.getTextColor(context),
                           textStyle: const TextStyle(fontSize: 16),
@@ -603,6 +617,10 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                           controller: updatedOnController,
                           keyboardType: TextInputType.text,
                           padding: 15,
+                          decoration: InputDecoration(
+                              counterText: ""
+                          ),
+                          readOnly: true,
                           borderColor: Helper.getCardColor(context),
                           hintColor: Helper.getTextColor(context),
                           textStyle: const TextStyle(fontSize: 16),
@@ -622,7 +640,6 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                         ),
                         20.heightBox
                       ],
-
                     ],
                   ),
                 ),
@@ -673,8 +690,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
       updatedOnController.text = formattedUpdatedDate;
     }
 
-
-    // selectedDate = widget.balance_dat;
+    /// selectedDate = widget.balance_dat;
     _focus.addListener(_onFocusChange);
     MySharedPreferences.instance
         .getBoolValuesSF(SharedPreferencesKeys.isSkippedUser)
