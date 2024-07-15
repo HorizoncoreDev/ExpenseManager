@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/transaction_new_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
@@ -51,9 +49,9 @@ class OverviewScreenState extends State<OverviewScreen> {
   bool isSkippedUser = false, loading = true;
   final databaseHelper = DatabaseHelper();
   AccountsModel accountModel = AccountsModel();
-
   late List<AccountsModel?> accountsList = [];
   AccountsModel? accountsModel;
+
   String ownerKey = "";
   int? selectedIndex = -1;
 
@@ -62,7 +60,6 @@ class OverviewScreenState extends State<OverviewScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-
       canPop: true,
       child: DefaultTabController(
         length: 2,
@@ -113,9 +110,9 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       context: context,
                                       builder: (context) =>
                                           /*showSwitchAccountDialog(accessRequestList);*/
-                                      AccountDetailsDialog(
+                                          AccountDetailsDialog(
                                               accountsList: accountsList));
-                                  /*     ///Shared account code
+                             /*     ///Shared account code
                             final accessReference = FirebaseDatabase
                                       .instance
                                       .reference()
@@ -156,8 +153,8 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     showSwitchAccountDialog(accessRequestList);
                                   });
 */
-                                },
 
+                                },
                                 child: const Icon(
                                   Icons.switch_account,
                                   color: Colors.white,
@@ -614,14 +611,17 @@ class OverviewScreenState extends State<OverviewScreen> {
         }
       }
     });
+
     super.initState();
   }
 
+
+  ///Old one
   /*Future<void> getAccountsList() async {
     try {
       accountsList.clear();
       AccountsModel? fetchedAccountData =
-          await databaseHelper.getAccountData(currentUserKey);
+      await databaseHelper.getAccountData(currentUserKey);
       setState(() {
         accountsModel = fetchedAccountData;
       });
@@ -635,7 +635,7 @@ class OverviewScreenState extends State<OverviewScreen> {
         DataSnapshot dataSnapshot = event.snapshot;
         if (event.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             AccountsModel accountsModelList = AccountsModel(
                 key: key,
@@ -664,85 +664,6 @@ class OverviewScreenState extends State<OverviewScreen> {
       print('Error fetching Account Data: $error');
     }
   }*/
-
-  Future<void> sharedPreferences() async {
-    final userNameValue = await MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userName);
-    if (userNameValue != null) {
-      userName = userNameValue;
-
-      final currentUserEmailValue = await MySharedPreferences.instance
-          .getStringValuesSF(SharedPreferencesKeys.currentUserEmail);
-      if (currentUserEmailValue != null) {
-        currentUserEmail = currentUserEmailValue;
-
-        final userEmailValue = await MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.userEmail);
-        if (userEmailValue != null) {
-          userEmail = userEmailValue;
-          getProfileData();
-
-          final currentUserKeyValue = await MySharedPreferences.instance
-              .getStringValuesSF(SharedPreferencesKeys.currentUserKey);
-          if (currentUserKeyValue != null) {
-            ownerKey = currentUserKeyValue;
-            await getAccountsList(); // Ensure this completes before proceeding
-
-            final selectedAccountIndexValue = await MySharedPreferences.instance
-                .getIntValuesSF(SharedPreferencesKeys.selectedAccountIndex);
-            if (selectedAccountIndexValue != null) {
-              selectedIndex = selectedAccountIndexValue;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  Future<void> getAccountsList() async {
-    try {
-      accountsList.clear();
-      final reference = FirebaseDatabase.instance
-          .reference()
-          .child(accounts_table)
-          .child(ownerKey);
-
-      final event = await reference.once();
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (dataSnapshot.exists) {
-        Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
-        List<AccountsModel> fetchedAccountsList = [];
-
-        values.forEach((key, value) {
-          AccountsModel accountsModel = AccountsModel(
-            key: key,
-            owner_user_key: value['owner_user_key'],
-            account_name: value['account_name'],
-            description: value['description'],
-            budget: value['budget'],
-            balance: value['balance'],
-            income: value['income'],
-            balance_date: value['balance_date'],
-            account_status: value['account_status'],
-            created_at: value['created_at'],
-            updated_at: value['updated_at'],
-          );
-          fetchedAccountsList.add(accountsModel);
-        });
-
-        setState(() {
-          accountsList = fetchedAccountsList;
-        });
-      } else {
-        setState(() {
-          accountsList = [];
-        });
-      }
-    } catch (error) {
-      print('Error fetching Account Data: $error');
-    }
-  }
-
 
   List<PieChartSectionData> showingIncomeSections() {
     double incomePercentage = currentIncome < actualBudget
@@ -2004,4 +1925,81 @@ class OverviewScreenState extends State<OverviewScreen> {
       }
     });
   }
-}
+
+  Future<void> sharedPreferences() async {
+    final userNameValue = await MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.userName);
+    if (userNameValue != null) {
+      userName = userNameValue;
+
+      final currentUserEmailValue = await MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.currentUserEmail);
+      if (currentUserEmailValue != null) {
+        currentUserEmail = currentUserEmailValue;
+
+        final userEmailValue = await MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.userEmail);
+        if (userEmailValue != null) {
+          userEmail = userEmailValue;
+          getProfileData();
+
+          final currentUserKeyValue = await MySharedPreferences.instance
+              .getStringValuesSF(SharedPreferencesKeys.currentUserKey);
+          if (currentUserKeyValue != null) {
+            ownerKey = currentUserKeyValue;
+            await getAccountsList(); // Ensure this completes before proceeding
+
+            final selectedAccountIndexValue = await MySharedPreferences.instance
+                .getIntValuesSF(SharedPreferencesKeys.selectedAccountIndex);
+            if (selectedAccountIndexValue != null) {
+              selectedIndex = selectedAccountIndexValue;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> getAccountsList() async {
+    try {
+      accountsList.clear();
+      final reference = FirebaseDatabase.instance
+          .reference()
+          .child(accounts_table)
+          .child(ownerKey);
+
+      final event = await reference.once();
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (dataSnapshot.exists) {
+        Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+        List<AccountsModel> fetchedAccountsList = [];
+
+        values.forEach((key, value) {
+          AccountsModel accountsModel = AccountsModel(
+            key: key,
+            owner_user_key: value['owner_user_key'],
+            account_name: value['account_name'],
+            description: value['description'],
+            budget: value['budget'],
+            balance: value['balance'],
+            income: value['income'],
+            balance_date: value['balance_date'],
+            account_status: value['account_status'],
+            created_at: value['created_at'],
+            updated_at: value['updated_at'],
+          );
+          fetchedAccountsList.add(accountsModel);
+        });
+
+        setState(() {
+          accountsList = fetchedAccountsList;
+        });
+      } else {
+        setState(() {
+          accountsList = [];
+        });
+      }
+    } catch (error) {
+      print('Error fetching Account Data: $error');
+    }
+  }}

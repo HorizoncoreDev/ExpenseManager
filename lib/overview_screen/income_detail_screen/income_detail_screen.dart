@@ -238,6 +238,9 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       fillColor: Helper.getCardColor(context),
                       borderColor: Colors.transparent,
                       padding: 10,
+                      decoration: InputDecoration(
+                          counterText: ""
+                      ),
                       horizontalPadding: 5,
                       textStyle: TextStyle(color: Helper.getTextColor(context)),
                       suffixIcon: searchController.text.isNotEmpty

@@ -91,6 +91,9 @@ class MasterPasswordDialog {
                 child: ListBody(
                   children: <Widget>[
                     CustomBoxTextFormField(
+                      decoration: InputDecoration(
+                          counterText: ""
+                      ),
                       controller: masterPasswordController,
                       onChanged: (val) {},
                       borderRadius: const BorderRadius.only(
@@ -505,6 +508,9 @@ class MasterPasswordDialog {
                   onChanged: (val) async {},
                   maxLength: 8,
                   minLines: 1,
+                  decoration: InputDecoration(
+                    counterText: ""
+                  ),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(5),
                     bottomLeft: Radius.circular(5),

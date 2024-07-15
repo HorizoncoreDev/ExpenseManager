@@ -64,18 +64,9 @@ class _OtherScreenState extends State<OtherScreen> {
                   children: [
                     10.heightBox,
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-
-                            },
-                            child: Icon(
-                              Icons.arrow_back_ios,
-                              color: Helper.getTextColor(context),
-                            )),
                         Text(
                           LocaleKeys.other.tr,
                           style: TextStyle(
@@ -84,7 +75,6 @@ class _OtherScreenState extends State<OtherScreen> {
                               fontWeight: FontWeight.bold),
                         ),
                         // if (!isSkippedUser)
-                        Spacer(),
                         InkWell(
                           onTap: () {
                             if (isSkippedUser) {

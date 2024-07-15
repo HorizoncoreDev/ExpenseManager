@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:expense_manager/accounts/add_account_screen.dart';
 import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/db_models/profile_model.dart';
@@ -34,7 +33,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
   List<RequestModel?> requestList = [];
   List<RequestModel?> accessRequestList = [];
   List<AccountsModel?> accountsList = [];
-  int? selectedIndex = -1;
+  int? selectedIndex = 0;
+
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => AddAccountScreen(
+                    builder: (context) => const AddAccountScreen(
                           account_name: "",
                           balance: "",
                           balance_date: "",
@@ -214,7 +214,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                       ),
                     ),*/
                     20.heightBox,
-                      Expanded(
+                    Expanded(
                       child: ListView.separated(
                         shrinkWrap: true,
                         physics: const ScrollPhysics(),
@@ -237,7 +237,8 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                               return await showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
-                                  return userName != accountsList[index]!.account_name
+                                  return userName !=
+                                          accountsList[index]!.account_name
                                       ? AlertDialog(
                                           backgroundColor:
                                               Helper.getCardColor(context),
@@ -297,13 +298,17 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                       SharedPreferencesKeys
                                           .selectedAccountIndex,
                                       selectedIndex);
-                                   MySharedPreferences.instance.addStringToSF(
-                                      SharedPreferencesKeys
-                                          .currentUserName,
+                                  MySharedPreferences.instance.addStringToSF(
+                                      SharedPreferencesKeys.currentUserName,
                                       accountsList[index]!.account_name);
                                   MySharedPreferences.instance.addStringToSF(
-                                      SharedPreferencesKeys
-                                          .currentAccountKey,
+                                      SharedPreferencesKeys.currentAccountKey,
+                                      accountsList[index]!.key);
+                                  MySharedPreferences.instance.addStringToSF(
+                                      SharedPreferencesKeys.accountOwnerKey,
+                                      accountsList[index]!.owner_user_key);
+                                  MySharedPreferences.instance.addStringToSF(
+                                      SharedPreferencesKeys.currentUserKey,
                                       accountsList[index]!.key);
                                 });
                               },
@@ -352,7 +357,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 20),
+                                    const SizedBox(width: 20),
                                     Expanded(
                                       child: Text(
                                         account.account_name!,
@@ -363,14 +368,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 10),
-                                   /* if (userName == accountsList[index]!.account_name!)
-                                      SvgPicture.asset(
-                                        'asset/images/ic_accept.svg',
-                                        color: Colors.green,
-                                        height: 24,
-                                        width: 24,
-                                      ),*/
+                                    const SizedBox(width: 10),
                                     if (selectedIndex == index)
                                       SvgPicture.asset(
                                         'asset/images/ic_accept.svg',
@@ -378,7 +376,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                         height: 24,
                                         width: 24,
                                       ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     InkWell(
                                       onTap: () {
                                         Navigator.push(
@@ -425,6 +423,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                         },
                       ),
                     )
+
                     ///Shared account code
                     /*  if (accessRequestList.isNotEmpty)
                       const Divider(
@@ -837,9 +836,11 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
         });
       }
     });
-
-
     super.initState();
+
+    // Find the initial index for the user's account
+    selectedIndex =
+        accountsList.indexWhere((account) => account?.account_name == userName);
   }
 
   void sendNotification(RequestModel requestModel, ProfileModel profileModel,
@@ -1053,6 +1054,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
     });
   }
 */
+
   Future<void> getAccountsList() async {
     try {
       accountsList.clear();
@@ -1096,11 +1098,12 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
 
   void addItem(AccountsModel newAccount) {
     setState(() {
-      if (selectedIndex != -1) {
+      if (selectedIndex != 0) {
         accountsList.insert(selectedIndex! + 1, newAccount);
       } else {
         accountsList.add(newAccount); // Add at the end if no item is selected
       }
     });
   }
+
 }

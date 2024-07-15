@@ -9,9 +9,6 @@ abstract class AppColors {
   static Color backgroundColor = const Color(0xff161417);
   static Color blueColor = const Color(0xff0a8ee1);
   static Color lightBlackColor = const Color(0xff2a292e);
-  static Color internetToastColor= const Color(0xff2a292e);
-
-
 }
 
 abstract class AppConstanst {

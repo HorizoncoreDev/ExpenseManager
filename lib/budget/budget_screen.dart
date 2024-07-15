@@ -200,6 +200,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           child: CustomBoxTextFormField(
                               controller: budgetController,
                               onChanged: (val) {},
+                              decoration: InputDecoration(
+                                  counterText: ""
+                              ),
                               borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(5),
                                   bottomLeft: Radius.circular(5)),
