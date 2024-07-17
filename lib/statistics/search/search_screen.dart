@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
 import '../../db_models/transaction_model.dart';
 import '../../db_models/transaction_new_model.dart';
 import '../../db_service/database_helper.dart';
@@ -156,7 +155,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   fillColor: Helper.getCardColor(context),
                   borderColor: Colors.transparent,
                   padding: 10,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       counterText: ""
                   ),
                   textStyle: TextStyle(color: Helper.getTextColor(context)),

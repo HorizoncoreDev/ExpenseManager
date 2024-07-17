@@ -247,9 +247,9 @@ class DatabaseHelper {
           dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if ((category.isEmpty ||
-                value[TransactionFields.cat_name]
+               /* value[TransactionFields.cat_name]
                     .toLowerCase()
-                    .contains(category.toLowerCase()) ||
+                    .contains(category.toLowerCase()) ||*/
                 value[TransactionFields.description]
                     .toLowerCase()
                     .contains(category.toLowerCase()))) {

@@ -27,6 +27,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
   bool isSkippedUser = false;
   final databaseHelper = DatabaseHelper();
 
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -78,7 +79,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
                   itemBuilder: (BuildContext context, int index) {
                     return GestureDetector(
                       onTap: () {
-                        showImage(index, context);
+                        _showImage(context, File(imageList[index]),);
                       },
                       child: Image.file(
                         File(imageList[index]),
@@ -161,22 +162,54 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
     super.initState();
   }
 
-  void showImage(int index, BuildContext context) {
-    AlertDialog(
-      content: Image.file(
-        File(imageList[index]),
-        fit: BoxFit.cover,
-        height: 150,
-        width: 150,
-      ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Text(LocaleKeys.close.tr),
-        ),
-      ],
-    );
+  void _showImage(BuildContext context, File image) async {
+    await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+            buttonPadding: EdgeInsets.zero,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                IconButton(
+                  style: const ButtonStyle(
+                    tapTargetSize:
+                    MaterialTapTargetSize.shrinkWrap, // the '2023' part
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.close),
+                  constraints: const BoxConstraints(),
+                ),
+                5.heightBox,
+                Center(
+                  child: InteractiveViewer(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(
+                        image,
+                        frameBuilder: (BuildContext context, Widget child,
+                            int? frame, bool wasSynchronouslyLoaded) {
+                          if (wasSynchronouslyLoaded) {
+                            return child;
+                          } else {
+                            return const Padding(
+                              padding: EdgeInsets.all(3.0),
+                              child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.blue,
+                                  )),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                10.heightBox,
+              ],
+            )));
   }
 }

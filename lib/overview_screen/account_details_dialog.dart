@@ -19,7 +19,7 @@ class AccountDetailsDialog extends StatefulWidget {
 
 class _AccountDetailsDialogState extends State<AccountDetailsDialog> {
   String userName = '';
-  int selectedIndex = 0;
+  int selectedIndex = -1;
 
   @override
   void initState() {
@@ -112,7 +112,7 @@ class _AccountDetailsDialogState extends State<AccountDetailsDialog> {
                           ),
                         ),
                         SizedBox(width: 10),
-                      /*  if (selectedIndex == index)
+                        /*if (selectedIndex == index)
                           SvgPicture.asset(
                             'asset/images/ic_accept.svg',
                             color: Colors.green,

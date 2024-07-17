@@ -797,6 +797,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               spendingMonthList[index].isSelected = true;
                               spendingSelectedMonthIndex = index;
                               spendingShowMonth = spendingMonthList[index].text;
+                              setState(() {});
                               Navigator.pop(context);
                               //spendingMonthList[index].isSelected = !spendingMonthList[index].isSelected;
                             } else {
@@ -807,6 +808,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               incomeMonthList[index].isSelected = true;
                               incomeSelectedMonthIndex = index;
                               incomeShowMonth = incomeMonthList[index].text;
+                              setState(() {});
                               Navigator.pop(context);
                               //incomeMonthList[index].isSelected = !incomeMonthList[index].isSelected;
                             }

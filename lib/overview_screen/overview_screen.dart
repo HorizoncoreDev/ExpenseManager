@@ -109,7 +109,6 @@ class OverviewScreenState extends State<OverviewScreen> {
                                   showDialog(
                                       context: context,
                                       builder: (context) =>
-                                          /*showSwitchAccountDialog(accessRequestList);*/
                                           AccountDetailsDialog(
                                               accountsList: accountsList));
                              /*     ///Shared account code
@@ -2002,4 +2001,5 @@ class OverviewScreenState extends State<OverviewScreen> {
     } catch (error) {
       print('Error fetching Account Data: $error');
     }
-  }}
+  }
+}
