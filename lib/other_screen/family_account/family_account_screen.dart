@@ -309,10 +309,10 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                     SharedPreferencesKeys.currentAccountKey,
                                     accountsList[index]!.key,
                                   );
-                                  MySharedPreferences.instance.addStringToSF(
+                                /*  MySharedPreferences.instance.addStringToSF(
                                     SharedPreferencesKeys.currentUserKey,
                                     accountsList[index]!.owner_user_key,
-                                  );
+                                  );*/
 
                                   // Fetch account data for the selected account
                                   //  fetchAccountData(accountsList[index]!.key!);
@@ -377,6 +377,13 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
+                                  /*  if (userName == accountsList[index]!.account_name!)
+                                      SvgPicture.asset(
+                                        'asset/images/ic_accept.svg',
+                                        color: Colors.green,
+                                        height: 24,
+                                        width: 24,
+                                      ),*/
                                     if (selectedIndex == index)
                                       SvgPicture.asset(
                                         'asset/images/ic_accept.svg',

@@ -1,4 +1,5 @@
 import 'package:expense_manager/db_models/accounts_model.dart';
+import 'package:expense_manager/db_models/profile_model.dart';
 import 'package:expense_manager/db_models/transaction_new_model.dart';
 import 'package:expense_manager/db_service/database_helper.dart';
 import 'package:expense_manager/overview_screen/account_details_dialog.dart';
@@ -111,7 +112,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                       builder: (context) =>
                                           AccountDetailsDialog(
                                               accountsList: accountsList));
-                             /*     ///Shared account code
+                                  /*     ///Shared account code
                             final accessReference = FirebaseDatabase
                                       .instance
                                       .reference()
@@ -152,7 +153,6 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     showSwitchAccountDialog(accessRequestList);
                                   });
 */
-
                                 },
                                 child: const Icon(
                                   Icons.switch_account,
@@ -402,10 +402,10 @@ class OverviewScreenState extends State<OverviewScreen> {
   getProfileData() async {
     final reference = FirebaseDatabase.instance
         .reference()
-        .child(accounts_table)
-        .child(currentUserKey)
-        .orderByChild(AccountTableFields.key)
-        .equalTo(currentAccountKey);
+        .child(profile_table)
+        .child(currentUserKey);
+     /*  .orderByChild(AccountTableFields.key)
+        .equalTo(currentAccountKey);*/
 
     reference.onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
@@ -613,7 +613,6 @@ class OverviewScreenState extends State<OverviewScreen> {
 
     super.initState();
   }
-
 
   ///Old one
   /*Future<void> getAccountsList() async {
@@ -1970,7 +1969,8 @@ class OverviewScreenState extends State<OverviewScreen> {
       final event = await reference.once();
       DataSnapshot dataSnapshot = event.snapshot;
       if (dataSnapshot.exists) {
-        Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+        Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
         List<AccountsModel> fetchedAccountsList = [];
 
         values.forEach((key, value) {

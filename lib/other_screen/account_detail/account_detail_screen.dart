@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expense_manager/budget/budget_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -40,6 +42,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
   bool isLoading = true;
 
   ProfileModel? profileData;
+  String key = '';
 
   String userEmail = '';
 
@@ -442,10 +445,10 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   Future<void> getProfileData() async {
     try {
-      ProfileModel? fetchedProfileData =
-          await databaseHelper.getProfileData(userEmail);
+      ProfileModel? fetchedProfileData = await databaseHelper.getProfileDataFromFirebase(key);
       setState(() {
         profileData = fetchedProfileData;
+        key = profileData!.key!;
         fullName = "${profileData!.first_name!} ${profileData!.last_name!}";
         email = profileData!.email!;
         userCode = profileData!.user_code!;
