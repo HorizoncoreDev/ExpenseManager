@@ -182,13 +182,13 @@ class DatabaseHelper {
       List<Future<TransactionNewModel>> futureTransactionModels = result.map((transactionData) async {
         TransactionNewModel transactionModel = TransactionNewModel.fromMap(transactionData);
 
-        // Get payment method name from payment table
+        /// Get payment method name from payment table
         var paymentMethod = await DatabaseHelper.instance.getPaymentMethod(transactionData[TransactionFields.payment_method_id]);
         if (paymentMethod != null) {
           transactionModel.payment_method_name = paymentMethod.name;
 
+          /// If transaction is spending, get cat_color & icon from spending category table
           if (transactionData[TransactionFields.transaction_type] == AppConstanst.spendingTransaction) {
-            // If transaction is spending, get cat_color & icon from spending category table
             var expenseCategory = await DatabaseHelper.instance.getExpenseCategory(transactionData[TransactionFields.expense_cat_id]);
             if (expenseCategory != null) {
               transactionModel.cat_color = expenseCategory.color;
@@ -197,7 +197,7 @@ class DatabaseHelper {
               if (transactionData[TransactionFields.sub_expense_cat_id] == -1) {
                 transactionModel.cat_name = expenseCategory.name;
               } else {
-                // If transaction's category is sub expense category, get cat name from sub expense category table
+                /// If transaction's category is sub expense category, get cat name from sub expense category table
                 var expenseSubCategory = await DatabaseHelper.instance.getExpenseSubCategory(transactionData[TransactionFields.sub_expense_cat_id]);
                 if (expenseSubCategory != null) {
                   transactionModel.cat_name = expenseSubCategory.name;
@@ -205,7 +205,7 @@ class DatabaseHelper {
               }
             }
           } else {
-            // If transaction is income, get cat_color & icon from income category table
+            /// If transaction is income, get cat_color & icon from income category table
             var incomeCategory = await DatabaseHelper.instance.getIncomeCategoryModel(transactionData[TransactionFields.income_cat_id]);
             if (incomeCategory != null) {
               transactionModel.cat_color = incomeCategory.color;
@@ -214,7 +214,7 @@ class DatabaseHelper {
               if (transactionData[TransactionFields.sub_income_cat_id] == -1) {
                 transactionModel.cat_name = incomeCategory.name;
               } else {
-                // If transaction's category is sub income category, get cat name from sub income category table
+                /// If transaction's category is sub income category, get cat name from sub income category table
                 var incomeSubCategory = await DatabaseHelper.instance.getIncomeSubCategoryModel(transactionData[TransactionFields.sub_income_cat_id]);
                 if (incomeSubCategory != null) {
                   transactionModel.cat_name = incomeSubCategory.name;
@@ -247,9 +247,9 @@ class DatabaseHelper {
           dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if ((category.isEmpty ||
-                value[TransactionFields.cat_name]
+                /*value[TransactionFields.cat_name]
                     .toLowerCase()
-                    .contains(category.toLowerCase()) ||
+                    .contains(category.toLowerCase()) ||*/
                 value[TransactionFields.description]
                     .toLowerCase()
                     .contains(category.toLowerCase()))) {
@@ -1514,6 +1514,30 @@ class DatabaseHelper {
 return completer.future;*/
   }
 
+  Future<ProfileModel?> getProfileDataFromFirebase(String key) async {
+    ProfileModel? profileData;
+    final reference =
+    FirebaseDatabase.instance.reference().child(profile_table).child(key);
+
+    Completer<ProfileModel?> completer = Completer();
+
+    reference.onValue.listen((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+        dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) {
+          profileData = ProfileModel.fromMap(value);
+          completer.complete(profileData);
+        });
+      } else {
+        completer.complete(null);
+      }
+    });
+
+    return completer.future;
+  }
+
   // A method that retrieves Profile Data from the Profile table.
   Future<List<ProfileModel>> getProfileDataList() async {
     Database db = await database;
@@ -1874,6 +1898,7 @@ return completer.future;*/
 
   // Update ProfileData
   Future<void> updateProfileData(ProfileModel profileModel) async {
+
     profileModel.updated_at = DateTime.now().toString();
     try {
       final db = await database;

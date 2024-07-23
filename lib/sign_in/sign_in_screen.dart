@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
 import '../budget/budget_screen.dart';
 import '../db_models/accounts_model.dart';
 import '../db_models/profile_model.dart';
@@ -351,7 +350,6 @@ class _SignInScreenState extends State<SignInScreen> {
                                       FirebaseAuth.instance.currentUser!.uid;
                                   t.account_key = key;
                                   await databaseHelper.updateTransaction(TransactionModel.fromOtherModel(t));
-
                                   final reference = FirebaseDatabase.instance
                                       .reference()
                                       .child(transaction_table)
@@ -362,7 +360,6 @@ class _SignInScreenState extends State<SignInScreen> {
                                   newPostRef.set(
                                     t.toMap(),
                                   );
-
                                   if (t.transaction_type ==
                                       AppConstanst.spendingTransaction) {
                                     totalSpending = totalSpending + t.amount!;
@@ -384,13 +381,11 @@ class _SignInScreenState extends State<SignInScreen> {
 
                               MySharedPreferences.instance.addStringToSF(
                                   SharedPreferencesKeys.currentAccountKey, key);
-
                               MySharedPreferences.instance.addStringToSF(
                                   SharedPreferencesKeys.userEmail, user.email);
                               MySharedPreferences.instance.addStringToSF(
                                   SharedPreferencesKeys.currentUserEmail,
                                   user.email);
-
                               MySharedPreferences.instance.addStringToSF(
                                   SharedPreferencesKeys.currentUserKey,
                                   FirebaseAuth.instance.currentUser!.uid);
@@ -413,7 +408,6 @@ class _SignInScreenState extends State<SignInScreen> {
                               MySharedPreferences.instance.addStringToSF(
                                   SharedPreferencesKeys.skippedUserActualBudget,
                                   "0");
-
                               Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(

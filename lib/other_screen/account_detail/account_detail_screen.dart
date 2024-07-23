@@ -17,7 +17,6 @@ import '../edit_account_detail/edit_account_detail_screen.dart';
 
 class AccountDetailScreen extends StatefulWidget {
   const AccountDetailScreen({super.key});
-
   @override
   State<AccountDetailScreen> createState() => _AccountDetailScreenState();
 }
@@ -403,7 +402,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                             Expanded(
                               child: Text(
                                 LocaleKeys.deleteAccount.tr,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 16, color: Colors.redAccent),
                               ),
                             ),

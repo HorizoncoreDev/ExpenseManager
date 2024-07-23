@@ -4,6 +4,7 @@ import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -36,7 +37,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
 
   bool emailIsValid = false;
   String shortName = "";
-  bool isLoading = true;
 
   ProfileModel? profileData;
   String actualBudget = "";
@@ -86,9 +86,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
           width: double.infinity,
           height: double.infinity,
           color: Helper.getBackgroundColor(context),
-          child: isLoading
-              ? Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
+          child: SingleChildScrollView(
                   child: Column(
                     children: [
                       15.heightBox,
@@ -290,7 +288,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                               ),
                               10.widthBox,
                               Text(
-                                dateOfBirth == "" ? "Select DOB" : dateOfBirth!,
+                                dateOfBirth == null ? "Select DOB" : dateOfBirth!,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Helper.getTextColor(context),
@@ -373,7 +371,6 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                       InkWell(
                         onTap: () {
                           updateProfileData();
-
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -404,8 +401,36 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   }
 
   Future<void> getProfileData() async {
-    try {
-      await Future.delayed(const Duration(seconds: 2));
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(profile_table).child(key);
+
+    reference.once().then((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+        dataSnapshot.value as Map<dynamic, dynamic>;
+
+          // key = profileData!.key!;
+          setState(() {
+            userCode = values['user_code'];
+            firstNameController.text = values['first_name'];
+            lastNameController.text = values['last_name'];
+            emailController.text = values['email'];
+            dateOfBirth = values['dob'];
+            currentBalance = values['current_balance'];
+            currentIncome = values['current_income'];
+            actualBudget = values['actual_budget'];
+            fcmToken = values['fcm_token'];
+            selectedValue = values['gender'] == "" ? 'Female' :values['gender'];
+        });
+        getShortName(values['first_name'], values['last_name']);
+      } else {
+        setState(() {
+        });
+      }
+    });
+   /* try {
       ProfileModel? fetchedProfileData =
           await databaseHelper.getProfileData(userEmail);
       setState(() {
@@ -430,7 +455,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
       setState(() {
         isLoading = false;
       });
-    }
+    }*/
   }
 
   String getShortName(String name, String name1) {
@@ -446,12 +471,19 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   @override
   void initState() {
     MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
         .then((value) {
-      if (value != null) {
-        userEmail = value;
-        getProfileData();
-      }
+          if(value != null){
+            key = value;
+            MySharedPreferences.instance
+                .getStringValuesSF(SharedPreferencesKeys.userEmail)
+                .then((value) {
+              if (value != null) {
+                userEmail = value;
+                getProfileData();
+              }
+            });
+          }
     });
     super.initState();
   }
