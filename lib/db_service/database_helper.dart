@@ -1514,29 +1514,29 @@ class DatabaseHelper {
 return completer.future;*/
   }
 
-  Future<ProfileModel?> getProfileDataFromFirebase(String key) async {
-    ProfileModel? profileData;
-    final reference =
-    FirebaseDatabase.instance.reference().child(profile_table).child(key);
-
-    Completer<ProfileModel?> completer = Completer();
-
-    reference.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-        dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) {
-          profileData = ProfileModel.fromMap(value);
-          completer.complete(profileData);
-        });
-      } else {
-        completer.complete(null);
-      }
-    });
-
-    return completer.future;
-  }
+  // Future<ProfileModel?> getProfileDataFromFirebase(String key) async {
+  //   ProfileModel? profileData;
+  //   final reference =
+  //   FirebaseDatabase.instance.reference().child(profile_table).child(key);
+  //
+  //   Completer<ProfileModel?> completer = Completer();
+  //
+  //   reference.onValue.listen((event) {
+  //     DataSnapshot dataSnapshot = event.snapshot;
+  //     if (event.snapshot.exists) {
+  //       Map<dynamic, dynamic> values =
+  //       dataSnapshot.value as Map<dynamic, dynamic>;
+  //       values.forEach((key, value) {
+  //         profileData = ProfileModel.fromMap(value);
+  //         completer.complete(profileData);
+  //       });
+  //     } else {
+  //       completer.complete(null);
+  //     }
+  //   });
+  //
+  //   return completer.future;
+  // }
 
   // A method that retrieves Profile Data from the Profile table.
   Future<List<ProfileModel>> getProfileDataList() async {
@@ -2087,8 +2087,6 @@ return completer.future;*/
       ${ProfileTableFields.lang_code} $textType,
       ${ProfileTableFields.currency_code} $textType,
       ${ProfileTableFields.currency_symbol} $textType,
-      ${ProfileTableFields.register_type} $integerType,
-      ${ProfileTableFields.register_otp} $textType,
       ${ProfileTableFields.created_at} $textType,
       ${ProfileTableFields.updated_at} $textType
       )

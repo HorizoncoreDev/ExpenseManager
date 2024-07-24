@@ -1,4 +1,5 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:expense_manager/db_models/accounts_model.dart';
 import 'package:expense_manager/other_screen/account_detail/account_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -44,6 +45,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   String currentBalance = '';
   String currentIncome = '';
   String key = '';
+  String accountKey = '';
   String userCode = '';
   String fcmToken = '';
 
@@ -371,10 +373,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                       InkWell(
                         onTap: () {
                           updateProfileData();
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AccountDetailScreen()));
+                          Navigator.of(context).pop(true);
                         },
                         child: Container(
                           width: double.infinity,
@@ -401,7 +400,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   }
 
   Future<void> getProfileData() async {
-    final reference = FirebaseDatabase.instance
+    /*final reference = FirebaseDatabase.instance
         .reference()
         .child(profile_table).child(key);
 
@@ -410,14 +409,12 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =
         dataSnapshot.value as Map<dynamic, dynamic>;
-
-          // key = profileData!.key!;
           setState(() {
             userCode = values['user_code'];
             firstNameController.text = values['first_name'];
             lastNameController.text = values['last_name'];
             emailController.text = values['email'];
-            dateOfBirth = values['dob'];
+            dateOfBirth = values['dob'] == "" ? 'Select Date': values['dob'];
             currentBalance = values['current_balance'];
             currentIncome = values['current_income'];
             actualBudget = values['actual_budget'];
@@ -429,8 +426,10 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         setState(() {
         });
       }
-    });
-   /* try {
+    });*/
+
+
+    try {
       ProfileModel? fetchedProfileData =
           await databaseHelper.getProfileData(userEmail);
       setState(() {
@@ -440,22 +439,20 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         firstNameController.text = profileData!.first_name!;
         lastNameController.text = profileData!.last_name!;
         emailController.text = profileData!.email!;
-        dateOfBirth = profileData!.dob!;
+        dateOfBirth = profileData!.dob== "" ? 'Select Date' : profileData!.dob ;
         currentBalance = profileData!.current_balance!;
         currentIncome = profileData!.current_income!;
         actualBudget = profileData!.actual_budget!;
         fcmToken = profileData!.fcm_token!;
         selectedValue =
             profileData!.gender == "" ? 'Female' : profileData!.gender!;
-        isLoading = false;
       });
       getShortName(profileData!.first_name!, profileData!.last_name!);
     } catch (error) {
       print('Error fetching Profile Data: $error');
       setState(() {
-        isLoading = false;
       });
-    }*/
+    }
   }
 
   String getShortName(String name, String name1) {
@@ -480,7 +477,14 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                 .then((value) {
               if (value != null) {
                 userEmail = value;
-                getProfileData();
+                MySharedPreferences.instance
+                    .getStringValuesSF(SharedPreferencesKeys.currentAccountKey)
+                    .then((value) {
+                  if (value != null) {
+                    accountKey = value;
+                  }
+                  getProfileData();
+                });
               }
             });
           }
@@ -503,11 +507,31 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         full_name: "${firstNameController.text} ${lastNameController.text}",
         profile_image: "",
         mobile_number: "",
+        created_at: DateTime.now().toString(),
         fcm_token: fcmToken,
         lang_code: Get.locale!.languageCode,
         currency_code: AppConstanst.currencyCode,
         currency_symbol: AppConstanst.currencySymbol);
     await databaseHelper.updateProfileData(profileModel);
+
+
+    AccountsModel accountsModel = AccountsModel(
+        key: accountKey,
+        balance: currentBalance,
+        income: currentIncome,
+        budget: actualBudget,
+        account_name: "${firstNameController.text} ${lastNameController.text}",
+        description: "",
+        account_status: 1,
+        owner_user_key: key,
+        created_at: DateTime.now().toString(),
+        balance_date: DateTime.now().toString(),
+        updated_at:DateTime.now().toString()
+    );
+    await databaseHelper.updateAccountData(accountsModel);
+
+    MySharedPreferences.instance.addStringToSF(SharedPreferencesKeys.userName,
+        "${firstNameController.text} ${lastNameController.text}");
 
     Helper.showToast("Profile update successful!");
     getProfileData();

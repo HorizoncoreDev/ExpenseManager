@@ -439,8 +439,8 @@ class _SignInScreenState extends State<SignInScreen> {
                             lang_code: languageCode,
                             currency_code: "",
                             currency_symbol: "",
-                            register_type: AppConstanst.gmailRegistration,
-                            register_otp: "",
+                            // register_type: AppConstanst.gmailRegistration,
+                            // register_otp: "",
                             created_at: DateTime.now().toString(),
                             updated_at: DateTime.now().toString());
 
@@ -637,8 +637,8 @@ class _SignInScreenState extends State<SignInScreen> {
                       lang_code: languageCode,
                       currency_code: "",
                       currency_symbol: "",
-                      register_type: AppConstanst.gmailRegistration,
-                      register_otp: "",
+                      // register_type: AppConstanst.gmailRegistration,
+                      // register_otp: "",
                       created_at: DateTime.now().toString(),
                       updated_at: DateTime.now().toString());
 

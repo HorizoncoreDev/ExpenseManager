@@ -68,7 +68,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => const EditAccountDetailScreen()),
-              );
+              ).then((value) {
+                if (value != null && value) {
+                  getProfileData();
+                }
+              });;
             },
             child: Container(
                 padding: const EdgeInsets.all(6),
@@ -456,7 +460,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
       });
     } catch (error) {
       Helper.hideLoading(context);
-      print('Error fetching Profile Data: $error');
+      print('Error fetching Profile  the Data: $error');
       setState(() {
         isLoading = false;
       });
