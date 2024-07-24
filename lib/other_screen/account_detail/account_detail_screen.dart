@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:expense_manager/budget/budget_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
@@ -19,7 +17,6 @@ import '../edit_account_detail/edit_account_detail_screen.dart';
 
 class AccountDetailScreen extends StatefulWidget {
   const AccountDetailScreen({super.key});
-
   @override
   State<AccountDetailScreen> createState() => _AccountDetailScreenState();
 }
@@ -42,7 +39,6 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
   bool isLoading = true;
 
   ProfileModel? profileData;
-  String key = '';
 
   String userEmail = '';
 
@@ -406,7 +402,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                             Expanded(
                               child: Text(
                                 LocaleKeys.deleteAccount.tr,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 16, color: Colors.redAccent),
                               ),
                             ),
@@ -445,10 +441,10 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   Future<void> getProfileData() async {
     try {
-      ProfileModel? fetchedProfileData = await databaseHelper.getProfileDataFromFirebase(key);
+      ProfileModel? fetchedProfileData =
+          await databaseHelper.getProfileData(userEmail);
       setState(() {
         profileData = fetchedProfileData;
-        key = profileData!.key!;
         fullName = "${profileData!.first_name!} ${profileData!.last_name!}";
         email = profileData!.email!;
         userCode = profileData!.user_code!;

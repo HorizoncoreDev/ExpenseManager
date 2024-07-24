@@ -190,8 +190,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                   onChanged: (value) {
                     if (value.isNotEmpty) {
-                      if (showYear != LocaleKeys.selectYear.tr &&
-                          selectedMonths.isNotEmpty) {
+                      if (showYear != LocaleKeys.selectYear.tr && selectedMonths.isNotEmpty) {
                         getFilteredData(value);
                       } else {
                         getTransactions(value);
@@ -599,6 +598,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             fontSize: 16),
                       ),
                     ),
+
+
                     InkWell(
                       onTap: () {
                         if (isFilterCleared) {

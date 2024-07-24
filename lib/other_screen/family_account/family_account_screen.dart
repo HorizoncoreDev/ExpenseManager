@@ -34,11 +34,6 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
   List<RequestModel?> accessRequestList = [];
   List<AccountsModel?> accountsList = [];
   int? selectedIndex = -1;
-  AccountsModel accountModel = AccountsModel();
-  int currentBalance = 0;
-  int currentIncome = 0;
-  int actualBudget = 0;
-  String currentUserKey = "";
 
   @override
   Widget build(BuildContext context) {
@@ -234,50 +229,49 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 20),
                               alignment: Alignment.centerRight,
-                              child:
-                                  const Icon(Icons.delete, color: Colors.white),
+                              child: const Icon(Icons.delete, color: Colors.white),
                             ),
                             confirmDismiss: (direction) async {
                               return await showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
-                                  if (userName !=
-                                      accountsList[index]!.account_name) {
-                                    return AlertDialog(
-                                      backgroundColor:
-                                          Helper.getCardColor(context),
-                                      title: Text(LocaleKeys.confirm.tr),
-                                      content: const Text(
-                                          "Are you sure to delete the account?"),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(false),
-                                          child: Text(LocaleKeys.cancel.tr),
-                                        ),
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(true),
-                                          child: Text(LocaleKeys.delete.tr),
-                                        ),
-                                      ],
-                                    );
-                                  } else {
-                                    return AlertDialog(
-                                      backgroundColor:
-                                          Helper.getCardColor(context),
-                                      title: const Text("Warning"),
-                                      content: const Text(
-                                          "You can not delete this account from here!!"),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(false),
-                                          child: Text(LocaleKeys.done.tr),
-                                        ),
-                                      ],
-                                    );
-                                  }
+                                  return userName != accountsList[index]!.account_name
+                                      ? AlertDialog(
+                                          backgroundColor:
+                                              Helper.getCardColor(context),
+                                          title: Text(LocaleKeys.confirm.tr),
+                                          content: const Text(
+                                              "Are you sure to delete the account?"),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(false),
+                                              child: Text(LocaleKeys.cancel.tr),
+                                            ),
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(true),
+                                              child: Text(LocaleKeys.delete.tr),
+                                            ),
+                                          ],
+                                        )
+                                      : AlertDialog(
+                                          backgroundColor:
+                                              Helper.getCardColor(context),
+                                          title: const Text("Warning"),
+                                          content: const Text(
+                                              "You can not delete this account from here!!"),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(false),
+                                              child: Text(LocaleKeys.done.tr),
+                                            ),
+                                          ],
+                                        );
                                 },
                               );
                             },
@@ -295,27 +289,20 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                             },
                             child: InkWell(
                               onTap: () {
-                                setState(() async {
+                                setState(() {
                                   selectedIndex = index;
                                   MySharedPreferences.instance.addIntToSF(
-                                    SharedPreferencesKeys.selectedAccountIndex,
-                                    selectedIndex,
-                                  );
-                                  MySharedPreferences.instance.addStringToSF(
-                                    SharedPreferencesKeys.currentUserName,
-                                    accountsList[index]!.account_name,
-                                  );
-                                  MySharedPreferences.instance.addStringToSF(
-                                    SharedPreferencesKeys.currentAccountKey,
-                                    accountsList[index]!.key,
-                                  );
+                                      SharedPreferencesKeys
+                                          .selectedAccountIndex,
+                                      selectedIndex);
                                 /*  MySharedPreferences.instance.addStringToSF(
-                                    SharedPreferencesKeys.currentUserKey,
-                                    accountsList[index]!.owner_user_key,
-                                  );*/
-
-                                  // Fetch account data for the selected account
-                                  //  fetchAccountData(accountsList[index]!.key!);
+                                      SharedPreferencesKeys
+                                          .currentUserName,
+                                      accountsList[index]!.account_name);
+                                  MySharedPreferences.instance.addStringToSF(
+                                      SharedPreferencesKeys
+                                          .currentAccountKey,
+                                      accountsList[index]!.key);*/
                                 });
                               },
                               child: Container(
@@ -344,24 +331,22 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                       child: Center(
                                         child: Text(
                                           Helper.getShortName(
-                                            account.account_name!
-                                                    .split(' ')
-                                                    .first ??
-                                                "",
-                                            account.account_name!
-                                                        .split(' ')
-                                                        .length >
-                                                    1
-                                                ? account.account_name!
-                                                    .split(' ')
-                                                    .last
-                                                : "",
-                                          ),
+                                              account.account_name!
+                                                      .split(' ')
+                                                      .first ??
+                                                  "",
+                                              account.account_name!
+                                                          .split(' ')
+                                                          .length >
+                                                      1
+                                                  ? account.account_name!
+                                                      .split(' ')
+                                                      .last
+                                                  : ""),
                                           style: const TextStyle(
-                                            color: Colors.blue,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                              color: Colors.blue,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),
@@ -377,14 +362,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                  /*  if (userName == accountsList[index]!.account_name!)
-                                      SvgPicture.asset(
-                                        'asset/images/ic_accept.svg',
-                                        color: Colors.green,
-                                        height: 24,
-                                        width: 24,
-                                      ),*/
-                                    if (selectedIndex == index)
+                                    if (userName == accountsList[index]!.account_name!)
                                       SvgPicture.asset(
                                         'asset/images/ic_accept.svg',
                                         color: Colors.green,
@@ -403,8 +381,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                                   account.account_name!,
                                               description: account.description!,
                                               budget: account.budget!,
-                                              balance_date:
-                                                  account.balance_date!,
+                                              balance_date: account.balance_date!,
                                               balance: account.balance!,
                                               income: account.income!,
                                               updateOnDate: account.updated_at!,
@@ -422,7 +399,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                                       },
                                       child: Icon(Icons.edit,
                                           color: Helper.getTextColor(context)),
-                                    ),
+                                    )
                                   ],
                                 ),
                               ),
@@ -437,7 +414,7 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                           );
                         },
                       ),
-                    ),
+                    )
 
                     ///Shared account code
                     /*  if (accessRequestList.isNotEmpty)
@@ -723,7 +700,6 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
                 ),
               ));
   }
-
   Future<void> getProfileData() async {
     try {
       ProfileModel? fetchedProfileData =
@@ -852,29 +828,6 @@ class _FamilyAccountScreenState extends State<FamilyAccountScreen> {
       }
     });
     super.initState();
-  }
-
-  void fetchAccountData(String currentAccountKey) {
-    final reference = FirebaseDatabase.instance
-        .reference()
-        .child(accounts_table)
-        .child(currentUserKey)
-        .orderByChild(AccountTableFields.key)
-        .equalTo(currentAccountKey);
-
-    reference.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) async {
-          accountModel = AccountsModel.fromMap(value);
-          currentBalance = int.parse(accountModel.balance!);
-          currentIncome = int.parse(accountModel.income!);
-          actualBudget = int.parse(accountModel.budget!);
-        });
-      }
-    });
   }
 
   void sendNotification(RequestModel requestModel, ProfileModel profileModel,

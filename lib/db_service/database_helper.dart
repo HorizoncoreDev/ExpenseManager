@@ -49,8 +49,6 @@ class DatabaseHelper {
     'December': 12,
   };
 
-  ProfileModel? profileData;
-
   factory DatabaseHelper() {
     _databaseHelper ??= DatabaseHelper._createInstance();
     return _databaseHelper!;
@@ -186,15 +184,15 @@ class DatabaseHelper {
         TransactionNewModel transactionModel =
             TransactionNewModel.fromMap(transactionData);
 
-        // Get payment method name from payment table
+        /// Get payment method name from payment table
         var paymentMethod = await DatabaseHelper.instance.getPaymentMethod(
             transactionData[TransactionFields.payment_method_id]);
         if (paymentMethod != null) {
           transactionModel.payment_method_name = paymentMethod.name;
 
+          /// If transaction is spending, get cat_color & icon from spending category table
           if (transactionData[TransactionFields.transaction_type] ==
               AppConstanst.spendingTransaction) {
-            // If transaction is spending, get cat_color & icon from spending category table
             var expenseCategory = await DatabaseHelper.instance
                 .getExpenseCategory(
                     transactionData[TransactionFields.expense_cat_id]);
@@ -205,7 +203,7 @@ class DatabaseHelper {
               if (transactionData[TransactionFields.sub_expense_cat_id] == -1) {
                 transactionModel.cat_name = expenseCategory.name;
               } else {
-                // If transaction's category is sub expense category, get cat name from sub expense category table
+                /// If transaction's category is sub expense category, get cat name from sub expense category table
                 var expenseSubCategory = await DatabaseHelper.instance
                     .getExpenseSubCategory(
                         transactionData[TransactionFields.sub_expense_cat_id]);
@@ -215,7 +213,7 @@ class DatabaseHelper {
               }
             }
           } else {
-            // If transaction is income, get cat_color & icon from income category table
+            /// If transaction is income, get cat_color & icon from income category table
             var incomeCategory = await DatabaseHelper.instance
                 .getIncomeCategoryModel(
                     transactionData[TransactionFields.income_cat_id]);
@@ -226,7 +224,7 @@ class DatabaseHelper {
               if (transactionData[TransactionFields.sub_income_cat_id] == -1) {
                 transactionModel.cat_name = incomeCategory.name;
               } else {
-                // If transaction's category is sub income category, get cat name from sub income category table
+                /// If transaction's category is sub income category, get cat name from sub income category table
                 var incomeSubCategory = await DatabaseHelper.instance
                     .getIncomeSubCategoryModel(
                         transactionData[TransactionFields.sub_income_cat_id]);
@@ -260,7 +258,7 @@ class DatabaseHelper {
               dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if ((category.isEmpty ||
-                /* value[TransactionFields.cat_name]
+                /*value[TransactionFields.cat_name]
                     .toLowerCase()
                     .contains(category.toLowerCase()) ||*/
                 value[TransactionFields.description]
@@ -1555,8 +1553,7 @@ class DatabaseHelper {
     } else {
       return null;
     }
-
-    /*final reference = FirebaseDatabase.instance
+    /* final reference = FirebaseDatabase.instance
         .reference()
         .child(profile_table)
         .orderByChild(ProfileTableFields.email)
@@ -1580,30 +1577,32 @@ class DatabaseHelper {
 return completer.future;*/
   }
 
-  Future<ProfileModel?> getProfileDataFromFirebase(String key) async {
-    final reference =
-    FirebaseDatabase.instance.reference().child(profile_table).child(key);
-
-    Completer<ProfileModel?> completer = Completer();
-
-    reference.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      if (event.snapshot.exists) {
-        Map<dynamic, dynamic> values =
-        dataSnapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) {
-          profileData = ProfileModel.fromMap(value);
-          completer.complete(profileData);
-        });
-      } else {
-        completer.complete(null);
-      }
-    });
-
-    return completer.future;
-  }
+  // Future<ProfileModel?> getProfileDataFromFirebase(String key) async {
+  //   ProfileModel? profileData;
+  //   final reference =
+  //   FirebaseDatabase.instance.reference().child(profile_table).child(key);
+  //
+  //   Completer<ProfileModel?> completer = Completer();
+  //
+  //   reference.onValue.listen((event) {
+  //     DataSnapshot dataSnapshot = event.snapshot;
+  //     if (event.snapshot.exists) {
+  //       Map<dynamic, dynamic> values =
+  //       dataSnapshot.value as Map<dynamic, dynamic>;
+  //       values.forEach((key, value) {
+  //         profileData = ProfileModel.fromMap(value);
+  //         completer.complete(profileData);
+  //       });
+  //     } else {
+  //       completer.complete(null);
+  //     }
+  //   });
+  //
+  //   return completer.future;
+  // }
 
   // A method that retrieves Profile Data from the Profile table.
+
   Future<List<ProfileModel>> getProfileDataList() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(profile_table);
@@ -1612,7 +1611,7 @@ return completer.future;*/
   }
 
   Future<ProfileModel?> getProfileDataUserCode(String userCode) async {
-    Database db = await database;
+    /*Database db = await database;
     final map = await db.rawQuery(
         "SELECT * FROM $profile_table WHERE ${ProfileTableFields.user_code} = ?",
         [userCode]);
@@ -1621,7 +1620,31 @@ return completer.future;*/
       return ProfileModel.fromJson(map.first);
     } else {
       return null;
-    }
+    }*/
+    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(profile_table)
+        .orderByChild(ProfileTableFields.user_code)
+        .equalTo(userCode);
+
+    Completer<ProfileModel?> completer = Completer<ProfileModel?>();
+    ProfileModel? profileModel;
+    reference.once().then((event) async {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) async {
+          profileModel = ProfileModel.fromMap(value);
+          completer.complete(profileModel);
+        });
+      } else {
+        completer.complete(null);
+      }
+    }).catchError((error) {
+      completer.completeError(error);
+    });
+    return completer.future;
   }
 
   /// A method that retrieves all the spending sub category from the spending sub table.
@@ -2125,8 +2148,6 @@ return completer.future;*/
       ${ProfileTableFields.lang_code} $textType,
       ${ProfileTableFields.currency_code} $textType,
       ${ProfileTableFields.currency_symbol} $textType,
-      ${ProfileTableFields.register_type} $integerType,
-      ${ProfileTableFields.register_otp} $textType,
       ${ProfileTableFields.created_at} $textType,
       ${ProfileTableFields.updated_at} $textType
       )

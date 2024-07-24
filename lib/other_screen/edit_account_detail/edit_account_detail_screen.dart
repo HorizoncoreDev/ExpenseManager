@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:expense_manager/other_screen/account_detail/account_detail_screen.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -128,7 +127,9 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                   keyboardType: TextInputType.text,
                   hintText: LocaleKeys.enterName.tr,
                   padding: 15,
-                  decoration: InputDecoration(counterText: ""),
+                  decoration: InputDecoration(
+                      counterText: ""
+                  ),
                   hintColor: Helper.getTextColor(context),
                   textStyle: const TextStyle(fontSize: 16),
                   borderRadius: BorderRadius.circular(10),
@@ -140,21 +141,21 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                   ),
                   suffixIcon: firstNameController.text.isNotEmpty
                       ? InkWell(
-                          onTap: () {
-                            setState(() {
-                              FocusScope.of(context).unfocus();
-                              firstNameController.clear();
-                            });
-                          },
-                          child: const Icon(
-                            Icons.cancel,
-                            color: Colors.grey,
-                          ))
+                      onTap: () {
+                        setState(() {
+                          FocusScope.of(context).unfocus();
+                          firstNameController.clear();
+                        });
+                      },
+                      child: const Icon(
+                        Icons.cancel,
+                        color: Colors.grey,
+                      ))
                       : 0.widthBox,
                   onChanged: (value) {
                     setState(() {
-                      getShortName(
-                          firstNameController.text, lastNameController.text);
+                      getShortName(firstNameController.text,
+                          lastNameController.text);
                     });
                   },
                   validator: (value) {
@@ -172,28 +173,30 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                   borderColor: Helper.getTextColor(context),
                   fillColor: Helper.getCardColor(context),
                   padding: 15,
-                  decoration: InputDecoration(counterText: ""),
+                  decoration: InputDecoration(
+                      counterText: ""
+                  ),
                   prefixIcon: const Icon(
                     Icons.person_2_outlined,
                     color: Colors.blue,
                   ),
                   suffixIcon: lastNameController.text.isNotEmpty
                       ? InkWell(
-                          onTap: () {
-                            setState(() {
-                              FocusScope.of(context).unfocus();
-                              lastNameController.clear();
-                            });
-                          },
-                          child: const Icon(
-                            Icons.cancel,
-                            color: Colors.grey,
-                          ))
+                      onTap: () {
+                        setState(() {
+                          FocusScope.of(context).unfocus();
+                          lastNameController.clear();
+                        });
+                      },
+                      child: const Icon(
+                        Icons.cancel,
+                        color: Colors.grey,
+                      ))
                       : 0.widthBox,
                   onChanged: (value) {
                     setState(() {
-                      getShortName(
-                          firstNameController.text, lastNameController.text);
+                      getShortName(firstNameController.text,
+                          lastNameController.text);
                     });
                   },
                   validator: (value) {
@@ -211,16 +214,18 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                   borderColor: Helper.getTextColor(context),
                   fillColor: Helper.getCardColor(context),
                   padding: 15,
-                  decoration: InputDecoration(counterText: ""),
+                  decoration: InputDecoration(
+                      counterText: ""
+                  ),
                   prefixIcon: const Icon(
                     Icons.email_outlined,
                     color: Colors.blue,
                   ),
                   suffixIcon: emailIsValid
                       ? const Icon(
-                          Icons.verified,
-                          color: Colors.green,
-                        )
+                    Icons.verified,
+                    color: Colors.green,
+                  )
                       : 0.widthBox,
                   onChanged: (value) {
                     setState(() {
@@ -247,7 +252,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                               textButtonTheme: TextButtonThemeData(
                                 style: TextButton.styleFrom(
                                   foregroundColor:
-                                      Colors.blue, // button text color
+                                  Colors.blue, // button text color
                                 ),
                               ),
                             ),
@@ -260,7 +265,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         lastDate: DateTime(2101));
                     if (pickedDate != null) {
                       String formattedDate =
-                          DateFormat("yMMMd").format(pickedDate);
+                      DateFormat("yMMMd").format(pickedDate);
                       dateOfBirth = formattedDate;
                       setState(() {});
                     }
@@ -283,7 +288,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         ),
                         10.widthBox,
                         Text(
-                          dateOfBirth ?? "Select DOB",
+                          dateOfBirth == null ? "Select DOB" : dateOfBirth!,
                           style: TextStyle(
                             fontSize: 14,
                             color: Helper.getTextColor(context),
@@ -298,43 +303,45 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                     width: double.maxFinite,
                     decoration: BoxDecoration(
                         color: Helper.getCardColor(context),
-                        border: Border.all(color: Helper.getTextColor(context)),
+                        border: Border.all(
+                            color: Helper.getTextColor(context)),
                         borderRadius: BorderRadius.circular(10)),
                     child: Row(
                       children: [
                         Expanded(
                             child: DropdownButtonHideUnderline(
-                          child: DropdownButton2(
-                            customButton: Container(
-                                color: Helper.getCardColor(context),
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 8),
-                                margin: const EdgeInsets.all(2.5),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      selectedValue == "Male"
-                                          ? Icons.male
-                                          : Icons.female,
-                                      color: Colors.blue,
-                                    ),
-                                    8.widthBox,
-                                    Expanded(
-                                      child: Text(selectedValue,
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Helper.getTextColor(
-                                                  context))),
-                                    ),
-                                    Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Helper.getTextColor(context),
-                                    )
-                                  ],
-                                )),
-                            items: dropdownItems
-                                .map((item) => DropdownMenuItem<String>(
+                              child: DropdownButton2(
+                                customButton: Container(
+                                    color: Helper.getCardColor(context),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 8),
+                                    margin: const EdgeInsets.all(2.5),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          selectedValue == "Male"
+                                              ? Icons.male
+                                              : Icons.female,
+                                          color: Colors.blue,
+                                        ),
+                                        8.widthBox,
+                                        Expanded(
+                                          child: Text(selectedValue,
+                                              textAlign: TextAlign.start,
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Helper.getTextColor(
+                                                      context))),
+                                        ),
+                                        Icon(
+                                          Icons.keyboard_arrow_down,
+                                          color: Helper.getTextColor(context),
+                                        )
+                                      ],
+                                    )),
+                                items: dropdownItems
+                                    .map((item) =>
+                                    DropdownMenuItem<String>(
                                       value: item,
                                       child: Text(item,
                                           textAlign: TextAlign.start,
@@ -343,24 +350,28 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                                               color: Helper.getTextColor(
                                                   context))),
                                     ))
-                                .toList(),
-                            dropdownStyleData: DropdownStyleData(
-                                decoration: BoxDecoration(
-                                    color: Helper.getCardColor(context),
-                                    borderRadius: BorderRadius.circular(8))),
-                            value: selectedValue,
-                            onChanged: (value) {
-                              setState(() {
-                                var val = value as String;
-                                selectedValue = val;
-                              });
-                            },
-                            isExpanded: true,
-                          ),
-                        )),
+                                    .toList(),
+                                dropdownStyleData: DropdownStyleData(
+                                    decoration: BoxDecoration(
+                                        color: Helper.getCardColor(context),
+                                        borderRadius:
+                                        BorderRadius.circular(8))),
+                                value: selectedValue,
+                                onChanged: (value) {
+                                  setState(() {
+                                    var val = value as String;
+                                    selectedValue = val;
+                                  });
+                                },
+                                isExpanded: true,
+                              ),
+                            )),
                       ],
                     )),
-                (MediaQuery.of(context).size.height / 5).heightBox,
+                (MediaQuery
+                    .of(context)
+                    .size
+                    .height / 5).heightBox,
                 InkWell(
                   onTap: () {
                     updateProfileData();
@@ -376,11 +387,13 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                         color: Helper.getCardColor(context),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(10))),
                     child: Text(
                       LocaleKeys.update.tr,
                       style: TextStyle(
-                          color: Helper.getTextColor(context), fontSize: 14),
+                          color: Helper.getTextColor(context),
+                          fontSize: 14),
                     ),
                   ),
                 ),
@@ -392,39 +405,71 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   }
 
   Future<void> getProfileData() async {
+/*    final reference = FirebaseDatabase.instance
+        .reference()
+        .child(profile_table).child(key);
+
+    reference.once().then((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> values =
+        dataSnapshot.value as Map<dynamic, dynamic>;
+
+        // key = profileData!.key!;
+        setState(() {
+          userCode = values['user_code'];
+          firstNameController.text = values['first_name'];
+          lastNameController.text = values['last_name'];
+          emailController.text = values['email'];
+          dateOfBirth = values['dob'];
+          currentBalance = values['current_balance'];
+          currentIncome = values['current_income'];
+          actualBudget = values['actual_budget'];
+          fcmToken = values['fcm_token'];
+          selectedValue = values['gender'] == "" ? 'Female' : values['gender'];
+        });
+        getShortName(values['first_name'], values['last_name']);
+      } else {
+        setState(() {});
+      }
+    });*/
+
     try {
-      ProfileModel? fetchedProfileData = await databaseHelper.getProfileDataFromFirebase(key);
+      ProfileModel? fetchedProfileData =
+      await databaseHelper.getProfileData(userEmail);
+
       setState(() {
         profileData = fetchedProfileData;
-        if (profileData != null) {
-          key = profileData!.key!;
-          userCode = profileData!.user_code!;
-          firstNameController.text = profileData!.first_name!;
-          lastNameController.text = profileData!.last_name!;
-          emailController.text = profileData!.email!;
-          dateOfBirth = profileData!.dob!;
-          currentBalance = profileData!.current_balance!;
-          currentIncome = profileData!.current_income!;
-          actualBudget = profileData!.actual_budget!;
-         fcmToken = profileData!.fcm_token!;
-          selectedValue =
-              profileData?.gender == "" ? 'Female' : profileData!.gender!;
-        }
+        key = profileData!.key!;
+        userCode = profileData!.user_code!;
+        firstNameController.text = profileData!.first_name!;
+        lastNameController.text = profileData!.last_name!;
+        emailController.text = profileData!.email!;
+        dateOfBirth = profileData!.dob!;
+        currentBalance = profileData!.current_balance!;
+        currentIncome = profileData!.current_income!;
+        actualBudget = profileData!.actual_budget!;
+        fcmToken = profileData!.fcm_token!;
+        selectedValue =
+        profileData!.gender == "" ? 'Female' : profileData!.gender!;
+
       });
-      if (profileData != null) {
-        getShortName(profileData!.first_name!, profileData!.last_name!);
-      }
+      getShortName(profileData!.first_name!, profileData!.last_name!);
     } catch (error) {
       print('Error fetching Profile Data: $error');
-      setState(() {});
+      setState(() {
+
+      });
     }
   }
 
-
-
   String getShortName(String name, String name1) {
-    String firstStr = name.split(" ").first;
-    String secondStr = name1.split(" ").first;
+    String firstStr = name
+        .split(" ")
+        .first;
+    String secondStr = name1
+        .split(" ")
+        .first;
 
     String firstChar = firstStr.substring(0, 1);
     String secondChar = secondStr.substring(0, 1);
@@ -435,11 +480,18 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   @override
   void initState() {
     MySharedPreferences.instance
-        .getStringValuesSF(SharedPreferencesKeys.userEmail)
+        .getStringValuesSF(SharedPreferencesKeys.currentUserKey)
         .then((value) {
       if (value != null) {
-        userEmail = value;
-        getProfileData();
+        key = value;
+        MySharedPreferences.instance
+            .getStringValuesSF(SharedPreferencesKeys.userEmail)
+            .then((value) {
+          if (value != null) {
+            userEmail = value;
+            getProfileData();
+          }
+        });
       }
     });
     super.initState();
@@ -463,12 +515,10 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         fcm_token: fcmToken,
         lang_code: Get.locale!.languageCode,
         currency_code: AppConstanst.currencyCode,
+        created_at:  DateTime.now().toString(),
         currency_symbol: AppConstanst.currencySymbol);
 
-    // Save to Firebase
     await databaseHelper.updateProfileData(profileModel);
-
-
 
     Helper.showToast("Profile update successful!");
     getProfileData();
@@ -476,8 +526,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
 
   bool validateEmail(String email) {
     RegExp emailRegex =
-        RegExp(r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$");
+    RegExp(r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$");
     return emailRegex.hasMatch(email);
   }
-
 }

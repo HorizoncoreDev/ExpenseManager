@@ -19,8 +19,8 @@ class ProfileModel {
   String? lang_code;
   String? currency_code;
   String? currency_symbol;
-  int? register_type;//(1=Gmail, 2=Facebook, 3=Mobile, 4=Email)
-  String? register_otp;
+ /* int? register_type;//(1=Gmail, 2=Facebook, 3=Mobile, 4=Email)
+  String? register_otp;*/
   String? created_at;
   String? updated_at;
 
@@ -44,8 +44,8 @@ class ProfileModel {
     this.lang_code,
     this.currency_code,
     this.currency_symbol,
-    this.register_type,
-    this.register_otp,
+   /* this.register_type,
+    this.register_otp,*/
     this.created_at,
     this.updated_at
   });
@@ -69,9 +69,9 @@ class ProfileModel {
         fcm_token: map['fcm_token'],
         lang_code: map['lang_code'],
         currency_code: map['currency_code'],
-        register_type: map['register_type'],
-        register_otp: map['register_otp'],
-        created_at: map['created_at'],
+       /* register_type: map['register_type'],
+        register_otp: map['register_otp'],*/
+        created_at: map['created_at'] ,
         updated_at: map['updated_at'],
         currency_symbol: map['currency_symbol']);
 
@@ -97,8 +97,8 @@ class ProfileModel {
       'lang_code': lang_code,
       'currency_code': currency_code,
       'currency_symbol': currency_symbol,
-      'register_type': register_type,
-      'register_otp': register_otp,
+      /*'register_type': register_type,
+      'register_otp': register_otp,*/
       'created_at': created_at,
       'updated_at': updated_at,
     };
@@ -123,8 +123,8 @@ class ProfileModel {
         lang_code: json[ProfileTableFields.lang_code] as String,
         currency_code: json[ProfileTableFields.currency_code] as String,
         currency_symbol: json[ProfileTableFields.currency_symbol] as String,
-        register_type: json[ProfileTableFields.register_type] as int,
-        register_otp: json[ProfileTableFields.register_otp] as String,
+     /*   register_type: json[ProfileTableFields.register_type] as int,
+        register_otp: json[ProfileTableFields.register_otp] as String,*/
         created_at: json[ProfileTableFields.created_at] as String,
         updated_at: json[ProfileTableFields.updated_at] as String,
       );
@@ -151,15 +151,15 @@ class ProfileTableFields {
     lang_code,
     currency_code,
     currency_symbol,
-    register_type,
-    register_otp,
+  /*  register_type,
+    register_otp,*/
     created_at,
     updated_at
   ];
 
    static const String user_id = 'user_id';
-   static const String register_type = 'register_type';
-   static const String register_otp = 'register_otp';
+  /* static const String register_type = 'register_type';
+   static const String register_otp = 'register_otp';*/
    static const String created_at = 'created_at';
    static const String updated_at = 'updated_at';
   static const String key = 'key';

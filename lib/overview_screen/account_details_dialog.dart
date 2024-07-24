@@ -28,7 +28,8 @@ class _AccountDetailsDialogState extends State<AccountDetailsDialog> {
   }
 
   Future<void> _fetchUserName() async {
-    userName = await MySharedPreferences.instance.getStringValuesSF(SharedPreferencesKeys.currentUserName) ?? '';
+    userName = await MySharedPreferences.instance
+        .getStringValuesSF(SharedPreferencesKeys.currentUserName) ?? '';
     setState(() {});
   }
 
