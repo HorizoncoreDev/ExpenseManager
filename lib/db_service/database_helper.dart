@@ -67,7 +67,7 @@ class DatabaseHelper {
   Future<List<ExpenseCategory>> categorys() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
-        await db.query(expense_category_table);
+    await db.query(expense_category_table);
     return List.generate(
         maps.length, (index) => ExpenseCategory.fromMap(maps[index]));
   }
@@ -116,7 +116,7 @@ class DatabaseHelper {
     );
     if (!isSkippedUser) {
       final reference =
-          FirebaseDatabase.instance.reference().child(transaction_table);
+      FirebaseDatabase.instance.ref().child(transaction_table);
       reference
           .child(userKey)
           .child(accountKey)
@@ -125,8 +125,7 @@ class DatabaseHelper {
     }
   }
 
-  Future<List<TransactionNewModel>> getTransactionList(
-      String category,
+  Future<List<TransactionNewModel>> getTransactionList(String category,
       String userKey,
       String accountKey,
       int transactionType,
@@ -172,17 +171,17 @@ class DatabaseHelper {
         }
       }
       query += ' ORDER BY ${TransactionFields.transaction_date} DESC';
-      print('object.  query...${query}');
-      print('object.  Arguments...${whereArgs}');
+      print('object.  query...$query');
+      print('object.  Arguments...$whereArgs');
       List<Map<String, dynamic>> result = await db.rawQuery(
         query,
         whereArgs,
       );
 
       List<Future<TransactionNewModel>> futureTransactionModels =
-          result.map((transactionData) async {
+      result.map((transactionData) async {
         TransactionNewModel transactionModel =
-            TransactionNewModel.fromMap(transactionData);
+        TransactionNewModel.fromMap(transactionData);
 
         /// Get payment method name from payment table
         var paymentMethod = await DatabaseHelper.instance.getPaymentMethod(
@@ -195,7 +194,7 @@ class DatabaseHelper {
               AppConstanst.spendingTransaction) {
             var expenseCategory = await DatabaseHelper.instance
                 .getExpenseCategory(
-                    transactionData[TransactionFields.expense_cat_id]);
+                transactionData[TransactionFields.expense_cat_id]);
             if (expenseCategory != null) {
               transactionModel.cat_color = expenseCategory.color;
               transactionModel.cat_icon = expenseCategory.icons;
@@ -206,7 +205,7 @@ class DatabaseHelper {
                 /// If transaction's category is sub expense category, get cat name from sub expense category table
                 var expenseSubCategory = await DatabaseHelper.instance
                     .getExpenseSubCategory(
-                        transactionData[TransactionFields.sub_expense_cat_id]);
+                    transactionData[TransactionFields.sub_expense_cat_id]);
                 if (expenseSubCategory != null) {
                   transactionModel.cat_name = expenseSubCategory.name;
                 }
@@ -216,7 +215,7 @@ class DatabaseHelper {
             /// If transaction is income, get cat_color & icon from income category table
             var incomeCategory = await DatabaseHelper.instance
                 .getIncomeCategoryModel(
-                    transactionData[TransactionFields.income_cat_id]);
+                transactionData[TransactionFields.income_cat_id]);
             if (incomeCategory != null) {
               transactionModel.cat_color = incomeCategory.color;
               transactionModel.cat_icon = incomeCategory.path;
@@ -227,7 +226,7 @@ class DatabaseHelper {
                 /// If transaction's category is sub income category, get cat name from sub income category table
                 var incomeSubCategory = await DatabaseHelper.instance
                     .getIncomeSubCategoryModel(
-                        transactionData[TransactionFields.sub_income_cat_id]);
+                    transactionData[TransactionFields.sub_income_cat_id]);
                 if (incomeSubCategory != null) {
                   transactionModel.cat_name = incomeSubCategory.name;
                 }
@@ -242,7 +241,7 @@ class DatabaseHelper {
       return await Future.wait(futureTransactionModels);
     } else {
       Completer<List<TransactionNewModel>> completer =
-          Completer<List<TransactionNewModel>>();
+      Completer<List<TransactionNewModel>>();
       List<TransactionNewModel> transactions = [];
       final reference = await FirebaseDatabase.instance
           .ref()
@@ -255,7 +254,7 @@ class DatabaseHelper {
         List<Future<void>> futures = [];
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if ((category.isEmpty ||
                 /*value[TransactionFields.cat_name]
@@ -269,7 +268,7 @@ class DatabaseHelper {
                     transactionType) {
                   futures.add(DatabaseHelper.instance
                       .getPaymentMethod(
-                          value[TransactionFields.payment_method_id])
+                      value[TransactionFields.payment_method_id])
                       .then((paymentMethod) async {
                     if (paymentMethod != null) {
                       var transactionModel = TransactionNewModel.fromMap(value);
@@ -279,7 +278,7 @@ class DatabaseHelper {
                         ///if transaction is spending get cat_color& icon from spending category table
                         await DatabaseHelper.instance
                             .getExpenseCategory(
-                                value[TransactionFields.expense_cat_id])
+                            value[TransactionFields.expense_cat_id])
                             .then((expenseCategory) async {
                           if (expenseCategory != null) {
                             transactionModel.cat_color = expenseCategory.color;
@@ -292,7 +291,7 @@ class DatabaseHelper {
                               ///if transaction's category is sub expense category then get cat name from sub expense category table
                               await DatabaseHelper.instance
                                   .getExpenseSubCategory(value[
-                                      TransactionFields.sub_expense_cat_id])
+                              TransactionFields.sub_expense_cat_id])
                                   .then((expenseSubCategory) {
                                 if (expenseSubCategory != null) {
                                   transactionModel.cat_name =
@@ -307,7 +306,7 @@ class DatabaseHelper {
                         ///if transaction is income get cat_color& icon from income category table
                         await DatabaseHelper.instance
                             .getIncomeCategoryModel(
-                                value[TransactionFields.income_cat_id])
+                            value[TransactionFields.income_cat_id])
                             .then((incomeCategory) async {
                           if (incomeCategory != null) {
                             transactionModel.cat_color = incomeCategory.color;
@@ -320,7 +319,7 @@ class DatabaseHelper {
                               ///if transaction's category is sub income category then get cat name from sub income category table
                               await DatabaseHelper.instance
                                   .getIncomeSubCategoryModel(value[
-                                      TransactionFields.sub_expense_cat_id])
+                              TransactionFields.sub_expense_cat_id])
                                   .then((incomeSubCategory) {
                                 if (incomeSubCategory != null) {
                                   transactionModel.cat_name =
@@ -338,7 +337,7 @@ class DatabaseHelper {
               } else {
                 futures.add(DatabaseHelper.instance
                     .getPaymentMethod(
-                        value[TransactionFields.payment_method_id])
+                    value[TransactionFields.payment_method_id])
                     .then((paymentMethod) async {
                   if (paymentMethod != null) {
                     var transactionModel = TransactionNewModel.fromMap(value);
@@ -348,7 +347,7 @@ class DatabaseHelper {
                       ///if transaction is spending get cat_color& icon from spending category table
                       await DatabaseHelper.instance
                           .getExpenseCategory(
-                              value[TransactionFields.expense_cat_id])
+                          value[TransactionFields.expense_cat_id])
                           .then((expenseCategory) async {
                         if (expenseCategory != null) {
                           transactionModel.cat_color = expenseCategory.color;
@@ -361,7 +360,7 @@ class DatabaseHelper {
                             ///if transaction's category is sub expense category then get cat name from sub expense category table
                             await DatabaseHelper.instance
                                 .getExpenseSubCategory(
-                                    value[TransactionFields.sub_expense_cat_id])
+                                value[TransactionFields.sub_expense_cat_id])
                                 .then((expenseSubCategory) {
                               if (expenseSubCategory != null) {
                                 transactionModel.cat_name =
@@ -376,7 +375,7 @@ class DatabaseHelper {
                       ///if transaction is income get cat_color& icon from income category table
                       await DatabaseHelper.instance
                           .getIncomeCategoryModel(
-                              value[TransactionFields.income_cat_id])
+                          value[TransactionFields.income_cat_id])
                           .then((incomeCategory) async {
                         if (incomeCategory != null) {
                           transactionModel.cat_color = incomeCategory.color;
@@ -389,7 +388,7 @@ class DatabaseHelper {
                             ///if transaction's category is sub income category then get cat name from sub income category table
                             await DatabaseHelper.instance
                                 .getIncomeSubCategoryModel(
-                                    value[TransactionFields.sub_expense_cat_id])
+                                value[TransactionFields.sub_expense_cat_id])
                                 .then((incomeSubCategory) {
                               if (incomeSubCategory != null) {
                                 transactionModel.cat_name =
@@ -447,9 +446,11 @@ class DatabaseHelper {
       }
 
       query +=
-          '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
+      '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
       query +=
-          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ?';
+      ' AND SUBSTR(${TransactionFields
+          .transaction_date}, 7, 4) = ? AND ${TransactionFields
+          .member_key} = ?';
       List<dynamic> whereArgs = [
         ...selectedMonthNumbers
             .map((month) => month.toString().padLeft(2, '0')),
@@ -459,14 +460,17 @@ class DatabaseHelper {
 
       if (expenseCatId != -1 || incomeCatId != -1) {
         query +=
-            ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+        ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields
+            .income_cat_id} = ?';
         whereArgs.add(expenseCatId);
         whereArgs.add(incomeCatId);
       }
 
       if (category.isNotEmpty) {
         query +=
-            ' AND ${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE';
+        ' AND ${TransactionFields
+            .cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields
+            .description} LIKE ? COLLATE NOCASE';
         whereArgs.add('%$category%');
         whereArgs.add('%$category%');
       }
@@ -482,12 +486,12 @@ class DatabaseHelper {
 
         return List.generate(result.length, (index) {
           TransactionNewModel transactionModel =
-              TransactionNewModel.fromMap(result[index]);
+          TransactionNewModel.fromMap(result[index]);
 
           ///get Payment method name from payment table
           DatabaseHelper.instance
               .getPaymentMethod(
-                  result[index][TransactionFields.payment_method_id])
+              result[index][TransactionFields.payment_method_id])
               .then((paymentMethod) {
             if (paymentMethod != null) {
               transactionModel.payment_method_name = paymentMethod.name;
@@ -496,7 +500,7 @@ class DatabaseHelper {
                 ///if transaction is spending get cat_color& icon from spending category table
                 DatabaseHelper.instance
                     .getExpenseCategory(
-                        result[index][TransactionFields.expense_cat_id])
+                    result[index][TransactionFields.expense_cat_id])
                     .then((expenseCategory) async {
                   if (expenseCategory != null) {
                     transactionModel.cat_color = expenseCategory.color;
@@ -507,7 +511,7 @@ class DatabaseHelper {
                       ///if transaction's category is sub expense category then get cat name from sub expense category table
                       await DatabaseHelper.instance
                           .getExpenseSubCategory(result[index]
-                              [TransactionFields.sub_expense_cat_id])
+                      [TransactionFields.sub_expense_cat_id])
                           .then((expenseSubCategory) {
                         if (expenseSubCategory != null) {
                           transactionModel.cat_name = expenseSubCategory.name;
@@ -520,7 +524,7 @@ class DatabaseHelper {
                 ///if transaction is income get cat_color& icon from income category table
                 DatabaseHelper.instance
                     .getIncomeCategoryModel(
-                        result[index][TransactionFields.income_cat_id])
+                    result[index][TransactionFields.income_cat_id])
                     .then((incomeCategory) async {
                   if (incomeCategory != null) {
                     transactionModel.cat_color = incomeCategory.color;
@@ -532,7 +536,7 @@ class DatabaseHelper {
                       ///if transaction's category is sub income category then get cat name from sub income category table
                       await DatabaseHelper.instance
                           .getIncomeSubCategoryModel(result[index]
-                              [TransactionFields.sub_income_cat_id])
+                      [TransactionFields.sub_income_cat_id])
                           .then((incomeSubCategory) {
                         if (incomeSubCategory != null) {
                           transactionModel.cat_name = incomeSubCategory.name;
@@ -552,10 +556,10 @@ class DatabaseHelper {
       }
     } else {
       Completer<List<TransactionNewModel>> completer =
-          Completer<List<TransactionNewModel>>();
+      Completer<List<TransactionNewModel>>();
       List<TransactionNewModel> transactions = [];
       final reference = await FirebaseDatabase.instance
-          .reference()
+          .ref()
           .child(transaction_table)
           .child(userKey)
           .child(accountKey);
@@ -569,15 +573,15 @@ class DatabaseHelper {
         List<Future<void>> futures = [];
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if (months.contains(value[TransactionFields.transaction_date]
-                    .substring(3, 5)) &&
+                .substring(3, 5)) &&
                 value[TransactionFields.transaction_date].substring(6, 10) ==
                     year) {
               if ((expenseCatId == -1 ||
-                      value[TransactionFields.expense_cat_id] ==
-                          expenseCatId) &&
+                  value[TransactionFields.expense_cat_id] ==
+                      expenseCatId) &&
                   (incomeCatId == -1 ||
                       value[TransactionFields.income_cat_id] == incomeCatId) &&
                   (category.isEmpty ||
@@ -589,7 +593,7 @@ class DatabaseHelper {
                           .contains(category.toLowerCase()))) {
                 futures.add(DatabaseHelper.instance
                     .getPaymentMethod(
-                        value[TransactionFields.payment_method_id])
+                    value[TransactionFields.payment_method_id])
                     .then((paymentMethod) async {
                   if (paymentMethod != null) {
                     var transactionModel = TransactionNewModel.fromMap(value);
@@ -599,7 +603,7 @@ class DatabaseHelper {
                       ///if transaction is spending get cat_color& icon from spending category table
                       await DatabaseHelper.instance
                           .getExpenseCategory(
-                              value[TransactionFields.expense_cat_id])
+                          value[TransactionFields.expense_cat_id])
                           .then((expenseCategory) async {
                         if (expenseCategory != null) {
                           transactionModel.cat_color = expenseCategory.color;
@@ -612,7 +616,7 @@ class DatabaseHelper {
                             ///if transaction's category is sub expense category then get cat name from sub expense category table
                             await DatabaseHelper.instance
                                 .getExpenseSubCategory(
-                                    value[TransactionFields.sub_expense_cat_id])
+                                value[TransactionFields.sub_expense_cat_id])
                                 .then((expenseSubCategory) {
                               if (expenseSubCategory != null) {
                                 transactionModel.cat_name =
@@ -627,7 +631,7 @@ class DatabaseHelper {
                       ///if transaction is income get cat_color& icon from income category table
                       await DatabaseHelper.instance
                           .getIncomeCategoryModel(
-                              value[TransactionFields.income_cat_id])
+                          value[TransactionFields.income_cat_id])
                           .then((incomeCategory) async {
                         if (incomeCategory != null) {
                           transactionModel.cat_color = incomeCategory.color;
@@ -640,7 +644,7 @@ class DatabaseHelper {
                             ///if transaction's category is sub income category then get cat name from sub income category table
                             await DatabaseHelper.instance
                                 .getIncomeSubCategoryModel(
-                                    value[TransactionFields.sub_expense_cat_id])
+                                value[TransactionFields.sub_expense_cat_id])
                                 .then((incomeSubCategory) {
                               if (incomeSubCategory != null) {
                                 transactionModel.cat_name =
@@ -697,9 +701,9 @@ class DatabaseHelper {
       );
 
       List<Future<TransactionNewModel>> futureTransactionModels =
-          result.map((transactionData) async {
+      result.map((transactionData) async {
         TransactionNewModel transactionModel =
-            TransactionNewModel.fromMap(transactionData);
+        TransactionNewModel.fromMap(transactionData);
 
         /// Get payment method name from payment table
         var paymentMethod = await DatabaseHelper.instance.getPaymentMethod(
@@ -712,7 +716,7 @@ class DatabaseHelper {
             /// If transaction is spending, get cat_color & icon from spending category table
             var expenseCategory = await DatabaseHelper.instance
                 .getExpenseCategory(
-                    transactionData[TransactionFields.expense_cat_id]);
+                transactionData[TransactionFields.expense_cat_id]);
             if (expenseCategory != null) {
               transactionModel.cat_color = expenseCategory.color;
               transactionModel.cat_icon = expenseCategory.icons;
@@ -723,7 +727,7 @@ class DatabaseHelper {
                 /// If transaction's category is sub expense category, get cat name from sub expense category table
                 var expenseSubCategory = await DatabaseHelper.instance
                     .getExpenseSubCategory(
-                        transactionData[TransactionFields.sub_expense_cat_id]);
+                    transactionData[TransactionFields.sub_expense_cat_id]);
                 if (expenseSubCategory != null) {
                   transactionModel.cat_name = expenseSubCategory.name;
                 }
@@ -733,7 +737,7 @@ class DatabaseHelper {
             /// If transaction is income, get cat_color & icon from income category table
             var incomeCategory = await DatabaseHelper.instance
                 .getIncomeCategoryModel(
-                    transactionData[TransactionFields.income_cat_id]);
+                transactionData[TransactionFields.income_cat_id]);
             if (incomeCategory != null) {
               transactionModel.cat_color = incomeCategory.color;
               transactionModel.cat_icon = incomeCategory.path;
@@ -744,7 +748,7 @@ class DatabaseHelper {
                 // If transaction's category is sub income category, get cat name from sub income category table
                 var incomeSubCategory = await DatabaseHelper.instance
                     .getIncomeSubCategoryModel(
-                        transactionData[TransactionFields.sub_income_cat_id]);
+                    transactionData[TransactionFields.sub_income_cat_id]);
                 if (incomeSubCategory != null) {
                   transactionModel.cat_name = incomeSubCategory.name;
                 }
@@ -759,7 +763,7 @@ class DatabaseHelper {
       return await Future.wait(futureTransactionModels);
     } else {
       Completer<List<TransactionNewModel>> completer =
-          Completer<List<TransactionNewModel>>();
+      Completer<List<TransactionNewModel>>();
       List<TransactionNewModel> transactions = [];
       final reference = await FirebaseDatabase.instance
           .ref()
@@ -774,7 +778,7 @@ class DatabaseHelper {
         List<Future<void>> futures = [];
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
 
           values.forEach((key, value) async {
             DateTime transactionDate = DateFormat('dd/MM/yyyy HH:mm')
@@ -793,7 +797,7 @@ class DatabaseHelper {
                     ///if transaction is spending get cat_color& icon from spending category table
                     await DatabaseHelper.instance
                         .getExpenseCategory(
-                            value[TransactionFields.expense_cat_id])
+                        value[TransactionFields.expense_cat_id])
                         .then((expenseCategory) async {
                       if (expenseCategory != null) {
                         transactionModel.cat_color = expenseCategory.color;
@@ -805,7 +809,7 @@ class DatabaseHelper {
                           ///if transaction's category is sub expense category then get cat name from sub expense category table
                           await DatabaseHelper.instance
                               .getExpenseSubCategory(
-                                  value[TransactionFields.sub_expense_cat_id])
+                              value[TransactionFields.sub_expense_cat_id])
                               .then((expenseSubCategory) {
                             if (expenseSubCategory != null) {
                               transactionModel.cat_name =
@@ -820,7 +824,7 @@ class DatabaseHelper {
                     ///if transaction is income get cat_color& icon from income category table
                     await DatabaseHelper.instance
                         .getIncomeCategoryModel(
-                            value[TransactionFields.income_cat_id])
+                        value[TransactionFields.income_cat_id])
                         .then((incomeCategory) async {
                       if (incomeCategory != null) {
                         transactionModel.cat_color = incomeCategory.color;
@@ -832,7 +836,7 @@ class DatabaseHelper {
                           ///if transaction's category is sub income category then get cat name from sub income category table
                           await DatabaseHelper.instance
                               .getIncomeSubCategoryModel(
-                                  value[TransactionFields.sub_expense_cat_id])
+                              value[TransactionFields.sub_expense_cat_id])
                               .then((incomeSubCategory) {
                             if (incomeSubCategory != null) {
                               transactionModel.cat_name =
@@ -880,7 +884,9 @@ class DatabaseHelper {
       }
 
       query +=
-          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ? AND ${TransactionFields.transaction_type} = ?';
+      ' AND SUBSTR(${TransactionFields
+          .transaction_date}, 7, 4) = ? AND ${TransactionFields
+          .member_key} = ? AND ${TransactionFields.transaction_type} = ?';
 
       List<dynamic> whereArgs = [
         if (selectedMonthNumber != null)
@@ -898,14 +904,17 @@ class DatabaseHelper {
         whereArgs.add(expenseCatId);
       } else if (expenseCatId != -1 && incomeCatId != -1) {
         query +=
-            ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+        ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields
+            .income_cat_id} = ?';
         whereArgs.add(expenseCatId);
         whereArgs.add(incomeCatId);
       }
 
       if (category.isNotEmpty) {
         query +=
-            ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
+        ' AND (${TransactionFields
+            .cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields
+            .description} LIKE ? COLLATE NOCASE)';
         whereArgs.add('%$category%');
         whereArgs.add('%$category%');
       }
@@ -919,9 +928,9 @@ class DatabaseHelper {
           whereArgs,
         );
         List<Future<TransactionNewModel>> futureTransactionModels =
-            result.map((transactionData) async {
+        result.map((transactionData) async {
           TransactionNewModel transactionModel =
-              TransactionNewModel.fromMap(transactionData);
+          TransactionNewModel.fromMap(transactionData);
 
           // Get payment method name from payment table
           var paymentMethod = await DatabaseHelper.instance.getPaymentMethod(
@@ -934,7 +943,7 @@ class DatabaseHelper {
               // If transaction is spending, get cat_color & icon from spending category table
               var expenseCategory = await DatabaseHelper.instance
                   .getExpenseCategory(
-                      transactionData[TransactionFields.expense_cat_id]);
+                  transactionData[TransactionFields.expense_cat_id]);
               if (expenseCategory != null) {
                 transactionModel.cat_color = expenseCategory.color;
                 transactionModel.cat_icon = expenseCategory.icons;
@@ -946,7 +955,7 @@ class DatabaseHelper {
                   // If transaction's category is sub expense category, get cat name from sub expense category table
                   var expenseSubCategory = await DatabaseHelper.instance
                       .getExpenseSubCategory(transactionData[
-                          TransactionFields.sub_expense_cat_id]);
+                  TransactionFields.sub_expense_cat_id]);
                   if (expenseSubCategory != null) {
                     transactionModel.cat_name = expenseSubCategory.name;
                   }
@@ -956,7 +965,7 @@ class DatabaseHelper {
               // If transaction is income, get cat_color & icon from income category table
               var incomeCategory = await DatabaseHelper.instance
                   .getIncomeCategoryModel(
-                      transactionData[TransactionFields.income_cat_id]);
+                  transactionData[TransactionFields.income_cat_id]);
               if (incomeCategory != null) {
                 transactionModel.cat_color = incomeCategory.color;
                 transactionModel.cat_icon = incomeCategory.path;
@@ -968,7 +977,7 @@ class DatabaseHelper {
                   // If transaction's category is sub income category, get cat name from sub income category table
                   var incomeSubCategory = await DatabaseHelper.instance
                       .getIncomeSubCategoryModel(
-                          transactionData[TransactionFields.sub_income_cat_id]);
+                      transactionData[TransactionFields.sub_income_cat_id]);
                   if (incomeSubCategory != null) {
                     transactionModel.cat_name = incomeSubCategory.name;
                   }
@@ -987,10 +996,10 @@ class DatabaseHelper {
       }
     } else {
       Completer<List<TransactionNewModel>> completer =
-          Completer<List<TransactionNewModel>>();
+      Completer<List<TransactionNewModel>>();
       List<TransactionNewModel> transactions = [];
-      final reference = await FirebaseDatabase.instance
-          .reference()
+      final reference = FirebaseDatabase.instance
+          .ref()
           .child(transaction_table)
           .child(userKey)
           .child(accountKey)
@@ -1004,10 +1013,10 @@ class DatabaseHelper {
         List<Future<void>> futures = [];
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if (selectedMonthNumber.toString().padLeft(2, '0') ==
-                    value[TransactionFields.transaction_date].substring(3, 5) &&
+                value[TransactionFields.transaction_date].substring(3, 5) &&
                 value[TransactionFields.transaction_date].substring(6, 10) ==
                     year &&
                 ((expenseCatId == -1 && incomeCatId == -1) ||
@@ -1035,7 +1044,7 @@ class DatabaseHelper {
                     ///if transaction is spending get cat_color& icon from spending category table
                     await DatabaseHelper.instance
                         .getExpenseCategory(
-                            value[TransactionFields.expense_cat_id])
+                        value[TransactionFields.expense_cat_id])
                         .then((expenseCategory) async {
                       if (expenseCategory != null) {
                         transactionModel.cat_color = expenseCategory.color;
@@ -1047,7 +1056,7 @@ class DatabaseHelper {
                           ///if transaction's category is sub expense category then get cat name from sub expense category table
                           await DatabaseHelper.instance
                               .getExpenseSubCategory(
-                                  value[TransactionFields.sub_expense_cat_id])
+                              value[TransactionFields.sub_expense_cat_id])
                               .then((expenseSubCategory) {
                             if (expenseSubCategory != null) {
                               transactionModel.cat_name =
@@ -1062,7 +1071,7 @@ class DatabaseHelper {
                     ///if transaction is income get cat_color& icon from income category table
                     await DatabaseHelper.instance
                         .getIncomeCategoryModel(
-                            value[TransactionFields.income_cat_id])
+                        value[TransactionFields.income_cat_id])
                         .then((incomeCategory) async {
                       if (incomeCategory != null) {
                         transactionModel.cat_color = incomeCategory.color;
@@ -1074,7 +1083,7 @@ class DatabaseHelper {
                           ///if transaction's category is sub income category then get cat name from sub income category table
                           await DatabaseHelper.instance
                               .getIncomeSubCategoryModel(
-                                  value[TransactionFields.sub_expense_cat_id])
+                              value[TransactionFields.sub_expense_cat_id])
                               .then((incomeSubCategory) {
                             if (incomeSubCategory != null) {
                               transactionModel.cat_name =
@@ -1132,9 +1141,11 @@ class DatabaseHelper {
       }
 
       query +=
-          '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
+      '(${conditions.join(' OR ')})'; // Combine conditions using OR operator
       query +=
-          ' AND SUBSTR(${TransactionFields.transaction_date}, 7, 4) = ? AND ${TransactionFields.member_key} = ? AND ${TransactionFields.transaction_type} = ?';
+      ' AND SUBSTR(${TransactionFields
+          .transaction_date}, 7, 4) = ? AND ${TransactionFields
+          .member_key} = ? AND ${TransactionFields.transaction_type} = ?';
 
       whereArgs = [
         ...selectedMonthNumbers
@@ -1152,14 +1163,17 @@ class DatabaseHelper {
         whereArgs.add(expenseCatId);
       } else if (expenseCatId != -1 && incomeCatId != -1) {
         query +=
-            ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields.income_cat_id} = ?';
+        ' AND ${TransactionFields.expense_cat_id} = ? AND ${TransactionFields
+            .income_cat_id} = ?';
         whereArgs.add(expenseCatId);
         whereArgs.add(incomeCatId);
       }
 
       if (category.isNotEmpty) {
         query +=
-            ' AND (${TransactionFields.cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields.description} LIKE ? COLLATE NOCASE)';
+        ' AND (${TransactionFields
+            .cat_name} LIKE ? COLLATE NOCASE OR ${TransactionFields
+            .description} LIKE ? COLLATE NOCASE)';
         whereArgs.add('%$category%');
         whereArgs.add('%$category%');
       }
@@ -1174,9 +1188,9 @@ class DatabaseHelper {
           whereArgs,
         );
         List<Future<TransactionNewModel>> futureTransactionModels =
-            result.map((transactionData) async {
+        result.map((transactionData) async {
           TransactionNewModel transactionModel =
-              TransactionNewModel.fromMap(transactionData);
+          TransactionNewModel.fromMap(transactionData);
 
           // Get payment method name from payment table
           var paymentMethod = await DatabaseHelper.instance.getPaymentMethod(
@@ -1189,7 +1203,7 @@ class DatabaseHelper {
               // If transaction is spending, get cat_color & icon from spending category table
               var expenseCategory = await DatabaseHelper.instance
                   .getExpenseCategory(
-                      transactionData[TransactionFields.expense_cat_id]);
+                  transactionData[TransactionFields.expense_cat_id]);
               if (expenseCategory != null) {
                 transactionModel.cat_color = expenseCategory.color;
                 transactionModel.cat_icon = expenseCategory.icons;
@@ -1201,7 +1215,7 @@ class DatabaseHelper {
                   // If transaction's category is sub expense category, get cat name from sub expense category table
                   var expenseSubCategory = await DatabaseHelper.instance
                       .getExpenseSubCategory(transactionData[
-                          TransactionFields.sub_expense_cat_id]);
+                  TransactionFields.sub_expense_cat_id]);
                   if (expenseSubCategory != null) {
                     transactionModel.cat_name = expenseSubCategory.name;
                   }
@@ -1211,7 +1225,7 @@ class DatabaseHelper {
               // If transaction is income, get cat_color & icon from income category table
               var incomeCategory = await DatabaseHelper.instance
                   .getIncomeCategoryModel(
-                      transactionData[TransactionFields.income_cat_id]);
+                  transactionData[TransactionFields.income_cat_id]);
               if (incomeCategory != null) {
                 transactionModel.cat_color = incomeCategory.color;
                 transactionModel.cat_icon = incomeCategory.path;
@@ -1223,7 +1237,7 @@ class DatabaseHelper {
                   // If transaction's category is sub income category, get cat name from sub income category table
                   var incomeSubCategory = await DatabaseHelper.instance
                       .getIncomeSubCategoryModel(
-                          transactionData[TransactionFields.sub_income_cat_id]);
+                      transactionData[TransactionFields.sub_income_cat_id]);
                   if (incomeSubCategory != null) {
                     transactionModel.cat_name = incomeSubCategory.name;
                   }
@@ -1242,10 +1256,10 @@ class DatabaseHelper {
       }
     } else {
       Completer<List<TransactionNewModel>> completer =
-          Completer<List<TransactionNewModel>>();
+      Completer<List<TransactionNewModel>>();
       List<TransactionNewModel> transactions = [];
       final reference = await FirebaseDatabase.instance
-          .reference()
+          .ref()
           .child(transaction_table)
           .child(userKey)
           .child(accountKey)
@@ -1260,7 +1274,7 @@ class DatabaseHelper {
         List<Future<void>> futures = [];
         if (value.snapshot.exists) {
           Map<dynamic, dynamic> values =
-              dataSnapshot.value as Map<dynamic, dynamic>;
+          dataSnapshot.value as Map<dynamic, dynamic>;
           values.forEach((key, value) async {
             if (months[0] == value['transaction_date'].substring(3, 5) &&
                 value[TransactionFields.transaction_date].substring(6, 10) ==
@@ -1290,7 +1304,7 @@ class DatabaseHelper {
                     ///if transaction is spending get cat_color& icon from spending category table
                     await DatabaseHelper.instance
                         .getExpenseCategory(
-                            value[TransactionFields.expense_cat_id])
+                        value[TransactionFields.expense_cat_id])
                         .then((expenseCategory) async {
                       if (expenseCategory != null) {
                         transactionModel.cat_color = expenseCategory.color;
@@ -1302,7 +1316,7 @@ class DatabaseHelper {
                           ///if transaction's category is sub expense category then get cat name from sub expense category table
                           await DatabaseHelper.instance
                               .getExpenseSubCategory(
-                                  value[TransactionFields.sub_expense_cat_id])
+                              value[TransactionFields.sub_expense_cat_id])
                               .then((expenseSubCategory) {
                             if (expenseSubCategory != null) {
                               transactionModel.cat_name =
@@ -1317,7 +1331,7 @@ class DatabaseHelper {
                     ///if transaction is income get cat_color& icon from income category table
                     await DatabaseHelper.instance
                         .getIncomeCategoryModel(
-                            value[TransactionFields.income_cat_id])
+                        value[TransactionFields.income_cat_id])
                         .then((incomeCategory) async {
                       if (incomeCategory != null) {
                         transactionModel.cat_color = incomeCategory.color;
@@ -1329,7 +1343,7 @@ class DatabaseHelper {
                           ///if transaction's category is sub income category then get cat name from sub income category table
                           await DatabaseHelper.instance
                               .getIncomeSubCategoryModel(
-                                  value[TransactionFields.sub_expense_cat_id])
+                              value[TransactionFields.sub_expense_cat_id])
                               .then((incomeSubCategory) {
                             if (incomeSubCategory != null) {
                               transactionModel.cat_name =
@@ -1414,8 +1428,8 @@ class DatabaseHelper {
     }
   }
 
-  Future<int> getCategoryID(
-      String categoryName, int categoryType, int transactionType) async {
+  Future<int> getCategoryID(String categoryName, int categoryType,
+      int transactionType) async {
     String tableName = "";
     String fetchingId = "";
     String fetchingName = "";
@@ -1460,7 +1474,7 @@ class DatabaseHelper {
   Future<List<IncomeCategory>> getIncomeCategory() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
-        await db.query(income_category_table);
+    await db.query(income_category_table);
     return List.generate(
         maps.length, (index) => IncomeCategory.fromMap(maps[index]));
   }
@@ -1480,7 +1494,8 @@ class DatabaseHelper {
   Future<PaymentMethod?> getPaymentMethod(int paymentId) async {
     Database db = await database;
     final map = await db.rawQuery(
-        "SELECT * FROM $payment_method_table WHERE ${PaymentMethodFields.id} = ?",
+        "SELECT * FROM $payment_method_table WHERE ${PaymentMethodFields
+            .id} = ?",
         [paymentId]);
 
     if (map.isNotEmpty) {
@@ -1493,7 +1508,8 @@ class DatabaseHelper {
   Future<ExpenseCategory?> getExpenseCategory(int categoryId) async {
     Database db = await database;
     final map = await db.rawQuery(
-        "SELECT * FROM $expense_category_table WHERE ${ExpenseCategoryField.id} = ?",
+        "SELECT * FROM $expense_category_table WHERE ${ExpenseCategoryField
+            .id} = ?",
         [categoryId]);
 
     if (map.isNotEmpty) {
@@ -1506,7 +1522,8 @@ class DatabaseHelper {
   Future<ExpenseSubCategory?> getExpenseSubCategory(int categoryId) async {
     Database db = await database;
     final map = await db.rawQuery(
-        "SELECT * FROM $spending_sub_category_table WHERE ${ExpenseSubCategoryFields.id} = ?",
+        "SELECT * FROM $spending_sub_category_table WHERE ${ExpenseSubCategoryFields
+            .id} = ?",
         [categoryId]);
 
     if (map.isNotEmpty) {
@@ -1532,7 +1549,8 @@ class DatabaseHelper {
   Future<IncomeSubCategory?> getIncomeSubCategoryModel(int categoryId) async {
     Database db = await database;
     final map = await db.rawQuery(
-        "SELECT * FROM $income_sub_category_table WHERE ${IncomeSubCategoryFields.id} = ?",
+        "SELECT * FROM $income_sub_category_table WHERE ${IncomeSubCategoryFields
+            .id} = ?",
         [categoryId]);
 
     if (map.isNotEmpty) {
@@ -1596,7 +1614,7 @@ return completer.future;*/
       return null;
     }*/
     final reference = FirebaseDatabase.instance
-        .reference()
+        .ref()
         .child(profile_table)
         .orderByChild(ProfileTableFields.user_code)
         .equalTo(userCode);
@@ -1607,7 +1625,7 @@ return completer.future;*/
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
+        dataSnapshot.value as Map<dynamic, dynamic>;
         values.forEach((key, value) async {
           profileModel = ProfileModel.fromMap(value);
           completer.complete(profileModel);
@@ -1659,7 +1677,7 @@ return completer.future;*/
 
     // Open/create the database at a given path
     var notesDatabase =
-        await openDatabase(path, version: 1, onCreate: _createDb);
+    await openDatabase(path, version: 1, onCreate: _createDb);
     return notesDatabase;
   }
 
@@ -1767,8 +1785,8 @@ return completer.future;*/
   }
 
   /// Insert Income Sub Category
-  Future<void> insertIncomeSubCategory(
-      int categoryId, IncomeSubCategory incomeSubCategory) async {
+  Future<void> insertIncomeSubCategory(int categoryId,
+      IncomeSubCategory incomeSubCategory) async {
     incomeSubCategory.categoryId = categoryId;
     Database db = await database;
     await db.insert(income_sub_category_table, incomeSubCategory.toMap());
@@ -1792,16 +1810,16 @@ return completer.future;*/
 
     if (!isProfileExistInFirebaseDb) {
       FirebaseDatabase.instance
-          .reference()
+          .ref()
           .child(profile_table)
           .child(FirebaseAuth.instance.currentUser!.uid)
           .set(
-            profileModel.toMap(),
-          );
+        profileModel.toMap(),
+      );
 
       if (accountModel != null) {
         final reference = FirebaseDatabase.instance
-            .reference()
+            .ref()
             .child(accounts_table)
             .child(FirebaseAuth.instance.currentUser!.uid);
         var newPostRef = reference.push();
@@ -1820,8 +1838,8 @@ return completer.future;*/
   }
 
   /// Insert Spending Sub Category
-  Future<void> insertSpendingSubCategory(
-      int categoryId, ExpenseSubCategory spendingSubCategory) async {
+  Future<void> insertSpendingSubCategory(int categoryId,
+      ExpenseSubCategory spendingSubCategory) async {
     spendingSubCategory.categoryId = categoryId;
     Database db = await database;
     await db.insert(spending_sub_category_table, spendingSubCategory.toMap());
@@ -1833,7 +1851,7 @@ return completer.future;*/
     Database db = await database;
     if (!isSkippedUser) {
       final reference = FirebaseDatabase.instance
-          .reference()
+          .ref()
           .child(transaction_table)
           .child(currentUserkey)
           .child(currentAccountKey);
@@ -1844,7 +1862,7 @@ return completer.future;*/
       );
     } else {
       final reference =
-          FirebaseDatabase.instance.reference().child(transaction_table);
+      FirebaseDatabase.instance.ref().child(transaction_table);
       var newPostRef = reference.push();
       transactionModel.key = newPostRef.key;
     }
@@ -1860,7 +1878,7 @@ return completer.future;*/
       transaction.key = key;
       if (!isSkippedUser) {
         final reference = FirebaseDatabase.instance
-            .reference()
+            .ref()
             .child(transaction_table)
             .child(key);
         var newPostRef = reference.push();
@@ -1870,7 +1888,7 @@ return completer.future;*/
         );
       } else {
         final reference =
-            FirebaseDatabase.instance.reference().child(transaction_table);
+        FirebaseDatabase.instance.ref().child(transaction_table);
         var newPostRef = reference.push();
         transaction.key = newPostRef.key;
       }
@@ -1892,7 +1910,7 @@ return completer.future;*/
   Future<List<PaymentMethod>> paymentMethods() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps =
-        await db.query(payment_method_table);
+    await db.query(payment_method_table);
     return List.generate(
         maps.length, (index) => PaymentMethod.fromMap(maps[index]));
   }
@@ -1960,7 +1978,8 @@ return completer.future;*/
       e.printError();
     }
     final Map<String, Map> updates = {};
-    updates['/$accounts_table/${accountsModel.owner_user_key}/${accountsModel.key}'] =
+    updates['/$accounts_table/${accountsModel.owner_user_key}/${accountsModel
+        .key}'] =
         accountsModel.toMap();
     FirebaseDatabase.instance.ref().update(updates);
   }
@@ -1986,7 +2005,8 @@ return completer.future;*/
     Database db = await database;
     if (!isSkippedUser) {
       final Map<String, Map> updates = {};
-      updates['/$transaction_table/$userKey/$accountKey/${transactionModel.key}'] =
+      updates['/$transaction_table/$userKey/$accountKey/${transactionModel
+          .key}'] =
           transactionModel.toMap();
       FirebaseDatabase.instance.ref().update(updates);
     }
@@ -2196,7 +2216,8 @@ return completer.future;*/
   Future<AccountsModel?> getAccountData(String accountKey) async {
     Database db = await database;
     final map = await db.rawQuery(
-        "SELECT * FROM $accounts_table WHERE ${AccountTableFields.owner_user_key} = ?",
+        "SELECT * FROM $accounts_table WHERE ${AccountTableFields
+            .owner_user_key} = ?",
         [accountKey]);
 
     if (map.isNotEmpty) {
@@ -2206,12 +2227,12 @@ return completer.future;*/
     }
   }
 
-  Future<void> insertAccountData(
-      AccountsModel accountsModel, bool isAccountExistInFirebaseDb) async {
+  Future<void> insertAccountData(AccountsModel accountsModel,
+      bool isAccountExistInFirebaseDb) async {
     Database db = await database;
     if (!isAccountExistInFirebaseDb) {
       final reference = FirebaseDatabase.instance
-          .reference()
+          .ref()
           .child(accounts_table)
           .child(FirebaseAuth.instance.currentUser!.uid);
       var newPostRef = reference.push();
@@ -2227,7 +2248,7 @@ return completer.future;*/
 
   Future<void> updateAddedAccountData(AccountsModel accountsModel) async {
     final reference = FirebaseDatabase.instance
-        .reference()
+        .ref()
         .child(accounts_table)
         .child(FirebaseAuth.instance.currentUser!.uid)
         .child(accountsModel.key!);
@@ -2280,10 +2301,10 @@ return completer.future;*/
     return accountsList;
   }*/
 
-  Future<void> deleteAddedAccountFromFirebase(
-      String ownKey, String accKey) async {
+  Future<void> deleteAddedAccountFromFirebase(String ownKey,
+      String accKey) async {
     final reference =
-        FirebaseDatabase.instance.reference().child(accounts_table);
+    FirebaseDatabase.instance.ref().child(accounts_table);
     reference.child(ownKey).child(accKey).remove();
   }
 
@@ -2292,7 +2313,7 @@ return completer.future;*/
     MultipleEmailModel multipleEmailModel = MultipleEmailModel();
     List<String> receiversName = [];
     List<ReceiverEmailData> receiverEmailList =
-        await getAccessEmails(userEmail);
+    await getAccessEmails(userEmail);
     for (var entry in receiverEmailList) {
       String recName = entry.receiverName.toString();
       receiversName.add(recName);
@@ -2340,10 +2361,10 @@ return completer.future;*/
   static Future<List<ReceiverEmailData>> getAccessEmails(
       String userEmail) async {
     Completer<List<ReceiverEmailData>> completer =
-        Completer<List<ReceiverEmailData>>();
+    Completer<List<ReceiverEmailData>>();
     List<ReceiverEmailData> receiverEmailList = [];
     final accessReference = FirebaseDatabase.instance
-        .reference()
+        .ref()
         .child(request_table)
         .orderByChild('requester_email')
         .equalTo(userEmail);
@@ -2352,13 +2373,13 @@ return completer.future;*/
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
         Map<dynamic, dynamic> values =
-            dataSnapshot.value as Map<dynamic, dynamic>;
+        dataSnapshot.value as Map<dynamic, dynamic>;
 
         List<Future<void>> futures = [];
 
         values.forEach((key, value) {
           var future = FirebaseDatabase.instance
-              .reference()
+              .ref()
               .child(profile_table)
               .orderByChild(ProfileTableFields.email)
               .equalTo(value['receiver_email'])
@@ -2367,12 +2388,12 @@ return completer.future;*/
             DataSnapshot dataSnapshot = event.snapshot;
             if (event.snapshot.exists) {
               Map<dynamic, dynamic> profileValues =
-                  dataSnapshot.value as Map<dynamic, dynamic>;
+              dataSnapshot.value as Map<dynamic, dynamic>;
 
               List<Future<void>> innerFutures = [];
               profileValues.forEach((profileKey, profileValue) {
                 innerFutures.add(FirebaseDatabase.instance
-                    .reference()
+                    .ref()
                     .child(transaction_table)
                     .child(profileKey)
                     .orderByChild(TransactionFields.account_key)
@@ -2383,7 +2404,7 @@ return completer.future;*/
                   DataSnapshot transactionSnapshot = transactionEvent.snapshot;
                   if (transactionSnapshot.value != null) {
                     Map<dynamic, dynamic> taskValues =
-                        transactionSnapshot.value as Map<dynamic, dynamic>;
+                    transactionSnapshot.value as Map<dynamic, dynamic>;
                     taskValues.forEach((taskKey, taskValue) {
                       transactionsEmail
                           .add(TransactionModel.fromMapForCSV(taskValue));
@@ -2417,10 +2438,10 @@ return completer.future;*/
   static Future<List<TransactionModel>> getFirebaseTasks(
       String userEmail) async {
     Completer<List<TransactionModel>> completer =
-        Completer<List<TransactionModel>>();
+    Completer<List<TransactionModel>>();
     List<TransactionModel> transactions = [];
     final reference = FirebaseDatabase.instance
-        .reference()
+        .ref()
         .child(transaction_table)
         .child(FirebaseAuth.instance.currentUser!.uid)
         .orderByChild(TransactionFields.account_key)
@@ -2439,7 +2460,7 @@ return completer.future;*/
   static Future<List<TransactionModel>> getTransactionsForEmail(
       String accountKey) async {
     Completer<List<TransactionModel>> completer =
-        Completer<List<TransactionModel>>();
+    Completer<List<TransactionModel>>();
     List<TransactionModel> transactions = [];
     final reference = FirebaseDatabase.instance
         .ref()
@@ -2450,7 +2471,7 @@ return completer.future;*/
     reference.once().then((event) {
       if (event.snapshot.exists) {
         Map<dynamic, dynamic>? values =
-            event.snapshot.value as Map<dynamic, dynamic>?;
+        event.snapshot.value as Map<dynamic, dynamic>?;
         if (values != null) {
           values.forEach((key, value) {
             transactions.add(TransactionModel.fromMap(value));
@@ -2465,3 +2486,5 @@ return completer.future;*/
     return completer.future;
   }
 }
+
+

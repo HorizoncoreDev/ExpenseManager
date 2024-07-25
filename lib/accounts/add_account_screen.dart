@@ -229,6 +229,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                       ),
                       5.heightBox,
                       CustomBoxTextFormField(
+                        readOnly: true,
                         controller: nameController,
                         keyboardType: TextInputType.text,
                         hintText: LocaleKeys.enterName.tr,
@@ -237,7 +238,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                         ),
                         padding: 15,
                         borderColor: Helper.getCardColor(context),
-                        hintColor: Helper.getTextColor(context),
+                         hintColor: Helper.getTextColor(context),
                         textStyle: const TextStyle(fontSize: 16),
                         borderRadius: BorderRadius.circular(6),
                         fillColor: Helper.getCardColor(context),
@@ -245,7 +246,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                           Icons.person_2_outlined,
                           color: Colors.blue,
                         ),
-                        suffixIcon: nameController.text.isNotEmpty
+                        /*suffixIcon: nameController.text.isNotEmpty
                             ? InkWell(
                             onTap: () {
                               setState(() {
@@ -257,7 +258,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                               Icons.cancel,
                               color: Colors.grey,
                             ))
-                            : 0.widthBox,
+                            : 0.widthBox,*/
                         onChanged: (value) {
                           setState(() {
 
@@ -268,7 +269,9 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                             return 'Please enter your name';
                           }
                           return null;
+
                         },
+
                       ),
                       20.heightBox,
                       Text("Description",

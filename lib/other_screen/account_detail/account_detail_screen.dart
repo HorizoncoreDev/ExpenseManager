@@ -17,6 +17,7 @@ import '../edit_account_detail/edit_account_detail_screen.dart';
 
 class AccountDetailScreen extends StatefulWidget {
   const AccountDetailScreen({super.key});
+
   @override
   State<AccountDetailScreen> createState() => _AccountDetailScreenState();
 }
@@ -68,7 +69,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => const EditAccountDetailScreen()),
-              );
+              ).then((value) {
+                if (value != null && value) {
+                  getProfileData();
+                }
+              });
             },
             child: Container(
                 padding: const EdgeInsets.all(6),

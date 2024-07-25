@@ -83,7 +83,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 child: InkWell(
                   onTap: () async {
                     await checkInternetConnectivity();
-                    },
+                  },
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
@@ -112,8 +112,6 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                 ),
               ),
-
-
 
               /*15.heightBox,
                         Padding(
@@ -216,7 +214,6 @@ class _SignInScreenState extends State<SignInScreen> {
       )),
     );
   }
-
 
   Future<void> checkInternetConnectivity() async {
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -349,7 +346,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                   t.member_key =
                                       FirebaseAuth.instance.currentUser!.uid;
                                   t.account_key = key;
-                                  await databaseHelper.updateTransaction(TransactionModel.fromOtherModel(t));
+                                  await databaseHelper.updateTransaction(
+                                      TransactionModel.fromOtherModel(t));
                                   final reference = FirebaseDatabase.instance
                                       .reference()
                                       .child(transaction_table)
@@ -439,7 +437,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             lang_code: languageCode,
                             currency_code: "",
                             currency_symbol: "",
-                           /* register_type: AppConstanst.gmailRegistration,
+                            /* register_type: AppConstanst.gmailRegistration,
                             register_otp: "",*/
                             created_at: DateTime.now().toString(),
                             updated_at: DateTime.now().toString());
@@ -466,7 +464,8 @@ class _SignInScreenState extends State<SignInScreen> {
                             for (var t in value) {
                               t.member_key = profileModel.key!;
                               t.account_key = accountKey;
-                              await databaseHelper.updateTransaction(TransactionModel.fromOtherModel(t));
+                              await databaseHelper.updateTransaction(
+                                  TransactionModel.fromOtherModel(t));
 
                               final reference = FirebaseDatabase.instance
                                   .reference()
@@ -637,7 +636,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       lang_code: languageCode,
                       currency_code: "",
                       currency_symbol: "",
-                     /* register_type: AppConstanst.gmailRegistration,
+                      /* register_type: AppConstanst.gmailRegistration,
                       register_otp: "",*/
                       created_at: DateTime.now().toString(),
                       updated_at: DateTime.now().toString());

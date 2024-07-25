@@ -153,7 +153,6 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     showSwitchAccountDialog(accessRequestList);
                                   });
 */
-
                                 },
                                 child: const Icon(
                                   Icons.switch_account,
@@ -614,7 +613,6 @@ class OverviewScreenState extends State<OverviewScreen> {
 
     super.initState();
   }
-
 
   ///Old one
   /*Future<void> getAccountsList() async {
