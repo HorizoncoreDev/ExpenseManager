@@ -72,7 +72,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                 if (value != null && value) {
                   getProfileData();
                 }
-              });;
+              });
             },
             child: Container(
                 padding: const EdgeInsets.all(6),
@@ -500,6 +500,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
           .addBoolToSF(SharedPreferencesKeys.isLogin, false);
 
       Get.offAll(SignInScreen());
+
       /* Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => const SignInScreen()));*/
     } catch (e) {

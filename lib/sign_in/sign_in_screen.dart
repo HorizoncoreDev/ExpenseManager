@@ -54,7 +54,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     20.heightBox,
                     Text(
                       LocaleKeys.smartExpense.tr,
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 26,
                           fontWeight: FontWeight.w500),
@@ -63,7 +63,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     Text(
                       LocaleKeys.loginText.tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                       ),

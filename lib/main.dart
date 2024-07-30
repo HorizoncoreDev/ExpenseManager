@@ -27,7 +27,7 @@ void main() async {
   bool isBudgetAdded = false;
   bool isSkippedUser = false;
   bool isLogin = false;
-  Locale currentLocale = Locale('en', 'US');
+  Locale currentLocale = const Locale('en', 'US');
   MySharedPreferences.instance
       .getBoolValuesSF(SharedPreferencesKeys.isLogin)
       .then((value) {

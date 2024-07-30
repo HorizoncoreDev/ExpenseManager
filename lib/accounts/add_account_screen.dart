@@ -229,12 +229,11 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                       ),
                       5.heightBox,
                       CustomBoxTextFormField(
+                        readOnly: widget.forEditAccount ? true : false,
                         controller: nameController,
                         keyboardType: TextInputType.text,
                         hintText: LocaleKeys.enterName.tr,
-                        decoration: InputDecoration(
-                            counterText: ""
-                        ),
+                        decoration: const InputDecoration(counterText : ""),
                         padding: 15,
                         borderColor: Helper.getCardColor(context),
                         hintColor: Helper.getTextColor(context),
@@ -253,14 +252,13 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                                 nameController.clear();
                               });
                             },
-                            child: const Icon(
+                            child: widget.forEditAccount == false? const Icon(
                               Icons.cancel,
                               color: Colors.grey,
-                            ))
+                            ): Container())
                             : 0.widthBox,
                         onChanged: (value) {
                           setState(() {
-
                           });
                         },
                         validator: (value) {
@@ -334,7 +332,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                                     bottomLeft: Radius.circular(5)),
                                 keyboardType: TextInputType.number,
                                 hintText: LocaleKeys.enterBudgetText.tr,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                     counterText: ""
                                 ),
                                 fillColor: Helper.getCardColor(context),

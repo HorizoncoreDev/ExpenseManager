@@ -182,8 +182,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     .push(
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          const OtherScreen()),
-                                )
+                                          const OtherScreen()),)
                                     .then((value) {
                                   widget.onAccountUpdate();
                                   MySharedPreferences.instance

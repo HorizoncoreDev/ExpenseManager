@@ -127,14 +127,15 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                       alignment: Alignment.center,
                                       child: Text(item,
                                           textAlign: TextAlign.center,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               fontSize: 14,
-                                              color: Colors.white)),
+                                              color: Helper.getTextColor(context))),
                                     ),
                                   ))
                               .toList(),
                           dropdownStyleData: DropdownStyleData(
                               decoration: BoxDecoration(
+
                                   color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.circular(8))),
                           value: selectedValue,
@@ -157,6 +158,21 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                               color: Colors.white,
                             ),
                           ),
+                          selectedItemBuilder: (BuildContext context) {
+                            return dropdownItems.map((item){
+                              return Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  item,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white, // Selected item text color
+                                  ),
+                                ),
+                              );
+                            }).toList();
+                          },
                         ),
                       )),
                 ),

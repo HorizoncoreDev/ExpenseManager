@@ -175,7 +175,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         borderColor: Helper.getTextColor(context),
                         fillColor: Helper.getCardColor(context),
                         padding: 15,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                             counterText: ""
                         ),
                         prefixIcon: const Icon(
@@ -216,7 +216,7 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
                         borderColor: Helper.getTextColor(context),
                         fillColor: Helper.getCardColor(context),
                         padding: 15,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                             counterText: ""
                         ),
                         prefixIcon: const Icon(

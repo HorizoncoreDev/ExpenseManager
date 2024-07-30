@@ -1551,7 +1551,6 @@ return completer.future;*/
     final map = await db.rawQuery(
         "SELECT * FROM $profile_table WHERE ${ProfileTableFields.user_code} = ?",
         [userCode]);
-
     if (map.isNotEmpty) {
       return ProfileModel.fromJson(map.first);
     } else {
@@ -1913,7 +1912,7 @@ return completer.future;*/
     FirebaseDatabase.instance.ref().update(updates);
   }
 
-  // Update AccountData
+  /// Update AccountData
   Future<void> updateAccountData(AccountsModel accountsModel) async {
     accountsModel.updated_at = DateTime.now().toString();
     try {

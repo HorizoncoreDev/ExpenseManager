@@ -82,7 +82,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   List<DateWiseTransactionModel> dateWiseIncomeTransaction = [];
   List<TransactionNewModel> spendingChartData = [];
   List<TransactionNewModel> incomeChartData = [];
-
   List<CommonCategoryModel> incomeCategoryList = [];
   List<CommonCategoryModel> spendingCategoryList = [];
   late int spendingSelectedCategory;
@@ -100,17 +99,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   bool isSkippedUser = false;
   bool isSpendingFilterCleared = false;
   bool isIncomeFilterCleared = false;
-
   List<Color> gradientColors = [
     Colors.cyan,
     Colors.blue,
   ];
-
   bool showAvg = false;
   int userAccess = AppConstanst.viewOnlyAccess;
   int currPage = 1;
   String mDate = "";
-
   int totalAmount = 0;
   int totalIncomeAmount = 0;
 
@@ -164,7 +160,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               return true;
                             },
                             child: Padding(
-                                padding: MediaQuery.of(context).viewInsets,
+                                padding: MediaQuery
+                                    .of(context)
+                                    .viewInsets,
                                 child: _bottomSheetView(setState)));
                       });
                     });
@@ -214,7 +212,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               20.heightBox,
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
@@ -230,7 +228,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 currPage = 1;
                               });
                               if (spendingShowYear !=
-                                      LocaleKeys.selectYear.tr &&
+                                  LocaleKeys.selectYear.tr &&
                                   spendingShowMonth !=
                                       LocaleKeys.selectMonth.tr) {
                                 getFilteredData();
@@ -240,7 +238,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             },
                             child: Container(
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
+                                const EdgeInsets.symmetric(vertical: 8),
                                 decoration: BoxDecoration(
                                     borderRadius: const BorderRadius.only(
                                         topLeft: Radius.circular(30),
@@ -280,7 +278,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             },
                             child: Container(
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
+                                const EdgeInsets.symmetric(vertical: 8),
                                 decoration: BoxDecoration(
                                     borderRadius: const BorderRadius.only(
                                         topRight: Radius.circular(30),
@@ -353,7 +351,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     return amount;
   }
 
-  Widget chartDataWidget(List<TransactionNewModel> spendingChartData, int type) {
+  Widget chartDataWidget(List<TransactionNewModel> spendingChartData,
+      int type) {
     DateTime now = DateTime.now();
 
     List<ChartData> chartData;
@@ -386,7 +385,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           plotAreaBackgroundColor: Colors.black,
           backgroundColor: Colors.transparent,
           plotAreaBackgroundImage:
-              const AssetImage('asset/images/ic_phone.png'),
+          const AssetImage('asset/images/ic_phone.png'),
           tooltipBehavior: TooltipBehavior(
               enable: true, header: type == 1 ? "Spending" : "Income"),
           primaryYAxis: NumericAxis(
@@ -470,11 +469,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     if (dateTime.year == today.year &&
         dateTime.month == today.month &&
         dateTime.day == today.day) {
-      return '${LocaleKeys.today.tr}, ${DateFormat('MM/dd/yyyy').format(dateTime)}';
+      return '${LocaleKeys.today.tr}, ${DateFormat('MM/dd/yyyy').format(
+          dateTime)}';
     } else if (dateTime.year == yesterday.year &&
         dateTime.month == yesterday.month &&
         dateTime.day == yesterday.day) {
-      return '${LocaleKeys.yesterday.tr}, ${DateFormat('MM/dd/yyyy').format(dateTime)}';
+      return '${LocaleKeys.yesterday.tr}, ${DateFormat('MM/dd/yyyy').format(
+          dateTime)}';
     } else {
       return DateFormat('MM/dd/yyyy').format(dateTime);
     }
@@ -485,7 +486,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
 
     List<ChartData> chartDataList = List.generate(daysInMonth,
-        (i) => ChartData(DateTime(month.year, month.month, i + 1), 0));
+            (i) => ChartData(DateTime(month.year, month.month, i + 1), 0));
 
     for (int i = 0; i < spendingChartData.length; i++) {
       TransactionNewModel transaction = spendingChartData[i];
@@ -524,17 +525,17 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       dateWiseIncomeTransaction = [];
       await DatabaseHelper.instance
           .fetchDataForYearMonthAndCategory(
-              incomeShowYear,
-              incomeShowMonth,
-              -1,
-              incomeSelectedCategoryIndex != -1
-                  ? incomeCategoryList[incomeSelectedCategoryIndex].catId!
-                  : -1,
-              currentUserKey,
-              currentAccountKey,
-              AppConstanst.incomeTransaction,
-              "",
-              isSkippedUser)
+          incomeShowYear,
+          incomeShowMonth,
+          -1,
+          incomeSelectedCategoryIndex != -1
+              ? incomeCategoryList[incomeSelectedCategoryIndex].catId!
+              : -1,
+          currentUserKey,
+          currentAccountKey,
+          AppConstanst.incomeTransaction,
+          "",
+          isSkippedUser)
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
@@ -550,17 +551,17 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
       await DatabaseHelper.instance
           .fetchDataForYearMonthAndCategory(
-              spendingShowYear,
-              spendingShowMonth,
-              spendingSelectedCategoryIndex != -1
-                  ? spendingCategoryList[spendingSelectedCategoryIndex].catId!
-                  : -1,
-              -1,
-              currentUserKey,
-              currentAccountKey,
-              AppConstanst.spendingTransaction,
-              "",
-              isSkippedUser)
+          spendingShowYear,
+          spendingShowMonth,
+          spendingSelectedCategoryIndex != -1
+              ? spendingCategoryList[spendingSelectedCategoryIndex].catId!
+              : -1,
+          -1,
+          currentUserKey,
+          currentAccountKey,
+          AppConstanst.spendingTransaction,
+          "",
+          isSkippedUser)
           .then((value) {
         setState(() {
           if (value.isNotEmpty) {
@@ -578,7 +579,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     dateWiseIncomeTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForCurrentMonth(AppConstanst.incomeTransaction,
-            currentUserKey, currentAccountKey, isSkippedUser)
+        currentUserKey, currentAccountKey, isSkippedUser)
         .then((value) {
       parseIncomeList(value);
     });
@@ -604,7 +605,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     dateWiseSpendingTransaction = [];
     await DatabaseHelper.instance
         .fetchDataForCurrentMonth(AppConstanst.spendingTransaction,
-            currentUserKey, currentAccountKey, isSkippedUser)
+        currentUserKey, currentAccountKey, isSkippedUser)
         .then((value) {
       parseSpendingList(value);
     });
@@ -623,35 +624,38 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             .then((value) {
           if (value != null) {
             currentUserKey = value;
-        MySharedPreferences.instance
-            .getStringValuesSF(SharedPreferencesKeys.currentAccountKey)
-            .then((value) {
-          if (value != null) {
-            currentAccountKey = value;
             MySharedPreferences.instance
-                .getStringValuesSF(SharedPreferencesKeys.userEmail)
+                .getStringValuesSF(SharedPreferencesKeys.currentAccountKey)
                 .then((value) {
               if (value != null) {
-                userEmail = value;
+                currentAccountKey = value;
                 MySharedPreferences.instance
-                    .getStringValuesSF(SharedPreferencesKeys.currentUserEmail)
+                    .getStringValuesSF(SharedPreferencesKeys.userEmail)
                     .then((value) {
                   if (value != null) {
-                    currentUserEmail = value;
+                    userEmail = value;
                     MySharedPreferences.instance
-                        .getIntValuesSF(SharedPreferencesKeys.userAccessType)
+                        .getStringValuesSF(
+                        SharedPreferencesKeys.currentUserEmail)
                         .then((value) {
                       if (value != null) {
-                        userAccess = value;
+                        currentUserEmail = value;
+                        MySharedPreferences.instance
+                            .getIntValuesSF(
+                            SharedPreferencesKeys.userAccessType)
+                            .then((value) {
+                          if (value != null) {
+                            userAccess = value;
+                          }
+                        });
+                        getTransactions();
                       }
                     });
-                    getTransactions();
                   }
                 });
               }
             });
           }
-        });}
         });
       }
     });
@@ -683,14 +687,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         DateFormat format = DateFormat("dd/MM/yyyy");
         DateTime parsedDate = format.parse(t.transaction_date!);
         String transactionMonthYear =
-            DateFormat('MMMM/yyyy').format(parsedDate);
+        DateFormat('MMMM/yyyy').format(parsedDate);
 
         if (date == transactionMonthYear) {
           newTransaction.add(t);
           totalAmount = totalAmount + t.amount!;
         } else {
           DateWiseTransactionModel? found =
-              dateWiseIncomeTransaction.firstWhereOrNull((element) {
+          dateWiseIncomeTransaction.firstWhereOrNull((element) {
             return element.transactionDate! == date;
           });
           if (found == null) {
@@ -732,14 +736,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         DateFormat format = DateFormat("dd/MM/yyyy");
         DateTime parsedDate = format.parse(t.transaction_date!);
         String transactionMonthYear =
-            DateFormat('MMMM/yyyy').format(parsedDate);
+        DateFormat('MMMM/yyyy').format(parsedDate);
 
         if (date == transactionMonthYear) {
           newTransaction.add(t);
           totalAmount = totalAmount + t.amount!;
         } else {
           DateWiseTransactionModel? found =
-              dateWiseSpendingTransaction.firstWhereOrNull((element) {
+          dateWiseSpendingTransaction.firstWhereOrNull((element) {
             return element.transactionDate! == date;
           });
           if (found == null) {
@@ -766,83 +770,83 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           return AlertDialog(
             title: Text(LocaleKeys.selectMonth.tr),
             contentPadding:
-                const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+            const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
             content: SizedBox(
               width: double.maxFinite,
               child: ListView(
-                shrinkWrap: true,
-                children: [
-                  GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 10.0,
-                      mainAxisSpacing: 10.0,
-                      childAspectRatio: 2.2 / 1,
-                    ),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: currPage == 1
-                        ? spendingMonthList.length
-                        : incomeMonthList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return InkWell(
-                        onTap: () {
-                          setState1(() {
-                            if (currPage == 1) {
-                              if (spendingSelectedMonthIndex != -1) {
-                                spendingMonthList[spendingSelectedMonthIndex]
-                                    .isSelected = false;
-                              }
-                              spendingMonthList[index].isSelected = true;
-                              spendingSelectedMonthIndex = index;
-                              spendingShowMonth = spendingMonthList[index].text;
-                              setState(() {});
-                              Navigator.pop(context);
-                              //spendingMonthList[index].isSelected = !spendingMonthList[index].isSelected;
-                            } else {
-                              if (incomeSelectedMonthIndex != -1) {
-                                incomeMonthList[incomeSelectedMonthIndex]
-                                    .isSelected = false;
-                              }
-                              incomeMonthList[index].isSelected = true;
-                              incomeSelectedMonthIndex = index;
-                              incomeShowMonth = incomeMonthList[index].text;
-                              setState(() {});
-                              Navigator.pop(context);
-                              //incomeMonthList[index].isSelected = !incomeMonthList[index].isSelected;
-                            }
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: currPage == 1
-                                  ? spendingMonthList[index].isSelected
-                                      ? Colors.blue
-                                      : Colors.transparent
-                                  : incomeMonthList[index].isSelected
-                                      ? Colors.blue
-                                      : Colors.transparent,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
-                          child: Text(
-                            currPage == 1
-                                ? spendingMonthList[index].text
-                                : incomeMonthList[index].text,
-                            style: TextStyle(
-                                color: Helper.getTextColor(context),
-                                fontSize: 14),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+              shrinkWrap: true,
+              children: [
+              GridView.builder(
+              gridDelegate:
+              const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 10.0,
+              mainAxisSpacing: 10.0,
+              childAspectRatio: 2.2 / 1,
               ),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: currPage == 1
+                  ? spendingMonthList.length
+                  : incomeMonthList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                  onTap: () {
+                    setState1(() {
+                      if (currPage == 1) {
+                        if (spendingSelectedMonthIndex != -1) {
+                          spendingMonthList[spendingSelectedMonthIndex]
+                              .isSelected = false;
+                        }
+                        spendingMonthList[index].isSelected = true;
+                        spendingSelectedMonthIndex = index;
+                        spendingShowMonth = spendingMonthList[index].text;
+                        setState(() {});
+                        Navigator.pop(context);
+                        //spendingMonthList[index].isSelected = !spendingMonthList[index].isSelected;
+                      } else {
+                        if (incomeSelectedMonthIndex != -1) {
+                          incomeMonthList[incomeSelectedMonthIndex]
+                              .isSelected = false;
+                        }
+                        incomeMonthList[index].isSelected = true;
+                        incomeSelectedMonthIndex = index;
+                        incomeShowMonth = incomeMonthList[index].text;
+                        setState(() {});
+                        Navigator.pop(context);
+                        //incomeMonthList[index].isSelected = !incomeMonthList[index].isSelected;
+                      }
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: currPage == 1
+                            ? spendingMonthList[index].isSelected
+                            ? Colors.blue
+                            : Colors.transparent
+                            : incomeMonthList[index].isSelected
+                            ? Colors.blue
+                            : Colors.transparent,
+                        borderRadius:
+                        const BorderRadius.all(Radius.circular(5))),
+                    child: Text(
+                      currPage == 1
+                          ? spendingMonthList[index].text
+                          : incomeMonthList[index].text,
+                      style: TextStyle(
+                          color: Helper.getTextColor(context),
+                          fontSize: 14),
+                    ),
+                  ),
+                );
+              },
             ),
-            /*actions: [
+            ],
+          ),)
+          ,
+          /*actions: [
               InkWell(
                 onTap: () {
                   setState(() {
@@ -894,12 +898,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             width: 300,
             height: 300,
             child: YearPicker(
-              firstDate: DateTime(DateTime.now().year - 10, 1),
+              firstDate: DateTime(DateTime
+                  .now()
+                  .year - 10, 1),
               lastDate: DateTime.now(),
               //lastDate: DateTime(2025),
               initialDate: DateTime.now(),
               selectedDate:
-                  currPage == 1 ? _spendingSelectedYear : _incomeSelectedYear,
+              currPage == 1 ? _spendingSelectedYear : _incomeSelectedYear,
               onChanged: (DateTime dateTime) {
                 print(dateTime.year);
                 setState(() {
@@ -969,7 +975,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               Navigator.pop(context);
                               getFilteredData();
                             } else if (spendingShowYear ==
-                                    LocaleKeys.selectYear.tr ||
+                                LocaleKeys.selectYear.tr ||
                                 spendingShowMonth ==
                                     LocaleKeys.selectMonth.tr) {
                               Helper.showToast(
@@ -991,7 +997,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               Navigator.pop(context);
                               getFilteredData();
                             } else if (incomeShowYear ==
-                                    LocaleKeys.selectYear.tr ||
+                                LocaleKeys.selectYear.tr ||
                                 incomeShowMonth == LocaleKeys.selectMonth.tr) {
                               Helper.showToast(
                                   LocaleKeys.selectMonthOrYearText.tr);
@@ -1020,7 +1026,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1054,7 +1060,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           decoration: const BoxDecoration(
                               color: Colors.blue,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
+                              BorderRadius.all(Radius.circular(5))),
                           child: Text(
                             currPage == 1 ? spendingShowYear : incomeShowYear,
                             style: const TextStyle(
@@ -1074,7 +1080,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             decoration: const BoxDecoration(
                                 color: Colors.blue,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
+                                BorderRadius.all(Radius.circular(5))),
                             child: Text(
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
@@ -1092,7 +1098,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   )),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                 child: Text(
                   LocaleKeys.category.tr,
                   style: TextStyle(
@@ -1104,7 +1110,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: GridView.builder(
                     gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 4,
                       crossAxisSpacing: 10.0,
                       mainAxisSpacing: 10.0,
@@ -1119,15 +1125,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           setState(() {
                             if (spendingSelectedCategoryIndex != -1) {
                               spendingCategoryList[
-                                      spendingSelectedCategoryIndex]
+                              spendingSelectedCategoryIndex]
                                   .isSelected = false;
                             }
                             spendingCategoryList[index].isSelected = true;
                             spendingSelectedCategoryIndex = index;
                             spendingSelectedCategory =
-                                spendingCategoryList[index].catId!;
+                            spendingCategoryList[index].catId!;
                             spendingSelectedCategoryName =
-                                spendingCategoryList[index].catName!;
+                            spendingCategoryList[index].catName!;
                           });
                         },
                         child: Container(
@@ -1138,7 +1144,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                   ? Colors.blue
                                   : Helper.getCardColor(context),
                               borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
+                              const BorderRadius.all(Radius.circular(5))),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 5),
                             child: Text(
@@ -1160,7 +1166,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: GridView.builder(
                     gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 4,
                       crossAxisSpacing: 10.0,
                       mainAxisSpacing: 10.0,
@@ -1180,9 +1186,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             incomeCategoryList[index].isSelected = true;
                             incomeSelectedCategoryIndex = index;
                             incomeSelectedCategory =
-                                incomeCategoryList[index].catId!;
+                            incomeCategoryList[index].catId!;
                             incomeSelectedCategoryName =
-                                incomeCategoryList[index].catName!;
+                            incomeCategoryList[index].catName!;
                           });
                         },
                         child: Container(
@@ -1193,7 +1199,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                   ? Colors.blue
                                   : Helper.getCardColor(context),
                               borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
+                              const BorderRadius.all(Radius.circular(5))),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 5),
                             child: Text(
@@ -1218,10 +1224,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   Widget _incomeView() {
     bool currentEmail = userEmail.isNotEmpty
         ? userEmail == currentUserEmail
-            ? true
-            : userAccess == AppConstanst.editAccess
-                ? true
-                : false
+        ? true
+        : userAccess == AppConstanst.editAccess
+        ? true
+        : false
         : true;
     return SingleChildScrollView(
       child: Column(
@@ -1261,7 +1267,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 color: Colors.grey, fontSize: 14),
                           ),
                           Text(
-                            "+${AppConstanst.currencySymbol}${dateWiseIncomeTransaction[index].transactionTotal}",
+                            "+${AppConstanst
+                                .currencySymbol}${dateWiseIncomeTransaction[index]
+                                .transactionTotal}",
                             style: const TextStyle(
                                 color: Colors.green, fontSize: 14),
                           ),
@@ -1301,7 +1309,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                           shape: BoxShape.circle,
                                           color: Colors.black),
                                       child: SvgPicture.asset(
-                                        'asset/images/${dateWiseIncomeTransaction[index].transactions![index1].cat_icon}.svg',
+                                        'asset/images/${dateWiseIncomeTransaction[index]
+                                            .transactions![index1]
+                                            .cat_icon}.svg',
                                         color: dateWiseIncomeTransaction[index]
                                             .transactions![index1]
                                             .cat_color,
@@ -1314,7 +1324,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           dateWiseIncomeTransaction[index]
@@ -1322,7 +1332,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                               .cat_name!,
                                           style: TextStyle(
                                               color:
-                                                  Helper.getTextColor(context),
+                                              Helper.getTextColor(context),
                                               fontSize: 16),
                                         ),
                                         Text(
@@ -1331,7 +1341,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                               .description!,
                                           style: TextStyle(
                                               color:
-                                                  Helper.getTextColor(context),
+                                              Helper.getTextColor(context),
                                               fontSize: 14),
                                         )
                                       ],
@@ -1341,7 +1351,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        "+${AppConstanst.currencySymbol}${dateWiseIncomeTransaction[index].transactions![index1].amount}",
+                                        "+${AppConstanst
+                                            .currencySymbol}${dateWiseIncomeTransaction[index]
+                                            .transactions![index1].amount}",
                                         style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 16),
@@ -1378,11 +1390,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                width: double.maxFinite,
+                  width: double.maxFinite,
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                          const BorderRadius.all(Radius.circular(10))),
+                      const BorderRadius.all(Radius.circular(10))),
                   child: Column(
                     children: [
                       20.heightBox,
@@ -1405,7 +1417,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               Navigator.of(context, rootNavigator: true)
                                   .push(
                                 MaterialPageRoute(
-                                    builder: (context) => AddSpendingScreen(
+                                    builder: (context) =>
+                                        AddSpendingScreen(
                                           transactionName: AppConstanst
                                               .incomeTransactionName,
                                         )),
@@ -1426,7 +1439,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(10))),
+                                  BorderRadius.all(Radius.circular(10))),
                               child: Text(
                                 LocaleKeys.addIncome.tr,
                                 style: const TextStyle(
@@ -1462,10 +1475,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   Widget _spendingView() {
     bool currentEmail = userEmail.isNotEmpty
         ? userEmail == currentUserEmail
-            ? true
-            : userAccess == AppConstanst.editAccess
-                ? true
-                : false
+        ? true
+        : userAccess == AppConstanst.editAccess
+        ? true
+        : false
         : true;
     return SingleChildScrollView(
       child: Column(
@@ -1506,7 +1519,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 color: Colors.grey, fontSize: 14),
                           ),
                           Text(
-                            "-${AppConstanst.currencySymbol}${dateWiseSpendingTransaction[index].transactionTotal}",
+                            "-${AppConstanst
+                                .currencySymbol}${dateWiseSpendingTransaction[index]
+                                .transactionTotal}",
                             style: const TextStyle(
                                 color: Colors.pink, fontSize: 14),
                           ),
@@ -1546,11 +1561,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                           shape: BoxShape.circle,
                                           color: Colors.black),
                                       child: SvgPicture.asset(
-                                        'asset/images/${dateWiseSpendingTransaction[index].transactions![index1].cat_icon}.svg',
+                                        'asset/images/${dateWiseSpendingTransaction[index]
+                                            .transactions![index1]
+                                            .cat_icon}.svg',
                                         color:
-                                            dateWiseSpendingTransaction[index]
-                                                .transactions![index1]
-                                                .cat_color,
+                                        dateWiseSpendingTransaction[index]
+                                            .transactions![index1]
+                                            .cat_color,
                                         width: 24,
                                         height: 24,
                                       ),
@@ -1560,7 +1577,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           dateWiseSpendingTransaction[index]
@@ -1568,7 +1585,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                               .cat_name!,
                                           style: TextStyle(
                                               color:
-                                                  Helper.getTextColor(context),
+                                              Helper.getTextColor(context),
                                               fontSize: 16),
                                         ),
                                         Text(
@@ -1577,7 +1594,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                               .description!,
                                           style: TextStyle(
                                               color:
-                                                  Helper.getTextColor(context),
+                                              Helper.getTextColor(context),
                                               fontSize: 14),
                                         )
                                       ],
@@ -1587,7 +1604,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        "-${AppConstanst.currencySymbol}${dateWiseSpendingTransaction[index].transactions![index1].amount}",
+                                        "-${AppConstanst
+                                            .currencySymbol}${dateWiseSpendingTransaction[index]
+                                            .transactions![index1].amount}",
                                         style: TextStyle(
                                             color: Helper.getTextColor(context),
                                             fontSize: 16),
@@ -1624,11 +1643,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                width: double.maxFinite,
+                  width: double.maxFinite,
                   decoration: BoxDecoration(
                       color: Helper.getCardColor(context),
                       borderRadius:
-                          const BorderRadius.all(Radius.circular(10))),
+                      const BorderRadius.all(Radius.circular(10))),
                   child: Column(
                     children: [
                       20.heightBox,
@@ -1651,7 +1670,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               Navigator.of(context, rootNavigator: true)
                                   .push(
                                 MaterialPageRoute(
-                                    builder: (context) => AddSpendingScreen(
+                                    builder: (context) =>
+                                        AddSpendingScreen(
                                           transactionName: AppConstanst
                                               .spendingTransactionName,
                                         )),
@@ -1672,7 +1692,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(10))),
+                                  BorderRadius.all(Radius.circular(10))),
                               child: Text(
                                 LocaleKeys.addSpending.tr,
                                 style: const TextStyle(

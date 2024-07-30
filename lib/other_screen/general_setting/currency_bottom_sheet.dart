@@ -134,7 +134,8 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
     );
   }
 
-  Future<void> getCurrencyTypes() async {
+  ///OLD
+ /* Future<void> getCurrencyTypes() async {
     try {
       List<CurrencyCategory> currencyTypeList =
           await databaseHelper.currencyMethods();
@@ -145,7 +146,23 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
       Helper.showToast(e.toString());
     }
   }
+*/
 
+  Future<void> getCurrencyTypes() async {
+    try {
+      List<CurrencyCategory> currencyTypeList =
+      await databaseHelper.currencyMethods();
+      setState(() {
+        currencyTypes = currencyTypeList;
+        if (cCode.isEmpty && currencyTypes.isNotEmpty) {
+          cCode = currencyTypes[0].currencyCode!;
+          cSymbol = currencyTypes[0].symbol!;
+        }
+      });
+    } catch (e) {
+      Helper.showToast(e.toString());
+    }
+  }
   @override
   void initState() {
     super.initState();
