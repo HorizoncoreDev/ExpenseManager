@@ -304,7 +304,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       child: InkWell(
                         onTap: () async {
                           await _logOutDialog(context);
-                          /*Navigator.pushReplacement(
+                        /*  Navigator.pushReplacement(
                                     context, MaterialPageRoute(builder: (context) => SignInScreen()));*/
                         },
                         child: Row(

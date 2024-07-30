@@ -120,6 +120,21 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           borderRadius: BorderRadius.circular(25)),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton2<String>(
+                          selectedItemBuilder: (BuildContext context) {
+                            return dropdownItems.map((item){
+                              return Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  item,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white, // Selected item text color
+                                  ),
+                                ),
+                              );
+                            }).toList();
+                          },
                           items: dropdownItems
                               .map((item) => DropdownMenuItem<String>(
                                     value: item,
@@ -127,13 +142,14 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                                       alignment: Alignment.center,
                                       child: Text(item,
                                           textAlign: TextAlign.center,
-                                          style: const TextStyle(
+                                          style:  TextStyle(
                                               fontSize: 14,
-                                              color: Colors.white)),
+                                              color: Helper.getTextColor(context))),
                                     ),
                                   ))
                               .toList(),
                           dropdownStyleData: DropdownStyleData(
+
                               decoration: BoxDecoration(
                                   color: Helper.getCardColor(context),
                                   borderRadius: BorderRadius.circular(8))),

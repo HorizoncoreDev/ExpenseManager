@@ -832,14 +832,16 @@ class OverviewScreenState extends State<OverviewScreen> {
                       SizedBox(
                         height: MediaQuery.of(context).size.height / 4.5,
                         width: MediaQuery.of(context).size.width / 2.4,
-                        child: PieChart(
-                          PieChartData(
-                            borderData: FlBorderData(
-                              show: false,
+                        child: Expanded(
+                          child: PieChart(
+                            PieChartData(
+                              borderData: FlBorderData(
+                                show: false,
+                              ),
+                              sectionsSpace: 0,
+                              centerSpaceRadius: 40,
+                              sections: showingIncomeSections(),
                             ),
-                            sectionsSpace: 0,
-                            centerSpaceRadius: 40,
-                            sections: showingIncomeSections(),
                           ),
                         ),
                       ),
@@ -1307,14 +1309,16 @@ class OverviewScreenState extends State<OverviewScreen> {
                       SizedBox(
                         height: MediaQuery.of(context).size.height / 4.5,
                         width: MediaQuery.of(context).size.width / 2.4,
-                        child: PieChart(
-                          PieChartData(
-                            borderData: FlBorderData(
-                              show: false,
+                        child: Expanded(
+                          child: PieChart(
+                            PieChartData(
+                              borderData: FlBorderData(
+                                show: false,
+                              ),
+                              sectionsSpace: 0,
+                              centerSpaceRadius: 40,
+                              sections: showingSpendingSections(),
                             ),
-                            sectionsSpace: 0,
-                            centerSpaceRadius: 40,
-                            sections: showingSpendingSections(),
                           ),
                         ),
                       ),

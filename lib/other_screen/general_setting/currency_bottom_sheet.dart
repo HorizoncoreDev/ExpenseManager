@@ -64,18 +64,12 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
               itemCount: currencyTypes.length,
               itemBuilder: (BuildContext context, int index) {
                 final CurrencyCategory currencyCategory = currencyTypes[index];
-                AppConstanst.setCurrency =
-                    AppConstanst.currencyCode == currencyCategory.currencyCode;
-                ;
                 return ListTile(
                   title: Text(currencyCategory.currencyCode.toString()),
                   onTap: () {
                     setState(() {
                       cCode = currencyCategory.currencyCode!;
                       cSymbol = currencyCategory.symbol!;
-                      AppConstanst.currencyCode =
-                          currencyCategory.currencyCode!;
-                      AppConstanst.currencySymbol = currencyCategory.symbol!;
                     });
                   },
                   trailing: cCode == currencyCategory.currencyCode
@@ -106,7 +100,7 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
                         .getProfileData(userEmail)
                         .then((profileData) async {
                       profileData!.currency_code = cCode;
-                      profileData!.currency_symbol = cSymbol;
+                      profileData.currency_symbol = cSymbol;
                       await DatabaseHelper.instance
                           .updateProfileData(profileData);
                     });
@@ -124,7 +118,7 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
                     borderRadius: BorderRadius.all(Radius.circular(10))),
                 child: Text(
                   LocaleKeys.update.tr,
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             ),
@@ -137,14 +131,30 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
   Future<void> getCurrencyTypes() async {
     try {
       List<CurrencyCategory> currencyTypeList =
-          await databaseHelper.currencyMethods();
+      await databaseHelper.currencyMethods();
+      setState(() {
+        currencyTypes = currencyTypeList;
+        if (cCode.isEmpty && currencyTypes.isNotEmpty) {
+          cCode = currencyTypes[0].currencyCode!;
+          cSymbol = currencyTypes[0].symbol!;
+        }
+      });
+    } catch (e) {
+      Helper.showToast(e.toString());
+    }
+  }
+
+ /* Future<void> getCurrencyTypes() async {
+    try {
+      List<CurrencyCategory> currencyTypeList =
+      await databaseHelper.currencyMethods();
       setState(() {
         currencyTypes = currencyTypeList;
       });
     } catch (e) {
       Helper.showToast(e.toString());
     }
-  }
+  }*/
 
   @override
   void initState() {
@@ -158,4 +168,5 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
     });
     getCurrencyTypes();
   }
+
 }

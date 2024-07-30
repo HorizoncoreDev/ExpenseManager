@@ -110,8 +110,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
                         await DatabaseHelper.instance
                             .updateProfileData(profileData);
-
-
                         MySharedPreferences.instance.addBoolToSF(
                             SharedPreferencesKeys.isBudgetAdded, true);
                         Navigator.pushAndRemoveUntil(
