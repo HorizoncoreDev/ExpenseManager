@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:expense_manager/utils/extensions.dart';
 import 'package:expense_manager/utils/helper.dart';
 import 'package:expense_manager/utils/languages/locale_keys.g.dart';
 import 'package:expense_manager/utils/my_shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -45,8 +48,8 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   String key = '';
   String userCode = '';
   String fcmToken = '';
-
   String accountKey = '';
+  AccountsModel accountModel = AccountsModel();
 
   @override
   Widget build(BuildContext context) {
@@ -391,8 +394,10 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
 
   Future<void> getProfileData() async {
     try {
+    //ProfileModel? fetchedProfileData = await getProfileDataFromFirebase(key);
       ProfileModel? fetchedProfileData =
-          await databaseHelper.getProfileData(userEmail);
+      await databaseHelper.getProfileData(userEmail);
+
 
       if (fetchedProfileData != null) {
         setState(() {
@@ -420,6 +425,28 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
       setState(() {});
     }
   }
+
+  /*Future<ProfileModel?> getProfileDataFromFirebase(String key) async {
+      ProfileModel? profileData;
+      final reference = FirebaseDatabase.instance.reference().child(profile_table).child(key);
+  //    final reference = FirebaseDatabase.instance.reference().child(profile_table).equalTo( accountKey);
+      Completer<ProfileModel?> completer = Completer();
+        reference.onValue.listen((event) {
+          DataSnapshot dataSnapshot = event.snapshot;
+          if (event.snapshot.exists) {
+            Map<dynamic, dynamic> values =
+            dataSnapshot.value as Map<dynamic, dynamic>;
+            values.forEach((key, value) {
+              profileData = ProfileModel.fromMap(value);
+              completer.complete(profileData);
+            });
+          } else {
+            completer.complete(null);
+          }
+        });
+        return completer.future;
+       }*/
+
 
   String getShortName(String name, String name1) {
     String firstStr = name.split(" ").first;
@@ -506,4 +533,5 @@ class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
         RegExp(r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$");
     return emailRegex.hasMatch(email);
   }
+
 }

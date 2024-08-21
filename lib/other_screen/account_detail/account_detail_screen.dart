@@ -453,7 +453,6 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
         fullName = "${profileData!.first_name!} ${profileData!.last_name!}";
         email = profileData!.email!;
         userCode = profileData!.user_code!;
-
         dob = profileData!.dob!;
         selectedValue =
             profileData!.gender == "" ? 'Female' : profileData!.gender!;

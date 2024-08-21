@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../db_models/profile_model.dart';
 import '../db_models/request_model.dart';
 import '../db_models/transaction_model.dart';
 import '../other_screen/other_screen.dart';
@@ -51,6 +52,7 @@ class OverviewScreenState extends State<OverviewScreen> {
   AccountsModel accountModel = AccountsModel();
   late List<AccountsModel?> accountsList = [];
   AccountsModel? accountsModel;
+  ProfileModel? profileData;
 
   String ownerKey = "";
   int? selectedIndex = -1;
@@ -421,6 +423,23 @@ class OverviewScreenState extends State<OverviewScreen> {
       }
     });
   }
+
+  /*getProfileData() async {
+    try {
+      ProfileModel? fetchedProfileData = await databaseHelper.getProfileData(currentUserKey);
+
+      if (fetchedProfileData != null) {
+        setState(() {
+          profileData = fetchedProfileData;
+          currentBalance = profileData!.current_balance! as int;
+          currentIncome = profileData!.current_income as int;
+          actualBudget = profileData!.actual_budget! as int;
+        });
+      }
+    } catch (error) {
+      print('Error fetching Profile Data: $error');
+    }
+  }*/
 
   getTransactions() async {
     if (isSkippedUser) {
@@ -1992,7 +2011,6 @@ class OverviewScreenState extends State<OverviewScreen> {
           );
           fetchedAccountsList.add(accountsModel);
         });
-
         setState(() {
           accountsList = fetchedAccountsList;
         });
@@ -2004,4 +2022,5 @@ class OverviewScreenState extends State<OverviewScreen> {
     } catch (error) {
       print('Error fetching Account Data: $error');
     }
-  }}
+  }
+}

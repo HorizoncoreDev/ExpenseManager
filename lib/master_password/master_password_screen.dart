@@ -20,6 +20,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../db_models/profile_model.dart';
@@ -40,7 +41,7 @@ class MasterPasswordDialog {
   String fileName = "";
   String userEmail = "", currentUserEmail = "";
   List<TransactionModel> transactions = [];
-  // ProfileModel profileModel = ProfileModel();
+  //ProfileModel profileModel = ProfileModel();
 
   Future<void> showMasterPasswordDialog({required BuildContext context, required bool export, required String backupType}) async {
     MySharedPreferences.instance.getBoolValuesSF(
@@ -172,7 +173,8 @@ class MasterPasswordDialog {
                               if(export){
                                 Navigator.pop(context);
                                 if(backupType == "CSV"){
-                                  exportCSVFile(userEmail);
+                                  exportCSVFile(context,
+                                      userEmail);
                                 }
                                 else if(backupType == "DRIVE"){
                                   exportFileOnDrive(context);
@@ -247,7 +249,7 @@ class MasterPasswordDialog {
         .set({'master_password': encryptedPassword});
   }
 
-  void exportCSVFile(String userEmail) async {
+  /*void exportCSVFile(String userEmail) async {
     String csvData = await DatabaseHelper.exportAllToCSV(userEmail);
 
     if(csvData.isNotEmpty){
@@ -278,6 +280,50 @@ class MasterPasswordDialog {
         Helper.showToast('${LocaleKeys.csvExportedTo.tr} $filePath');
         print("file path $filePath");
       }
+    }
+  }*/
+
+  Future<Map<String, String?>> exportCSVFile(BuildContext context, String userEmail) async {
+    try {
+      // Export CSV data from the database
+      String csvData = await DatabaseHelper.exportAllToCSV(userEmail);
+
+      // Retrieve the user's name
+      String name = "";
+      String? value = await MySharedPreferences.instance
+          .getStringValuesSF(SharedPreferencesKeys.userName);
+
+      if (value != null) {
+        List<String> names = value.split(" ");
+        name = names.isNotEmpty ? names[0].toLowerCase() : "";
+      }
+
+      // Generate file name and path
+      String date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      final Directory? directory = await getExternalStorageDirectory();
+
+      if (directory == null) {
+        Helper.showToast('Unable to access storage directory.');
+        return {};
+      }
+
+      String filePath = '/storage/emulated/0/Download/${name}_$date.csv';
+      final File file = File(filePath);
+
+      // Write CSV data to file
+      await file.writeAsString(csvData);
+
+      // Notify the user about the export
+      Helper.showToast('${LocaleKeys.csvExportedTo.tr} $filePath');
+      print("file path $filePath");
+
+      // Return the file path and file ID
+      return {"path": filePath, "fileId": fileId};
+    } catch (e) {
+      // Handle any errors that occur
+      Helper.showToast('An error occurred: $e');
+      print("Error: $e");
+      return {};
     }
   }
 
@@ -346,7 +392,6 @@ class MasterPasswordDialog {
     }
   }
 
-
   void addDataIntoTransactionTable(BuildContext context) async {
     List<TransactionModel> importTransactionListData = [];
     int currentBalance=0;
@@ -378,57 +423,57 @@ class MasterPasswordDialog {
           continue;
         }
         else {*/
-          if (transactionType == AppConstanst.spendingTransaction) {
-            currentBalance = currentBalance + amount;
-          } else {
-            currentIncome = currentIncome + amount;
-          }
-          int? catIds = await DatabaseHelper().getCategoryID(
-              categoryName, categoryType, transactionType);
-          String? catIcon = await DatabaseHelper().getCategoryIcon(
-              catIds!, /*categoryName*/ categoryType, transactionType);
-
-          TransactionModel transactionModel = TransactionModel(
-            key: transactionKey,
-            member_key: importEmail,
-            amount: amount,
-            expense_cat_id: categoryType == 0 && transactionType == 1
-                ? catIds
-                : -1,
-            sub_expense_cat_id: categoryType == 1 && transactionType == 1
-                ? catIds
-                : -1,
-            income_cat_id: categoryType == 0 && transactionType == 2
-                ? catIds
-                : -1,
-            sub_income_cat_id: categoryType == 1 && transactionType == 2
-                ? catIds
-                : -1,
-            cat_name: categoryName,
-            cat_type: categoryType,
-            cat_color: Colors.blueAccent,
-            cat_icon: catIcon ?? "ic_card",
-            payment_method_id: data[i][4] == "Cash" ? 1
-                : data[i][4] == "Online" ? 2
-                : data[i][4] == "Card" ? 3
-                : 1,
-            payment_method_name: data[i][4],
-            status: 1,
-            transaction_date: data[i][5].toString(),
-            transaction_type: transactionType,
-            description: data[i][7].toString(),
-            currency_id: AppConstanst.rupeesCurrency,
-            receipt_image1: data[i][8].toString() ?? "",
-            receipt_image2: data[i][9].toString() ?? "",
-            receipt_image3: data[i][10].toString() ?? "",
-            created_at: DateTime.now().toString(),
-            last_updated: DateTime.now().toString(),
-          );
-          importTransactionListData.add(transactionModel);
-
-          print("Data is inserted");
-          print("list is this ${importTransactionListData.length}");
+        if (transactionType == AppConstanst.spendingTransaction) {
+          currentBalance = currentBalance + amount;
+        } else {
+          currentIncome = currentIncome + amount;
         }
+        int? catIds = await DatabaseHelper().getCategoryID(
+            categoryName, categoryType, transactionType);
+        String? catIcon = await DatabaseHelper().getCategoryIcon(
+            catIds, /*categoryName*/ categoryType, transactionType);
+
+        TransactionModel transactionModel = TransactionModel(
+          key: transactionKey,
+          member_key: importEmail,
+          amount: amount,
+          expense_cat_id: categoryType == 0 && transactionType == 1
+              ? catIds
+              : -1,
+          sub_expense_cat_id: categoryType == 1 && transactionType == 1
+              ? catIds
+              : -1,
+          income_cat_id: categoryType == 0 && transactionType == 2
+              ? catIds
+              : -1,
+          sub_income_cat_id: categoryType == 1 && transactionType == 2
+              ? catIds
+              : -1,
+          cat_name: categoryName,
+          cat_type: categoryType,
+          cat_color: Colors.blueAccent,
+          cat_icon: catIcon ?? "ic_card",
+          payment_method_id: data[i][4] == "Cash" ? 1
+              : data[i][4] == "Online" ? 2
+              : data[i][4] == "Card" ? 3
+              : 1,
+          payment_method_name: data[i][4],
+          status: 1,
+          transaction_date: data[i][5].toString(),
+          transaction_type: transactionType,
+          description: data[i][7].toString(),
+          currency_id: AppConstanst.rupeesCurrency,
+          receipt_image1: data[i][8].toString() ?? "",
+          receipt_image2: data[i][9].toString() ?? "",
+          receipt_image3: data[i][10].toString() ?? "",
+          created_at: DateTime.now().toString(),
+          last_updated: DateTime.now().toString(),
+        );
+        importTransactionListData.add(transactionModel);
+
+        print("Data is inserted");
+        print("list is this ${importTransactionListData.length}");
+      }
       // }
     }
     final reference = FirebaseDatabase.instance
@@ -448,32 +493,32 @@ class MasterPasswordDialog {
           await DatabaseHelper().insertMultipleTransactions(importTransactionListData,value['key'],isSkippedUser);
           if (value != null) {
             if (isSkippedUser) {
-                MySharedPreferences.instance
-                    .getStringValuesSF(
-                    SharedPreferencesKeys.skippedUserCurrentBalance)
-                    .then((value) {
-                  if (value != null) {
-                    String updateBalance =
-                    (int.parse(value) - currentBalance)
-                        .toString();
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.skippedUserCurrentBalance,
-                        updateBalance);
-                  }
-                });
-                MySharedPreferences.instance
-                    .getStringValuesSF(
-                    SharedPreferencesKeys.skippedUserCurrentIncome)
-                    .then((value) {
-                  if (value != null) {
-                    String updateBalance =
-                    (int.parse(value) + currentIncome)
-                        .toString();
-                    MySharedPreferences.instance.addStringToSF(
-                        SharedPreferencesKeys.skippedUserCurrentIncome,
-                        updateBalance);
-                  }
-                });
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                  SharedPreferencesKeys.skippedUserCurrentBalance)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance =
+                  (int.parse(value) - currentBalance)
+                      .toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentBalance,
+                      updateBalance);
+                }
+              });
+              MySharedPreferences.instance
+                  .getStringValuesSF(
+                  SharedPreferencesKeys.skippedUserCurrentIncome)
+                  .then((value) {
+                if (value != null) {
+                  String updateBalance =
+                  (int.parse(value) + currentIncome)
+                      .toString();
+                  MySharedPreferences.instance.addStringToSF(
+                      SharedPreferencesKeys.skippedUserCurrentIncome,
+                      updateBalance);
+                }
+              });
             }
             else {
               profileModel.current_balance =
@@ -493,6 +538,7 @@ class MasterPasswordDialog {
       }
     });
   }
+
   void createMP(BuildContext context, void Function(void Function() p1) setState) {
     showDialog(
       context: context,
@@ -509,7 +555,7 @@ class MasterPasswordDialog {
                   maxLength: 8,
                   minLines: 1,
                   decoration: InputDecoration(
-                    counterText: ""
+                      counterText: ""
                   ),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(5),
@@ -585,4 +631,5 @@ class MasterPasswordDialog {
       },
     );
   }
+
 }

@@ -1593,6 +1593,7 @@ class DatabaseHelper {
       }
       });
 return completer.future;*/
+
   }
 
   Future<List<ProfileModel>> getProfileDataList() async {
@@ -2164,54 +2165,54 @@ return completer.future;*/
    ''');
   }
 
-  static Future<String> exportAllToCSV(String userEmail) async {
-    String csv = "";
+    static Future<String> exportAllToCSV(String userEmail) async {
+      String csv = "";
 
-    final firebaseTask = await getFirebaseTasks(userEmail);
-    Map<String, List<TransactionModel>> accountData = {};
-    for (var task in firebaseTask) {
-      accountData.putIfAbsent(task.member_key!, () => []).add(task);
-    }
-
-    for (var entry in accountData.entries) {
-      List<List<dynamic>> rows = [
-        [
-          'member_email',
-          'amount',
-          'cat_name',
-          'cat_type',
-          'payment_method_name',
-          'transaction_date',
-          'transaction_type',
-          'description',
-          'receipt_image1',
-          'receipt_image2',
-          'receipt_image3',
-          'transaction_key'
-        ]
-      ];
-
-      /// Add transaction data
-      for (var task in entry.value) {
-        rows.add([
-          task.member_key,
-          task.amount,
-          task.cat_name,
-          task.cat_type,
-          task.payment_method_name,
-          task.transaction_date,
-          task.transaction_type,
-          task.description ?? "",
-          task.receipt_image1 ?? "",
-          task.receipt_image2 ?? "",
-          task.receipt_image2 ?? "",
-          task.key ?? ""
-        ]);
+      final firebaseTask = await getFirebaseTasks(userEmail);
+      Map<String, List<TransactionModel>> accountData = {};
+      for (var task in firebaseTask) {
+        accountData.putIfAbsent(task.member_key!, () => []).add(task);
       }
-      csv = const ListToCsvConverter().convert(rows);
+
+      for (var entry in accountData.entries) {
+        List<List<dynamic>> rows = [
+          [
+            'member_email',
+            'amount',
+            'cat_name',
+            'cat_type',
+            'payment_method_name',
+            'transaction_date',
+            'transaction_type',
+            'description',
+            'receipt_image1',
+            'receipt_image2',
+            'receipt_image3',
+            'transaction_key'
+          ]
+        ];
+
+        /// Add transaction data
+        for (var task in entry.value) {
+          rows.add([
+            task.member_key,
+            task.amount,
+            task.cat_name,
+            task.cat_type,
+            task.payment_method_name,
+            task.transaction_date,
+            task.transaction_type,
+            task.description ?? "",
+            task.receipt_image1 ?? "",
+            task.receipt_image2 ?? "",
+            task.receipt_image2 ?? "",
+            task.key ?? ""
+          ]);
+        }
+        csv = const ListToCsvConverter().convert(rows);
+      }
+      return csv;
     }
-    return csv;
-  }
 
   Future<AccountsModel?> getAccountData(String accountKey) async {
     Database db = await database;
@@ -2243,7 +2244,7 @@ return completer.future;*/
       );
     }
 
-    // await db.insert(accounts_table, accountsModel.toMap());
+    //await db.insert(accounts_table, accountsModel.toMap());
   }
 
   Future<void> updateAddedAccountData(AccountsModel accountsModel) async {
@@ -2435,7 +2436,7 @@ return completer.future;*/
     return completer.future;
   }
 
-  static Future<List<TransactionModel>> getFirebaseTasks(
+  /*static Future<List<TransactionModel>> getFirebaseTasks(
       String userEmail) async {
     Completer<List<TransactionModel>> completer =
     Completer<List<TransactionModel>>();
@@ -2455,19 +2456,43 @@ return completer.future;*/
       completer.complete(transactions);
     });
     return completer.future;
+  }*/
+
+  static Future<List<TransactionModel>> getFirebaseTasks(String userEmail) async {
+    Completer<List<TransactionModel>> completer = Completer<List<TransactionModel>>();
+    List<TransactionModel> transactions = [];
+    final reference = FirebaseDatabase.instance
+        .ref()
+        .child(transaction_table)
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .orderByChild(TransactionFields.account_key)
+        .equalTo(userEmail);
+
+    reference.once().then((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      if (dataSnapshot.value != null) {
+        final tasks = dataSnapshot.value as Map<dynamic, dynamic>;
+        tasks.forEach((key, value) async {
+          transactions.add(TransactionModel.fromMapForCSV(value));
+        });
+      }
+      completer.complete(transactions);
+    }).catchError((error) {
+      completer.completeError(error);
+    });
+
+    return completer.future;
   }
 
   static Future<List<TransactionModel>> getTransactionsForEmail(
       String accountKey) async {
-    Completer<List<TransactionModel>> completer =
-    Completer<List<TransactionModel>>();
+    Completer<List<TransactionModel>> completer = Completer<List<TransactionModel>>();
     List<TransactionModel> transactions = [];
     final reference = FirebaseDatabase.instance
         .ref()
         .child(transaction_table)
         .orderByChild(TransactionFields.account_key)
         .equalTo(accountKey);
-
     reference.once().then((event) {
       if (event.snapshot.exists) {
         Map<dynamic, dynamic>? values =
