@@ -91,7 +91,7 @@ class MasterPasswordDialog {
                 child: ListBody(
                   children: <Widget>[
                     CustomBoxTextFormField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           counterText: ""
                       ),
                       controller: masterPasswordController,

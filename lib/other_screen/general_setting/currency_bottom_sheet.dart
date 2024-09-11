@@ -64,9 +64,7 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
               itemCount: currencyTypes.length,
               itemBuilder: (BuildContext context, int index) {
                 final CurrencyCategory currencyCategory = currencyTypes[index];
-                AppConstanst.setCurrency =
-                    AppConstanst.currencyCode == currencyCategory.currencyCode;
-                ;
+                AppConstanst.setCurrency = AppConstanst.currencyCode == currencyCategory.currencyCode;
                 return ListTile(
                   title: Text(currencyCategory.currencyCode.toString()),
                   onTap: () {
@@ -78,8 +76,7 @@ class _CurrencyBottomSheetState extends State<CurrencyBottomSheet> {
                       AppConstanst.currencySymbol = currencyCategory.symbol!;
                     });
                   },
-                  trailing: cCode == currencyCategory.currencyCode
-                      ? const Icon(Icons.check)
+                  trailing: cCode == currencyCategory.currencyCode ? const Icon(Icons.check)
                       : null,
                 );
               },

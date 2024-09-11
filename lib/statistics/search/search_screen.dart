@@ -692,8 +692,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 vertical: 5, horizontal: 10),
                             decoration: const BoxDecoration(
                                 color: Colors.blue,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
+                                borderRadius: BorderRadius.all(Radius.circular(5))),
                             child: Text(
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,

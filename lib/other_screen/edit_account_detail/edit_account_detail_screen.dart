@@ -26,7 +26,6 @@ class EditAccountDetailScreen extends StatefulWidget {
 class _EditAccountDetailScreenState extends State<EditAccountDetailScreen> {
   DatabaseHelper helper = DatabaseHelper();
   final databaseHelper = DatabaseHelper.instance;
-
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();

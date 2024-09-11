@@ -206,7 +206,6 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
               ),*/
               10.widthBox,
             ],
-
           ),
           body: Container(
             width: double.maxFinite,

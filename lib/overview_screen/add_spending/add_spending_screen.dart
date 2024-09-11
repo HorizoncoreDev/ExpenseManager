@@ -1681,8 +1681,8 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                           if (wasSynchronouslyLoaded) {
                             return child;
                           } else {
-                            return Padding(
-                              padding: const EdgeInsets.all(3.0),
+                            return const Padding(
+                              padding: EdgeInsets.all(3.0),
                               child: Center(
                                   child: CircularProgressIndicator(
                                 color: Colors.blue,

@@ -153,7 +153,6 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     showSwitchAccountDialog(accessRequestList);
                                   });
 */
-
                                 },
                                 child: const Icon(
                                   Icons.switch_account,
@@ -182,7 +181,7 @@ class OverviewScreenState extends State<OverviewScreen> {
                                     .push(
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          const OtherScreen()),)
+                                          const OtherScreen()))
                                     .then((value) {
                                   widget.onAccountUpdate();
                                   MySharedPreferences.instance
@@ -406,7 +405,6 @@ class OverviewScreenState extends State<OverviewScreen> {
         .child(currentUserKey)
         .orderByChild(AccountTableFields.key)
         .equalTo(currentAccountKey);
-
     reference.onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       if (event.snapshot.exists) {
